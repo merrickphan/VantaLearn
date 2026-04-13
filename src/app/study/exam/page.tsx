@@ -13,6 +13,7 @@ function ExamPlayer() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const ai = searchParams.get("ai") === "1";
+  const proceduralOnly = searchParams.get("procedural") === "1";
   const subject = searchParams.get("subject")?.trim() || "";
   const topic = searchParams.get("topic")?.trim() || "";
   const unitId = searchParams.get("unit")?.trim() || "";
@@ -41,7 +42,14 @@ function ExamPlayer() {
     } catch {
       /* use raw */
     }
-    return <AiExamSession subject={subj} topic={top || undefined} unitId={unitId || undefined} />;
+    return (
+      <AiExamSession
+        subject={subj}
+        topic={top || undefined}
+        unitId={unitId || undefined}
+        proceduralOnly={proceduralOnly}
+      />
+    );
   }
 
   const resource = SAMPLE_RESOURCES.find((r) => r.id === id && r.type === "practice_exam");
