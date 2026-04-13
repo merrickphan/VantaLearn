@@ -27,9 +27,10 @@ function mc(
   w2: string,
   w3: string,
   explanation: string,
+  figure?: ExamQuestion["figure"],
 ): ExamQuestion {
   const options = shuffleInPlace(rng, [correct, w1, w2, w3]);
-  return {
+  const base: ExamQuestion = {
     id: idFor(ctx, i, tag),
     question: stem,
     type: "multiple_choice",
@@ -38,6 +39,7 @@ function mc(
     explanation,
     subject: ctx.courseName,
   };
+  return figure ? { ...base, figure } : base;
 }
 
 /* ——— Calculus / precalc / stats ——— */
@@ -166,6 +168,58 @@ export function genZScoreConcept(rng: () => number, ctx: ProcCtx, i: number): Ex
   );
 }
 
+export function genStatsBarChartMode(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "st-bar",
+    "The bar chart shows counts by favorite snack in a class. Which snack was chosen most often?",
+    "Chips",
+    "Fruit",
+    "Granola",
+    "Yogurt",
+    `The tallest bar corresponds to the mode for this categorical variable.`,
+    {
+      kind: "bar_chart",
+      title: "Favorite snack (counts in a sample)",
+      yLabel: "Number of students",
+      bars: [
+        { label: "Granola", value: 4 },
+        { label: "Yogurt", value: 7 },
+        { label: "Chips", value: 12 },
+        { label: "Fruit", value: 9 },
+      ],
+    },
+  );
+}
+
+export function genStatsExamLineTrend(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "st-line",
+    "The line chart shows mean exam score over four tests. Which test had the highest mean score?",
+    "Test C",
+    "Test A",
+    "Test B",
+    "Test D",
+    `Read the y-values at each test; Test C has the maximum.`,
+    {
+      kind: "line_chart",
+      title: "Mean exam score over four tests",
+      yLabel: "Score",
+      points: [
+        { x: "Test A", y: 72 },
+        { x: "Test B", y: 78 },
+        { x: "Test C", y: 91 },
+        { x: "Test D", y: 84 },
+      ],
+    },
+  );
+}
+
 /* ——— Computer science ——— */
 
 export function genBigO(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
@@ -254,6 +308,32 @@ export function genEnergyKE(rng: () => number, ctx: ProcCtx, i: number): ExamQue
   );
 }
 
+export function genPhysVelocityBarFig(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "ph-vbar",
+    "The bar chart shows the magnitude of a cart’s velocity at equal time intervals. At which labeled time is speed greatest?",
+    "3 s",
+    "1 s",
+    "2 s",
+    "4 s",
+    `Compare bar heights; the largest value indicates the highest speed.`,
+    {
+      kind: "bar_chart",
+      title: "Speed magnitude at 1 s intervals",
+      yLabel: "Speed (m/s)",
+      bars: [
+        { label: "1 s", value: 2 },
+        { label: "2 s", value: 5 },
+        { label: "3 s", value: 9 },
+        { label: "4 s", value: 6 },
+      ],
+    },
+  );
+}
+
 export function genCoulombConcept(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
   return mc(
     rng,
@@ -289,6 +369,32 @@ export function genMolarity(rng: () => number, ctx: ProcCtx, i: number): ExamQue
   );
 }
 
+export function genChemConcentrationBarFig(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "chem-bar",
+    "The bar chart shows concentration (M) for four solutions. Which solution is most concentrated?",
+    "Solution C",
+    "Solution A",
+    "Solution B",
+    "Solution D",
+    `The tallest bar corresponds to the highest molarity.`,
+    {
+      kind: "bar_chart",
+      title: "Solution concentration (M)",
+      yLabel: "Molarity (M)",
+      bars: [
+        { label: "Solution A", value: 0.4 },
+        { label: "Solution B", value: 0.9 },
+        { label: "Solution C", value: 1.6 },
+        { label: "Solution D", value: 0.7 },
+      ],
+    },
+  );
+}
+
 export function genPHScale(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
   return mc(
     rng,
@@ -316,6 +422,32 @@ export function genDNAbase(rng: () => number, ctx: ProcCtx, i: number): ExamQues
     "guanine",
     "uracil",
     `DNA uses A–T and G–C pairing (RNA uses A–U).`,
+  );
+}
+
+export function genBioSpeciesTableFig(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "bio-tbl",
+    "According to the table, which species had the greatest estimated population density (individuals per km²) in the sample plot?",
+    "Species B",
+    "Species A",
+    "Species C",
+    "Species D",
+    `Compare the density column and select the largest value.`,
+    {
+      kind: "table",
+      title: "Sample plot — species counts and area",
+      headers: ["Species", "Individuals", "Plot area (km²)", "Density (per km²)"],
+      rows: [
+        ["Species A", "24", "2", "12"],
+        ["Species B", "45", "2", "22.5"],
+        ["Species C", "18", "3", "6"],
+        ["Species D", "30", "5", "6"],
+      ],
+    },
   );
 }
 
@@ -366,6 +498,36 @@ export function genChecksBalances(rng: () => number, ctx: ProcCtx, i: number): E
   );
 }
 
+export function genSeparationOfPowers(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "sep",
+    "In the U.S. federal system, dividing lawmaking, enforcement, and adjudication across branches exemplifies",
+    "separation of powers",
+    "dual federalism only",
+    "unified sovereignty",
+    "judicial activism only",
+    `Different branches hold distinct core functions with checks between them.`,
+  );
+}
+
+export function genFederalismConcept(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "fed",
+    "A system where sovereignty is constitutionally divided between national and regional governments is called",
+    "federalism",
+    "unitary government only",
+    "confederation without enforcement",
+    "direct democracy",
+    `Federalism allocates authority across levels (U.S.: national + state).`,
+  );
+}
+
 export function genRegimeType(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
   return mc(
     rng,
@@ -378,6 +540,21 @@ export function genRegimeType(rng: () => number, ctx: ProcCtx, i: number): ExamQ
     "totalitarian",
     "theocratic",
     `Representative elections are a hallmark of democratic regimes (with definitional nuance).`,
+  );
+}
+
+export function genNationState(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "nat",
+    "A political unit recognized as having legitimate authority over a defined territory is commonly called a",
+    "state",
+    "regime type only",
+    "civil society",
+    "interest group",
+    `In comparative politics, “state” often denotes the organized political community with territorial sovereignty.`,
   );
 }
 
@@ -396,6 +573,159 @@ export function genMapScale(rng: () => number, ctx: ProcCtx, i: number): ExamQue
   );
 }
 
+export function genGeoDistanceDecay(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "dd",
+    "The idea that interaction between places weakens as the distance between them increases is known as",
+    "distance decay",
+    "possibilism",
+    "environmental determinism",
+    "core–periphery theory",
+    `Interaction typically tails off with distance (time and cost of movement).`,
+  );
+}
+
+export function genGeoRelocationDiffusion(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "reloc",
+    "The spread of an idea through the physical movement of people from one place to another is best described as",
+    "relocation diffusion",
+    "expansion diffusion",
+    "stimulus diffusion",
+    "hierarchical diffusion",
+    `Relocation diffusion moves with migrants or travelers.`,
+  );
+}
+
+export function genGeoPushPull(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "pp",
+    "A factory closing in a rural area, leading workers to leave, acts most directly as a",
+    "push factor",
+    "pull factor",
+    "migration selectivity",
+    "remittance flow",
+    `Push factors encourage people to leave an origin.`,
+  );
+}
+
+export function genGeoPrimateCity(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "prim",
+    "In a country where one city is vastly larger than the next-ranked cities, that dominant city is often called a",
+    "primate city",
+    "gateway city",
+    "boom town",
+    "exurb",
+    `The primate city pattern shows the largest city dramatically outranking others.`,
+  );
+}
+
+export function genGeoBidRent(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "bid",
+    "In the bid–rent model, land closest to the central business district (CBD) is typically bid highest by",
+    "retail and office uses",
+    "extensive grain farming",
+    "subsistence herding",
+    "forestry",
+    `High accessibility near the CBD supports intensive, high-revenue land uses.`,
+  );
+}
+
+export function genGeoPopulationBarFig(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "geo-pbar",
+    "According to the bar chart, which urban area has the largest population shown?",
+    "River Delta Metro",
+    "Inland Hub",
+    "Coastal Port",
+    "Plateau Town",
+    `Compare bar heights to find the maximum.`,
+    {
+      kind: "bar_chart",
+      title: "Population of selected urban areas (millions)",
+      yLabel: "Millions",
+      bars: [
+        { label: "River Delta Metro", value: 18 },
+        { label: "Inland Hub", value: 9 },
+        { label: "Coastal Port", value: 6 },
+        { label: "Plateau Town", value: 2 },
+      ],
+    },
+  );
+}
+
+export function genGeoUrbanGrowthLineFig(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "geo-line",
+    "According to the line chart, in which period was urban growth (percentage change) fastest?",
+    "2010–2015",
+    "2000–2005",
+    "2005–2010",
+    "2015–2020",
+    `The steepest upward segment indicates the fastest growth rate.`,
+    {
+      kind: "line_chart",
+      title: "Urban population growth rate (% per period)",
+      yLabel: "% change",
+      points: [
+        { x: "2000–2005", y: 1.1 },
+        { x: "2005–2010", y: 1.4 },
+        { x: "2010–2015", y: 2.6 },
+        { x: "2015–2020", y: 1.8 },
+      ],
+    },
+  );
+}
+
+export function genGeoCropsTableFig(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "geo-tbl",
+    "According to the table, which crop had the highest national production (million metric tons) in Year 2?",
+    "Maize",
+    "Wheat",
+    "Rice",
+    "Barley",
+    `Read the Year 2 column and select the largest value.`,
+    {
+      kind: "table",
+      title: "Crop production (million metric tons) — sample country",
+      headers: ["Crop", "Year 1", "Year 2"],
+      rows: [
+        ["Wheat", "42", "48"],
+        ["Maize", "55", "71"],
+        ["Rice", "30", "33"],
+        ["Barley", "18", "20"],
+      ],
+    },
+  );
+}
+
 export function genWW2Turning(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
   return mc(
     rng,
@@ -408,6 +738,36 @@ export function genWW2Turning(rng: () => number, ctx: ProcCtx, i: number): ExamQ
     "Somme",
     "Waterloo",
     `The Battle of Stalingrad (1942–43) marked a major Soviet shift.`,
+  );
+}
+
+export function genPrintingPressSpread(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "print",
+    "The rapid spread of printed books in 15th–16th century Europe most strongly helped",
+    "diffuse religious and scientific ideas",
+    "end all regional wars",
+    "abolish feudalism overnight",
+    "isolate monasteries",
+    `Printing accelerated circulation of texts across regions.`,
+  );
+}
+
+export function genScrambleAfrica(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "berlin",
+    "The late 19th-century European partitioning of African territory is most associated with",
+    "the Berlin Conference (1884–85)",
+    "the Congress of Vienna",
+    "the Treaty of Versailles",
+    "the Yalta Conference",
+    `European powers met to set rules for African colonization.`,
   );
 }
 
@@ -442,6 +802,32 @@ export function genGDPdeflator(rng: () => number, ctx: ProcCtx, i: number): Exam
     "CPI / GDP",
     "Exports − Imports",
     `Deflator compares nominal output to real output.`,
+  );
+}
+
+export function genEconUnemploymentLineFig(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+  return mc(
+    rng,
+    ctx,
+    i,
+    "econ-un",
+    "According to the line chart, the unemployment rate was highest in",
+    "Q2",
+    "Q1",
+    "Q3",
+    "Q4",
+    `Identify which point has the maximum unemployment rate.`,
+    {
+      kind: "line_chart",
+      title: "Unemployment rate (%) by quarter",
+      yLabel: "Percent",
+      points: [
+        { x: "Q1", y: 4.2 },
+        { x: "Q2", y: 6.8 },
+        { x: "Q3", y: 5.1 },
+        { x: "Q4", y: 4.5 },
+      ],
+    },
   );
 }
 
@@ -601,70 +987,93 @@ const CALC: QuestionGen[] = [
   genCompositionValue,
   genTrigSpecial,
 ];
-const STATS: QuestionGen[] = [genMeanSimple, genZScoreConcept, genLimitLinear];
+
+/** Text-only stats items (safe to mix with calculus for numeric literacy). */
+const STATS_TEXT: QuestionGen[] = [genMeanSimple, genZScoreConcept];
+const STATS_FIG: QuestionGen[] = [genStatsBarChartMode, genStatsExamLineTrend];
+const STATS_FULL: QuestionGen[] = [...STATS_TEXT, ...STATS_FIG];
+
 const CS: QuestionGen[] = [genBigO, genLoopCount, genBooleanExpr];
 const PHYS_ALG: QuestionGen[] = [genKinematicsV, genEnergyKE];
 const PHYS_C: QuestionGen[] = [genKinematicsV, genEnergyKE, genCoulombConcept];
-const CHEM: QuestionGen[] = [genMolarity, genPHScale];
-const BIO: QuestionGen[] = [genDNAbase, genCarryingCapacity];
+const CHEM: QuestionGen[] = [genMolarity, genPHScale, genChemConcentrationBarFig];
+const BIO: QuestionGen[] = [genDNAbase, genCarryingCapacity, genBioSpeciesTableFig];
 const ENV: QuestionGen[] = [genCarryingCapacity, genPHScale];
-const HIST: QuestionGen[] = [genWW2Turning, genAmendmentFreeSpeech];
-const GOV: QuestionGen[] = [genAmendmentFreeSpeech, genChecksBalances];
-const COMP_GOV: QuestionGen[] = [genRegimeType, genChecksBalances];
-const GEO: QuestionGen[] = [genMapScale, genCarryingCapacity];
-const ECON: QuestionGen[] = [genOppCost, genGDPdeflator];
-const PSYCH: QuestionGen[] = [genNeuronPart, genOperant];
+
+const HIST_SHARED: QuestionGen[] = [genWW2Turning];
+const HIST_GLOBAL: QuestionGen[] = [genPrintingPressSpread, genScrambleAfrica];
+
+const GOV: QuestionGen[] = [
+  genAmendmentFreeSpeech,
+  genChecksBalances,
+  genSeparationOfPowers,
+  genFederalismConcept,
+];
+
+const COMP_GOV: QuestionGen[] = [genRegimeType, genChecksBalances, genNationState];
+
+const GEO: QuestionGen[] = [
+  genMapScale,
+  genGeoDistanceDecay,
+  genGeoRelocationDiffusion,
+  genGeoPushPull,
+  genGeoPrimateCity,
+  genGeoBidRent,
+  genGeoPopulationBarFig,
+  genGeoUrbanGrowthLineFig,
+  genGeoCropsTableFig,
+];
+
+const ECON: QuestionGen[] = [genOppCost, genGDPdeflator, genEconUnemploymentLineFig];
+
+const PSYCH: QuestionGen[] = [genNeuronPart, genOperant, genVariableControl];
+
 const ENG: QuestionGen[] = [genFallacy, genRhetoricalAppeal];
 const ART: QuestionGen[] = [genRenaissanceArt, genCadence];
 const LANG: QuestionGen[] = [genNumberPatternEs, genRhetoricalAppeal];
 const CAP: QuestionGen[] = [genCitationEthics, genVariableControl];
 
-const GENERIC: QuestionGen[] = [
-  genLimitLinear,
-  genMeanSimple,
-  genOppCost,
-  genVariableControl,
-  genFallacy,
-];
+/** Fallback when a catalog course is missing from the map — should not happen in normal use. */
+const DEFAULT_POOL: QuestionGen[] = [genFallacy, genRhetoricalAppeal];
 
 const COURSE_POOL: Record<string, QuestionGen[]> = {
-  "calc-ab": [...CALC, ...STATS, ...GENERIC],
-  "calc-bc": [...CALC, ...STATS, ...GENERIC],
-  precalc: [...CALC, genCompositionValue, genTrigSpecial, ...GENERIC],
-  stats: [...STATS, genMeanSimple, genZScoreConcept, ...GENERIC],
-  "cs-a": [...CS, ...GENERIC],
-  csp: [...CS, genVariableControl, ...GENERIC],
-  "physics-1": [...PHYS_ALG, ...GENERIC],
-  "physics-2": [...PHYS_ALG, genPHScale, ...GENERIC],
-  "physics-c-m": [...PHYS_C, ...GENERIC],
-  "physics-c-em": [...PHYS_C, ...GENERIC],
-  chem: [...CHEM, ...GENERIC],
-  bio: [...BIO, ...GENERIC],
-  env: [...ENV, ...GENERIC],
-  ush: [...HIST, ...GOV, ...GENERIC],
-  wh: [...HIST, ...GENERIC],
-  euro: [...HIST, ...GENERIC],
-  gov: [...GOV, ...GENERIC],
-  "comp-gov": [...COMP_GOV, ...GENERIC],
-  "hum-geo": [...GEO, ...GENERIC],
-  macro: [...ECON, ...GENERIC],
-  micro: [...ECON, ...GENERIC],
-  psych: [...PSYCH, ...GENERIC],
-  lang: [...ENG, ...GENERIC],
-  lit: [...ENG, ...GENERIC],
-  "art-hist": [...ART, ...GENERIC],
-  "art-design": [...ART, genCitationEthics, ...GENERIC],
-  music: [...ART, ...GENERIC],
-  spanish: [...LANG, ...GENERIC],
-  french: [...LANG, ...GENERIC],
-  german: [...LANG, ...GENERIC],
-  latin: [...ENG, genCitationEthics, ...GENERIC],
-  chinese: [...LANG, ...GENERIC],
-  japanese: [...LANG, ...GENERIC],
-  seminar: [...CAP, ...ENG, ...GENERIC],
-  research: [...CAP, ...GENERIC],
+  "calc-ab": [...CALC, ...STATS_TEXT],
+  "calc-bc": [...CALC, ...STATS_TEXT],
+  precalc: [...CALC, ...STATS_TEXT],
+  stats: STATS_FULL,
+  "cs-a": [...CS, genVariableControl],
+  csp: [...CS, genVariableControl],
+  "physics-1": [...PHYS_ALG, genVariableControl, genPhysVelocityBarFig],
+  "physics-2": [...PHYS_ALG, genPHScale, genVariableControl, genPhysVelocityBarFig],
+  "physics-c-m": [...PHYS_C, genVariableControl],
+  "physics-c-em": [...PHYS_C, genVariableControl],
+  chem: [...CHEM, genVariableControl],
+  bio: [...BIO, genVariableControl],
+  env: [...ENV, genVariableControl],
+  ush: [...HIST_SHARED, ...GOV],
+  wh: [...HIST_SHARED, ...HIST_GLOBAL],
+  euro: [...HIST_SHARED, ...HIST_GLOBAL],
+  gov: [...GOV],
+  "comp-gov": [...COMP_GOV],
+  "hum-geo": GEO,
+  macro: [...ECON],
+  micro: [...ECON],
+  psych: PSYCH,
+  lang: ENG,
+  lit: ENG,
+  "art-hist": ART,
+  "art-design": [...ART, genCitationEthics],
+  music: ART,
+  spanish: LANG,
+  french: LANG,
+  german: LANG,
+  latin: [...ENG, genCitationEthics],
+  chinese: LANG,
+  japanese: LANG,
+  seminar: [...CAP, ...ENG],
+  research: CAP,
 };
 
 export function getGeneratorsForCourse(courseId: string): QuestionGen[] {
-  return COURSE_POOL[courseId] ?? GENERIC;
+  return COURSE_POOL[courseId] ?? DEFAULT_POOL;
 }
