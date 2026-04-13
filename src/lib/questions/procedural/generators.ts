@@ -218,20 +218,20 @@ export function genCompositionValue(rng: () => number, ctx: ProcCtx, i: number):
 const TRIG_ROWS: { stem: string; c: string; w: [string, string, string]; ex: string }[] = [
  { stem: "sin(0) equals", c: "0", w: ["1", "-1", "1/2"], ex: "sin(0) = 0." },
  { stem: "cos(0) equals", c: "1", w: ["0", "-1", "1/2"], ex: "cos(0) = 1." },
- { stem: "sin(pi/2) equals", c: "1", w: ["0", "-1", "1/2"], ex: "sin(pi/2) = 1." },
- { stem: "cos(pi/2) equals", c: "0", w: ["1", "-1", "1/2"], ex: "cos(pi/2) = 0." },
- { stem: "sin(pi) equals", c: "0", w: ["1", "-1", "1/2"], ex: "sin(pi) = 0." },
- { stem: "cos(pi) equals", c: "-1", w: ["0", "1", "1/2"], ex: "cos(pi) = -1." },
- { stem: "sin(3pi/2) equals", c: "-1", w: ["0", "1", "1/2"], ex: "sin(3pi/2) = -1." },
- { stem: "cos(3pi/2) equals", c: "0", w: ["1", "-1", "1/2"], ex: "cos(3pi/2) = 0." },
- { stem: "sin(pi/6) equals", c: "1/2", w: ["sqrt(3)/2", "sqrt(2)/2", "1"], ex: "sin(pi/6) = 1/2." },
- { stem: "cos(pi/6) equals", c: "sqrt(3)/2", w: ["1/2", "sqrt(2)/2", "1"], ex: "cos(pi/6) = sqrt(3)/2." },
- { stem: "sin(pi/4) equals", c: "sqrt(2)/2", w: ["1/2", "sqrt(3)/2", "1"], ex: "sin(pi/4) = sqrt(2)/2." },
- { stem: "cos(pi/4) equals", c: "sqrt(2)/2", w: ["1/2", "sqrt(3)/2", "1"], ex: "cos(pi/4) = sqrt(2)/2." },
- { stem: "sin(pi/3) equals", c: "sqrt(3)/2", w: ["1/2", "sqrt(2)/2", "1"], ex: "sin(pi/3) = sqrt(3)/2." },
- { stem: "cos(pi/3) equals", c: "1/2", w: ["sqrt(3)/2", "sqrt(2)/2", "1"], ex: "cos(pi/3) = 1/2." },
+ { stem: "sin(π/2) equals", c: "1", w: ["0", "-1", "1/2"], ex: "sin(π/2) = 1." },
+ { stem: "cos(π/2) equals", c: "0", w: ["1", "-1", "1/2"], ex: "cos(π/2) = 0." },
+ { stem: "sin(π) equals", c: "0", w: ["1", "-1", "1/2"], ex: "sin(π) = 0." },
+ { stem: "cos(π) equals", c: "-1", w: ["0", "1", "1/2"], ex: "cos(π) = -1." },
+ { stem: "sin(3π/2) equals", c: "-1", w: ["0", "1", "1/2"], ex: "sin(3π/2) = -1." },
+ { stem: "cos(3π/2) equals", c: "0", w: ["1", "-1", "1/2"], ex: "cos(3π/2) = 0." },
+ { stem: "sin(π/6) equals", c: "1/2", w: ["√(3)/2", "√(2)/2", "1"], ex: "sin(π/6) = 1/2." },
+ { stem: "cos(π/6) equals", c: "√(3)/2", w: ["1/2", "√(2)/2", "1"], ex: "cos(π/6) = √(3)/2." },
+ { stem: "sin(π/4) equals", c: "√(2)/2", w: ["1/2", "√(3)/2", "1"], ex: "sin(π/4) = √(2)/2." },
+ { stem: "cos(π/4) equals", c: "√(2)/2", w: ["1/2", "√(3)/2", "1"], ex: "cos(π/4) = √(2)/2." },
+ { stem: "sin(π/3) equals", c: "√(3)/2", w: ["1/2", "√(2)/2", "1"], ex: "sin(π/3) = √(3)/2." },
+ { stem: "cos(π/3) equals", c: "1/2", w: ["√(3)/2", "√(2)/2", "1"], ex: "cos(π/3) = 1/2." },
  { stem: "tan(0) equals", c: "0", w: ["1", "undefined", "1/2"], ex: "tan(0) = 0." },
- { stem: "tan(pi/4) equals", c: "1", w: ["0", "sqrt(2)", "1/2"], ex: "tan(pi/4) = 1." },
+ { stem: "tan(π/4) equals", c: "1", w: ["0", "√(2)", "1/2"], ex: "tan(π/4) = 1." },
 ];
 
 const TRIG_REFERENCE_FIGURE: ExamFigure = {
@@ -240,9 +240,9 @@ const TRIG_REFERENCE_FIGURE: ExamFigure = {
  headers: ["θ", "sin θ", "cos θ", "tan θ"],
  rows: [
  ["0", "0", "1", "0"],
- ["π/6", "1/2", "sqrt(3)/2", "1/sqrt(3)"],
- ["π/4", "sqrt(2)/2", "sqrt(2)/2", "1"],
- ["π/3", "sqrt(3)/2", "1/2", "sqrt(3)"],
+ ["π/6", "1/2", "√(3)/2", "1/√(3)"],
+ ["π/4", "√(2)/2", "√(2)/2", "1"],
+ ["π/3", "√(3)/2", "1/2", "√(3)"],
  ["π/2", "1", "0", "undefined"],
  ],
 };
@@ -895,7 +895,7 @@ export function genBioSpeciesTableFig(rng: () => number, ctx: ProcCtx, i: number
  const correct = labels[maxI];
  const wrong = labels.filter((_, j) => j !== maxI);
  const stem = pick(rng, [
- "According to the table, which species had the greatest estimated population density (individuals per km^2) in the sample plot?",
+ "According to the table, which species had the greatest estimated population density (individuals per km²) in the sample plot?",
  "Which species shows the highest density value in the table?",
  "Using individuals and plot area, which row has the greatest population density?",
  ]);
@@ -918,7 +918,7 @@ export function genBioSpeciesTableFig(rng: () => number, ctx: ProcCtx, i: number
  "Field plot census",
  "Population density by species",
  ]),
- headers: ["Species", "Individuals", "Plot area (km^2)", "Density (per km^2)"],
+ headers: ["Species", "Individuals", "Plot area (km²)", "Density (per km²)"],
  rows,
  },
  },

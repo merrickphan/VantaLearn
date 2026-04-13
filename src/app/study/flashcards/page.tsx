@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { SAMPLE_RESOURCES } from "@/lib/utils/sampleData";
+import { formatNiceMath } from "@/lib/typography/niceMath";
 import { FlashcardContent, FlashcardItem } from "@/types";
 import { useFlashcardProgress } from "@/hooks/useProgress";
 import { Button, Card, ProgressBar, Badge } from "@/components/ui";
@@ -93,14 +94,14 @@ function FlashcardGame({ cards, title }: { cards: FlashcardItem[]; title: string
  {/* Front */}
  <div className="card-face bg-vanta-surface border border-vanta-border rounded-card shadow-card cursor-pointer flex flex-col items-center justify-center p-8 text-center select-none hover:border-vanta-blue/30 transition-colors">
  <p className="text-xs text-vanta-muted uppercase tracking-wider mb-4">Question</p>
- <p className="text-vanta-text text-lg font-medium leading-relaxed">{card.front}</p>
+ <p className="text-vanta-text text-lg font-medium leading-relaxed">{formatNiceMath(card.front)}</p>
  <p className="text-vanta-muted text-xs mt-6">Tap to reveal answer</p>
  </div>
 
  {/* Back */}
  <div className="card-back card-face bg-vanta-surface border border-vanta-blue/40 rounded-card shadow-card flex flex-col items-center justify-center p-8 text-center select-none">
  <p className="text-xs text-vanta-blue uppercase tracking-wider mb-4">Answer</p>
- <p className="text-vanta-text leading-relaxed whitespace-pre-line">{card.back}</p>
+ <p className="text-vanta-text leading-relaxed whitespace-pre-line">{formatNiceMath(card.back)}</p>
  </div>
  </div>
  </div>

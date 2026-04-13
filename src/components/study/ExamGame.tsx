@@ -9,6 +9,7 @@ import { calculateAPScore } from "@/lib/calculateAPScore";
 import { ExamFigure } from "@/components/exam/ExamFigure";
 import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 import { recordExamComplete } from "@/lib/cmdStats";
+import { formatNiceMath } from "@/lib/typography/niceMath";
 
 function isStimulusFigure(f: ExamQuestion["figure"]): f is Extract<ExamFigureData, { kind: "stimulus" }> {
  return f?.kind === "stimulus";
@@ -86,16 +87,16 @@ function QuestionCard({
  ) : null}
  {exhibitAboveStem ? (
  <p className="mb-3 font-serif text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
- {stim.body}
+ {formatNiceMath(stim.body)}
  </p>
  ) : null}
  <p className="text-vanta-text font-medium mb-3 leading-relaxed font-serif text-[15px]">
  <span className="tabular-nums">{questionNumber}. </span>
- {question.question}
+ {formatNiceMath(question.question)}
  </p>
  {exhibitBelow ? (
  <p className="mb-4 font-serif text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
- {stim.body}
+ {formatNiceMath(stim.body)}
  </p>
  ) : null}
 
@@ -111,7 +112,7 @@ function QuestionCard({
  <button
  key={`${question.id}-opt-${optIdx}`}
  type="button"
- aria-label={`Answer ${letter}: ${opt}`}
+ aria-label={`Answer ${letter}: ${formatNiceMath(opt)}`}
  onClick={() => {
  if (submitted) return;
  setTapOptionIdx(optIdx);
@@ -131,7 +132,7 @@ function QuestionCard({
  <span className="flex items-start justify-between gap-3 w-full">
  <span className="flex flex-1 items-start gap-3 min-w-0">
  <span className="shrink-0 w-8 tabular-nums font-medium text-vanta-text pt-0.5">{letter}.</span>
- <span className="leading-relaxed text-neutral-950 flex-1 min-w-0">{opt}</span>
+ <span className="leading-relaxed text-neutral-950 flex-1 min-w-0">{formatNiceMath(opt)}</span>
  </span>
  {submitted && isCorrectOpt ? (
  <span className="shrink-0 text-lg font-bold text-green-800" aria-hidden>
@@ -161,7 +162,7 @@ function QuestionCard({
  {submitted && question.explanation && (
  <div className="mt-4 p-4 bg-vanta-bg rounded-lg border border-vanta-border">
  <p className="text-xs text-vanta-muted font-semibold uppercase tracking-wider mb-1">Explanation</p>
- <p className="text-vanta-text text-sm leading-relaxed">{question.explanation}</p>
+ <p className="text-vanta-text text-sm leading-relaxed">{formatNiceMath(question.explanation)}</p>
  </div>
  )}
 

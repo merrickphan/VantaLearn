@@ -6,6 +6,7 @@ import { VantaLogo } from "@/components/branding/VantaLogo";
 import { Button, Card } from "@/components/ui";
 import { AP_COURSES } from "@/lib/apCatalog";
 import { calculateAPScore } from "@/lib/calculateAPScore";
+import { formatNiceMath } from "@/lib/typography/niceMath";
 import {
 	computeApSubjectScore,
 	listApSubjectModels,
@@ -287,7 +288,7 @@ export default function ScoreCalculatorPage() {
 								</select>
 								{activeModel.note ? (
 									<p className="text-xs text-vanta-muted mt-2 leading-relaxed border-l-2 border-sky-500/40 pl-3">
-										{activeModel.note}
+										{formatNiceMath(activeModel.note)}
 									</p>
 								) : null}
 							</div>
@@ -296,7 +297,7 @@ export default function ScoreCalculatorPage() {
 								{sectionGroups.map((group, groupIdx) => (
 									<div key={`${group.title}-${groupIdx}`}>
 										<h3 className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.2em] mb-4 pb-2 border-b border-vanta-border/60">
-											{group.title}
+											{formatNiceMath(group.title)}
 										</h3>
 										<div className="space-y-6">
 											{group.sections.map((s, secIdx) => {
@@ -332,7 +333,7 @@ export default function ScoreCalculatorPage() {
 																		htmlFor={`sec-${s.id}`}
 																		className="text-sm font-semibold text-slate-100 leading-snug pr-2"
 																	>
-																		{s.label}
+																		{formatNiceMath(s.label)}
 																	</label>
 																	<p className="tabular-nums shrink-0 text-base">
 																		<span className="font-bold text-white">{e}</span>
@@ -345,7 +346,9 @@ export default function ScoreCalculatorPage() {
 																		(rubric max {s.maxPoints}).
 																	</p>
 																) : s.hint ? (
-																	<p className="text-[11px] text-slate-400 mb-3 leading-relaxed">{s.hint}</p>
+																	<p className="text-[11px] text-slate-400 mb-3 leading-relaxed">
+																		{formatNiceMath(s.hint)}
+																	</p>
 																) : null}
 																<div className="flex items-center gap-2 sm:gap-3">
 																	<button
@@ -399,7 +402,7 @@ export default function ScoreCalculatorPage() {
 																		htmlFor={`sec-${s.id}`}
 																		className="text-sm md:text-base font-semibold text-vanta-text leading-snug pr-2"
 																	>
-																		{s.label}
+																		{formatNiceMath(s.label)}
 																	</label>
 																	<span className="text-base md:text-lg tabular-nums shrink-0">
 																		<span className="text-sky-300 font-bold">{e}</span>
@@ -407,7 +410,9 @@ export default function ScoreCalculatorPage() {
 																	</span>
 																</div>
 																{s.hint ? (
-																	<p className="text-xs text-vanta-muted mb-3 leading-relaxed">{s.hint}</p>
+																	<p className="text-xs text-vanta-muted mb-3 leading-relaxed">
+																		{formatNiceMath(s.hint)}
+																	</p>
 																) : null}
 																<div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
 																	<input
@@ -525,14 +530,18 @@ export default function ScoreCalculatorPage() {
 									</p>
 									<div className="space-y-0 text-sm">
 										<div className="flex justify-between gap-4 py-3 border-b border-vanta-border/50">
-											<span className="text-vanta-text font-medium">{subjectPreview.scaledDisplay.mcLabel}</span>
+											<span className="text-vanta-text font-medium">
+												{formatNiceMath(subjectPreview.scaledDisplay.mcLabel)}
+											</span>
 											<span className="text-sky-200 font-bold tabular-nums">
 												{subjectPreview.scaledDisplay.mcOutOf100}{" "}
 												<span className="text-vanta-muted font-semibold">/ 100</span>
 											</span>
 										</div>
 										<div className="flex justify-between gap-4 py-3 border-b border-vanta-border/50">
-											<span className="text-vanta-text font-medium">{subjectPreview.scaledDisplay.frqLabel}</span>
+											<span className="text-vanta-text font-medium">
+												{formatNiceMath(subjectPreview.scaledDisplay.frqLabel)}
+											</span>
 											<span className="text-sky-200 font-bold tabular-nums">
 												{subjectPreview.scaledDisplay.frqOutOf100}{" "}
 												<span className="text-vanta-muted font-semibold">/ 100</span>
@@ -571,7 +580,9 @@ export default function ScoreCalculatorPage() {
 									{subjectPreview.bySection.map((row) => (
 										<li key={row.id} className="text-sm">
 											<div className="flex justify-between gap-2 mb-1.5">
-												<span className="text-vanta-text font-medium leading-snug">{row.label}</span>
+												<span className="text-vanta-text font-medium leading-snug">
+													{formatNiceMath(row.label)}
+												</span>
 												<span className="text-vanta-muted tabular-nums shrink-0 text-xs">
 													{row.earned} / {row.max}
 												</span>

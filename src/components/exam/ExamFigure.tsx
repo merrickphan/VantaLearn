@@ -1,6 +1,7 @@
 "use client";
 
 import type { ExamFigure as ExamFigureType } from "@/types";
+import { formatNiceMath } from "@/lib/typography/niceMath";
 
 export function ExamFigure({ figure }: { figure: ExamFigureType }) {
  if (figure.kind === "stimulus") {
@@ -8,17 +9,17 @@ export function ExamFigure({ figure }: { figure: ExamFigureType }) {
  if (!titled) {
  return (
  <p className="mb-4 font-serif text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
- {figure.body}
+ {formatNiceMath(figure.body)}
  </p>
  );
  }
  return (
  <div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 overflow-hidden">
  <p className="text-xs text-vanta-muted uppercase tracking-wider px-3 py-2 border-b border-vanta-border">
- {figure.title}
+ {formatNiceMath(figure.title ?? "")}
  </p>
  <div className="px-3 py-3 text-sm text-vanta-text leading-relaxed whitespace-pre-wrap font-serif">
- {figure.body}
+ {formatNiceMath(figure.body)}
  </div>
  </div>
  );
@@ -29,7 +30,7 @@ export function ExamFigure({ figure }: { figure: ExamFigureType }) {
  <div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 overflow-hidden">
  {figure.title && (
  <p className="text-xs text-vanta-muted uppercase tracking-wider px-3 py-2 border-b border-vanta-border">
- {figure.title}
+ {formatNiceMath(figure.title)}
  </p>
  )}
  <div className="overflow-x-auto">
@@ -38,7 +39,7 @@ export function ExamFigure({ figure }: { figure: ExamFigureType }) {
  <tr className="bg-vanta-border/30">
  {figure.headers.map((h) => (
  <th key={h} className="text-left px-3 py-2 font-semibold border-b border-vanta-border">
- {h}
+ {formatNiceMath(h)}
  </th>
  ))}
  </tr>
@@ -48,7 +49,7 @@ export function ExamFigure({ figure }: { figure: ExamFigureType }) {
  <tr key={i} className="border-b border-vanta-border/60 last:border-0">
  {row.map((cell, j) => (
  <td key={j} className="px-3 py-2 text-vanta-muted">
- {cell}
+ {formatNiceMath(cell)}
  </td>
  ))}
  </tr>
@@ -70,7 +71,7 @@ export function ExamFigure({ figure }: { figure: ExamFigureType }) {
  return (
  <div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
  {figure.title && (
- <p className="text-xs text-vanta-muted uppercase tracking-wider mb-2">{figure.title}</p>
+ <p className="text-xs text-vanta-muted uppercase tracking-wider mb-2">{formatNiceMath(figure.title)}</p>
  )}
  <svg viewBox={`0 0 ${w} ${h}`} className="w-full max-h-44 text-vanta-blue" aria-hidden>
  <rect x={0} y={0} width={w} height={h} fill="transparent" />
@@ -115,13 +116,13 @@ export function ExamFigure({ figure }: { figure: ExamFigureType }) {
  className="fill-vanta-muted text-[9px]"
  style={{ fontSize: 9 }}
  >
- {b.label}
+ {formatNiceMath(b.label)}
  </text>
  </g>
  );
  })}
  </svg>
- {figure.yLabel && <p className="text-[10px] text-vanta-muted mt-1">{figure.yLabel}</p>}
+ {figure.yLabel && <p className="text-[10px] text-vanta-muted mt-1">{formatNiceMath(figure.yLabel)}</p>}
  </div>
  );
  }
@@ -146,7 +147,7 @@ export function ExamFigure({ figure }: { figure: ExamFigureType }) {
  return (
  <div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
  {figure.title && (
- <p className="text-xs text-vanta-muted uppercase tracking-wider mb-2">{figure.title}</p>
+ <p className="text-xs text-vanta-muted uppercase tracking-wider mb-2">{formatNiceMath(figure.title)}</p>
  )}
  <svg viewBox={`0 0 ${w} ${h}`} className="w-full max-h-44" aria-hidden>
  <line
@@ -189,12 +190,12 @@ export function ExamFigure({ figure }: { figure: ExamFigureType }) {
  className="fill-vanta-muted"
  style={{ fontSize: 9 }}
  >
- {p.x}
+ {formatNiceMath(p.x)}
  </text>
  );
  })}
  </svg>
- {figure.yLabel && <p className="text-[10px] text-vanta-muted mt-1">{figure.yLabel}</p>}
+ {figure.yLabel && <p className="text-[10px] text-vanta-muted mt-1">{formatNiceMath(figure.yLabel)}</p>}
  </div>
  );
 }

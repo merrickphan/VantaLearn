@@ -54,7 +54,7 @@ const CORE_RESOURCES: StudyResource[] = [
  {
  id: "m1",
  front: "Quadratic Formula",
- back: "x = (-b +- sqrt(b^2-4ac)) / 2a\n\nUsed to solve ax^2 + bx + c = 0",
+ back: "x = (−b ± √(b² − 4ac)) / 2a\n\nUsed to solve ax² + bx + c = 0",
  },
  {
  id: "m2",
@@ -69,7 +69,7 @@ const CORE_RESOURCES: StudyResource[] = [
  {
  id: "m4",
  front: "Difference of squares factoring",
- back: "a^2 - b^2 = (a + b)(a - b)\n\nExample: x^2 - 9 = (x+3)(x-3)",
+ back: "a² − b² = (a + b)(a − b)\n\nExample: x² − 9 = (x + 3)(x − 3)",
  },
  ],
  },
@@ -88,7 +88,7 @@ const CORE_RESOURCES: StudyResource[] = [
  "Which of the following best describes the primary motivation for European exploration of the Americas in the 15th and 16th centuries?",
  type: "multiple_choice",
  options: [
- "Spreading Christianity to indigenous peoples",
+ "Spreading Christianity to Indigenous peoples",
  "Desire for trade routes to Asia and wealth",
  "Escaping religious persecution in Europe",
  "Scientific curiosity about the new world",
@@ -140,33 +140,33 @@ const CORE_RESOURCES: StudyResource[] = [
  questions: [
  {
  id: "c1",
- question: "If f(x) = 3x^4 - 2x^2 + 5x - 1, what is f'(x)?",
+ question: "If f(x) = 3x⁴ − 2x² + 5x − 1, what is f′(x)?",
  type: "multiple_choice",
  options: [
- "12x^3 - 4x + 5",
- "12x^3 - 4x - 1",
- "3x^3 - 2x + 5",
- "12x^4 - 4x^2 + 5",
+ "12x³ − 4x + 5",
+ "12x³ − 4x − 1",
+ "3x³ − 2x + 5",
+ "12x⁴ − 4x² + 5",
  ],
- correct_answer: "12x^3 - 4x + 5",
+ correct_answer: "12x³ − 4x + 5",
  explanation:
- "Using the power rule: d/dx[x^n] = n x^(n-1). So: d/dx[3x^4] = 12x^3, d/dx[-2x^2] = -4x, d/dx[5x] = 5, d/dx[-1] = 0.",
+ "Using the power rule: d/dx[xⁿ] = n·x^(n−1). So: d/dx[3x⁴] = 12x³, d/dx[−2x²] = −4x, d/dx[5x] = 5, d/dx[−1] = 0.",
  subject: "AP Calculus AB",
  },
  {
  id: "c2",
  question:
- "What is the derivative of f(x) = sin(x) | cos(x)?",
+ "What is the derivative of f(x) = sin(x)·cos(x)?",
  type: "multiple_choice",
  options: [
- "-sin^2(x) + cos^2(x)",
- "cos^2(x) - sin^2(x)",
+ "−sin²(x) + cos²(x)",
+ "cos²(x) − sin²(x)",
  "cos(2x)",
  "Both A, B, and C are correct",
  ],
  correct_answer: "Both A, B, and C are correct",
  explanation:
- "Using the product rule: f'(x) = cos(x) | cos(x) + sin(x) | (-sin(x)) = cos^2(x) - sin^2(x). This equals -sin^2(x) + cos^2(x) and also cos(2x) by the double angle identity.",
+ "Using the product rule: f′(x) = cos(x)·cos(x) + sin(x)·(−sin(x)) = cos²(x) − sin²(x). This equals −sin²(x) + cos²(x) and also cos(2x) by the double-angle identity.",
  subject: "AP Calculus AB",
  },
  ],

@@ -1,3 +1,5 @@
+import { formatNiceMath } from "@/lib/typography/niceMath";
+
 /**
  * Alternate stems for numeric / skill items — multiplies distinct "question structures"
  * while keeping the same AP-style math and difficulty.
@@ -245,5 +247,5 @@ export function fillStem(template: string, vars: Record<string, string | number>
  for (const [k, v] of Object.entries(vars)) {
  s = s.split(`{{${k}}}`).join(String(v));
  }
- return s;
+ return formatNiceMath(s);
 }
