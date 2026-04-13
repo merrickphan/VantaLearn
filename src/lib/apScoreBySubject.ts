@@ -39,6 +39,9 @@ export interface ApTwoPartCompositeDef {
  readonly frqScoreLabel?: string;
 }
 
+/** Min composite % for scores 2, 3, 4, 5 (below [0] ⇒ 1). Overrides curveGroup when set. */
+export type ApCompositeThresholds = readonly [number, number, number, number];
+
 export interface ApSubjectScoreModel {
  courseId: string;
  courseName: string;
@@ -48,13 +51,15 @@ export interface ApSubjectScoreModel {
  note?: string;
  /** MC vs FRQ (or portfolio halves) scaled to /100 each; composite shown as /200 in UI. */
  twoPartComposite?: ApTwoPartCompositeDef;
+ /** When set, used instead of {@link ApCurveGroup} defaults for 1–5 mapping. */
+ compositeThresholds?: ApCompositeThresholds;
 }
 
 /**
- * Minimum composite % (earned/max) to reach that score; below thresholds[0] => 1.
+ * Default composite % floors for scores 2–5 when a model has no {@link ApSubjectScoreModel.compositeThresholds}.
  * Indices: [min for 2, min for 3, min for 4, min for 5]
  */
-const CURVES: Record<ApCurveGroup, [number, number, number, number]> = {
+const CURVES: Record<ApCurveGroup, ApCompositeThresholds> = {
  stem_math: [24, 38, 54, 68],
  stats: [26, 40, 54, 67],
  science: [22, 36, 50, 64],
@@ -69,8 +74,39 @@ const CURVES: Record<ApCurveGroup, [number, number, number, number]> = {
  capstone: [28, 42, 55, 68],
 };
 
-function compositeToApScore(pct: number, group: ApCurveGroup): ApScoreBand {
- const [t2, t3, t4, t5] = CURVES[group];
+/** Practice-only band cutoffs aligned to subject-specific study targets (not official curves). */
+const TH = {
+ precalc: [40, 55, 68, 78],
+ calcAb: [38, 52, 65, 75],
+ calcBc: [32, 45, 58, 70],
+ stats: [38, 52, 66, 76],
+ bio: [34, 48, 62, 74],
+ chem: [32, 45, 58, 70],
+ phy1: [28, 42, 56, 68],
+ phy2: [26, 40, 54, 66],
+ phyCm: [24, 38, 52, 64],
+ phyCem: [24, 38, 52, 64],
+ env: [30, 45, 60, 72],
+ lang: [38, 52, 66, 76],
+ lit: [36, 50, 64, 74],
+ ush: [38, 52, 65, 75],
+ wh: [34, 48, 62, 73],
+ euro: [36, 50, 64, 74],
+ hug: [40, 55, 68, 78],
+ psych: [44, 58, 70, 80],
+ gov: [38, 52, 66, 77],
+ compGov: [35, 50, 65, 75],
+ macro: [38, 52, 66, 76],
+ micro: [38, 52, 66, 76],
+ csA: [32, 46, 60, 72],
+ csp: [40, 55, 68, 78],
+ worldLang: [45, 58, 70, 80],
+ seminar: [40, 55, 68, 78],
+ research: [45, 58, 70, 80],
+} as const satisfies Record<string, ApCompositeThresholds>;
+
+function compositeToApScore(pct: number, thresholds: ApCompositeThresholds): ApScoreBand {
+ const [t2, t3, t4, t5] = thresholds;
  if (pct >= t5) return 5;
  if (pct >= t4) return 4;
  if (pct >= t3) return 3;
@@ -85,8 +121,9 @@ function sections(
  parts: ApScoreSectionDef[],
  note?: string,
  twoPartComposite?: ApTwoPartCompositeDef,
+ compositeThresholds?: ApCompositeThresholds,
 ): ApSubjectScoreModel {
- return { courseId, courseName, sections: parts, curveGroup, note, twoPartComposite };
+ return { courseId, courseName, sections: parts, curveGroup, note, twoPartComposite, compositeThresholds };
 }
 
 /** Single Section I row (no split MC blocks). */
@@ -161,6 +198,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  ],
  "MCQ 54 + FRQ 54 (six ×9 rubric) = 108.",
  { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5", "frq6"] },
+ TH.calcAb,
  ),
  sections(
  "calc-bc",
@@ -177,6 +215,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  ],
  "MCQ 54 + FRQ 54 (six ×9 rubric) = 108.",
  { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5", "frq6"] },
+ TH.calcBc,
  ),
  sections(
  "precalc",
@@ -191,6 +230,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  ],
  "Section II rubric rows scale to 40 composite weight to pair with 40 MC.",
  { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4"] },
+ TH.precalc,
  ),
  sections(
  "stats",
@@ -199,6 +239,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  [MC(80), ...STATS_FR],
  "MCQ 80 + Section II (investigative + five FRQs; rubric scaled to weight 80) = 160.",
  { mcSectionIds: ["mc"], frqSectionIds: ["inv", "frq1", "frq2", "frq3", "frq4", "frq5"] },
+ TH.stats,
  ),
  sections(
  "cs-a",
@@ -213,6 +254,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  ],
  "MCQ 80 + four FRQs (rubric /9 each, weighted to 80) = 160.",
  { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4"] },
+ TH.csA,
  ),
  sections(
  "csp",
@@ -234,6 +276,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Create Task score",
  },
+ TH.csp,
  ),
  sections(
  "physics-1",
@@ -249,6 +292,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  ],
  "MCQ 90 + five FRQs (rubric scaled to weight 90) = 180.",
  { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5"] },
+ TH.phy1,
  ),
  sections(
  "physics-2",
@@ -264,6 +308,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  ],
  "MCQ 90 + five FRQs (rubric scaled to weight 90) = 180.",
  { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5"] },
+ TH.phy2,
  ),
  sections(
  "physics-c-m",
@@ -277,6 +322,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  ],
  "MCQ 70 + three FRQs (rubric /15 each, weighted to 90) = 160.",
  { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3"] },
+ TH.phyCm,
  ),
  sections(
  "physics-c-em",
@@ -290,6 +336,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  ],
  "MCQ 70 + three FRQs (rubric /15 each, weighted to 90) = 160.",
  { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3"] },
+ TH.phyCem,
  ),
  sections(
  "chem",
@@ -306,6 +353,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  ],
  "MCQ 90 + six FRQs (rubric scaled to weight 90) = 180.",
  { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5", "frq6"] },
+ TH.chem,
  ),
  sections(
  "bio",
@@ -322,6 +370,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  ],
  "MCQ 90 + six FRQs (rubric scaled to weight 90) = 180.",
  { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5", "frq6"] },
+ TH.bio,
  ),
  sections(
  "env",
@@ -335,6 +384,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  ],
  "MCQ 100 + three FRQs (rubric scaled to weight 67) = 167.",
  { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3"] },
+ TH.env,
  ),
  sections(
  "ush",
@@ -355,6 +405,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Written (SAQ + DBQ + LEQ) score",
  },
+ TH.ush,
  ),
  sections(
  "wh",
@@ -375,6 +426,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Written (SAQ + DBQ + LEQ) score",
  },
+ TH.wh,
  ),
  sections(
  "euro",
@@ -395,6 +447,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Written (SAQ + DBQ + LEQ) score",
  },
+ TH.euro,
  ),
  sections(
  "gov",
@@ -409,6 +462,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  ],
  "MCQ 75 + four FRQs (rubric scaled to weight 75) = 150.",
  { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4"] },
+ TH.gov,
  ),
  sections(
  "comp-gov",
@@ -427,6 +481,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  ],
  undefined,
  { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5", "frq6", "frq7", "frq8"] },
+ TH.compGov,
  ),
  sections(
  "macro",
@@ -440,6 +495,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  ],
  "MCQ 100 + three long FRQs (rubric /10 each → weight 50) = 150.",
  { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3"] },
+ TH.macro,
  ),
  sections(
  "micro",
@@ -453,6 +509,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  ],
  "MCQ 100 + three long FRQs (rubric /10 each → weight 50) = 150.",
  { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3"] },
+ TH.micro,
  ),
  sections(
  "psych",
@@ -470,6 +527,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "FRQ score",
  },
+ TH.psych,
  ),
  sections(
  "hum-geo",
@@ -486,6 +544,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  mcSectionIds: ["mc"],
  frqSectionIds: ["frq1", "frq2", "frq3"],
  },
+ TH.hug,
  ),
  sections(
  "lang",
@@ -504,6 +563,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Essay score",
  },
+ TH.lang,
  ),
  sections(
  "lit",
@@ -522,6 +582,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Essay score",
  },
+ TH.lit,
  ),
  sections(
  "art-hist",
@@ -593,6 +654,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Writing + Speaking score",
  },
+ TH.worldLang,
  ),
  sections(
  "french",
@@ -610,6 +672,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Writing + Speaking score",
  },
+ TH.worldLang,
  ),
  sections(
  "german",
@@ -627,6 +690,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Writing + Speaking score",
  },
+ TH.worldLang,
  ),
  sections(
  "latin",
@@ -639,6 +703,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  ],
  undefined,
  { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2"] },
+ TH.worldLang,
  ),
  sections(
  "chinese",
@@ -656,6 +721,7 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Writing + Speaking score",
  },
+ TH.worldLang,
  ),
  sections(
  "japanese",
@@ -673,16 +739,33 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Writing + Speaking score",
  },
+ TH.worldLang,
  ),
- sections("seminar", "AP Seminar", "capstone", [
+ sections(
+ "seminar",
+ "AP Seminar",
+ "capstone",
+ [
  { id: "team", label: "Team multimedia & defense", hint: "Rubric total (max 40)", maxPoints: 40 },
  { id: "individual", label: "Individual research report", hint: "Rubric total (max 40)", maxPoints: 40 },
  { id: "eoc", label: "End-of-course exam", hint: "MC + written (max 20)", maxPoints: 20 },
- ]),
- sections("research", "AP Research", "capstone", [
+ ],
+ undefined,
+ undefined,
+ TH.seminar,
+ ),
+ sections(
+ "research",
+ "AP Research",
+ "capstone",
+ [
  { id: "paper", label: "Academic paper", hint: "Rubric total (max 60)", maxPoints: 60 },
  { id: "presentation", label: "Presentation & oral defense", hint: "Rubric total (max 40)", maxPoints: 40 },
- ]),
+ ],
+ undefined,
+ undefined,
+ TH.research,
+ ),
 ];
 
 const MODEL_BY_ID: Record<string, ApSubjectScoreModel> = Object.fromEntries(
@@ -818,7 +901,10 @@ export function computeApSubjectScore(
  compositePercent = (mcOut + frqOut) / 2;
  }
 
- const apScore = compositeToApScore(compositePercent, model.curveGroup);
+ const apScore = compositeToApScore(
+ compositePercent,
+ model.compositeThresholds ?? CURVES[model.curveGroup],
+ );
 
  return {
  apScore,
