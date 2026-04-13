@@ -1,5 +1,25 @@
-﻿import type { ExamQuestion } from "@/types";
+﻿import type { ExamFigure, ExamQuestion } from "@/types";
+import {
+ CALC_FUNCTION_INTROS,
+ COMPOSITION_TABLE_STEMS,
+ DERIVATIVE_AFTER_STIM_STEMS,
+ fillStem,
+ INTEGRAL_AFTER_STIM_STEMS,
+ KE_TABLE_STEMS,
+ KINEMATICS_TABLE_STEMS,
+ LIMIT_AFTER_TABLE_STEMS,
+ MEAN_AFTER_TABLE_STEMS,
+ MOLARITY_TABLE_STEMS,
+ ZSCORE_TABLE_STEMS,
+} from "./stemBanks";
 import { distinctRandInts, hashString, pick, randInt, roundN, shuffleInPlace } from "./utils";
+import {
+ examFromMassRow,
+ pickEconMassRow,
+ pickEngMassRow,
+ pickGovMassRow,
+ pickPsychMassRow,
+} from "./apMassConceptBanks";
 import { getHumanGeographyGeneratorsForUnit } from "./humanGeographyUnitPools";
 import { getUsHistoryGeneratorsForUnit } from "./usHistoryUnitPools";
 import { getWorldHistoryGeneratorsForUnit } from "./worldHistoryUnitPools";
@@ -19,6 +39,11 @@ function idFor(ctx: ProcCtx, i: number, tag: string): string {
  return `proc-${ctx.courseId}-${ctx.unitId}-${i}-${hashString(ctx.seedBase + tag).toString(36)}`;
 }
 
+type McOpts = {
+ figure?: ExamQuestion["figure"];
+ procedural_structure_id?: string;
+};
+
 function mc(
  rng: () => number,
  ctx: ProcCtx,
@@ -30,7 +55,7 @@ function mc(
  w2: string,
  w3: string,
  explanation: string,
- figure?: ExamQuestion["figure"],
+ opts?: McOpts,
 ): ExamQuestion {
  const options = shuffleInPlace(rng, [correct, w1, w2, w3]);
  const base: ExamQuestion = {
@@ -41,8 +66,10 @@ function mc(
  correct_answer: correct,
  explanation,
  subject: ctx.courseName,
+ ...(opts?.figure ? { figure: opts.figure } : {}),
+ ...(opts?.procedural_structure_id ? { procedural_structure_id: opts.procedural_structure_id } : {}),
  };
- return figure ? { ...base, figure } : base;
+ return base;
 }
 
 /* - - - Calculus / precalc / stats - - - */
@@ -56,17 +83,28 @@ export function genDerivativePower(rng: () => number, ctx: ProcCtx, i: number): 
  const nm1 = n - 1;
  const fx = coef < 0 ? `${coef}x^${n}` : `${coef}x^${n}`;
  const correct = `${d}x^${nm1}`;
+ const stemIdx = randInt(rng, 0, DERIVATIVE_AFTER_STIM_STEMS.length - 1);
+ const stem = DERIVATIVE_AFTER_STIM_STEMS[stemIdx];
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ title: "Stimulus",
+ body: `${pick(rng, CALC_FUNCTION_INTROS)}\n\nf(x) = ${fx}`,
+ };
  return mc(
  rng,
  ctx,
  i,
  "d-power",
- `If f(x) = ${fx}, then f'(x) equals`,
+ stem,
  correct,
  `${coef}x^${nm1}`,
  `${d}x^${n}`,
  `${d + randInt(rng, 1, 4)}x^${nm1}`,
  `Power rule: d/dx[c x^n] = (cn)x^(n-1). Here cn = ${d}.`,
+ {
+ figure: fig,
+ procedural_structure_id: `calc-dpow-s${stemIdx}-n${n}-c${coefMag}`,
+ },
  );
 }
 
@@ -75,17 +113,30 @@ export function genLimitLinear(rng: () => number, ctx: ProcCtx, i: number): Exam
  const b = randInt(rng, -60, 60);
  const c = randInt(rng, 1, 55);
  const lim = a * c + b;
+ const stemIdx = randInt(rng, 0, LIMIT_AFTER_TABLE_STEMS.length - 1);
+ const stem = LIMIT_AFTER_TABLE_STEMS[stemIdx];
+ const gx = b >= 0 ? `${a}x + ${b}` : `${a}x - ${-b}`;
+ const fig: ExamFigure = {
+ kind: "table",
+ title: "Table 1. Linear function g(x) = ax + b",
+ headers: ["a", "b", "c (target)", "g(x)"],
+ rows: [[String(a), String(b), String(c), gx]],
+ };
  return mc(
  rng,
  ctx,
  i,
  "lim-lin",
- `Find the limit as x approaches ${c} of (${a}x + ${b}).`,
+ stem,
  `${lim}`,
  `${lim + randInt(rng, 2, 9)}`,
  `${lim - randInt(rng, 2, 9)}`,
  `${a + b}`,
  `Substitute x = ${c} into the continuous linear function.`,
+ {
+ figure: fig,
+ procedural_structure_id: `calc-lim-s${stemIdx}-a${a}-b${b}-c${c}`,
+ },
  );
 }
 
@@ -95,17 +146,28 @@ export function genIntegralPower(rng: () => number, ctx: ProcCtx, i: number): Ex
  const exp = n + 1;
  const num = coef;
  const correct = `(${num}/${exp})x^${exp} + C`;
+ const stemIdx = randInt(rng, 0, INTEGRAL_AFTER_STIM_STEMS.length - 1);
+ const stem = INTEGRAL_AFTER_STIM_STEMS[stemIdx];
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ title: "Stimulus",
+ body: `${pick(rng, CALC_FUNCTION_INTROS)}\n\nf(x) = ${coef}x^${n}`,
+ };
  return mc(
  rng,
  ctx,
  i,
  "int-power",
- `An antiderivative of ${coef}x^${n} is`,
+ stem,
  correct,
  `${coef}x^${exp} + C`,
  `(${num}/${n})x^${n} + C`,
  `${coef + randInt(rng, 1, 5)}x^${exp} + C`,
  `Increase exponent by 1 and divide by the new exponent.`,
+ {
+ figure: fig,
+ procedural_structure_id: `calc-int-s${stemIdx}-n${n}-k${coef}`,
+ },
  );
 }
 
@@ -116,17 +178,34 @@ export function genCompositionValue(rng: () => number, ctx: ProcCtx, i: number):
  const inner = a * x0 + b;
  const outerCoef = randInt(rng, 2, 24);
  const val = outerCoef * inner;
+ const stemIdx = randInt(rng, 0, COMPOSITION_TABLE_STEMS.length - 1);
+ const stem = fillStem(COMPOSITION_TABLE_STEMS[stemIdx], { x0 });
+ const gb = b >= 0 ? `${a}x + ${b}` : `${a}x - ${-b}`;
+ const fig: ExamFigure = {
+ kind: "table",
+ title: "Table 1. Function definitions",
+ headers: ["Name", "Rule"],
+ rows: [
+ ["f(x)", `${outerCoef}x`],
+ ["g(x)", gb],
+ ["x0", String(x0)],
+ ],
+ };
  return mc(
  rng,
  ctx,
  i,
  "comp",
- `If f(x) = ${outerCoef}x and g(x) = ${a}x + ${b}, what is f(g(${x0}))?`,
+ stem,
  `${val}`,
  `${outerCoef + inner + randInt(rng, 1, 6)}`,
  `${a * outerCoef + randInt(rng, 0, 4)}`,
  `${inner + randInt(rng, 1, 7)}`,
  `First g(${x0}) = ${inner}, then f(${inner}) = ${outerCoef} x ${inner}.`,
+ {
+ figure: fig,
+ procedural_structure_id: `calc-comp-s${stemIdx}-x${x0}-o${outerCoef}`,
+ },
  );
 }
 
@@ -149,9 +228,24 @@ const TRIG_ROWS: { stem: string; c: string; w: [string, string, string]; ex: str
  { stem: "tan(pi/4) equals", c: "1", w: ["0", "sqrt(2)", "1/2"], ex: "tan(pi/4) = 1." },
 ];
 
+const TRIG_REFERENCE_FIGURE: ExamFigure = {
+ kind: "table",
+ title: "Exhibit: exact trigonometric values (selected angles, radians)",
+ headers: ["θ", "sin θ", "cos θ", "tan θ"],
+ rows: [
+ ["0", "0", "1", "0"],
+ ["π/6", "1/2", "sqrt(3)/2", "1/sqrt(3)"],
+ ["π/4", "sqrt(2)/2", "sqrt(2)/2", "1"],
+ ["π/3", "sqrt(3)/2", "1/2", "sqrt(3)"],
+ ["π/2", "1", "0", "undefined"],
+ ],
+};
+
 export function genTrigSpecial(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const row = pick(rng, TRIG_ROWS);
- return mc(rng, ctx, i, "trig", row.stem, row.c, row.w[0], row.w[1], row.w[2], row.ex);
+ return mc(rng, ctx, i, "trig", row.stem, row.c, row.w[0], row.w[1], row.w[2], row.ex, {
+ figure: TRIG_REFERENCE_FIGURE,
+ });
 }
 
 export function genMeanSimple(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
@@ -159,32 +253,64 @@ export function genMeanSimple(rng: () => number, ctx: ProcCtx, i: number): ExamQ
  const b = randInt(rng, 12, 998);
  const c = randInt(rng, 12, 998);
  const mean = roundN((a + b + c) / 3, 2);
+ const stemIdx = randInt(rng, 0, MEAN_AFTER_TABLE_STEMS.length - 1);
+ const stem = MEAN_AFTER_TABLE_STEMS[stemIdx];
+ const fig: ExamFigure = {
+ kind: "table",
+ title: "Table 1. Sample values",
+ headers: ["Observation", "Value"],
+ rows: [
+ ["1", String(a)],
+ ["2", String(b)],
+ ["3", String(c)],
+ ],
+ };
  return mc(
  rng,
  ctx,
  i,
  "mean",
- `The sample mean of {${a}, ${b}, ${c}} is`,
+ stem,
  `${mean}`,
  `${a + b + c}`,
  `${roundN((a + b) / 2, 2)}`,
  `${roundN(mean + randInt(rng, 3, 40), 2)}`,
  `Add the values and divide by 3.`,
+ {
+ figure: fig,
+ procedural_structure_id: `stats-mean-s${stemIdx}`,
+ },
  );
 }
 
 export function genZScoreConcept(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const si = randInt(rng, 0, ZSCORE_TABLE_STEMS.length - 1);
+ const stem = ZSCORE_TABLE_STEMS[si];
+ const fig: ExamFigure = {
+ kind: "table",
+ title: "Table 1. Notation",
+ headers: ["Symbol", "Meaning"],
+ rows: [
+ ["x", "observation"],
+ ["μ (mu)", "mean"],
+ ["σ (sigma)", "standard deviation (σ > 0)"],
+ ],
+ };
  return mc(
  rng,
  ctx,
  i,
  "z",
- "The z-score for an observation x with mean mu and standard deviation sigma is",
+ stem,
  "(x - mu) / sigma",
  "(x + mu) / sigma",
  "(x - mu) | sigma",
  "mu / sigma",
  `Standardize by subtracting the mean and dividing by the standard deviation.`,
+ {
+ figure: fig,
+ procedural_structure_id: `stats-z-s${si}`,
+ },
  );
 }
 
@@ -243,6 +369,7 @@ export function genStatsBarChartMode(rng: () => number, ctx: ProcCtx, i: number)
  wrong[2],
  `The tallest bar corresponds to the mode for this categorical variable.`,
  {
+ figure: {
  kind: "bar_chart",
  title: pick(rng, [
  "Favorite snack (counts in a sample)",
@@ -251,6 +378,7 @@ export function genStatsBarChartMode(rng: () => number, ctx: ProcCtx, i: number)
  ]),
  yLabel: pick(rng, ["Number of students", "Count", "Responses"]),
  bars,
+ },
  },
  );
 }
@@ -282,10 +410,12 @@ export function genStatsExamLineTrend(rng: () => number, ctx: ProcCtx, i: number
  wrong[2],
  `Read the y-values at each point; ${correct} has the maximum.`,
  {
+ figure: {
  kind: "line_chart",
  title: pick(rng, ["Mean exam score over four tests", "Mean score by assessment", "Class average by test"]),
  yLabel: pick(rng, ["Score", "Mean score", "Percent"]),
  points,
+ },
  },
  );
 }
@@ -293,6 +423,11 @@ export function genStatsExamLineTrend(rng: () => number, ctx: ProcCtx, i: number
 /* - - - Computer science - - - */
 
 export function genBigO(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ title: "Stimulus",
+ body: "A class studies comparison-based sorting algorithms that reorder n distinct items using pairwise comparisons. Worst-case running time is expressed using big-O notation in n.",
+ };
  return mc(
  rng,
  ctx,
@@ -304,38 +439,51 @@ export function genBigO(rng: () => number, ctx: ProcCtx, i: number): ExamQuestio
  "O(n^2) for every algorithm",
  "O(1)",
  `Optimal comparison sorts are Theta(n log n) worst case (e.g., mergesort).`,
+ { figure: fig },
  );
 }
 
 export function genLoopCount(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const n = randInt(rng, 5, 20);
  const total = n * (n + 1) / 2;
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ title: "Stimulus",
+ body: `Integer variable n is ${n}. The fragment below initializes sum to 0 and accumulates a series:\n\nfor (int i = 1; i <= n; i++) {\n  sum += i;\n}`,
+ };
  return mc(
  rng,
  ctx,
  i,
  "loop",
- `Consider: for (int i=1; i<=${n}; i++) sum += i; After the loop, sum equals`,
+ "After the loop terminates, sum equals",
  `${total}`,
  `${n * n}`,
  `${n + 1}`,
  `${n}`,
  `This sums 1 + 2 + ... + ${n} = ${n}(${n}+1)/2 = ${total}.`,
+ { figure: fig },
  );
 }
 
 export function genBooleanExpr(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ title: "Stimulus",
+ body: "Consider the following Java boolean expression using literals:\n\n  true && false",
+ };
  return mc(
  rng,
  ctx,
  i,
  "bool",
- "In Java, true && false evaluates to",
+ "The expression evaluates to",
  "false",
  "true",
  "null",
  "error",
  `Logical AND requires both operands true.`,
+ { figure: fig },
  );
 }
 
@@ -346,17 +494,29 @@ export function genKinematicsV(rng: () => number, ctx: ProcCtx, i: number): Exam
  const a = randInt(rng, 1, 5);
  const t = randInt(rng, 1, 6);
  const v = v0 + a * t;
+ const stemIdx = randInt(rng, 0, KINEMATICS_TABLE_STEMS.length - 1);
+ const stem = KINEMATICS_TABLE_STEMS[stemIdx];
+ const fig: ExamFigure = {
+ kind: "table",
+ title: "Table 1. One-dimensional kinematics (SI)",
+ headers: ["v0", "a", "t"],
+ rows: [[`${v0} m/s`, `${a} m/s^2`, `${t} s`]],
+ };
  return mc(
  rng,
  ctx,
  i,
  "kin",
- `A particle accelerates from ${v0} m/s at ${a} m/s^2 for ${t} s. Its final speed is`,
+ stem,
  `${v} m/s`,
  `${v0 * t} m/s`,
  `${a * t} m/s`,
  `${v + 1} m/s`,
  `Use v = v_0 + at = ${v0} + (${a})(${t}).`,
+ {
+ figure: fig,
+ procedural_structure_id: `ph-kin-s${stemIdx}-t${t}`,
+ },
  );
 }
 
@@ -364,17 +524,29 @@ export function genEnergyKE(rng: () => number, ctx: ProcCtx, i: number): ExamQue
  const m = randInt(rng, 1, 8);
  const v = randInt(rng, 2, 10);
  const ke = roundN(0.5 * m * v * v, 0);
+ const stemIdx = randInt(rng, 0, KE_TABLE_STEMS.length - 1);
+ const stem = KE_TABLE_STEMS[stemIdx];
+ const fig: ExamFigure = {
+ kind: "table",
+ title: "Table 1. Particle data",
+ headers: ["m (kg)", "v (m/s)"],
+ rows: [[String(m), String(v)]],
+ };
  return mc(
  rng,
  ctx,
  i,
  "ke",
- `Kinetic energy K = 1/2mv^2 for m = ${m} kg and v = ${v} m/s is`,
+ stem,
  `${ke} J`,
  `${m * v} J`,
  `${2 * ke} J`,
  `${roundN(ke / 2, 0)} J`,
  `Compute 1/2 x ${m} x ${v}^2 = ${ke} J.`,
+ {
+ figure: fig,
+ procedural_structure_id: `ph-ke-s${stemIdx}-m${m}`,
+ },
  );
 }
 
@@ -405,26 +577,34 @@ export function genPhysVelocityBarFig(rng: () => number, ctx: ProcCtx, i: number
  wrong[2],
  `Compare bar heights; the largest value indicates the highest speed.`,
  {
+ figure: {
  kind: "bar_chart",
  title: pick(rng, ["Speed magnitude at equal time intervals", "Cart speed by time", "Kinematics bar chart"]),
  yLabel: pick(rng, ["Speed (m/s)", "|v| (m/s)", "m/s"]),
  bars,
  },
+ },
  );
 }
 
 export function genCoulombConcept(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ title: "Stimulus",
+ body: "Two point charges q1 and q2 are separated by a center-to-center distance r in vacuum.\n\nCoulomb's law gives the magnitude of the electrostatic force between them.",
+ };
  return mc(
  rng,
  ctx,
  i,
  "coul",
- "The electric force between two point charges is inversely proportional to",
+ "The electric force between the two point charges is inversely proportional to",
  "the square of the distance",
  "the distance",
  "the cube of the distance",
  "the charges only",
  `Coulomb's law: F ~ 1/r^2.`,
+ { figure: fig },
  );
 }
 
@@ -434,17 +614,29 @@ export function genMolarity(rng: () => number, ctx: ProcCtx, i: number): ExamQue
  const mol = randInt(rng, 1, 5);
  const L = randInt(rng, 1, 4);
  const M = roundN(mol / L, 3);
+ const stemIdx = randInt(rng, 0, MOLARITY_TABLE_STEMS.length - 1);
+ const stem = MOLARITY_TABLE_STEMS[stemIdx];
+ const fig: ExamFigure = {
+ kind: "table",
+ title: "Table 1. Solution data",
+ headers: ["moles of solute (mol)", "solution volume (L)"],
+ rows: [[String(mol), String(L)]],
+ };
  return mc(
  rng,
  ctx,
  i,
  "mol",
- `What is the molarity of a solution with ${mol} mol solute in ${L} L of solution?`,
+ stem,
  `${M} M`,
  `${mol * L} M`,
  `${mol + L} M`,
  `${roundN(M * 2, 3)} M`,
  `Molarity is moles per liter: ${mol}/${L}.`,
+ {
+ figure: fig,
+ procedural_structure_id: `chem-mol-s${stemIdx}-n${mol}`,
+ },
  );
 }
 
@@ -493,13 +685,28 @@ export function genChemConcentrationBarFig(rng: () => number, ctx: ProcCtx, i: n
  wrong[2],
  `The tallest bar corresponds to the highest molarity.`,
  {
+ figure: {
  kind: "bar_chart",
  title: pick(rng, ["Solution concentration (M)", "Molarity comparison", "Lab results (M)"]),
  yLabel: pick(rng, ["Molarity (M)", "Concentration (M)", "M"]),
  bars,
  },
+ },
  );
 }
+
+const PH_SCALE_REFERENCE: ExamFigure = {
+ kind: "table",
+ title: "Reference: pH scale (aqueous, 25°C)",
+ headers: ["Region", "Approx. pH"],
+ rows: [
+ ["Strongly acidic", "0–3"],
+ ["Acidic", "4–6"],
+ ["Neutral", "~7"],
+ ["Basic", "8–10"],
+ ["Strongly basic", "11–14"],
+ ],
+};
 
 export function genPHScale(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  return mc(
@@ -507,16 +714,22 @@ export function genPHScale(rng: () => number, ctx: ProcCtx, i: number): ExamQues
  ctx,
  i,
  "ph",
- "At 25 deg C, a neutral aqueous solution has pH closest to",
+ "Using the reference table, at 25°C a neutral aqueous solution has pH closest to",
  "7",
  "0",
  "14",
  "1",
  `Neutral water has [H^+] = 10^-^7 M, so pH = 7.`,
+ { figure: PH_SCALE_REFERENCE },
  );
 }
 
 export function genDNAbase(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ title: "Stimulus",
+ body: "Complementary base pairing in double-stranded DNA (hydrogen bonds between strands):\n\n  A — T\n  C — G\n\n(RNA uses uracil instead of thymine.)",
+ };
  return mc(
  rng,
  ctx,
@@ -528,6 +741,7 @@ export function genDNAbase(rng: () => number, ctx: ProcCtx, i: number): ExamQues
  "guanine",
  "uracil",
  `DNA uses A-T and G-C pairing (RNA uses A-U).`,
+ { figure: fig },
  );
 }
 
@@ -593,6 +807,7 @@ export function genBioSpeciesTableFig(rng: () => number, ctx: ProcCtx, i: number
  wrong[2],
  `Compare the density column and select the largest value.`,
  {
+ figure: {
  kind: "table",
  title: pick(rng, [
  "Sample plot - species counts and area",
@@ -602,21 +817,28 @@ export function genBioSpeciesTableFig(rng: () => number, ctx: ProcCtx, i: number
  headers: ["Species", "Individuals", "Plot area (km^2)", "Density (per km^2)"],
  rows,
  },
+ },
  );
 }
 
 export function genCarryingCapacity(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ title: "Stimulus",
+ body: "A population’s growth is modeled by a logistic curve: growth is nearly exponential at first, then slows as resources become limiting, and the curve levels off at an upper horizontal asymptote labeled K.",
+ };
  return mc(
  rng,
  ctx,
  i,
  "cc",
- "In logistic population growth, the carrying capacity K represents",
+ "In this model, the parameter K represents",
  "the maximum population an environment can sustain long term",
  "the initial growth rate only",
  "the extinction threshold",
  "the migration rate",
  `K is the upper asymptote of the logistic curve.`,
+ { figure: fig },
  );
 }
 
@@ -855,6 +1077,7 @@ export function genGeoPopulationBarFig(rng: () => number, ctx: ProcCtx, i: numbe
  wrong[2],
  `Compare bar heights to find the maximum.`,
  {
+ figure: {
  kind: "bar_chart",
  title: pick(rng, [
  "Population of selected urban areas (millions)",
@@ -863,6 +1086,7 @@ export function genGeoPopulationBarFig(rng: () => number, ctx: ProcCtx, i: numbe
  ]),
  yLabel: pick(rng, ["Millions", "Population (millions)", "People (millions)"]),
  bars,
+ },
  },
  );
 }
@@ -908,6 +1132,7 @@ export function genGeoUrbanGrowthLineFig(rng: () => number, ctx: ProcCtx, i: num
  wrong[2],
  `The highest point indicates the fastest growth rate for that interval.`,
  {
+ figure: {
  kind: "line_chart",
  title: pick(rng, [
  "Urban population growth rate (% per period)",
@@ -916,6 +1141,7 @@ export function genGeoUrbanGrowthLineFig(rng: () => number, ctx: ProcCtx, i: num
  ]),
  yLabel: pick(rng, ["% change", "Growth (%)", "Percent change"]),
  points,
+ },
  },
  );
 }
@@ -969,6 +1195,7 @@ export function genGeoCropsTableFig(rng: () => number, ctx: ProcCtx, i: number):
  wrong[2],
  `Read the ${h2} column and select the largest value.`,
  {
+ figure: {
  kind: "table",
  title: pick(rng, [
  "Crop production (million metric tons) - sample country",
@@ -977,6 +1204,7 @@ export function genGeoCropsTableFig(rng: () => number, ctx: ProcCtx, i: number):
  ]),
  headers: ["Crop", h1, h2],
  rows,
+ },
  },
  );
 }
@@ -1031,21 +1259,36 @@ export function genScrambleAfrica(rng: () => number, ctx: ProcCtx, i: number): E
 export function genOppCost(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const a = randInt(rng, 8, 20);
  const b = randInt(rng, 8, 20);
+ const fig: ExamFigure = {
+ kind: "table",
+ title: "Table 1. Marginal tradeoff along a PPF (hypothetical)",
+ headers: ["", "Amount"],
+ rows: [
+ ["Good B forgone to produce one more unit of Good A", `${b} units of B`],
+ ["Unrelated parameter (distractor context)", `${a} units`],
+ ],
+ };
  return mc(
  rng,
  ctx,
  i,
  "opp",
- `If producing one more unit of Good A requires giving up ${b} units of Good B, the opportunity cost of A in terms of B is`,
+ "The opportunity cost of one additional unit of Good A in terms of Good B is",
  `${b} units of B per unit of A`,
  `${a} units of B per unit of A`,
  `${a + b} total units`,
  `zero`,
  `Opportunity cost is what you sacrifice at the margin.`,
+ { figure: fig },
  );
 }
 
 export function genGDPdeflator(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ title: "Stimulus",
+ body: "National accounts report:\n• Nominal GDP: current-price output\n• Real GDP: constant-price output (base year)\n\nAnalysts form a price index that compares them economy-wide.",
+ };
  return mc(
  rng,
  ctx,
@@ -1057,6 +1300,7 @@ export function genGDPdeflator(rng: () => number, ctx: ProcCtx, i: number): Exam
  "CPI / GDP",
  "Exports - Imports",
  `Deflator compares nominal output to real output.`,
+ { figure: fig },
  );
 }
 
@@ -1087,10 +1331,12 @@ export function genEconUnemploymentLineFig(rng: () => number, ctx: ProcCtx, i: n
  wrong[2],
  `Identify which point has the maximum unemployment rate.`,
  {
+ figure: {
  kind: "line_chart",
  title: pick(rng, ["Unemployment rate (%) by quarter", "Unemployment over time", "Labor market indicator"]),
  yLabel: pick(rng, ["Percent", "Rate (%)", "Unemployment (%)"]),
  points,
+ },
  },
  );
 }
@@ -1098,6 +1344,11 @@ export function genEconUnemploymentLineFig(rng: () => number, ctx: ProcCtx, i: n
 /* - - - Psychology - - - */
 
 export function genNeuronPart(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ title: "Stimulus",
+ body: "Diagram description: Neuron A (presynaptic) —(vesicles release neurotransmitter)→ gap ←(receptors)— Neuron B (postsynaptic). The narrow space is labeled.",
+ };
  return mc(
  rng,
  ctx,
@@ -1109,74 +1360,104 @@ export function genNeuronPart(rng: () => number, ctx: ProcCtx, i: number): ExamQ
  "myelin sheath",
  "soma exclusively",
  `The synaptic cleft lies between the presynaptic and postsynaptic neurons.`,
+ { figure: fig },
  );
 }
 
 export function genOperant(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ title: "Stimulus",
+ body: "A dog trainer says “sit.” When the dog sits, the trainer immediately gives a small food treat. Over trials, sitting becomes more frequent.",
+ };
  return mc(
  rng,
  ctx,
  i,
  "op",
- "Giving a treat after a dog sits on command is an example of",
+ "This procedure is best described as",
  "positive reinforcement",
  "negative reinforcement",
  "positive punishment",
  "extinction",
  `Adding a desirable stimulus strengthens behavior (positive reinforcement).`,
+ { figure: fig },
  );
 }
 
 /* - - - English - - - */
 
 export function genFallacy(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ title: "Stimulus",
+ body: "Speaker: “We should fund the new lab.”\nOpponent: “You can’t trust anything they say — they failed chemistry in high school.”",
+ };
  return mc(
  rng,
  ctx,
  i,
  "fall",
- "Attacking the person rather than the argument is known as",
+ "The opponent’s reply is best classified as",
  "ad hominem",
  "straw man",
  "false dilemma",
  "appeal to authority",
  `Ad hominem targets the arguer instead of the claim.`,
+ { figure: fig },
  );
 }
 
 export function genRhetoricalAppeal(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ title: "Stimulus",
+ body: "A surgeon begins a public health talk: “In twenty years of practice at this hospital, I’ve seen hundreds of cases like this…”",
+ };
  return mc(
  rng,
  ctx,
  i,
  "eth",
- "An appeal to credibility and character is primarily",
+ "This opening primarily establishes",
  "ethos",
  "logos",
  "pathos",
  "kairos",
  `Ethos emphasizes speaker trustworthiness.`,
+ { figure: fig },
  );
 }
 
 /* - - - Arts - - - */
 
 export function genRenaissanceArt(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ title: "Stimulus",
+ body: "Exhibit: Architectural and pictorial works from Quattrocento Italy increasingly use converging orthogonals and a single vanishing point to organize space on a flat surface.",
+ };
  return mc(
  rng,
  ctx,
  i,
  "ren",
- "Linear perspective as a systematic compositional tool is especially associated with",
+ "This systematic compositional approach is especially associated with",
  "Early Renaissance in Italy",
  "Impressionism in France",
  "Abstract Expressionism in New York",
  "Byzantine mosaics",
  `Filippo Brunelleschi and others helped develop linear perspective in Quattrocento Italy.`,
+ { figure: fig },
  );
 }
 
 export function genCadence(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ title: "Stimulus",
+ body: "Notation (Roman numeral analysis): a phrase ends on the dominant chord (V) rather than the tonic (I), leaving a sense of pause or expectation.",
+ };
  return mc(
  rng,
  ctx,
@@ -1188,6 +1469,7 @@ export function genCadence(rng: () => number, ctx: ProcCtx, i: number): ExamQues
  "plagal cadence",
  "deceptive cadence",
  `A half cadence ends on V (dominant).`,
+ { figure: fig },
  );
 }
 
@@ -1196,50 +1478,91 @@ export function genCadence(rng: () => number, ctx: ProcCtx, i: number): ExamQues
 export function genNumberPatternEs(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const n = randInt(rng, 2, 9);
  const wrongs = [`once`, `diez`, `cero`];
+ const fig: ExamFigure = {
+ kind: "table",
+ title: "Table 1. Number–word match",
+ headers: ["Digit", "?"],
+ rows: [[String(n), "(select Spanish word)"]],
+ };
  return mc(
  rng,
  ctx,
  i,
  "esn",
- `Which Spanish word matches the number ${n}?`,
+ `Which Spanish word matches the digit in the table?`,
  n === 2 ? "dos" : n === 3 ? "tres" : n === 4 ? "cuatro" : n === 5 ? "cinco" : n === 6 ? "seis" : n === 7 ? "siete" : n === 8 ? "ocho" : "nueve",
  wrongs[0],
  wrongs[1],
  wrongs[2],
  `Match Spanish numerals to digits (example item; vary with unit practice).`,
+ { figure: fig },
  );
 }
 
 /* - - - Capstone - - - */
 
 export function genCitationEthics(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ title: "Stimulus",
+ body: "A student rewrites two paragraphs from a journal article in their own words but does not add in-text citations or a bibliography entry.",
+ };
  return mc(
  rng,
  ctx,
  i,
  "cite",
- "In academic research, paraphrasing a source without citation is generally considered",
+ "This practice is generally considered",
  "plagiarism",
  "fair use automatically",
  "peer review",
  "synthesis",
  `Ideas and wording from sources require attribution.`,
+ { figure: fig },
  );
 }
 
 export function genVariableControl(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const fig: ExamFigure = {
+ kind: "table",
+ title: "Table 1. Experiment sketch",
+ headers: ["Element", "Description"],
+ rows: [
+ ["Manipulated factor", "different noise levels assigned to groups"],
+ ["Measured outcome", "proofreading errors"],
+ ],
+ };
  return mc(
  rng,
  ctx,
  i,
  "var",
- "The variable intentionally manipulated by the researcher is the",
+ "The factor intentionally set by the researcher is the",
  "independent variable",
  "dependent variable",
  "confounding variable",
  "control group",
  `The IV is what the experimenter changes.`,
+ { figure: fig },
  );
+}
+
+/* - - - Mass concept banks (large template × foil rotation sets) - - - */
+
+export function genPsychMass(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ return examFromMassRow(rng, ctx, i, "psych-mass", pickPsychMassRow(rng));
+}
+
+export function genGovMass(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ return examFromMassRow(rng, ctx, i, "gov-mass", pickGovMassRow(rng));
+}
+
+export function genEngMass(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ return examFromMassRow(rng, ctx, i, "eng-mass", pickEngMassRow(rng));
+}
+
+export function genEconMass(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ return examFromMassRow(rng, ctx, i, "econ-mass", pickEconMassRow(rng));
 }
 
 /* - - - Pools - - - */
@@ -1272,17 +1595,18 @@ const GOV: QuestionGen[] = [
  genChecksBalances,
  genSeparationOfPowers,
  genFederalismConcept,
+ genGovMass,
 ];
 
-const COMP_GOV: QuestionGen[] = [genRegimeType, genChecksBalances, genNationState];
+const COMP_GOV: QuestionGen[] = [genRegimeType, genChecksBalances, genNationState, genGovMass];
 
-const ECON: QuestionGen[] = [genOppCost, genGDPdeflator, genEconUnemploymentLineFig];
+const ECON: QuestionGen[] = [genOppCost, genGDPdeflator, genEconUnemploymentLineFig, genEconMass];
 
-const PSYCH: QuestionGen[] = [genNeuronPart, genOperant, genVariableControl];
+const PSYCH: QuestionGen[] = [genPsychMass, genNeuronPart, genOperant, genVariableControl];
 
-const ENG: QuestionGen[] = [genFallacy, genRhetoricalAppeal];
+const ENG: QuestionGen[] = [genFallacy, genRhetoricalAppeal, genEngMass];
 const ART: QuestionGen[] = [genRenaissanceArt, genCadence];
-const LANG: QuestionGen[] = [genNumberPatternEs, genRhetoricalAppeal];
+const LANG: QuestionGen[] = [genNumberPatternEs, genRhetoricalAppeal, genEngMass];
 const CAP: QuestionGen[] = [genCitationEthics, genVariableControl];
 
 /** Fallback when a catalog course is missing from the map - should not happen in normal use. */

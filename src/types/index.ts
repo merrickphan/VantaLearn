@@ -65,6 +65,12 @@ export type ExamFigure =
  title?: string;
  headers: string[];
  rows: string[][];
+ }
+ | {
+ /** Short scenario, experimental setup, or exhibit (College Board-style stimulus). */
+ kind: "stimulus";
+ title?: string;
+ body: string;
  };
 
 export interface ExamQuestion {
@@ -77,6 +83,8 @@ export interface ExamQuestion {
  subject: string;
  /** Optional graph/table shown above the stem (AP-style). */
  figure?: ExamFigure;
+ /** Procedural template id for variety tracking (not shown to students). */
+ procedural_structure_id?: string;
 }
 
 export interface ExamAttempt {

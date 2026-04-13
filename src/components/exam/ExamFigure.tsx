@@ -3,6 +3,21 @@
 import type { ExamFigure as ExamFigureType } from "@/types";
 
 export function ExamFigure({ figure }: { figure: ExamFigureType }) {
+ if (figure.kind === "stimulus") {
+ return (
+ <div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 overflow-hidden">
+ {figure.title && (
+ <p className="text-xs text-vanta-muted uppercase tracking-wider px-3 py-2 border-b border-vanta-border">
+ {figure.title}
+ </p>
+ )}
+ <div className="px-3 py-3 text-sm text-vanta-text leading-relaxed whitespace-pre-wrap font-serif">
+ {figure.body}
+ </div>
+ </div>
+ );
+ }
+
  if (figure.kind === "table") {
  return (
  <div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 overflow-hidden">

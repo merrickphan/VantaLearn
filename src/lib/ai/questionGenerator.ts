@@ -71,6 +71,13 @@ function normalizeFigure(f: unknown): ExamFigure | undefined {
  points,
  };
  }
+ if (kind === "stimulus" && typeof fig.body === "string") {
+ return {
+ kind: "stimulus",
+ title: typeof fig.title === "string" ? fig.title : undefined,
+ body: String(fig.body),
+ };
+ }
  return undefined;
 }
 
