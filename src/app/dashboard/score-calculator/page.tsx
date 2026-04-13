@@ -50,6 +50,24 @@ function partitionSectionsForDisplay(model: ApSubjectScoreModel): { title: strin
 	return out;
 }
 
+function isFrqSection(model: ApSubjectScoreModel, sectionId: string): boolean {
+	const d = model.twoPartComposite;
+	if (!d) return false;
+	return d.frqSectionIds.includes(sectionId);
+}
+
+/** Integer steps for small rubric maxima (e.g. HUG /7); half points otherwise. */
+function rubricStep(maxPts: number): number {
+	if (Number.isInteger(maxPts) && maxPts > 0 && maxPts <= 12) return 1;
+	return 0.5;
+}
+
+function snapEarnedToStep(rawEarned: number, maxPts: number, step: number): number {
+	const clamped = Math.min(Math.max(0, rawEarned), maxPts);
+	if (step >= 1) return Math.round(clamped);
+	return Math.round(clamped * 2) / 2;
+}
+
 export default function ScoreCalculatorPage() {
 	const examYear = new Date().getFullYear();
 	const models = useMemo(() => listApSubjectModels(), []);
@@ -83,7 +101,8 @@ export default function ScoreCalculatorPage() {
 		if (mode !== "ap_subject" || !activeModel) return null;
 		const earned: Record<string, number> = {};
 		for (const s of activeModel.sections) {
-			earned[s.id] = earnedForSection(s.maxPoints, sectionValues[s.id]);
+			const raw = earnedForSection(s.maxPoints, sectionValues[s.id]);
+			earned[s.id] = snapEarnedToStep(raw, s.maxPoints, rubricStep(s.maxPoints));
 		}
 		const out = computeApSubjectScore(courseId, earned);
 		if ("error" in out) return null;
@@ -183,8 +202,12 @@ export default function ScoreCalculatorPage() {
 							<div className="rounded-xl border border-sky-500/20 bg-sky-500/[0.06] p-4 mb-6">
 								<p className="text-xs font-bold text-sky-200/90 uppercase tracking-wider mb-2">Instructions</p>
 								<p className="text-sm text-vanta-muted leading-relaxed">
-									Enter your scores for each row using the number box or slider. Totals clamp to each
-									section&apos;s maximum. The predicted score uses a heuristic curve for this subject group.
+									Section I is one multiple-choice total. Section II uses each question&apos;s{" "}
+									<strong className="text-vanta-text">College Board rubric max</strong> on the slider; when a
+									rubric is out of fewer points than the exam weight (for example three 7-point FRQs that
+									combine to 75), your entered rubric score is{" "}
+									<strong className="text-vanta-text">scaled automatically</strong> in the composite. The
+									predicted 1–5 still uses a practice curve for this subject group.
 								</p>
 							</div>
 
@@ -221,61 +244,146 @@ export default function ScoreCalculatorPage() {
 										</h3>
 										<div className="space-y-6">
 											{group.sections.map((s, secIdx) => {
-												const e = earnedForSection(s.maxPoints, sectionValues[s.id]);
+												const rawEarned = earnedForSection(s.maxPoints, sectionValues[s.id]);
+												const step = rubricStep(s.maxPoints);
+												const e = snapEarnedToStep(rawEarned, s.maxPoints, step);
+												const w = s.weightInComposite;
 												const rowsBefore = sectionGroups
 													.slice(0, groupIdx)
 													.reduce((acc, g) => acc + g.sections.length, 0);
 												const staggerIdx = rowsBefore + secIdx;
+												const frq = activeModel && isFrqSection(activeModel, s.id);
+												const pct = s.maxPoints > 0 ? (e / s.maxPoints) * 100 : 0;
+
+												const setClamped = (next: number) => {
+													const snapped = snapEarnedToStep(next, s.maxPoints, step);
+													setSectionValues((prev) => ({
+														...prev,
+														[s.id]: String(snapped),
+													}));
+												};
+
 												return (
 													<div
 														key={s.id}
-														className="ap-cal-row-in border-b border-vanta-border/40 pb-6 last:border-0 last:pb-0"
+														className={`ap-cal-row-in ${frq ? "" : "border-b border-vanta-border/40 pb-6 last:border-0 last:pb-0"}`}
 														style={{ animationDelay: `${Math.min(staggerIdx, 14) * 42}ms` }}
 													>
-														<div className="flex flex-wrap justify-between gap-2 items-end mb-2">
-															<label
-																htmlFor={`sec-${s.id}`}
-																className="text-sm md:text-base font-semibold text-vanta-text leading-snug pr-2"
-															>
-																{s.label}
-															</label>
-															<span className="text-base md:text-lg tabular-nums shrink-0">
-																<span className="text-sky-300 font-bold">{e}</span>
-																<span className="text-vanta-muted font-medium"> / {s.maxPoints}</span>
-															</span>
-														</div>
-														{s.hint ? (
-															<p className="text-xs text-vanta-muted mb-3 leading-relaxed">{s.hint}</p>
-														) : null}
-														<div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-															<input
-																id={`sec-${s.id}`}
-																type="number"
-																min={0}
-																max={s.maxPoints}
-																step={0.5}
-																value={sectionValues[s.id] ?? ""}
-																onChange={(ev) =>
-																	setSectionValues((prev) => ({ ...prev, [s.id]: ev.target.value }))
-																}
-																placeholder="0"
-																className="w-full sm:w-28 shrink-0 bg-vanta-bg text-vanta-text text-center text-base font-semibold tabular-nums rounded-xl px-3 py-2.5 border border-vanta-border focus:border-sky-500/60 focus:ring-2 focus:ring-sky-500/15 focus:outline-none transition-all duration-200"
-															/>
-															<input
-																type="range"
-																min={0}
-																max={s.maxPoints}
-																step={0.5}
-																value={e}
-																onChange={(ev) =>
-																	setSectionValues((prev) => ({
-																		...prev,
-																		[s.id]: ev.target.value,
-																	}))
-																}
-																className="score-slider flex-1 min-w-0 h-3 cursor-pointer transition-[filter] duration-200 hover:brightness-110"
-															/>
-														</div>
+														{frq ? (
+															<div className="rounded-2xl border border-slate-500/40 bg-slate-950/45 px-4 py-4 shadow-inner">
+																<div className="flex flex-wrap justify-between gap-2 items-start mb-3">
+																	<label
+																		htmlFor={`sec-${s.id}`}
+																		className="text-sm font-semibold text-slate-100 leading-snug pr-2"
+																	>
+																		{s.label}
+																	</label>
+																	<p className="tabular-nums shrink-0 text-base">
+																		<span className="font-bold text-white">{e}</span>
+																		<span className="text-slate-400 font-medium"> / {s.maxPoints}</span>
+																	</p>
+																</div>
+																{w != null && w !== s.maxPoints ? (
+																	<p className="text-[11px] text-teal-200/70 mb-3 leading-relaxed">
+																		Counts toward {(w / s.maxPoints).toFixed(2)}× exam weight in the composite
+																		(rubric max {s.maxPoints}).
+																	</p>
+																) : s.hint ? (
+																	<p className="text-[11px] text-slate-400 mb-3 leading-relaxed">{s.hint}</p>
+																) : null}
+																<div className="flex items-center gap-2 sm:gap-3">
+																	<button
+																		type="button"
+																		aria-label="Decrease score"
+																		className="shrink-0 h-10 w-10 rounded-full border border-slate-500/60 bg-slate-900/80 text-slate-200 text-lg font-medium leading-none hover:bg-slate-800 hover:border-teal-500/40 transition-colors disabled:opacity-40"
+																		disabled={e <= 0}
+																		onClick={() => setClamped(e - step)}
+																	>
+																		−
+																	</button>
+																	<div className="relative flex-1 min-w-0 h-9 flex items-center px-1">
+																		<div
+																			className="pointer-events-none absolute left-2 right-2 top-1/2 -translate-y-1/2 h-2 rounded-full bg-slate-600/45"
+																			aria-hidden
+																		/>
+																		<div
+																			className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-2 rounded-l-full bg-teal-500 transition-[width] duration-200 ease-out"
+																			style={{
+																				width: `calc((100% - 16px) * ${pct / 100} + 0px)`,
+																				maxWidth: "calc(100% - 16px)",
+																			}}
+																			aria-hidden
+																		/>
+																		<input
+																			id={`sec-${s.id}`}
+																			type="range"
+																			min={0}
+																			max={s.maxPoints}
+																			step={step}
+																			value={e}
+																			onChange={(ev) => setClamped(Number(ev.target.value))}
+																			className="frq-cal-thumb-only relative z-10 w-full cursor-pointer"
+																		/>
+																	</div>
+																	<button
+																		type="button"
+																		aria-label="Increase score"
+																		className="shrink-0 h-10 w-10 rounded-full border border-slate-500/60 bg-slate-900/80 text-slate-200 text-lg font-medium leading-none hover:bg-slate-800 hover:border-teal-500/40 transition-colors disabled:opacity-40"
+																		disabled={e >= s.maxPoints}
+																		onClick={() => setClamped(e + step)}
+																	>
+																		+
+																	</button>
+																</div>
+															</div>
+														) : (
+															<>
+																<div className="flex flex-wrap justify-between gap-2 items-end mb-2">
+																	<label
+																		htmlFor={`sec-${s.id}`}
+																		className="text-sm md:text-base font-semibold text-vanta-text leading-snug pr-2"
+																	>
+																		{s.label}
+																	</label>
+																	<span className="text-base md:text-lg tabular-nums shrink-0">
+																		<span className="text-sky-300 font-bold">{e}</span>
+																		<span className="text-vanta-muted font-medium"> / {s.maxPoints}</span>
+																	</span>
+																</div>
+																{s.hint ? (
+																	<p className="text-xs text-vanta-muted mb-3 leading-relaxed">{s.hint}</p>
+																) : null}
+																<div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+																	<input
+																		id={`sec-${s.id}`}
+																		type="number"
+																		min={0}
+																		max={s.maxPoints}
+																		step={step}
+																		value={sectionValues[s.id] ?? ""}
+																		onChange={(ev) =>
+																			setSectionValues((prev) => ({ ...prev, [s.id]: ev.target.value }))
+																		}
+																		placeholder="0"
+																		className="w-full sm:w-28 shrink-0 bg-vanta-bg text-vanta-text text-center text-base font-semibold tabular-nums rounded-xl px-3 py-2.5 border border-vanta-border focus:border-sky-500/60 focus:ring-2 focus:ring-sky-500/15 focus:outline-none transition-all duration-200"
+																	/>
+																	<input
+																		type="range"
+																		min={0}
+																		max={s.maxPoints}
+																		step={step}
+																		value={e}
+																		onChange={(ev) =>
+																			setSectionValues((prev) => ({
+																				...prev,
+																				[s.id]: ev.target.value,
+																			}))
+																		}
+																		className="score-slider flex-1 min-w-0 h-3 cursor-pointer transition-[filter] duration-200 hover:brightness-110"
+																	/>
+																</div>
+															</>
+														)}
 													</div>
 												);
 											})}

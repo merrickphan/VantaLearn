@@ -8,7 +8,13 @@ export interface ApScoreSectionDef {
  label: string;
  /** Shown under the input */
  hint?: string;
+ /** Rubric / slider maximum (e.g. 7 per HUG FRQ). */
  maxPoints: number;
+ /**
+ * Contribution to composite when this section is fully correct, after scaling (earned/maxPoints)*weight.
+ * Defaults to maxPoints when omitted (rubric max equals weight).
+ */
+ weightInComposite?: number;
 }
 
 export type ApCurveGroup =
@@ -83,6 +89,58 @@ function sections(
  return { courseId, courseName, sections: parts, curveGroup, note, twoPartComposite };
 }
 
+/** Single Section I row (no split MC blocks). */
+function MC(maxPts: number, hint?: string): ApScoreSectionDef {
+ return {
+ id: "mc",
+ label: "Section I — Multiple choice",
+ maxPoints: maxPts,
+ hint: hint ?? `Weighted multiple-choice total (max ${maxPts})`,
+ };
+}
+
+/** Section II row: rubric max for UI; optional different composite weight (CB-style scaling). */
+function FR(
+ id: string,
+ label: string,
+ rubricMax: number,
+ compositeWeight: number,
+ hint?: string,
+): ApScoreSectionDef {
+ const row: ApScoreSectionDef = {
+ id,
+ label,
+ maxPoints: rubricMax,
+ hint: hint ?? `Rubric max ${rubricMax}`,
+ };
+ if (compositeWeight !== rubricMax) {
+ row.weightInComposite = compositeWeight;
+ }
+ return row;
+}
+
+const S80 = 80 / 26;
+/** Stats Section II: investigative + five FRQs (rubric /4 or /6); weights sum to 80. */
+const STATS_FR = [
+ FR("inv", "Investigative task", 6, 6 * S80),
+ FR("frq1", "FRQ — Problem 1", 4, 4 * S80),
+ FR("frq2", "FRQ — Problem 2", 4, 4 * S80),
+ FR("frq3", "FRQ — Problem 3", 4, 4 * S80),
+ FR("frq4", "FRQ — Problem 4", 4, 4 * S80),
+ FR("frq5", "FRQ — Problem 5", 4, 4 * S80),
+];
+
+const WUSH_SAQ = 40 / 3;
+const WGOV = 75 / 22;
+
+const WBIO = 90 / 60;
+const WCHEM = 90 / 46;
+const WP1 = 90 / 50;
+const WENV = 67 / 34;
+
+const WECON = 50 / 30;
+const WPREC_FR = 40 / 42;
+
 /**
  * Section maxima approximate College Board exam blueprints (MC + FRQ rubrics).
  * Curves are heuristic - not official; good for practice estimates only.
@@ -93,93 +151,85 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  "AP Calculus AB",
  "stem_math",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 27)", maxPoints: 27 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 27)", maxPoints: 27 },
- { id: "frq1", label: "FRQ 1", hint: "Rubric points (max 9)", maxPoints: 9 },
- { id: "frq2", label: "FRQ 2", hint: "Rubric points (max 9)", maxPoints: 9 },
- { id: "frq3", label: "FRQ 3", hint: "Rubric points (max 9)", maxPoints: 9 },
- { id: "frq4", label: "FRQ 4", hint: "Rubric points (max 9)", maxPoints: 9 },
- { id: "frq5", label: "FRQ 5", hint: "Rubric points (max 9)", maxPoints: 9 },
- { id: "frq6", label: "FRQ 6", hint: "Rubric points (max 9)", maxPoints: 9 },
+ MC(54),
+ FR("frq1", "Section II — FRQ 1", 9, 9),
+ FR("frq2", "Section II — FRQ 2", 9, 9),
+ FR("frq3", "Section II — FRQ 3", 9, 9),
+ FR("frq4", "Section II — FRQ 4", 9, 9),
+ FR("frq5", "Section II — FRQ 5", 9, 9),
+ FR("frq6", "Section II — FRQ 6", 9, 9),
  ],
- "Model totals: MCQ 54 + FRQ 54 = 108.",
- { mcSectionIds: ["mc1", "mc2"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5", "frq6"] },
+ "MCQ 54 + FRQ 54 (six ×9 rubric) = 108.",
+ { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5", "frq6"] },
  ),
  sections(
  "calc-bc",
  "AP Calculus BC",
  "stem_math",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 27)", maxPoints: 27 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 27)", maxPoints: 27 },
- { id: "frq1", label: "FRQ 1", hint: "Rubric points (max 9)", maxPoints: 9 },
- { id: "frq2", label: "FRQ 2", hint: "Rubric points (max 9)", maxPoints: 9 },
- { id: "frq3", label: "FRQ 3", hint: "Rubric points (max 9)", maxPoints: 9 },
- { id: "frq4", label: "FRQ 4", hint: "Rubric points (max 9)", maxPoints: 9 },
- { id: "frq5", label: "FRQ 5", hint: "Rubric points (max 9)", maxPoints: 9 },
- { id: "frq6", label: "FRQ 6", hint: "Rubric points (max 9)", maxPoints: 9 },
+ MC(54),
+ FR("frq1", "Section II — FRQ 1", 9, 9),
+ FR("frq2", "Section II — FRQ 2", 9, 9),
+ FR("frq3", "Section II — FRQ 3", 9, 9),
+ FR("frq4", "Section II — FRQ 4", 9, 9),
+ FR("frq5", "Section II — FRQ 5", 9, 9),
+ FR("frq6", "Section II — FRQ 6", 9, 9),
  ],
- "Model totals: MCQ 54 + FRQ 54 = 108.",
- { mcSectionIds: ["mc1", "mc2"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5", "frq6"] },
+ "MCQ 54 + FRQ 54 (six ×9 rubric) = 108.",
+ { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5", "frq6"] },
  ),
  sections(
  "precalc",
  "AP Precalculus",
  "stem_math",
  [
- { id: "mc1", label: "Section I — multiple choice (first 20)", hint: "Correct out of 20", maxPoints: 20 },
- { id: "mc2", label: "Section I — multiple choice (last 20)", hint: "Correct out of 20", maxPoints: 20 },
- { id: "frq1", label: "FRQ 1", hint: "Rubric points", maxPoints: 11 },
- { id: "frq2", label: "FRQ 2", hint: "Rubric points", maxPoints: 11 },
- { id: "frq3", label: "FRQ 3", hint: "Rubric points", maxPoints: 10 },
- { id: "frq4", label: "FRQ 4", hint: "Rubric points", maxPoints: 10 },
+ MC(40, "40 multiple-choice questions (max 40)"),
+ FR("frq1", "FRQ 1", 11, 11 * WPREC_FR),
+ FR("frq2", "FRQ 2", 11, 11 * WPREC_FR),
+ FR("frq3", "FRQ 3", 10, 10 * WPREC_FR),
+ FR("frq4", "FRQ 4", 10, 10 * WPREC_FR),
  ],
- undefined,
- { mcSectionIds: ["mc1", "mc2"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4"] },
+ "Section II rubric rows scale to 40 composite weight to pair with 40 MC.",
+ { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4"] },
  ),
  sections(
  "stats",
  "AP Statistics",
  "stats",
- [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 40)", maxPoints: 40 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 40)", maxPoints: 40 },
- { id: "frq", label: "FRQ — Section II (total)", hint: "All FRQ + investigative raw rolled into one line (max 80)", maxPoints: 80 },
- ],
- "Model totals: MCQ 80 + FRQ 80 = 160.",
- { mcSectionIds: ["mc1", "mc2"], frqSectionIds: ["frq"] },
+ [MC(80), ...STATS_FR],
+ "MCQ 80 + Section II (investigative + five FRQs; rubric scaled to weight 80) = 160.",
+ { mcSectionIds: ["mc"], frqSectionIds: ["inv", "frq1", "frq2", "frq3", "frq4", "frq5"] },
  ),
  sections(
  "cs-a",
  "AP Computer Science A",
  "cs",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 40)", maxPoints: 40 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 40)", maxPoints: 40 },
- { id: "frq1", label: "FRQ 1", hint: "Weighted points in 160-pt model (max 20; rubric often /9)", maxPoints: 20 },
- { id: "frq2", label: "FRQ 2", hint: "Weighted points in 160-pt model (max 20; rubric often /9)", maxPoints: 20 },
- { id: "frq3", label: "FRQ 3", hint: "Weighted points in 160-pt model (max 20; rubric often /9)", maxPoints: 20 },
- { id: "frq4", label: "FRQ 4", hint: "Weighted points in 160-pt model (max 20; rubric often /9)", maxPoints: 20 },
+ MC(80),
+ FR("frq1", "Section II — FRQ 1 (methods & control)", 9, 20),
+ FR("frq2", "Section II — FRQ 2 (classes)", 9, 20),
+ FR("frq3", "Section II — FRQ 3 (array / ArrayList)", 9, 20),
+ FR("frq4", "Section II — FRQ 4 (2D array)", 9, 20),
  ],
- "Model totals: MCQ 80 + FRQ (4×20) 80 = 160.",
- { mcSectionIds: ["mc1", "mc2"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4"] },
+ "MCQ 80 + four FRQs (rubric /9 each, weighted to 80) = 160.",
+ { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4"] },
  ),
  sections(
  "csp",
  "AP Computer Science Principles",
  "cs",
  [
- { id: "mcq", label: "MCQ — end-of-course exam", hint: "Multiple-choice weighted total (max 70)", maxPoints: 70 },
- { id: "ct1", label: "Create Task — rubric row 1", hint: "6 rows × 5 = 30 (max 5)", maxPoints: 5 },
- { id: "ct2", label: "Create Task — rubric row 2", hint: "Max 5", maxPoints: 5 },
- { id: "ct3", label: "Create Task — rubric row 3", hint: "Max 5", maxPoints: 5 },
- { id: "ct4", label: "Create Task — rubric row 4", hint: "Max 5", maxPoints: 5 },
- { id: "ct5", label: "Create Task — rubric row 5", hint: "Max 5", maxPoints: 5 },
- { id: "ct6", label: "Create Task — rubric row 6", hint: "Max 5", maxPoints: 5 },
+ MC(70, "End-of-course multiple choice (weighted total max 70)"),
+ FR("ct1", "Create Task — rubric criterion 1", 5, 5),
+ FR("ct2", "Create Task — rubric criterion 2", 5, 5),
+ FR("ct3", "Create Task — rubric criterion 3", 5, 5),
+ FR("ct4", "Create Task — rubric criterion 4", 5, 5),
+ FR("ct5", "Create Task — rubric criterion 5", 5, 5),
+ FR("ct6", "Create Task — rubric criterion 6", 5, 5),
  ],
- "Model totals: MCQ 70 + Create Task (6×5) 30 = 100.",
+ "MCQ 70 + Create Task (6×5 rubric) 30 = 100.",
  {
- mcSectionIds: ["mcq"],
+ mcSectionIds: ["mc"],
  frqSectionIds: ["ct1", "ct2", "ct3", "ct4", "ct5", "ct6"],
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Create Task score",
@@ -190,107 +240,117 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  "AP Physics 1",
  "science",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 45)", maxPoints: 45 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 45)", maxPoints: 45 },
- { id: "frq", label: "FRQ — Section II (total)", hint: "All free-response weighted total (max 90)", maxPoints: 90 },
+ MC(90),
+ FR("frq1", "Section II — FRQ 1", 12, 12 * WP1),
+ FR("frq2", "Section II — FRQ 2", 10, 10 * WP1),
+ FR("frq3", "Section II — FRQ 3", 10, 10 * WP1),
+ FR("frq4", "Section II — FRQ 4", 8, 8 * WP1),
+ FR("frq5", "Section II — FRQ 5", 10, 10 * WP1),
  ],
- "Model totals: MCQ 90 + FRQ 90 = 180.",
- { mcSectionIds: ["mc1", "mc2"], frqSectionIds: ["frq"] },
+ "MCQ 90 + five FRQs (rubric scaled to weight 90) = 180.",
+ { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5"] },
  ),
  sections(
  "physics-2",
  "AP Physics 2",
  "science",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 45)", maxPoints: 45 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 45)", maxPoints: 45 },
- { id: "frq", label: "FRQ — Section II (total)", hint: "All free-response weighted total (max 90)", maxPoints: 90 },
+ MC(90),
+ FR("frq1", "Section II — FRQ 1", 12, 12 * WP1),
+ FR("frq2", "Section II — FRQ 2", 10, 10 * WP1),
+ FR("frq3", "Section II — FRQ 3", 10, 10 * WP1),
+ FR("frq4", "Section II — FRQ 4", 8, 8 * WP1),
+ FR("frq5", "Section II — FRQ 5", 10, 10 * WP1),
  ],
- "Model totals: MCQ 90 + FRQ 90 = 180.",
- { mcSectionIds: ["mc1", "mc2"], frqSectionIds: ["frq"] },
+ "MCQ 90 + five FRQs (rubric scaled to weight 90) = 180.",
+ { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5"] },
  ),
  sections(
  "physics-c-m",
  "AP Physics C: Mechanics",
  "science",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 35)", maxPoints: 35 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 35)", maxPoints: 35 },
- { id: "frq1", label: "FRQ 1", hint: "Points toward FRQ total (max 30)", maxPoints: 30 },
- { id: "frq2", label: "FRQ 2", hint: "Points toward FRQ total (max 30)", maxPoints: 30 },
- { id: "frq3", label: "FRQ 3", hint: "Points toward FRQ total (max 30)", maxPoints: 30 },
+ MC(70),
+ FR("frq1", "Section II — FRQ 1", 15, 30),
+ FR("frq2", "Section II — FRQ 2", 15, 30),
+ FR("frq3", "Section II — FRQ 3", 15, 30),
  ],
- "Model totals: MCQ 70 + FRQ 90 = 160.",
- { mcSectionIds: ["mc1", "mc2"], frqSectionIds: ["frq1", "frq2", "frq3"] },
+ "MCQ 70 + three FRQs (rubric /15 each, weighted to 90) = 160.",
+ { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3"] },
  ),
  sections(
  "physics-c-em",
  "AP Physics C: E&M",
  "science",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 35)", maxPoints: 35 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 35)", maxPoints: 35 },
- { id: "frq1", label: "FRQ 1", hint: "Points toward FRQ total (max 30)", maxPoints: 30 },
- { id: "frq2", label: "FRQ 2", hint: "Points toward FRQ total (max 30)", maxPoints: 30 },
- { id: "frq3", label: "FRQ 3", hint: "Points toward FRQ total (max 30)", maxPoints: 30 },
+ MC(70),
+ FR("frq1", "Section II — FRQ 1", 15, 30),
+ FR("frq2", "Section II — FRQ 2", 15, 30),
+ FR("frq3", "Section II — FRQ 3", 15, 30),
  ],
- "Model totals: MCQ 70 + FRQ 90 = 160.",
- { mcSectionIds: ["mc1", "mc2"], frqSectionIds: ["frq1", "frq2", "frq3"] },
+ "MCQ 70 + three FRQs (rubric /15 each, weighted to 90) = 160.",
+ { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3"] },
  ),
  sections(
  "chem",
  "AP Chemistry",
  "science",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 45)", maxPoints: 45 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 45)", maxPoints: 45 },
- { id: "frq", label: "FRQ — Section II (total)", hint: "All free-response weighted total (max 90)", maxPoints: 90 },
+ MC(90),
+ FR("frq1", "Section II — FRQ 1 (long)", 10, 10 * WCHEM),
+ FR("frq2", "Section II — FRQ 2 (long)", 10, 10 * WCHEM),
+ FR("frq3", "Section II — FRQ 3", 9, 9 * WCHEM),
+ FR("frq4", "Section II — FRQ 4", 9, 9 * WCHEM),
+ FR("frq5", "Section II — FRQ 5 (short)", 4, 4 * WCHEM),
+ FR("frq6", "Section II — FRQ 6 (short)", 4, 4 * WCHEM),
  ],
- "Model totals: MCQ 90 + FRQ 90 = 180.",
- { mcSectionIds: ["mc1", "mc2"], frqSectionIds: ["frq"] },
+ "MCQ 90 + six FRQs (rubric scaled to weight 90) = 180.",
+ { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5", "frq6"] },
  ),
  sections(
  "bio",
  "AP Biology",
  "science",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 45)", maxPoints: 45 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 45)", maxPoints: 45 },
- { id: "frq", label: "FRQ — Section II (total)", hint: "All free-response weighted total (max 90)", maxPoints: 90 },
+ MC(90),
+ FR("frq1", "Section II — FRQ 1 (long)", 10, 10 * WBIO),
+ FR("frq2", "Section II — FRQ 2 (long)", 10, 10 * WBIO),
+ FR("frq3", "Section II — FRQ 3", 8, 8 * WBIO),
+ FR("frq4", "Section II — FRQ 4", 8, 8 * WBIO),
+ FR("frq5", "Section II — FRQ 5", 12, 12 * WBIO),
+ FR("frq6", "Section II — FRQ 6", 12, 12 * WBIO),
  ],
- "Model totals: MCQ 90 + FRQ 90 = 180.",
- { mcSectionIds: ["mc1", "mc2"], frqSectionIds: ["frq"] },
+ "MCQ 90 + six FRQs (rubric scaled to weight 90) = 180.",
+ { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5", "frq6"] },
  ),
  sections(
  "env",
  "AP Environmental Science",
  "science",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 50)", maxPoints: 50 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 50)", maxPoints: 50 },
- { id: "frq1", label: "FRQ — portion 1", hint: "Toward FRQ total (max 22)", maxPoints: 22 },
- { id: "frq2", label: "FRQ — portion 2", hint: "Toward FRQ total (max 22)", maxPoints: 22 },
- { id: "frq3", label: "FRQ — portion 3", hint: "Toward FRQ total (max 23)", maxPoints: 23 },
+ MC(100),
+ FR("frq1", "Section II — FRQ 1", 10, 10 * WENV),
+ FR("frq2", "Section II — FRQ 2", 12, 12 * WENV),
+ FR("frq3", "Section II — FRQ 3", 12, 12 * WENV),
  ],
- "Model totals: MCQ 100 + FRQ 67 = 167.",
- { mcSectionIds: ["mc1", "mc2"], frqSectionIds: ["frq1", "frq2", "frq3"] },
+ "MCQ 100 + three FRQs (rubric scaled to weight 67) = 167.",
+ { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3"] },
  ),
  sections(
  "ush",
  "AP US History",
  "history_gov",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 40)", maxPoints: 40 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 40)", maxPoints: 40 },
- { id: "saq1", label: "SAQ — set 1", hint: "Toward SAQ total (max 14)", maxPoints: 14 },
- { id: "saq2", label: "SAQ — set 2", hint: "Toward SAQ total (max 13)", maxPoints: 13 },
- { id: "saq3", label: "SAQ — set 3", hint: "Toward SAQ total (max 13)", maxPoints: 13 },
- { id: "dbq", label: "DBQ", hint: "Document-based question (max 50)", maxPoints: 50 },
- { id: "leq", label: "LEQ", hint: "Long essay (max 30)", maxPoints: 30 },
+ MC(80),
+ FR("saq1", "Section II — SAQ 1", 3, WUSH_SAQ),
+ FR("saq2", "Section II — SAQ 2", 3, WUSH_SAQ),
+ FR("saq3", "Section II — SAQ 3", 3, WUSH_SAQ),
+ FR("dbq", "Section II — DBQ", 7, 50),
+ FR("leq", "Section II — LEQ", 6, 30),
  ],
- "Model totals: MCQ 80 + SAQ 40 + DBQ 50 + LEQ 30 = 200.",
+ "MCQ 80 + SAQ (3×3 rubric → 40 wt) + DBQ (7→50) + LEQ (6→30) = 200.",
  {
- mcSectionIds: ["mc1", "mc2"],
+ mcSectionIds: ["mc"],
  frqSectionIds: ["saq1", "saq2", "saq3", "dbq", "leq"],
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Written (SAQ + DBQ + LEQ) score",
@@ -301,17 +361,16 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  "AP World History: Modern",
  "history_gov",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 40)", maxPoints: 40 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 40)", maxPoints: 40 },
- { id: "saq1", label: "SAQ — set 1", hint: "Toward SAQ total (max 14)", maxPoints: 14 },
- { id: "saq2", label: "SAQ — set 2", hint: "Toward SAQ total (max 13)", maxPoints: 13 },
- { id: "saq3", label: "SAQ — set 3", hint: "Toward SAQ total (max 13)", maxPoints: 13 },
- { id: "dbq", label: "DBQ", hint: "Document-based question (max 50)", maxPoints: 50 },
- { id: "leq", label: "LEQ", hint: "Long essay (max 30)", maxPoints: 30 },
+ MC(80),
+ FR("saq1", "Section II — SAQ 1", 3, WUSH_SAQ),
+ FR("saq2", "Section II — SAQ 2", 3, WUSH_SAQ),
+ FR("saq3", "Section II — SAQ 3", 3, WUSH_SAQ),
+ FR("dbq", "Section II — DBQ", 7, 50),
+ FR("leq", "Section II — LEQ", 6, 30),
  ],
- "Model totals: MCQ 80 + SAQ 40 + DBQ 50 + LEQ 30 = 200.",
+ "MCQ 80 + SAQ (3×3 rubric → 40 wt) + DBQ (7→50) + LEQ (6→30) = 200.",
  {
- mcSectionIds: ["mc1", "mc2"],
+ mcSectionIds: ["mc"],
  frqSectionIds: ["saq1", "saq2", "saq3", "dbq", "leq"],
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Written (SAQ + DBQ + LEQ) score",
@@ -322,17 +381,16 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  "AP European History",
  "history_gov",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 40)", maxPoints: 40 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 40)", maxPoints: 40 },
- { id: "saq1", label: "SAQ — set 1", hint: "Toward SAQ total (max 14)", maxPoints: 14 },
- { id: "saq2", label: "SAQ — set 2", hint: "Toward SAQ total (max 13)", maxPoints: 13 },
- { id: "saq3", label: "SAQ — set 3", hint: "Toward SAQ total (max 13)", maxPoints: 13 },
- { id: "dbq", label: "DBQ", hint: "Document-based question (max 50)", maxPoints: 50 },
- { id: "leq", label: "LEQ", hint: "Long essay (max 30)", maxPoints: 30 },
+ MC(80),
+ FR("saq1", "Section II — SAQ 1", 3, WUSH_SAQ),
+ FR("saq2", "Section II — SAQ 2", 3, WUSH_SAQ),
+ FR("saq3", "Section II — SAQ 3", 3, WUSH_SAQ),
+ FR("dbq", "Section II — DBQ", 7, 50),
+ FR("leq", "Section II — LEQ", 6, 30),
  ],
- "Model totals: MCQ 80 + SAQ 40 + DBQ 50 + LEQ 30 = 200.",
+ "MCQ 80 + SAQ (3×3 rubric → 40 wt) + DBQ (7→50) + LEQ (6→30) = 200.",
  {
- mcSectionIds: ["mc1", "mc2"],
+ mcSectionIds: ["mc"],
  frqSectionIds: ["saq1", "saq2", "saq3", "dbq", "leq"],
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Written (SAQ + DBQ + LEQ) score",
@@ -343,30 +401,29 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  "AP US Government & Politics",
  "history_gov",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 38)", maxPoints: 38 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 37)", maxPoints: 37 },
- { id: "frq1", label: "FRQ — concept application", hint: "Toward FRQ total (max 19)", maxPoints: 19 },
- { id: "frq2", label: "FRQ — quantitative analysis", hint: "Toward FRQ total (max 19)", maxPoints: 19 },
- { id: "frq3", label: "FRQ — SCOTUS comparison", hint: "Toward FRQ total (max 19)", maxPoints: 19 },
- { id: "frq4", label: "FRQ — argument essay", hint: "Toward FRQ total (max 18)", maxPoints: 18 },
+ MC(75),
+ FR("frq1", "Section II — Concept application", 6, 6 * WGOV),
+ FR("frq2", "Section II — Quantitative analysis", 5, 5 * WGOV),
+ FR("frq3", "Section II — SCOTUS comparison", 5, 5 * WGOV),
+ FR("frq4", "Section II — Argument essay", 6, 6 * WGOV),
  ],
- "Model totals: MCQ 75 + FRQ 75 = 150.",
- { mcSectionIds: ["mc1", "mc2"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4"] },
+ "MCQ 75 + four FRQs (rubric scaled to weight 75) = 150.",
+ { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4"] },
  ),
  sections(
  "comp-gov",
  "AP Comparative Government",
  "history_gov",
  [
- { id: "mc", label: "Section I — multiple choice", hint: "Correct out of 55", maxPoints: 55 },
- { id: "frq1", label: "Section II — FRQ 1", hint: "Rubric points", maxPoints: 6 },
- { id: "frq2", label: "Section II — FRQ 2", hint: "Rubric points", maxPoints: 5 },
- { id: "frq3", label: "Section II — FRQ 3", hint: "Rubric points", maxPoints: 5 },
- { id: "frq4", label: "Section II — FRQ 4", hint: "Rubric points", maxPoints: 6 },
- { id: "frq5", label: "Section II — FRQ 5", hint: "Rubric points", maxPoints: 6 },
- { id: "frq6", label: "Section II — FRQ 6", hint: "Rubric points", maxPoints: 5 },
- { id: "frq7", label: "Section II — FRQ 7", hint: "Rubric points", maxPoints: 6 },
- { id: "frq8", label: "Section II — FRQ 8", hint: "Rubric points", maxPoints: 6 },
+ MC(55, "55 multiple-choice items"),
+ FR("frq1", "Section II — FRQ 1", 6, 6),
+ FR("frq2", "Section II — FRQ 2", 5, 5),
+ FR("frq3", "Section II — FRQ 3", 5, 5),
+ FR("frq4", "Section II — FRQ 4", 6, 6),
+ FR("frq5", "Section II — FRQ 5", 6, 6),
+ FR("frq6", "Section II — FRQ 6", 5, 5),
+ FR("frq7", "Section II — FRQ 7", 6, 6),
+ FR("frq8", "Section II — FRQ 8", 6, 6),
  ],
  undefined,
  { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5", "frq6", "frq7", "frq8"] },
@@ -376,46 +433,40 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  "AP Macroeconomics",
  "econ",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 50)", maxPoints: 50 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 50)", maxPoints: 50 },
- { id: "frq1", label: "FRQ 1", hint: "Toward FRQ total (max 17)", maxPoints: 17 },
- { id: "frq2", label: "FRQ 2", hint: "Toward FRQ total (max 17)", maxPoints: 17 },
- { id: "frq3", label: "FRQ 3", hint: "Toward FRQ total (max 16)", maxPoints: 16 },
+ MC(100),
+ FR("frq1", "Section II — FRQ 1", 10, 10 * WECON),
+ FR("frq2", "Section II — FRQ 2", 10, 10 * WECON),
+ FR("frq3", "Section II — FRQ 3", 10, 10 * WECON),
  ],
- "Model totals: MCQ 100 + FRQ 50 = 150.",
- { mcSectionIds: ["mc1", "mc2"], frqSectionIds: ["frq1", "frq2", "frq3"] },
+ "MCQ 100 + three long FRQs (rubric /10 each → weight 50) = 150.",
+ { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3"] },
  ),
  sections(
  "micro",
  "AP Microeconomics",
  "econ",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 50)", maxPoints: 50 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 50)", maxPoints: 50 },
- { id: "frq1", label: "FRQ 1", hint: "Toward FRQ total (max 17)", maxPoints: 17 },
- { id: "frq2", label: "FRQ 2", hint: "Toward FRQ total (max 17)", maxPoints: 17 },
- { id: "frq3", label: "FRQ 3", hint: "Toward FRQ total (max 16)", maxPoints: 16 },
+ MC(100),
+ FR("frq1", "Section II — FRQ 1", 10, 10 * WECON),
+ FR("frq2", "Section II — FRQ 2", 10, 10 * WECON),
+ FR("frq3", "Section II — FRQ 3", 10, 10 * WECON),
  ],
- "Model totals: MCQ 100 + FRQ 50 = 150.",
- { mcSectionIds: ["mc1", "mc2"], frqSectionIds: ["frq1", "frq2", "frq3"] },
+ "MCQ 100 + three long FRQs (rubric /10 each → weight 50) = 150.",
+ { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3"] },
  ),
  sections(
  "psych",
  "AP Psychology",
  "psych",
  [
- { id: "mc1", label: "MCQ — quarter 1", hint: "Toward MCQ total (max 33)", maxPoints: 33 },
- { id: "mc2", label: "MCQ — quarter 2", hint: "Toward MCQ total (max 33)", maxPoints: 33 },
- { id: "mc3", label: "MCQ — quarter 3", hint: "Toward MCQ total (max 34)", maxPoints: 34 },
- { id: "mc4", label: "MCQ — quarter 4", hint: "Toward MCQ total (max 33)", maxPoints: 33 },
- { id: "frq1", label: "FRQ — portion 1", hint: "Toward FRQ total (max 22)", maxPoints: 22 },
- { id: "frq2", label: "FRQ — portion 2", hint: "Toward FRQ total (max 22)", maxPoints: 22 },
- { id: "frq3", label: "FRQ — portion 3", hint: "Toward FRQ total (max 23)", maxPoints: 23 },
+ MC(133, "Section I — all multiple choice (weighted total max 133)"),
+ FR("frq1", "Section II — FRQ 1", 7, 67 / 2),
+ FR("frq2", "Section II — FRQ 2", 7, 67 / 2),
  ],
- "Model totals: MCQ 133 + FRQ 67 = 200.",
+ "MCQ 133 + two FRQs (rubric /7 each → weight 67) = 200.",
  {
- mcSectionIds: ["mc1", "mc2", "mc3", "mc4"],
- frqSectionIds: ["frq1", "frq2", "frq3"],
+ mcSectionIds: ["mc"],
+ frqSectionIds: ["frq1", "frq2"],
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "FRQ score",
  },
@@ -425,15 +476,14 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  "AP Human Geography",
  "hum_geo",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 38)", maxPoints: 38 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 37)", maxPoints: 37 },
- { id: "frq1", label: "FRQ 1", hint: "Toward FRQ total (max 25)", maxPoints: 25 },
- { id: "frq2", label: "FRQ 2", hint: "Toward FRQ total (max 25)", maxPoints: 25 },
- { id: "frq3", label: "FRQ 3", hint: "Toward FRQ total (max 25)", maxPoints: 25 },
+ MC(75),
+ FR("frq1", "Section II: Free Response — Question 1", 7, 25),
+ FR("frq2", "Section II: Free Response — Question 2", 7, 25),
+ FR("frq3", "Section II: Free Response — Question 3", 7, 25),
  ],
- "Model totals: MCQ 75 + FRQ 75 = 150.",
+ "MCQ 75 + three 7-point FRQs (weighted to 75) = 150.",
  {
- mcSectionIds: ["mc1", "mc2"],
+ mcSectionIds: ["mc"],
  frqSectionIds: ["frq1", "frq2", "frq3"],
  },
  ),
@@ -442,15 +492,14 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  "AP English Language",
  "english",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 45)", maxPoints: 45 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 45)", maxPoints: 45 },
- { id: "essay1", label: "Essay 1", hint: "Essays 3×30 = 90 (max 30)", maxPoints: 30 },
- { id: "essay2", label: "Essay 2", hint: "Max 30", maxPoints: 30 },
- { id: "essay3", label: "Essay 3", hint: "Max 30", maxPoints: 30 },
+ MC(90),
+ FR("essay1", "Section II — Synthesis essay", 6, 30),
+ FR("essay2", "Section II — Rhetorical analysis", 6, 30),
+ FR("essay3", "Section II — Argument", 6, 30),
  ],
- "Model totals: MCQ 90 + essays (3×30) 90 = 180.",
+ "MCQ 90 + three essays (rubric /6 each → weight 90) = 180.",
  {
- mcSectionIds: ["mc1", "mc2"],
+ mcSectionIds: ["mc"],
  frqSectionIds: ["essay1", "essay2", "essay3"],
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Essay score",
@@ -461,15 +510,14 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  "AP English Literature",
  "english",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 45)", maxPoints: 45 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 45)", maxPoints: 45 },
- { id: "essay1", label: "Essay 1", hint: "Essays 3×30 = 90 (max 30)", maxPoints: 30 },
- { id: "essay2", label: "Essay 2", hint: "Max 30", maxPoints: 30 },
- { id: "essay3", label: "Essay 3", hint: "Max 30", maxPoints: 30 },
+ MC(90),
+ FR("essay1", "Section II — Poetry / prose analysis", 6, 30),
+ FR("essay2", "Section II — Literary argument", 6, 30),
+ FR("essay3", "Section II — Text / concept analysis", 6, 30),
  ],
- "Model totals: MCQ 90 + essays (3×30) 90 = 180.",
+ "MCQ 90 + three essays (rubric /6 each → weight 90) = 180.",
  {
- mcSectionIds: ["mc1", "mc2"],
+ mcSectionIds: ["mc"],
  frqSectionIds: ["essay1", "essay2", "essay3"],
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Essay score",
@@ -480,18 +528,17 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  "AP Art History",
  "arts",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 40)", maxPoints: 40 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 40)", maxPoints: 40 },
- { id: "frq1", label: "FRQ — Comparison", hint: "Max 16", maxPoints: 16 },
- { id: "frq2", label: "FRQ — Visual / contextual", hint: "Max 12", maxPoints: 12 },
- { id: "frq3", label: "FRQ — Visual analysis", hint: "Max 10", maxPoints: 10 },
- { id: "frq4", label: "FRQ — Contextual analysis", hint: "Max 10", maxPoints: 10 },
- { id: "frq5", label: "FRQ — Attribution", hint: "Max 10", maxPoints: 10 },
- { id: "frq6", label: "FRQ — Continuity & change", hint: "Max 10", maxPoints: 10 },
+ MC(80),
+ FR("frq1", "Section II — Comparison", 16, 16),
+ FR("frq2", "Section II — Visual / contextual analysis", 12, 12),
+ FR("frq3", "Section II — Visual analysis", 10, 10),
+ FR("frq4", "Section II — Contextual analysis", 10, 10),
+ FR("frq5", "Section II — Attribution", 10, 10),
+ FR("frq6", "Section II — Continuity & change", 10, 10),
  ],
- "Model totals: MCQ 80 + FRQ 68 = 148.",
+ "MCQ 80 + six FRQs (rubric totals 68) = 148.",
  {
- mcSectionIds: ["mc1", "mc2"],
+ mcSectionIds: ["mc"],
  frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5", "frq6"],
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "FRQ score",
@@ -518,14 +565,13 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  "AP Music Theory",
  "arts",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 38)", maxPoints: 38 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 37)", maxPoints: 37 },
- { id: "frq1", label: "FRQ — portion 1", hint: "Toward FRQ total (max 38)", maxPoints: 38 },
- { id: "frq2", label: "FRQ — portion 2", hint: "Toward FRQ total (max 37)", maxPoints: 37 },
+ MC(75),
+ FR("frq1", "Section II — FRQ / aural (first block)", 45, 37.5),
+ FR("frq2", "Section II — FRQ / aural (second block)", 30, 37.5),
  ],
- "Model totals: MCQ 75 + FRQ 75 = 150.",
+ "MCQ 75 + Section II split (rubric scaled to weight 75) = 150.",
  {
- mcSectionIds: ["mc1", "mc2"],
+ mcSectionIds: ["mc"],
  frqSectionIds: ["frq1", "frq2"],
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "FRQ score",
@@ -536,14 +582,13 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  "AP Spanish Language",
  "world_lang",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 50)", maxPoints: 50 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 50)", maxPoints: 50 },
- { id: "writing", label: "FRQ — Writing", hint: "Presentational & interpersonal writing (max 50)", maxPoints: 50 },
- { id: "speaking", label: "FRQ — Speaking", hint: "Presentational & interpersonal speaking (max 50)", maxPoints: 50 },
+ MC(100),
+ FR("writing", "Section II — Writing", 50, 50),
+ FR("speaking", "Section II — Speaking", 50, 50),
  ],
- "Model totals: MCQ 100 + Writing 50 + Speaking 50 = 200.",
+ "MCQ 100 + Writing 50 + Speaking 50 = 200.",
  {
- mcSectionIds: ["mc1", "mc2"],
+ mcSectionIds: ["mc"],
  frqSectionIds: ["writing", "speaking"],
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Writing + Speaking score",
@@ -554,14 +599,13 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  "AP French Language",
  "world_lang",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 50)", maxPoints: 50 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 50)", maxPoints: 50 },
- { id: "writing", label: "FRQ — Writing", hint: "Presentational & interpersonal writing (max 50)", maxPoints: 50 },
- { id: "speaking", label: "FRQ — Speaking", hint: "Presentational & interpersonal speaking (max 50)", maxPoints: 50 },
+ MC(100),
+ FR("writing", "Section II — Writing", 50, 50),
+ FR("speaking", "Section II — Speaking", 50, 50),
  ],
- "Model totals: MCQ 100 + Writing 50 + Speaking 50 = 200.",
+ "MCQ 100 + Writing 50 + Speaking 50 = 200.",
  {
- mcSectionIds: ["mc1", "mc2"],
+ mcSectionIds: ["mc"],
  frqSectionIds: ["writing", "speaking"],
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Writing + Speaking score",
@@ -572,14 +616,13 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  "AP German Language",
  "world_lang",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 50)", maxPoints: 50 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 50)", maxPoints: 50 },
- { id: "writing", label: "FRQ — Writing", hint: "Presentational & interpersonal writing (max 50)", maxPoints: 50 },
- { id: "speaking", label: "FRQ — Speaking", hint: "Presentational & interpersonal speaking (max 50)", maxPoints: 50 },
+ MC(100),
+ FR("writing", "Section II — Writing", 50, 50),
+ FR("speaking", "Section II — Speaking", 50, 50),
  ],
- "Model totals: MCQ 100 + Writing 50 + Speaking 50 = 200.",
+ "MCQ 100 + Writing 50 + Speaking 50 = 200.",
  {
- mcSectionIds: ["mc1", "mc2"],
+ mcSectionIds: ["mc"],
  frqSectionIds: ["writing", "speaking"],
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Writing + Speaking score",
@@ -590,27 +633,25 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  "AP Latin",
  "world_lang",
  [
- { id: "mc1", label: "Section I — multiple choice (first 25)", hint: "Correct out of 25", maxPoints: 25 },
- { id: "mc2", label: "Section I — multiple choice (last 25)", hint: "Correct out of 25", maxPoints: 25 },
- { id: "frq1", label: "Section II — FRQ 1 (translation / analytical)", hint: "Rubric points", maxPoints: 25 },
- { id: "frq2", label: "Section II — FRQ 2 (essay / sight reading)", hint: "Rubric points", maxPoints: 25 },
+ MC(50, "50 multiple-choice items"),
+ FR("frq1", "Section II — FRQ 1", 25, 25),
+ FR("frq2", "Section II — FRQ 2", 25, 25),
  ],
  undefined,
- { mcSectionIds: ["mc1", "mc2"], frqSectionIds: ["frq1", "frq2"] },
+ { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2"] },
  ),
  sections(
  "chinese",
  "AP Chinese Language",
  "world_lang",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 50)", maxPoints: 50 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 50)", maxPoints: 50 },
- { id: "writing", label: "FRQ — Writing", hint: "Presentational & interpersonal writing (max 50)", maxPoints: 50 },
- { id: "speaking", label: "FRQ — Speaking", hint: "Presentational & interpersonal speaking (max 50)", maxPoints: 50 },
+ MC(100),
+ FR("writing", "Section II — Writing", 50, 50),
+ FR("speaking", "Section II — Speaking", 50, 50),
  ],
- "Model totals: MCQ 100 + Writing 50 + Speaking 50 = 200.",
+ "MCQ 100 + Writing 50 + Speaking 50 = 200.",
  {
- mcSectionIds: ["mc1", "mc2"],
+ mcSectionIds: ["mc"],
  frqSectionIds: ["writing", "speaking"],
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Writing + Speaking score",
@@ -621,14 +662,13 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  "AP Japanese Language",
  "world_lang",
  [
- { id: "mc1", label: "MCQ — first half", hint: "Points toward MCQ total (max 50)", maxPoints: 50 },
- { id: "mc2", label: "MCQ — second half", hint: "Points toward MCQ total (max 50)", maxPoints: 50 },
- { id: "writing", label: "FRQ — Writing", hint: "Presentational & interpersonal writing (max 50)", maxPoints: 50 },
- { id: "speaking", label: "FRQ — Speaking", hint: "Presentational & interpersonal speaking (max 50)", maxPoints: 50 },
+ MC(100),
+ FR("writing", "Section II — Writing", 50, 50),
+ FR("speaking", "Section II — Speaking", 50, 50),
  ],
- "Model totals: MCQ 100 + Writing 50 + Speaking 50 = 200.",
+ "MCQ 100 + Writing 50 + Speaking 50 = 200.",
  {
- mcSectionIds: ["mc1", "mc2"],
+ mcSectionIds: ["mc"],
  frqSectionIds: ["writing", "speaking"],
  mcScoreLabel: "MCQ score",
  frqScoreLabel: "Writing + Speaking score",
@@ -701,6 +741,11 @@ function resolveTwoPartDef(model: ApSubjectScoreModel): ApTwoPartCompositeDef | 
  return null;
 }
 
+function sectionWeight(s: ApScoreSectionDef): number {
+ return s.weightInComposite ?? s.maxPoints;
+}
+
+/** Bucket total using (earned/rubricMax)*weight per section (College Board–style weighting). */
 function bucketEarnedMax(
  model: ApSubjectScoreModel,
  earnedBySectionId: Record<string, number>,
@@ -713,8 +758,11 @@ function bucketEarnedMax(
  if (!s) continue;
  const raw = earnedBySectionId[id];
  const e = typeof raw === "number" && !Number.isNaN(raw) ? Math.max(0, raw) : 0;
- earned += Math.min(e, s.maxPoints);
- max += s.maxPoints;
+ const clamped = Math.min(e, s.maxPoints);
+ const cap = s.maxPoints > 0 ? s.maxPoints : 1;
+ const w = sectionWeight(s);
+ earned += (clamped / cap) * w;
+ max += w;
  }
  return { earned, max };
 }
@@ -737,8 +785,10 @@ export function computeApSubjectScore(
  const raw = earnedBySectionId[s.id];
  const earned = typeof raw === "number" && !Number.isNaN(raw) ? Math.max(0, raw) : 0;
  const clamped = Math.min(earned, s.maxPoints);
- totalEarned += clamped;
- totalPossible += s.maxPoints;
+ const cap = s.maxPoints > 0 ? s.maxPoints : 1;
+ const w = sectionWeight(s);
+ totalEarned += (clamped / cap) * w;
+ totalPossible += w;
  bySection.push({
  id: s.id,
  label: s.label,
