@@ -71,6 +71,7 @@ const mainNav = [
  { href: "/dashboard", label: "Dashboard", icon: <LayoutGridIcon /> },
  { href: "/study", label: "Practice", icon: <BookIcon /> },
  { href: "/dashboard/predictor", label: "Predictor", icon: <TrendIcon /> },
+ { href: "/dashboard/score-calculator", label: "AP scores", icon: <SimpleIconBox name="calculator" size={22} /> },
  { href: "/dashboard/progress", label: "Progress", icon: <BarChartIcon /> },
  { href: "/dashboard/settings", label: "Settings", icon: <SettingsIcon /> },
 ];
@@ -121,7 +122,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
  </nav>
  <div className="p-3 border-t border-vanta-border space-y-1">
  {mainNav.map((item) => {
- const active = pathname === item.href || pathname.startsWith(item.href + "/");
+ const active =
+ item.href === "/dashboard"
+ ? pathname === "/dashboard"
+ : pathname === item.href || pathname.startsWith(`${item.href}/`);
  return (
  <Link
  key={item.href}
@@ -155,7 +159,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
  </div>
  <div className="hidden md:flex items-center gap-2 flex-1 justify-center max-w-2xl mx-auto">
  {mainNav.map((item) => {
- const active = pathname === item.href || pathname.startsWith(item.href + "/");
+ const active =
+ item.href === "/dashboard"
+ ? pathname === "/dashboard"
+ : pathname === item.href || pathname.startsWith(`${item.href}/`);
  return (
  <Link
  key={item.href}
@@ -195,7 +202,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
  {/* Mobile bottom nav */}
  <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-vanta-surface border-t border-vanta-border z-40 flex justify-around safe-area-pb py-1">
  {mainNav.map((item) => {
- const active = pathname === item.href || pathname.startsWith(item.href + "/");
+ const active =
+ item.href === "/dashboard"
+ ? pathname === "/dashboard"
+ : pathname === item.href || pathname.startsWith(`${item.href}/`);
  return (
  <Link
  key={item.href}

@@ -25,6 +25,14 @@ export type ApCurveGroup =
  | "world_lang"
  | "capstone";
 
+/** When set, composite % for the curve is the average of two buckets each scaled to 100 (like many reference calculators). */
+export interface ApTwoPartCompositeDef {
+ readonly mcSectionIds: readonly string[];
+ readonly frqSectionIds: readonly string[];
+ readonly mcScoreLabel?: string;
+ readonly frqScoreLabel?: string;
+}
+
 export interface ApSubjectScoreModel {
  courseId: string;
  courseName: string;
@@ -32,6 +40,8 @@ export interface ApSubjectScoreModel {
  curveGroup: ApCurveGroup;
  /** One-line note for the UI */
  note?: string;
+ /** MC vs FRQ (or portfolio halves) scaled to /100 each; composite shown as /200 in UI. */
+ twoPartComposite?: ApTwoPartCompositeDef;
 }
 
 /**
@@ -67,9 +77,10 @@ function sections(
  courseName: string,
  curveGroup: ApCurveGroup,
  parts: ApScoreSectionDef[],
- note?: string
+ note?: string,
+ twoPartComposite?: ApTwoPartCompositeDef,
 ): ApSubjectScoreModel {
- return { courseId, courseName, sections: parts, curveGroup, note };
+ return { courseId, courseName, sections: parts, curveGroup, note, twoPartComposite };
 }
 
 /**
@@ -77,14 +88,38 @@ function sections(
  * Curves are heuristic - not official; good for practice estimates only.
  */
 export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
- sections("calc-ab", "AP Calculus AB", "stem_math", [
- { id: "mc", label: "Multiple choice", hint: "Correct out of 45", maxPoints: 45 },
- { id: "frq", label: "Free response", hint: "Rubric points (6 questions, max 54)", maxPoints: 54 },
- ]),
- sections("calc-bc", "AP Calculus BC", "stem_math", [
- { id: "mc", label: "Multiple choice", hint: "Correct out of 45", maxPoints: 45 },
- { id: "frq", label: "Free response", hint: "Rubric points (max 54)", maxPoints: 54 },
- ]),
+ sections(
+ "calc-ab",
+ "AP Calculus AB",
+ "stem_math",
+ [
+ { id: "mc", label: "Section I: Multiple choice", hint: "Correct out of 45", maxPoints: 45 },
+ { id: "frq1", label: "FRQ 1", hint: "Rubric points", maxPoints: 9 },
+ { id: "frq2", label: "FRQ 2", hint: "Rubric points", maxPoints: 9 },
+ { id: "frq3", label: "FRQ 3", hint: "Rubric points", maxPoints: 9 },
+ { id: "frq4", label: "FRQ 4", hint: "Rubric points", maxPoints: 9 },
+ { id: "frq5", label: "FRQ 5", hint: "Rubric points", maxPoints: 9 },
+ { id: "frq6", label: "FRQ 6", hint: "Rubric points", maxPoints: 9 },
+ ],
+ undefined,
+ { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5", "frq6"] },
+ ),
+ sections(
+ "calc-bc",
+ "AP Calculus BC",
+ "stem_math",
+ [
+ { id: "mc", label: "Section I: Multiple choice", hint: "Correct out of 45", maxPoints: 45 },
+ { id: "frq1", label: "FRQ 1", hint: "Rubric points", maxPoints: 9 },
+ { id: "frq2", label: "FRQ 2", hint: "Rubric points", maxPoints: 9 },
+ { id: "frq3", label: "FRQ 3", hint: "Rubric points", maxPoints: 9 },
+ { id: "frq4", label: "FRQ 4", hint: "Rubric points", maxPoints: 9 },
+ { id: "frq5", label: "FRQ 5", hint: "Rubric points", maxPoints: 9 },
+ { id: "frq6", label: "FRQ 6", hint: "Rubric points", maxPoints: 9 },
+ ],
+ undefined,
+ { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5", "frq6"] },
+ ),
  sections("precalc", "AP Precalculus", "stem_math", [
  { id: "mc", label: "Multiple choice", hint: "Correct out of 40", maxPoints: 40 },
  { id: "frq", label: "Free response", hint: "Rubric points (max ~42)", maxPoints: 42 },
@@ -121,20 +156,42 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  { id: "mc", label: "Multiple choice", hint: "Correct out of 60", maxPoints: 60 },
  { id: "frq", label: "Free response", hint: "Long + short questions (max ~46)", maxPoints: 46 },
  ]),
- sections("bio", "AP Biology", "science", [
- { id: "mc", label: "Multiple choice", hint: "Correct out of 60", maxPoints: 60 },
- { id: "frq", label: "Free response", hint: "6 FRQs, rubric total (max ~60)", maxPoints: 60 },
- ]),
+ sections(
+ "bio",
+ "AP Biology",
+ "science",
+ [
+ { id: "mc", label: "Section I: Multiple choice", hint: "Correct out of 60", maxPoints: 60 },
+ { id: "frq1", label: "FRQ 1 (long)", hint: "Rubric", maxPoints: 10 },
+ { id: "frq2", label: "FRQ 2 (long)", hint: "Rubric", maxPoints: 10 },
+ { id: "frq3", label: "FRQ 3 (short)", hint: "Rubric", maxPoints: 8 },
+ { id: "frq4", label: "FRQ 4 (short)", hint: "Rubric", maxPoints: 8 },
+ { id: "frq5", label: "FRQ 5 (short)", hint: "Rubric", maxPoints: 12 },
+ { id: "frq6", label: "FRQ 6 (short)", hint: "Rubric", maxPoints: 12 },
+ ],
+ undefined,
+ { mcSectionIds: ["mc"], frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5", "frq6"] },
+ ),
  sections("env", "AP Environmental Science", "science", [
  { id: "mc", label: "Multiple choice", hint: "Correct out of 80", maxPoints: 80 },
  { id: "frq", label: "Free response", hint: "3 FRQs, rubric total (max ~40)", maxPoints: 40 },
  ]),
- sections("ush", "AP US History", "history_gov", [
+ sections(
+ "ush",
+ "AP US History",
+ "history_gov",
+ [
  { id: "mc", label: "Multiple choice", hint: "Correct out of 55", maxPoints: 55 },
  { id: "saq", label: "Short answer", hint: "Combined SAQ rubric (max ~18)", maxPoints: 18 },
  { id: "dbq", label: "Document-based question", hint: "DBQ rubric (max ~7)", maxPoints: 7 },
  { id: "leq", label: "Long essay", hint: "LEQ rubric (max ~6)", maxPoints: 6 },
- ], "Weights mirror MC + SAQ + DBQ + LEQ; adjust if your practice uses a single FRQ score."),
+ ],
+ "Weights mirror MC + SAQ + DBQ + LEQ; adjust if your practice uses a single FRQ score.",
+ {
+ mcSectionIds: ["mc"],
+ frqSectionIds: ["saq", "dbq", "leq"],
+ },
+ ),
  sections("wh", "AP World History: Modern", "history_gov", [
  { id: "mc", label: "Multiple choice", hint: "Correct out of 55", maxPoints: 55 },
  { id: "frq", label: "SAQ + DBQ + LEQ combined", hint: "Enter total rubric points (max ~45)", maxPoints: 45 },
@@ -166,56 +223,204 @@ export const AP_SUBJECT_SCORE_MODELS: ApSubjectScoreModel[] = [
  { id: "mc", label: "Multiple choice", hint: "Correct out of 60", maxPoints: 60 },
  { id: "frq", label: "Free response", hint: "3 questions, rubric total (max ~40)", maxPoints: 40 },
  ]),
- sections("lang", "AP English Language", "english", [
- { id: "mc", label: "Multiple choice / reading", hint: "Correct out of 45", maxPoints: 45 },
- { id: "essays", label: "Synthesis + rhetorical analysis + argument", hint: "Combined essay rubric points (max ~45)", maxPoints: 45 },
- ]),
- sections("lit", "AP English Literature", "english", [
- { id: "mc", label: "Multiple choice", hint: "Correct out of 55", maxPoints: 55 },
- { id: "essays", label: "Three essays", hint: "Combined rubric points (max ~45)", maxPoints: 45 },
- ]),
- sections("art-hist", "AP Art History", "arts", [
- { id: "mc", label: "Multiple choice", hint: "Correct out of 80", maxPoints: 80 },
- { id: "frq", label: "Long & short essays", hint: "6 FRQs, rubric total (max ~40)", maxPoints: 40 },
- ]),
+ sections(
+ "lang",
+ "AP English Language",
+ "english",
+ [
+ { id: "mc", label: "Section I: Multiple choice / reading", hint: "Correct out of 45", maxPoints: 45 },
+ {
+ id: "essays",
+ label: "Section II: Synthesis + rhetorical analysis + argument",
+ hint: "Combined essay rubric points (max ~45)",
+ maxPoints: 45,
+ },
+ ],
+ undefined,
+ {
+ mcSectionIds: ["mc"],
+ frqSectionIds: ["essays"],
+ mcScoreLabel: "Section I score",
+ frqScoreLabel: "Section II score",
+ },
+ ),
+ sections(
+ "lit",
+ "AP English Literature",
+ "english",
+ [
+ { id: "mc", label: "Section I: Multiple choice", hint: "Correct out of 55", maxPoints: 55 },
+ { id: "essays", label: "Section II: Three essays", hint: "Combined rubric points (max ~45)", maxPoints: 45 },
+ ],
+ undefined,
+ {
+ mcSectionIds: ["mc"],
+ frqSectionIds: ["essays"],
+ mcScoreLabel: "Section I score",
+ frqScoreLabel: "Section II score",
+ },
+ ),
+ sections(
+ "art-hist",
+ "AP Art History",
+ "arts",
+ [
+ { id: "mc", label: "Section 1: Multiple choice", hint: "Correct out of 80", maxPoints: 80 },
+ {
+ id: "frq1",
+ label: "Free Response 1: Comparison essay",
+ hint: "Rubric points",
+ maxPoints: 8,
+ },
+ {
+ id: "frq2",
+ label: "Free Response 2: Visual / contextual analysis",
+ hint: "Rubric points",
+ maxPoints: 6,
+ },
+ {
+ id: "frq3",
+ label: "Free Response 3: Visual analysis",
+ hint: "Rubric points",
+ maxPoints: 5,
+ },
+ {
+ id: "frq4",
+ label: "Free Response 4: Contextual analysis",
+ hint: "Rubric points",
+ maxPoints: 5,
+ },
+ {
+ id: "frq5",
+ label: "Free Response 5: Attribution",
+ hint: "Rubric points",
+ maxPoints: 5,
+ },
+ {
+ id: "frq6",
+ label: "Free Response 6: Continuity and change",
+ hint: "Rubric points",
+ maxPoints: 5,
+ },
+ ],
+ undefined,
+ {
+ mcSectionIds: ["mc"],
+ frqSectionIds: ["frq1", "frq2", "frq3", "frq4", "frq5", "frq6"],
+ mcScoreLabel: "Multiple Choice Score",
+ frqScoreLabel: "Free Response Score",
+ },
+ ),
  sections("art-design", "AP Art and Design", "arts", [
  { id: "sustained", label: "Sustained investigation", hint: "Portfolio rubric (max 50)", maxPoints: 50 },
  { id: "selected", label: "Selected works", hint: "Portfolio rubric (max 50)", maxPoints: 50 },
  ], "Scores depend on portfolio review; enter best-fit rubric totals."),
- sections("music", "AP Music Theory", "arts", [
+ sections(
+ "music",
+ "AP Music Theory",
+ "arts",
+ [
  { id: "mc", label: "Non-aural multiple choice", hint: "Correct out of 45", maxPoints: 45 },
  { id: "aural", label: "Aural MC + dictation", hint: "Rubric / correct items (max ~25)", maxPoints: 25 },
  { id: "frq", label: "Free response (written + sight-sing)", hint: "Rubric total (max ~30)", maxPoints: 30 },
- ]),
- sections("spanish", "AP Spanish Language", "world_lang", [
+ ],
+ undefined,
+ {
+ mcSectionIds: ["mc"],
+ frqSectionIds: ["aural", "frq"],
+ mcScoreLabel: "Multiple Choice Score",
+ frqScoreLabel: "Free Response & aural score",
+ },
+ ),
+ sections(
+ "spanish",
+ "AP Spanish Language",
+ "world_lang",
+ [
  { id: "interpretive", label: "Interpretive (print + audio)", hint: "Combined score (max 40)", maxPoints: 40 },
  { id: "interpersonal", label: "Interpersonal speaking & writing", hint: "Combined (max 30)", maxPoints: 30 },
  { id: "presentational", label: "Presentational speaking & writing", hint: "Combined (max 30)", maxPoints: 30 },
- ]),
- sections("french", "AP French Language", "world_lang", [
+ ],
+ undefined,
+ {
+ mcSectionIds: ["interpretive"],
+ frqSectionIds: ["interpersonal", "presentational"],
+ mcScoreLabel: "Interpretive score",
+ frqScoreLabel: "Interpersonal + presentational score",
+ },
+ ),
+ sections(
+ "french",
+ "AP French Language",
+ "world_lang",
+ [
  { id: "interpretive", label: "Interpretive communication", hint: "Combined (max 40)", maxPoints: 40 },
  { id: "interpersonal", label: "Interpersonal", hint: "Combined (max 30)", maxPoints: 30 },
  { id: "presentational", label: "Presentational", hint: "Combined (max 30)", maxPoints: 30 },
- ]),
- sections("german", "AP German Language", "world_lang", [
+ ],
+ undefined,
+ {
+ mcSectionIds: ["interpretive"],
+ frqSectionIds: ["interpersonal", "presentational"],
+ mcScoreLabel: "Interpretive score",
+ frqScoreLabel: "Interpersonal + presentational score",
+ },
+ ),
+ sections(
+ "german",
+ "AP German Language",
+ "world_lang",
+ [
  { id: "interpretive", label: "Interpretive communication", hint: "Combined (max 40)", maxPoints: 40 },
  { id: "interpersonal", label: "Interpersonal", hint: "Combined (max 30)", maxPoints: 30 },
  { id: "presentational", label: "Presentational", hint: "Combined (max 30)", maxPoints: 30 },
- ]),
+ ],
+ undefined,
+ {
+ mcSectionIds: ["interpretive"],
+ frqSectionIds: ["interpersonal", "presentational"],
+ mcScoreLabel: "Interpretive score",
+ frqScoreLabel: "Interpersonal + presentational score",
+ },
+ ),
  sections("latin", "AP Latin", "world_lang", [
  { id: "mc", label: "Multiple choice (grammar + reading)", hint: "Correct out of 50", maxPoints: 50 },
  { id: "frq", label: "Translation + analytical essay", hint: "Rubric total (max ~50)", maxPoints: 50 },
  ]),
- sections("chinese", "AP Chinese Language", "world_lang", [
+ sections(
+ "chinese",
+ "AP Chinese Language",
+ "world_lang",
+ [
  { id: "interpretive", label: "Interpretive listening & reading", hint: "Combined (max 40)", maxPoints: 40 },
  { id: "interpersonal", label: "Interpersonal speaking & writing", hint: "Combined (max 30)", maxPoints: 30 },
  { id: "presentational", label: "Presentational", hint: "Combined (max 30)", maxPoints: 30 },
- ]),
- sections("japanese", "AP Japanese Language", "world_lang", [
+ ],
+ undefined,
+ {
+ mcSectionIds: ["interpretive"],
+ frqSectionIds: ["interpersonal", "presentational"],
+ mcScoreLabel: "Interpretive score",
+ frqScoreLabel: "Interpersonal + presentational score",
+ },
+ ),
+ sections(
+ "japanese",
+ "AP Japanese Language",
+ "world_lang",
+ [
  { id: "interpretive", label: "Interpretive listening & reading", hint: "Combined (max 40)", maxPoints: 40 },
  { id: "interpersonal", label: "Interpersonal", hint: "Combined (max 30)", maxPoints: 30 },
  { id: "presentational", label: "Presentational", hint: "Combined (max 30)", maxPoints: 30 },
- ]),
+ ],
+ undefined,
+ {
+ mcSectionIds: ["interpretive"],
+ frqSectionIds: ["interpersonal", "presentational"],
+ mcScoreLabel: "Interpretive score",
+ frqScoreLabel: "Interpersonal + presentational score",
+ },
+ ),
  sections("seminar", "AP Seminar", "capstone", [
  { id: "team", label: "Team multimedia & defense", hint: "Rubric total (max 40)", maxPoints: 40 },
  { id: "individual", label: "Individual research report", hint: "Rubric total (max 40)", maxPoints: 40 },
@@ -256,6 +461,49 @@ export interface ApSubjectScoreResult {
  totalPossible: number;
  bySection: { id: string; label: string; earned: number; max: number; percent: number }[];
  model: ApSubjectScoreModel;
+ /** Present when the model uses MC vs FRQ (or equivalent) each scaled to 100 and summed for /200 display. */
+ scaledDisplay?: {
+ mcLabel: string;
+ frqLabel: string;
+ mcOutOf100: number;
+ frqOutOf100: number;
+ compositeOutOf200: number;
+ };
+}
+
+function roundDisplayScore(n: number): number {
+ return Math.round(n * 10) / 10;
+}
+
+function resolveTwoPartDef(model: ApSubjectScoreModel): ApTwoPartCompositeDef | null {
+ if (model.twoPartComposite) {
+ return model.twoPartComposite;
+ }
+ if (model.sections.length === 2) {
+ return {
+ mcSectionIds: [model.sections[0].id],
+ frqSectionIds: [model.sections[1].id],
+ };
+ }
+ return null;
+}
+
+function bucketEarnedMax(
+ model: ApSubjectScoreModel,
+ earnedBySectionId: Record<string, number>,
+ ids: readonly string[],
+): { earned: number; max: number } {
+ let earned = 0;
+ let max = 0;
+ for (const id of ids) {
+ const s = model.sections.find((x) => x.id === id);
+ if (!s) continue;
+ const raw = earnedBySectionId[id];
+ const e = typeof raw === "number" && !Number.isNaN(raw) ? Math.max(0, raw) : 0;
+ earned += Math.min(e, s.maxPoints);
+ max += s.maxPoints;
+ }
+ return { earned, max };
 }
 
 /**
@@ -287,7 +535,26 @@ export function computeApSubjectScore(
  });
  }
 
- const compositePercent = totalPossible > 0 ? (totalEarned / totalPossible) * 100 : 0;
+ const twoDef = resolveTwoPartDef(model);
+ let compositePercent =
+ totalPossible > 0 ? (totalEarned / totalPossible) * 100 : 0;
+ let scaledDisplay: ApSubjectScoreResult["scaledDisplay"];
+
+ if (twoDef) {
+ const mcB = bucketEarnedMax(model, earnedBySectionId, twoDef.mcSectionIds);
+ const frqB = bucketEarnedMax(model, earnedBySectionId, twoDef.frqSectionIds);
+ const mcOut = mcB.max > 0 ? (mcB.earned / mcB.max) * 100 : 0;
+ const frqOut = frqB.max > 0 ? (frqB.earned / frqB.max) * 100 : 0;
+ scaledDisplay = {
+ mcLabel: twoDef.mcScoreLabel ?? "Multiple Choice Score",
+ frqLabel: twoDef.frqScoreLabel ?? "Free Response Score",
+ mcOutOf100: roundDisplayScore(mcOut),
+ frqOutOf100: roundDisplayScore(frqOut),
+ compositeOutOf200: roundDisplayScore(mcOut + frqOut),
+ };
+ compositePercent = (mcOut + frqOut) / 2;
+ }
+
  const apScore = compositeToApScore(compositePercent, model.curveGroup);
 
  return {
@@ -297,5 +564,6 @@ export function computeApSubjectScore(
  totalPossible,
  bySection,
  model,
+ ...(scaledDisplay ? { scaledDisplay } : {}),
  };
 }

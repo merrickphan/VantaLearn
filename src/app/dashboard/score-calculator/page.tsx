@@ -12,6 +12,12 @@ import {
 
 type ExamMode = "ap_subject" | "ap_quick";
 
+function earnedForSection(maxPoints: number, raw: string | undefined): number {
+ const v = parseFloat(raw ?? "");
+ if (!Number.isFinite(v)) return 0;
+ return Math.min(Math.max(0, v), maxPoints);
+}
+
 export default function ScoreCalculatorPage() {
  const models = useMemo(() => listApSubjectModels(), []);
  const [mode, setMode] = useState<ExamMode>("ap_subject");
@@ -28,22 +34,24 @@ export default function ScoreCalculatorPage() {
  const [rawScore, setRawScore] = useState("");
  const [totalQuestions, setTotalQuestions] = useState("");
 
- const [result, setResult] = useState<
- | null
- | {
- kind: "ap_subject";
- data: ApSubjectScoreResult;
- }
- | {
- kind: "ap_quick";
+ const [quickResult, setQuickResult] = useState<{
  percentage: number;
  apScore: number;
- label: string;
  color: string;
- }
- >(null);
+ } | null>(null);
 
  const activeModel = useMemo(() => models.find((m) => m.courseId === courseId), [models, courseId]);
+
+ const subjectPreview = useMemo((): ApSubjectScoreResult | null => {
+ if (mode !== "ap_subject" || !activeModel) return null;
+ const earned: Record<string, number> = {};
+ for (const s of activeModel.sections) {
+ earned[s.id] = earnedForSection(s.maxPoints, sectionValues[s.id]);
+ }
+ const out = computeApSubjectScore(courseId, earned);
+ if ("error" in out) return null;
+ return out;
+ }, [mode, activeModel, courseId, sectionValues]);
 
  const resetSectionState = (id: string) => {
  const m = models.find((x) => x.courseId === id);
@@ -54,31 +62,23 @@ export default function ScoreCalculatorPage() {
  setSectionValues(next);
  };
 
- const calculate = () => {
- if (mode === "ap_subject" && activeModel) {
- const earned: Record<string, number> = {};
- for (const s of activeModel.sections) {
- const v = parseFloat(sectionValues[s.id] ?? "");
- earned[s.id] = Number.isFinite(v) ? v : 0;
- }
- const out = computeApSubjectScore(courseId, earned);
- if ("error" in out) return;
- setResult({ kind: "ap_subject", data: out });
- return;
- }
-
+ const calculateQuick = () => {
  const raw = parseInt(rawScore, 10);
  const total = parseInt(totalQuestions, 10);
  if (Number.isNaN(raw) || Number.isNaN(total) || total <= 0 || raw < 0 || raw > total) return;
 
  const { apScore, percentage } = calculateAPScore({ rawScore: raw, totalQuestions: total });
- const colors = { 5: "text-vanta-success", 4: "text-vanta-blue", 3: "text-vanta-blue", 2: "text-vanta-muted", 1: "text-vanta-error" };
- setResult({
- kind: "ap_quick",
+ const colors = {
+ 5: "text-vanta-success",
+ 4: "text-vanta-blue",
+ 3: "text-vanta-blue",
+ 2: "text-vanta-muted",
+ 1: "text-vanta-error",
+ } as const;
+ setQuickResult({
  percentage,
  apScore,
- label: `AP Score: ${apScore}`,
- color: colors[apScore],
+ color: colors[apScore as keyof typeof colors],
  });
  };
 
@@ -90,19 +90,24 @@ export default function ScoreCalculatorPage() {
  1: "No recommendation",
  } as const;
 
+ const scoreColor = (n: number) =>
+ n >= 4 ? "text-vanta-success" : n === 3 ? "text-vanta-blue" : n === 2 ? "text-vanta-muted" : "text-vanta-error";
+
  return (
- <div className="max-w-4xl mx-auto px-4 sm:px-8 py-10 md:py-12">
+ <div className="max-w-5xl mx-auto px-4 sm:px-8 py-10 md:py-12">
  <div className="mb-10 fade-up">
- <h1 className="font-display text-3xl md:text-4xl font-bold text-vanta-text">Score calculators</h1>
+ <h1 className="font-display text-3xl md:text-4xl font-bold text-vanta-text">AP score calculators</h1>
  <p className="text-vanta-muted text-lg mt-2 max-w-2xl">
- <strong className="text-vanta-text">Subject-specific AP</strong> models use section weights (MC, FRQ, essays, portfolio, etc.)
- and a tuned curve per subject family. Results are <strong className="text-vanta-text">practice estimates only</strong> - not
- from College Board.
+ <strong className="text-vanta-text">One calculator per AP course</strong> ({AP_COURSES.length} exams): enter raw
+ section scores (MC, each FRQ, portfolio blocks, etc.). Section scores can mirror reference tools — each bucket scaled to
+ a <strong className="text-vanta-text">/100</strong> line and a <strong className="text-vanta-text">/200</strong>{" "}
+ composite when the exam has a clear two-part layout. Curves are <strong className="text-vanta-text">practice estimates
+ only</strong>, not from College Board.
  </p>
  </div>
 
- <div className="grid lg:grid-cols-5 gap-8 items-start">
- <Card className="p-6 md:p-8 fade-up lg:col-span-3 rounded-2xl">
+ <div className="grid lg:grid-cols-2 gap-10 items-start">
+ <Card className="p-6 md:p-8 fade-up rounded-2xl">
  <p className="text-sm text-vanta-muted font-semibold uppercase tracking-wider mb-4">Mode</p>
  <div className="flex flex-wrap gap-2 mb-8">
  {(
@@ -116,11 +121,12 @@ export default function ScoreCalculatorPage() {
  type="button"
  onClick={() => {
  setMode(key);
- setResult(null);
+ setQuickResult(null);
  if (key === "ap_subject") resetSectionState(courseId);
  }}
  className={`px-4 py-2.5 rounded-xl text-sm font-medium border transition-all
- ${mode === key
+ ${
+ mode === key
  ? "bg-vanta-blue/15 border-vanta-blue text-vanta-blue"
  : "border-vanta-border text-vanta-muted hover:border-vanta-blue/50"
  }`}
@@ -138,7 +144,6 @@ export default function ScoreCalculatorPage() {
  value={courseId}
  onChange={(e) => {
  setCourseId(e.target.value);
- setResult(null);
  resetSectionState(e.target.value);
  }}
  className="w-full bg-vanta-surface-elevated text-vanta-text rounded-xl px-4 py-3 text-base border border-vanta-border focus:border-vanta-blue focus:outline-none"
@@ -150,17 +155,22 @@ export default function ScoreCalculatorPage() {
  ))}
  </select>
  {activeModel.note ? <p className="text-xs text-vanta-muted mt-2 leading-relaxed">{activeModel.note}</p> : null}
+ <p className="text-xs text-vanta-muted mt-3">
+ The estimate updates as you type or drag — no submit button for subject mode.
+ </p>
  </div>
 
- <div className="space-y-6 mb-8">
- {activeModel.sections.map((s) => (
+ <div className="space-y-6 mb-2">
+ {activeModel.sections.map((s) => {
+ const e = earnedForSection(s.maxPoints, sectionValues[s.id]);
+ return (
  <div key={s.id}>
- <div className="flex flex-wrap justify-between gap-2 mb-2">
- <label htmlFor={`sec-${s.id}`} className="text-base font-medium text-vanta-text">
+ <div className="flex flex-wrap justify-between gap-2 mb-2 items-baseline">
+ <label htmlFor={`sec-${s.id}`} className="text-base font-medium text-vanta-text leading-snug">
  {s.label}
  </label>
- <span className="text-sm text-vanta-muted">
- max {s.maxPoints} pts
+ <span className="text-sm text-vanta-muted tabular-nums shrink-0">
+ {e} / {s.maxPoints}
  </span>
  </div>
  {s.hint ? <p className="text-sm text-vanta-muted mb-2">{s.hint}</p> : null}
@@ -172,10 +182,10 @@ export default function ScoreCalculatorPage() {
  max={s.maxPoints}
  step={0.5}
  value={sectionValues[s.id] ?? ""}
- onChange={(e) =>
- setSectionValues((prev) => ({ ...prev, [s.id]: e.target.value }))
+ onChange={(ev) =>
+ setSectionValues((prev) => ({ ...prev, [s.id]: ev.target.value }))
  }
- placeholder={`0 - ${s.maxPoints}`}
+ placeholder={`0 – ${s.maxPoints}`}
  className="flex-1 min-w-0 bg-vanta-surface-elevated text-vanta-text placeholder-vanta-muted/70 rounded-xl px-4 py-3 text-base border border-vanta-border focus:border-vanta-blue focus:outline-none"
  />
  <input
@@ -183,23 +193,17 @@ export default function ScoreCalculatorPage() {
  min={0}
  max={s.maxPoints}
  step={0.5}
- value={Math.min(
- s.maxPoints,
- Math.max(0, parseFloat(sectionValues[s.id] ?? "0") || 0)
- )}
- onChange={(e) =>
- setSectionValues((prev) => ({ ...prev, [s.id]: e.target.value }))
+ value={e}
+ onChange={(ev) =>
+ setSectionValues((prev) => ({ ...prev, [s.id]: ev.target.value }))
  }
  className="flex-1 h-3 accent-sky-500"
  />
  </div>
  </div>
- ))}
+ );
+ })}
  </div>
-
- <Button type="button" onClick={calculate} className="w-full" size="lg">
- Estimate AP score
- </Button>
  </>
  ) : (
  <>
@@ -228,48 +232,69 @@ export default function ScoreCalculatorPage() {
  </div>
  </div>
  <p className="text-sm text-vanta-muted mb-6">
- Single practice-test percentage mapped to a generic AP 1-5 band (not course-specific).
+ Single practice-test percentage mapped to a generic AP 1–5 band (not course-specific).
  </p>
- <Button type="button" onClick={calculate} className="w-full" size="lg">
+ <Button type="button" onClick={calculateQuick} className="w-full" size="lg">
  Calculate
  </Button>
  </>
  )}
  </Card>
 
- <div className="lg:col-span-2 space-y-6">
- {result?.kind === "ap_subject" ? (
+ <div className="space-y-6">
+ {mode === "ap_subject" && subjectPreview ? (
  <Card className="p-6 md:p-8 fade-up rounded-2xl border-sky-500/20">
- <p className="text-sm text-vanta-muted font-semibold uppercase tracking-wider mb-4">Estimate</p>
- <div className="text-center mb-6">
- <p
- className={`text-6xl md:text-7xl font-bold mb-2 ${
- result.data.apScore >= 4
- ? "text-vanta-success"
- : result.data.apScore === 3
- ? "text-vanta-blue"
- : result.data.apScore === 2
- ? "text-vanta-muted"
- : "text-vanta-error"
- }`}
- >
- {result.data.apScore}
+ <p className="text-xs font-semibold text-vanta-muted uppercase tracking-wider mb-1">Predicted AP® score</p>
+ <div className="text-center mb-6 pb-6 border-b border-vanta-border">
+ <p className={`text-6xl md:text-7xl font-bold mb-1 ${scoreColor(subjectPreview.apScore)}`}>
+ {subjectPreview.apScore}
  </p>
- <p className="text-vanta-muted text-base">{apScoreDescriptions[result.data.apScore]}</p>
- <p className="text-xs text-vanta-muted mt-3 leading-relaxed">
- {result.data.model.courseName} | composite {result.data.compositePercent.toFixed(1)}% (
- {result.data.totalEarned.toFixed(1)} / {result.data.totalPossible} pts)
- </p>
+ <p className="text-vanta-muted text-sm">| Score range: 1 – 5</p>
+ <p className="text-vanta-muted text-base mt-3">{apScoreDescriptions[subjectPreview.apScore]}</p>
  </div>
 
+ {subjectPreview.scaledDisplay ? (
+ <div className="mb-6 pb-6 border-b border-vanta-border">
+ <p className="text-xs font-semibold text-vanta-muted uppercase tracking-wider mb-4">Section scores</p>
+ <div className="space-y-4 text-sm">
+ <div className="flex justify-between gap-4">
+ <span className="text-vanta-text font-medium">{subjectPreview.scaledDisplay.mcLabel}</span>
+ <span className="text-vanta-text font-semibold tabular-nums">
+ {subjectPreview.scaledDisplay.mcOutOf100} / 100
+ </span>
+ </div>
+ <div className="flex justify-between gap-4">
+ <span className="text-vanta-text font-medium">{subjectPreview.scaledDisplay.frqLabel}</span>
+ <span className="text-vanta-text font-semibold tabular-nums">
+ {subjectPreview.scaledDisplay.frqOutOf100} / 100
+ </span>
+ </div>
+ <div className="flex justify-between gap-4 pt-3 border-t border-vanta-border/80">
+ <span className="text-vanta-muted font-medium">Combined composite score</span>
+ <span className="text-vanta-text font-bold tabular-nums">
+ {subjectPreview.scaledDisplay.compositeOutOf200} / 200
+ </span>
+ </div>
+ </div>
+ </div>
+ ) : (
+ <div className="mb-6 pb-6 border-b border-vanta-border">
+ <p className="text-xs font-semibold text-vanta-muted uppercase tracking-wider mb-2">Composite (raw)</p>
+ <p className="text-vanta-text tabular-nums text-lg font-medium">
+ {subjectPreview.totalEarned.toFixed(1)} / {subjectPreview.totalPossible} pts (
+ {subjectPreview.compositePercent.toFixed(1)}%)
+ </p>
+ </div>
+ )}
+
  <div className="bg-vanta-bg rounded-xl p-4 mb-4">
- <p className="text-xs font-semibold text-vanta-muted uppercase tracking-wider mb-3">By section</p>
+ <p className="text-xs font-semibold text-vanta-muted uppercase tracking-wider mb-3">By section (raw)</p>
  <ul className="space-y-3">
- {result.data.bySection.map((row) => (
+ {subjectPreview.bySection.map((row) => (
  <li key={row.id} className="text-sm">
  <div className="flex justify-between gap-2 mb-1">
- <span className="text-vanta-text font-medium">{row.label}</span>
- <span className="text-vanta-muted tabular-nums">
+ <span className="text-vanta-text font-medium leading-snug">{row.label}</span>
+ <span className="text-vanta-muted tabular-nums shrink-0">
  {row.earned} / {row.max}
  </span>
  </div>
@@ -289,9 +314,9 @@ export default function ScoreCalculatorPage() {
  <div
  key={score}
  className={`text-center py-2.5 rounded-lg text-base font-bold ${
- score === result.data.apScore
+ score === subjectPreview.apScore
  ? "bg-sky-500/20 text-sky-200 border border-sky-400/40"
- : score < result.data.apScore
+ : score < subjectPreview.apScore
  ? "bg-vanta-blue/20 text-vanta-blue"
  : "bg-vanta-border/50 text-vanta-muted"
  }`}
@@ -300,25 +325,26 @@ export default function ScoreCalculatorPage() {
  </div>
  ))}
  </div>
+ <p className="text-[11px] text-vanta-muted mt-4 leading-relaxed">{subjectPreview.model.courseName}</p>
  </Card>
- ) : result ? (
+ ) : mode === "ap_quick" && quickResult ? (
  <Card className="p-6 md:p-8 fade-up rounded-2xl">
  <p className="text-sm text-vanta-muted mb-4">Estimated result</p>
  <div className="text-center mb-6">
- <p className={`text-6xl font-bold mb-2 ${result.color}`}>{result.apScore}</p>
+ <p className={`text-6xl font-bold mb-2 ${quickResult.color}`}>{quickResult.apScore}</p>
  <p className="text-vanta-muted text-base">
- {apScoreDescriptions[result.apScore as keyof typeof apScoreDescriptions]}
+ {apScoreDescriptions[quickResult.apScore as keyof typeof apScoreDescriptions]}
  </p>
  </div>
  <div className="bg-vanta-bg rounded-xl p-4">
  <div className="flex justify-between text-base mb-2">
  <span className="text-vanta-muted">Accuracy</span>
- <span className="text-vanta-text font-medium tabular-nums">{result.percentage.toFixed(1)}%</span>
+ <span className="text-vanta-text font-medium tabular-nums">{quickResult.percentage.toFixed(1)}%</span>
  </div>
  <div className="h-3 bg-vanta-border rounded-full overflow-hidden">
  <div
  className="h-full bg-vanta-blue rounded-full transition-all duration-700"
- style={{ width: `${result.percentage}%` }}
+ style={{ width: `${quickResult.percentage}%` }}
  />
  </div>
  </div>
@@ -326,8 +352,9 @@ export default function ScoreCalculatorPage() {
  ) : (
  <Card className="p-6 md:p-8 rounded-2xl border-dashed border-vanta-border">
  <p className="text-vanta-muted text-sm leading-relaxed">
- Choose a mode, enter your practice results, then run the calculator. Subject-specific AP uses the same course list as
- the rest of VantaLearn ({AP_COURSES.length} exams).
+ {mode === "ap_subject"
+ ? "Select a course and enter scores — your predicted AP score appears here."
+ : "Enter raw correct count and total questions, then tap Calculate."}
  </p>
  </Card>
  )}

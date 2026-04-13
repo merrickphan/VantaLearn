@@ -59,4 +59,5 @@ export {
  type ApSubjectScoreResult,
  type ApSubjectScoreModel,
  type ApScoreSectionDef,
+ type ApTwoPartCompositeDef,
 } from "@/lib/apScoreBySubject";

@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
  totalEarned: out.totalEarned,
  totalPossible: out.totalPossible,
  bySection: out.bySection,
+ scaledDisplay: out.scaledDisplay ?? null,
  courseId: out.model.courseId,
  courseName: out.model.courseName,
  });
