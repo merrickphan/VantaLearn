@@ -76,3 +76,12 @@ export const SAT_SUBJECTS = ["SAT Math", "SAT Reading & Writing"] as const;
 export const ALL_EXAMS = [...AP_COURSE_NAMES, ...SAT_SUBJECTS] as const;
 
 export const COMMON_EXAM_DATES: Record<string, string> = buildCommonExamDates();
+
+export {
+  computeApSubjectScore,
+  getApSubjectModel,
+  listApSubjectModels,
+  type ApSubjectScoreResult,
+  type ApSubjectScoreModel,
+  type ApScoreSectionDef,
+} from "@/lib/apScoreBySubject";

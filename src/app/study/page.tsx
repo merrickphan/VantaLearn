@@ -119,7 +119,7 @@ function StudyLibrary() {
                 <SimpleIconBox name="calculator" size={44} />
               </span>
               <h3 className="text-vanta-text font-semibold text-xl mb-2">Score calculator</h3>
-              <p className="text-vanta-muted text-base">Estimate AP (1–5) or SAT score</p>
+              <p className="text-vanta-muted text-base">Estimate AP scores (1–5) by course or quick %</p>
             </Card>
           </Link>
         </div>
