@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button, Card } from "@/components/ui";
+import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 import { AP_SUBJECTS, SAT_SUBJECTS } from "@/lib/utils";
 
 export default function StudyTipsPage() {
@@ -84,7 +85,7 @@ export default function StudyTipsPage() {
           loading={loading}
           className="w-full"
         >
-          {loading ? "Generating tip..." : "✨ Get Study Tip"}
+          {loading ? "Generating tip..." : "Get study tip"}
         </Button>
       </Card>
 
@@ -106,7 +107,9 @@ export default function StudyTipsPage() {
       {tip && !loading && (
         <Card className="p-6 border-vanta-blue/20 fade-up">
           <div className="flex items-center gap-2 mb-4">
-            <span className="text-lg">🤖</span>
+            <span aria-hidden>
+              <SimpleIconBox name="spark" size={28} />
+            </span>
             <div>
               <p className="text-xs text-vanta-blue font-semibold uppercase tracking-wider">AI Study Tip</p>
               {selectedSubject && <p className="text-xs text-vanta-muted">{selectedSubject}{topic ? ` · ${topic}` : ""}</p>}
@@ -125,13 +128,15 @@ export default function StudyTipsPage() {
           <p className="text-xs text-vanta-muted uppercase tracking-wider font-semibold mb-3">General Study Tips</p>
           <div className="space-y-3 stagger">
             {[
-              { icon: "🕐", tip: "Use the Pomodoro technique: 25 min focused study, 5 min break." },
-              { icon: "✍️", tip: "Active recall beats re-reading. Quiz yourself instead of highlighting." },
-              { icon: "🌙", tip: "Sleep consolidates memory. Study before sleep for better retention." },
-              { icon: "🔄", tip: "Spaced repetition: review material at increasing intervals over days." },
+              { icon: "clock" as const, tip: "Use the Pomodoro technique: 25 min focused study, 5 min break." },
+              { icon: "pen" as const, tip: "Active recall beats re-reading. Quiz yourself instead of highlighting." },
+              { icon: "moon" as const, tip: "Sleep consolidates memory. Study before sleep for better retention." },
+              { icon: "refresh" as const, tip: "Spaced repetition: review material at increasing intervals over days." },
             ].map((item) => (
               <div key={item.tip} className="fade-up flex gap-3 bg-vanta-surface border border-vanta-border rounded-lg px-4 py-3">
-                <span className="text-lg">{item.icon}</span>
+                <span className="shrink-0" aria-hidden>
+                  <SimpleIconBox name={item.icon} size={28} />
+                </span>
                 <p className="text-sm text-vanta-text leading-relaxed">{item.tip}</p>
               </div>
             ))}

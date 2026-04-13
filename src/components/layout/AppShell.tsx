@@ -7,13 +7,14 @@ import { useRouter } from "next/navigation";
 import { VantaLogo } from "@/components/branding/VantaLogo";
 import { AP_COURSES } from "@/lib/apCatalog";
 import { useCountdown } from "@/hooks/useTimer";
+import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 
 function SidebarCountdown({ examDate }: { examDate: string }) {
   const { days, hours, minutes } = useCountdown(examDate);
   const done = days <= 0 && hours <= 0 && minutes <= 0;
   if (done) return <span className="text-[10px] text-vanta-muted">—</span>;
   return (
-    <span className="text-[10px] text-sky-400/90 font-mono tabular-nums">
+    <span className="text-[10px] font-mono tabular-nums rounded px-1 py-0.5 bg-slate-200 text-slate-900">
       {days}d {hours}h {minutes}m
     </span>
   );
@@ -107,7 +108,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 href={href}
                 className="flex items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-vanta-surface-hover transition-colors"
               >
-                <span className="text-base shrink-0 leading-none mt-0.5">{c.icon}</span>
+                <span className="shrink-0 mt-0.5" aria-hidden>
+                  <SimpleIconBox name={c.icon} size={22} />
+                </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-[11px] font-medium text-vanta-text leading-tight truncate">{c.name}</p>
                   <SidebarCountdown examDate={c.examDate} />

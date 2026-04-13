@@ -7,6 +7,7 @@ import { FlashcardContent, FlashcardItem } from "@/types";
 import { useFlashcardProgress } from "@/hooks/useProgress";
 import { Button, Card, ProgressBar, Badge } from "@/components/ui";
 import Link from "next/link";
+import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 
 function FlashcardPlayer() {
   const searchParams = useSearchParams();
@@ -36,7 +37,9 @@ function FlashcardGame({ cards, title }: { cards: FlashcardItem[]; title: string
   if (isDone) {
     return (
       <div className="max-w-md mx-auto px-4 py-12 text-center fade-up">
-        <div className="text-5xl mb-6">🎉</div>
+        <div className="mb-6 flex justify-center" aria-hidden>
+          <SimpleIconBox name="star" size={56} />
+        </div>
         <h2 className="text-2xl font-bold text-vanta-text mb-2">Deck Complete!</h2>
         <p className="text-vanta-muted mb-8">{title}</p>
         <Card className="p-6 mb-6">

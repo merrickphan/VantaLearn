@@ -8,6 +8,7 @@ import { SAMPLE_RESOURCES } from "@/lib/utils/sampleData";
 import { AP_COURSES } from "@/lib/apCatalog";
 import { useCountdown } from "@/hooks/useTimer";
 import { loadCmdStats, type CommandCenterStats } from "@/lib/cmdStats";
+import { SimpleIconBox, type SimpleIconId } from "@/components/icons/SimpleIconBox";
 
 function SubjectCard({
   icon,
@@ -15,7 +16,7 @@ function SubjectCard({
   short,
   examDate,
 }: {
-  icon: string;
+  icon: SimpleIconId;
   name: string;
   short: string;
   examDate: string;
@@ -31,8 +32,12 @@ function SubjectCard({
         className="p-4 h-full border-vanta-border/80 bg-vanta-surface/60 hover:border-sky-500/30 hover:bg-vanta-surface-hover transition-all"
       >
         <div className="flex items-start justify-between gap-2 mb-3">
-          <span className="text-xl">{icon}</span>
-          <span className="text-[10px] font-mono text-sky-400/80 tabular-nums shrink-0">{timerLabel}</span>
+          <span aria-hidden>
+            <SimpleIconBox name={icon} size={32} />
+          </span>
+          <span className="text-[10px] font-mono tabular-nums shrink-0 rounded px-1.5 py-0.5 bg-slate-200 text-slate-900">
+            {timerLabel}
+          </span>
         </div>
         <h3 className="text-sm font-semibold text-vanta-text leading-snug mb-1">{name}</h3>
         <p className="text-[11px] text-vanta-muted leading-relaxed line-clamp-2">{short}</p>
@@ -93,22 +98,30 @@ export default function DashboardPage() {
 
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-10 stagger">
         <Card className="p-4 border-vanta-border bg-vanta-surface/50">
-          <p className="text-lg mb-1">📋</p>
+          <span className="mb-2 inline-block" aria-hidden>
+            <SimpleIconBox name="clipboard" size={28} />
+          </span>
           <p className="text-2xl font-display font-bold text-vanta-text">{attempts}</p>
           <p className="text-[11px] text-vanta-muted uppercase tracking-wider">Total attempts</p>
         </Card>
         <Card className="p-4 border-vanta-border bg-vanta-surface/50">
-          <p className="text-lg mb-1">✅</p>
+          <span className="mb-2 inline-block" aria-hidden>
+            <SimpleIconBox name="check" size={28} />
+          </span>
           <p className="text-2xl font-display font-bold text-emerald-400">{correct}</p>
           <p className="text-[11px] text-vanta-muted uppercase tracking-wider">Correct answers</p>
         </Card>
         <Card className="p-4 border-vanta-border bg-vanta-surface/50">
-          <p className="text-lg mb-1">📚</p>
+          <span className="mb-2 inline-block" aria-hidden>
+            <SimpleIconBox name="book" size={28} />
+          </span>
           <p className="text-2xl font-display font-bold text-sky-400">{subjectsPracticed}</p>
           <p className="text-[11px] text-vanta-muted uppercase tracking-wider">Subjects practiced</p>
         </Card>
         <Card className="p-4 border-vanta-border bg-vanta-surface/50">
-          <p className="text-lg mb-1">🔥</p>
+          <span className="mb-2 inline-block" aria-hidden>
+            <SimpleIconBox name="flame" size={28} />
+          </span>
           <p className="text-2xl font-display font-bold text-amber-400">{streak}</p>
           <p className="text-[11px] text-vanta-muted uppercase tracking-wider">Strong-exam streak</p>
         </Card>

@@ -9,6 +9,7 @@ import { Button, Card, Badge, ProgressBar, Textarea, Spinner } from "@/component
 import { calculateAPScore } from "@/lib/utils";
 import Link from "next/link";
 import { ExamFigure } from "@/components/exam/ExamFigure";
+import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 import { recordExamComplete } from "@/lib/cmdStats";
 
 function ExamPlayer() {
@@ -116,8 +117,11 @@ function QuestionCard({
       {submitted && (
         <div className="mt-3">
           {!feedbackRequested ? (
-            <Button variant="ghost" size="sm" onClick={getAIFeedback}>
-              🤖 Get AI Feedback
+            <Button variant="ghost" size="sm" onClick={getAIFeedback} className="gap-2">
+              <span aria-hidden className="inline-flex">
+                <SimpleIconBox name="spark" size={22} />
+              </span>
+              Get AI feedback
             </Button>
           ) : loadingFeedback ? (
             <div className="flex items-center gap-2 text-vanta-muted text-sm">
@@ -126,7 +130,12 @@ function QuestionCard({
             </div>
           ) : aiFeedback ? (
             <div className="mt-3 p-4 bg-vanta-blue/5 border border-vanta-blue/20 rounded-lg">
-              <p className="text-xs text-vanta-blue font-semibold mb-2">🤖 AI Feedback</p>
+              <p className="text-xs text-vanta-blue font-semibold mb-2 flex items-center gap-2">
+                <span aria-hidden className="inline-flex">
+                  <SimpleIconBox name="spark" size={20} />
+                </span>
+                AI feedback
+              </p>
               <p className="text-vanta-text text-sm leading-relaxed whitespace-pre-line">{aiFeedback}</p>
             </div>
           ) : null}
@@ -156,7 +165,9 @@ function ExamGame({ questions, title }: { questions: ExamQuestion[]; title: stri
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="text-center mb-8 fade-up">
-          <div className="text-4xl mb-4">📊</div>
+          <div className="mb-4 flex justify-center" aria-hidden>
+            <SimpleIconBox name="chart" size={48} />
+          </div>
           <h1 className="text-2xl font-bold text-vanta-text mb-2">Exam Complete</h1>
           <p className="text-vanta-muted">{title}</p>
         </div>

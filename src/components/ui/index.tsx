@@ -21,7 +21,7 @@ export function Button({
 
   const variants = {
     primary:
-      "btn-shine bg-sky-500/20 hover:bg-sky-400/30 text-sky-50 border border-sky-400/50 shadow-sm shadow-black/40 hover:shadow-glow",
+      "btn-shine bg-sky-500/20 hover:bg-sky-400/30 text-slate-900 border border-sky-400/50 shadow-sm shadow-black/40 hover:shadow-glow",
     secondary:
       "btn-shine btn-shine-outline bg-transparent border border-vanta-border hover:border-vanta-blue/60 text-vanta-text hover:text-vanta-blue hover:bg-vanta-blue-muted/40",
     ghost:

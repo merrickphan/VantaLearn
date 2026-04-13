@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { Card, Badge } from "@/components/ui";
+import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 import { SAMPLE_RESOURCES } from "@/lib/utils/sampleData";
 
 function StudyLibrary() {
@@ -50,7 +51,9 @@ function StudyLibrary() {
                 <Link key={set.id} href={`/study/flashcards?id=${set.id}`}>
                   <Card hover className="p-5 h-full border-vanta-border/80">
                     <div className="flex items-start justify-between mb-3">
-                      <span className="text-2xl">🃏</span>
+                      <span aria-hidden>
+                        <SimpleIconBox name="cards" size={32} />
+                      </span>
                       <Badge variant="blue">{cards.length} cards</Badge>
                     </div>
                     <h3 className="text-vanta-text font-semibold mb-1">{set.title}</h3>
@@ -80,7 +83,9 @@ function StudyLibrary() {
                 <Link key={exam.id} href={`/study/exam?id=${exam.id}`}>
                   <Card hover className="p-5 h-full border-vanta-border/80">
                     <div className="flex items-start justify-between mb-3">
-                      <span className="text-2xl">📝</span>
+                      <span aria-hidden>
+                        <SimpleIconBox name="document" size={32} />
+                      </span>
                       <div className="flex gap-2">
                         <Badge variant="gray">{questions.length} Qs</Badge>
                         {time_limit_minutes ? <Badge variant="blue">{time_limit_minutes}m</Badge> : null}
@@ -101,14 +106,18 @@ function StudyLibrary() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Link href="/study/tips">
             <Card hover className="p-5 border-vanta-border/80">
-              <span className="text-2xl mb-3 block">🤖</span>
+              <span className="mb-3 block" aria-hidden>
+                <SimpleIconBox name="spark" size={36} />
+              </span>
               <h3 className="text-vanta-text font-semibold mb-1">AI study tips</h3>
               <p className="text-vanta-muted text-sm">Personalized advice by subject</p>
             </Card>
           </Link>
           <Link href="/dashboard/score-calculator">
             <Card hover className="p-5 border-vanta-border/80">
-              <span className="text-2xl mb-3 block">🧮</span>
+              <span className="mb-3 block" aria-hidden>
+                <SimpleIconBox name="calculator" size={36} />
+              </span>
               <h3 className="text-vanta-text font-semibold mb-1">Score calculator</h3>
               <p className="text-vanta-muted text-sm">Estimate AP (1–5) or SAT score</p>
             </Card>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { VantaLogo } from "@/components/branding/VantaLogo";
+import { SimpleIconBox, type SimpleIconId } from "@/components/icons/SimpleIconBox";
 
 export default function HomePage() {
   return (
@@ -26,7 +27,7 @@ export default function HomePage() {
           </Link>
           <Link
             href="/auth/signup"
-            className="text-sm btn-shine bg-sky-500/20 hover:bg-sky-400/30 text-sky-50 border border-sky-400/50 px-4 py-2 rounded-lg font-medium"
+            className="text-sm btn-shine bg-sky-500/20 hover:bg-sky-400/30 text-slate-900 border border-sky-400/50 px-4 py-2 rounded-lg font-medium"
           >
             Get Started
           </Link>
@@ -53,7 +54,7 @@ export default function HomePage() {
         <div className="fade-up flex flex-col sm:flex-row gap-3">
           <Link
             href="/auth/signup"
-            className="bg-sky-500/20 hover:bg-sky-400/30 text-sky-50 border border-sky-400/50 px-8 py-3.5 rounded-lg font-semibold text-base btn-shine"
+            className="bg-sky-500/20 hover:bg-sky-400/30 text-slate-900 border border-sky-400/50 px-8 py-3.5 rounded-lg font-semibold text-base btn-shine"
           >
             Start Studying Free →
           </Link>
@@ -69,17 +70,21 @@ export default function HomePage() {
       {/* Features */}
       <section className="px-6 pb-20 max-w-5xl mx-auto w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 stagger">
-          {[
-            { icon: "🃏", title: "Flashcards", desc: "3D flip cards with swipe gestures for spaced repetition" },
-            { icon: "📝", title: "Practice Exams", desc: "Real AP & SAT questions with instant scoring" },
-            { icon: "🤖", title: "AI Feedback", desc: "GPT-4o-mini explains every answer and gives study tips" },
-            { icon: "⏱️", title: "Exam Countdown", desc: "Track days remaining to your exams at a glance" },
-          ].map((f) => (
+          {(
+            [
+              { icon: "cards" as SimpleIconId, title: "Flashcards", desc: "3D flip cards with swipe gestures for spaced repetition" },
+              { icon: "document" as SimpleIconId, title: "Practice Exams", desc: "Real AP & SAT questions with instant scoring" },
+              { icon: "spark" as SimpleIconId, title: "AI Feedback", desc: "GPT-4o-mini explains every answer and gives study tips" },
+              { icon: "clock" as SimpleIconId, title: "Exam Countdown", desc: "Track days remaining to your exams at a glance" },
+            ] as const
+          ).map((f) => (
             <div
               key={f.title}
               className="fade-up bg-vanta-surface border border-vanta-border rounded-card p-5 hover:border-vanta-blue/35 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover"
             >
-              <div className="text-2xl mb-3">{f.icon}</div>
+              <div className="mb-3" aria-hidden>
+                <SimpleIconBox name={f.icon} size={40} />
+              </div>
               <h3 className="text-vanta-text font-semibold mb-1">{f.title}</h3>
               <p className="text-vanta-muted text-sm leading-relaxed">{f.desc}</p>
             </div>

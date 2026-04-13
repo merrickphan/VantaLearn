@@ -34,9 +34,9 @@ export default function ScoreCalculatorPage() {
   };
 
   const apScoreDescriptions = {
-    5: "Extremely well qualified 🏆",
-    4: "Well qualified ⭐",
-    3: "Qualified ✓",
+    5: "Extremely well qualified",
+    4: "Well qualified",
+    3: "Qualified",
     2: "Possibly qualified",
     1: "No recommendation",
   };

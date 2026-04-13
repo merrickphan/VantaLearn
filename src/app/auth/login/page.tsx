@@ -38,17 +38,11 @@ export default function LoginPage() {
     const siteUrl =
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? location.origin;
     const redirectTo = `${siteUrl}/auth/callback`;
-    // #region agent log
-    fetch('http://127.0.0.1:7529/ingest/27623fb8-b785-4a8e-aae2-c7f03373464e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d0bfe1'},body:JSON.stringify({sessionId:'d0bfe1',runId:'pre-fix',hypothesisId:'H1',location:'src/app/auth/login/page.tsx:handleGoogleLogin',message:'Starting Google OAuth sign-in',data:{redirectTo,origin:location.origin,siteUrl},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo },
     });
     if (error) {
-      // #region agent log
-      fetch('http://127.0.0.1:7529/ingest/27623fb8-b785-4a8e-aae2-c7f03373464e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d0bfe1'},body:JSON.stringify({sessionId:'d0bfe1',runId:'pre-fix',hypothesisId:'H1',location:'src/app/auth/login/page.tsx:handleGoogleLogin',message:'Google OAuth sign-in returned error',data:{errorMessage:error.message},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       setError(error.message);
       setGoogleLoading(false);
     }
