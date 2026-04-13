@@ -314,17 +314,80 @@ export const AP_UNITS_BY_COURSE_ID: Record<string, ApUnit[]> = {
  "Factor Markets",
  "Market Failure and the Role of Government",
  ]),
- psych: U("psych", [
- "Scientific Foundations of Psychology",
- "Biological Bases of Behavior",
- "Sensation and Perception",
- "Learning",
- "Cognitive Psychology",
- "Developmental Psychology",
- "Motivation, Emotion, and Personality",
- "Clinical Psychology",
- "Social Psychology",
- ]),
+ psych: [
+ {
+ id: "psych-u1",
+ index: 1,
+ title: "Scientific Foundations of Psychology",
+ summary:
+ "Major historical approaches (psychodynamic, behavioral, humanistic, cognitive, biological, evolutionary, sociocultural); how psychologists pose questions and use evidence; research designs including experiments, correlational studies, naturalistic observation, surveys, and case studies; key ethical principles (informed consent, confidentiality, debriefing, use of animals); descriptive versus inferential statistics; central tendency and variability; statistical significance; operational definitions; independent and dependent variables; confounds; validity and reliability; how nature-nurture and levels of analysis frame psychological inquiry.",
+ questionHooks: ["experimental design", "correlation vs causation", "ethics in research"],
+ },
+ {
+ id: "psych-u2",
+ index: 2,
+ title: "Biological Bases of Behavior",
+ summary:
+ "Broca's and Wernicke's areas and expressive versus receptive aphasia; lesion methods and neuroimaging (CT, MRI, PET, fMRI, EEG, MEG); organization of the nervous system (CNS, PNS, somatic, autonomic, sympathetic versus parasympathetic); major structures (brainstem, cerebellum, basal ganglia, limbic system, thalamus, hypothalamus, hippocampus, cortex, association areas); lateralization and split-brain research; plasticity; neuron structure and glia; resting and action potentials; all-or-none law; saltatory conduction; synapses; agonists and antagonists; major neurotransmitters; reflex arc and neuron types; endocrine glands and hormones; genetics, molecular genetics, twin and adoption studies, heritability, genotype and phenotype, selected genetic conditions; evolutionary psychology as context; states of consciousness; sleep architecture (NREM, REM), dreams and major theories; sleep disorders; hypnosis; meditation; categories of psychoactive drugs and dependence.",
+ questionHooks: ["brain structure and function", "neurotransmitters", "endocrine system"],
+ },
+ {
+ id: "psych-u3",
+ index: 3,
+ title: "Sensation and Perception",
+ summary:
+ "Thresholds and signal detection; sensory adaptation; structure and function of vision and hearing; feature detection and parallel processing; Gestalt principles of form perception; depth and motion perception; perceptual constancies; attention and selective attention; bottom-up versus top-down processing; how internal factors (expectations, motivation, emotion, past experience) and external factors (culture, social context, physical environment) shape perception; misperceptions and context effects.",
+ questionHooks: ["Gestalt principles", "depth perception", "top-down processing"],
+ },
+ {
+ id: "psych-u4",
+ index: 4,
+ title: "Learning",
+ summary:
+ "Classical conditioning (Pavlov): acquisition, extinction, spontaneous recovery, generalization, discrimination, higher-order conditioning; applications and aversive conditioning; operant conditioning (Skinner): reinforcement and punishment (positive and negative), shaping, schedules of reinforcement (fixed/variable ratio and interval), effects on response rates; escape and avoidance learning; latent learning and cognitive maps; observational learning (Bandura): modeling, mirror-neuron ideas, prosocial versus antisocial examples; insight learning; biological constraints on learning.",
+ questionHooks: ["classical vs operant", "reinforcement schedules", "observational learning"],
+ },
+ {
+ id: "psych-u5",
+ index: 5,
+ title: "Cognitive Psychology",
+ summary:
+ "Information-processing model: encoding, storage, retrieval; sensory, working, and long-term memory; explicit versus implicit memory; models of long-term memory; encoding strategies (including levels of processing, rehearsal, mnemonics); forgetting (encoding failure, retrieval failure, interference, motivated forgetting); memory construction and misinformation; cognition: concepts and prototypes; problem solving and obstacles (confirmation bias, functional fixedness); decision making and heuristics (availability, representativeness); anchoring; intelligence theories and assessment debates; language structure (phonemes, morphemes, grammar); language acquisition and critical periods; thinking and creativity in context.",
+ questionHooks: ["working memory", "interference and forgetting", "heuristics and biases"],
+ },
+ {
+ id: "psych-u6",
+ index: 6,
+ title: "Developmental Psychology",
+ summary:
+ "Research designs (cross-sectional, longitudinal, sequential); prenatal development and teratogens; newborn reflexes; developmental theories across the lifespan; Piaget's stages and cognitive tasks; Vygotsky (ZPD, scaffolding, cultural tools); information-processing views of development; Erikson's psychosocial stages; attachment theory (Bowlby, Ainsworth strange situation, attachment styles); parenting styles; Harlow and contact comfort; gender development and identity; Kohlberg's moral reasoning; theories of aging; stability and change; continuity versus stages; key developmental milestones and studies.",
+ questionHooks: ["Piaget stages", "attachment styles", "Vygotsky ZPD"],
+ },
+ {
+ id: "psych-u7",
+ index: 7,
+ title: "Motivation, Emotion, and Personality",
+ summary:
+ "Motivation: instinct, drive-reduction, arousal, incentive, hierarchy of needs, intrinsic versus extrinsic motivation, achievement motivation; hunger and regulation; emotion theories (James-Lange, Cannon-Bard, Schachter-Singer two-factor, Lazarus appraisal); physiology and expression of emotion (including universality and display rules); stress: stressors, cognitive appraisal (primary and secondary), general adaptation syndrome (alarm, resistance, exhaustion), problem-focused versus emotion-focused coping, perceived control; personality: psychodynamic theory (Freud: id, ego, superego, defense mechanisms, psychosexual stages); neo-Freudians; humanistic theories (Rogers, Maslow); trait models (Big Five); social-cognitive theory (Bandura: reciprocal determinism, self-efficacy); assessment of personality; locus of control.",
+ questionHooks: ["defense mechanisms", "Big Five traits", "stress and coping"],
+ },
+ {
+ id: "psych-u8",
+ index: 8,
+ title: "Clinical Psychology",
+ summary:
+ "Defining and classifying disorders; anxiety-related disorders; obsessive-compulsive and trauma-related disorders; depressive and bipolar disorders; schizophrenia spectrum; dissociative and somatic symptom-related disorders; feeding and eating disorders; personality disorders (overview); substance-related and addictive disorders (overview); historical and modern psychotherapy (psychoanalysis, humanistic, behavior, cognitive, CBT, group and family); biomedical therapies (drug classes, ECT, newer brain stimulation); therapeutic alliance; prevention; mind-body connections (for example psychoneuroimmunology) and wellness; understanding mental health care in context; stigma and barriers to care.",
+ questionHooks: ["CBT basics", "anxiety vs mood disorders", "therapy modalities"],
+ },
+ {
+ id: "psych-u9",
+ index: 9,
+ title: "Social Psychology",
+ summary:
+ "Person perception; attribution theory (dispositional versus situational, fundamental attribution error, actor-observer bias, self-serving bias); attitudes and behavior; cognitive dissonance (Festinger); persuasion (central versus peripheral route, foot-in-the-door, door-in-the-face); conformity (Asch); obedience (Milgram); group influence (social facilitation, social loafing, deindividuation, group polarization, groupthink); prosocial behavior (bystander effect, altruism); aggression; prejudice, discrimination, and stereotypes; attraction and relationships.",
+ questionHooks: ["fundamental attribution error", "conformity vs obedience", "cognitive dissonance"],
+ },
+ ],
  "hum-geo": [
  {
  id: "hum-geo-u1",

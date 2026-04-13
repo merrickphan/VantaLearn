@@ -111,6 +111,8 @@ function DashboardContent() {
  ? "Multiple-choice practice is grouped by topic (seven themes from geographic foundations through economic development). Pick a theme so generated items stay in that area."
  : selectedCourse.id === "ush"
  ? "Multiple-choice practice follows nine chronological spans from Indigenous North America and early contact through the late 20th and 21st centuries. Pick a span so generated items stay in that window."
+ : selectedCourse.id === "psych"
+ ? "Multiple-choice practice follows the College Board's nine AP Psychology units (from scientific foundations through social psychology). Pick a unit so generated items stay in that content area."
  : undefined
  }
  />

@@ -221,15 +221,51 @@ export const AP_UNITS_BY_COURSE_ID: Record<string, ApUnit[]> = {
  ]),
 
  psych: U("psych", [
- { title: "Scientific Foundations of Psychology", summary: "History, perspectives, research methods, ethics.", hooks: ["experimental design", "statistics in psych", "operational definitions"] },
- { title: "Biological Bases of Behavior", summary: "Neurons, brain structures, genetics, endocrine.", hooks: ["neurotransmitters", "split-brain", "plasticity"] },
- { title: "Sensation and Perception", summary: "Thresholds, vision/hearing, perceptual organization.", hooks: ["signal detection", "Gestalt principles", "color vision theories"] },
- { title: "Learning", summary: "Classical, operant, observational, latent learning.", hooks: ["schedules of reinforcement", "extinction", "Pavlov applications"] },
- { title: "Cognitive Psychology", summary: "Memory models, language, problem solving, intelligence.", hooks: ["encoding strategies", "interference", "heuristics"] },
- { title: "Developmental Psychology", summary: "Theories of development, attachment, aging.", hooks: ["Piaget stages", "Erikson", "strange situation"] },
- { title: "Motivation, Emotion, and Personality", summary: "Theories of motivation, emotion, personality traits.", hooks: ["intrinsic vs extrinsic", "James-Lange", "Big Five"] },
- { title: "Clinical Psychology", summary: "Disorders, therapy, DSM overview.", hooks: ["CBT basics", "anxiety vs mood", "schizophrenia symptoms"] },
- { title: "Social Psychology", summary: "Attribution, conformity, obedience, group behavior.", hooks: ["fundamental attribution error", "Asch", "Milgram ethics"] },
+ {
+ title: "Scientific Foundations of Psychology",
+ summary: "History and approaches; research methods and ethics; statistics and how psychologists interpret evidence.",
+ hooks: ["experimental design", "correlation vs causation", "ethics in research"],
+ },
+ {
+ title: "Biological Bases of Behavior",
+ summary: "Neuroanatomy and imaging; neural signaling; endocrine system; genetics; consciousness, sleep, and drugs.",
+ hooks: ["brain structure and function", "neurotransmitters", "endocrine system"],
+ },
+ {
+ title: "Sensation and Perception",
+ summary: "Thresholds; vision and hearing; attention; perceptual organization and influences on interpretation.",
+ hooks: ["Gestalt principles", "depth perception", "top-down processing"],
+ },
+ {
+ title: "Learning",
+ summary: "Classical and operant conditioning; schedules; observational learning and applications.",
+ hooks: ["classical vs operant", "reinforcement schedules", "observational learning"],
+ },
+ {
+ title: "Cognitive Psychology",
+ summary: "Memory models; forgetting; thinking, problem solving, judgment; intelligence and language.",
+ hooks: ["working memory", "interference and forgetting", "heuristics and biases"],
+ },
+ {
+ title: "Developmental Psychology",
+ summary: "Lifespan development; theories of cognitive and social development; attachment and research methods.",
+ hooks: ["Piaget stages", "attachment styles", "Vygotsky ZPD"],
+ },
+ {
+ title: "Motivation, Emotion, and Personality",
+ summary: "Motivation and emotion theories; stress and coping; psychodynamic, humanistic, trait, and social-cognitive personality.",
+ hooks: ["defense mechanisms", "Big Five traits", "stress and coping"],
+ },
+ {
+ title: "Clinical Psychology",
+ summary: "Psychological disorders and classification; psychotherapy; biomedical approaches; mind-body and wellness context.",
+ hooks: ["CBT basics", "anxiety vs mood disorders", "therapy modalities"],
+ },
+ {
+ title: "Social Psychology",
+ summary: "Attribution; attitudes; conformity and obedience; group behavior; prejudice and prosocial behavior.",
+ hooks: ["fundamental attribution error", "conformity vs obedience", "cognitive dissonance"],
+ },
  ]),
 
  "hum-geo": U("hum-geo", [

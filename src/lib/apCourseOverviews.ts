@@ -561,27 +561,27 @@ export const AP_COURSE_OVERVIEWS: Record<string, CourseOverview> = {
   psych: {
     eyebrow: "AP Psychology",
     summary:
-      "Scientific study of behavior and mental processes: biology of behavior, cognition, development, clinical psychology, and social psychology.",
+      "College Board's nine units move from scientific foundations and the biology of behavior through sensation, learning, cognition, development, motivation and personality, clinical psychology, and social psychology.",
     sections: [
       {
         title: "What you learn",
         body:
-          "Research methods, neuroscience and genetics, sensation and perception, learning, memory and cognition, motivation and emotion, development, personality, disorders and treatment, and social psychology.",
+          "How psychologists investigate behavior; biological and environmental influences; how we sense, learn, remember, and think; lifespan change; motivation, emotion, and personality; psychological disorders and treatments; and how individuals think about themselves and others in social contexts.",
       },
       {
         title: "How the AP exam is built",
         body:
-          "Broad multiple-choice coverage with scenarios; some versions include free response focused on concepts and research design.",
+          "The national exam is all multiple-choice in most administrations, with scenarios that ask you to apply concepts, interpret research, and use terminology precisely. Check the current Course and Exam Description for any format updates.",
       },
       {
         title: "How practice maps here",
         body:
-          "Units align with the nine content areas on the framework. Choose a unit to concentrate on one domain.",
+          "Units follow the official framework: Scientific Foundations; Biological Bases of Behavior; Sensation and Perception; Learning; Cognitive Psychology; Developmental Psychology; Motivation, Emotion, and Personality; Clinical Psychology; and Social Psychology. Pick a unit to keep practice in that content area.",
       },
       {
         title: "Skills to keep in mind",
         body:
-          "Distinguish correlation and causation, name key researchers and paradigms where relevant, and apply terminology precisely.",
+          "Distinguish correlation and causation, connect terms to examples, recognize classic studies and researchers, and read each stem for what it is actually asking.",
       },
     ],
   },

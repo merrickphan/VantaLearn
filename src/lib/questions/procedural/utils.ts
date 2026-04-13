@@ -1,4 +1,6 @@
-﻿/** Deterministic hash for seed strings (FNV-1a style). */
+﻿import type { ExamQuestion } from "@/types";
+
+/** Deterministic hash for seed strings (FNV-1a style). */
 export function hashString(s: string): number {
  let h = 2166136261 >>> 0;
  for (let i = 0; i < s.length; i++) {
@@ -26,6 +28,25 @@ export function createRng(seedBase: string, salt: string | number): () => number
 
 export function randInt(rng: () => number, min: number, maxInclusive: number): number {
  return min + Math.floor(rng() * (maxInclusive - min + 1));
+}
+
+/** Sample `count` distinct integers in [min, max] (inclusive). Range must be wide enough. */
+export function distinctRandInts(rng: () => number, count: number, min: number, max: number): number[] {
+ if (max - min + 1 < count) {
+ throw new Error("distinctRandInts: range too small for count");
+ }
+ const out: number[] = [];
+ let guard = 0;
+ while (out.length < count && guard < count * 100) {
+ guard++;
+ const v = randInt(rng, min, max);
+ if (!out.includes(v)) out.push(v);
+ }
+ while (out.length < count) {
+ const v = min + out.length;
+ if (!out.includes(v)) out.push(v);
+ }
+ return out;
 }
 
 export function pick<T>(rng: () => number, arr: readonly T[]): T {
@@ -64,6 +85,25 @@ export function shuffleInPlace<T>(rng: () => number, arr: T[]): T[] {
 export function roundN(n: number, places: number): number {
  const p = 10 ** places;
  return Math.round(n * p) / p;
+}
+
+/** High-entropy seed fragment for procedural runs (reduces repeat probability across sessions). */
+export function randomSeedEntropy(): string {
+ if (typeof globalThis.crypto !== "undefined" && "getRandomValues" in globalThis.crypto) {
+ const a = new Uint8Array(20);
+ globalThis.crypto.getRandomValues(a);
+ return Array.from(a, (b) => b.toString(16).padStart(2, "0")).join("");
+ }
+ return `${Date.now()}-${Math.random().toString(36).slice(2, 14)}-${Math.random().toString(36).slice(2, 14)}`;
+}
+
+/**
+ * Fingerprint for deduplication: includes stem, correct answer, and figure payload so
+ * chart/table questions with the same wording but different data count as distinct.
+ */
+export function proceduralQuestionFingerprint(q: ExamQuestion): string {
+ const fig = q.figure ? JSON.stringify(q.figure) : "";
+ return `${q.question.trim()}\n${String(q.correct_answer).trim()}\n${fig}`;
 }
 
 export function uniqueOptions(correct: string, wrong: string[], rng: () => number): string[] {

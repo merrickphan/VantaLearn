@@ -1,5 +1,5 @@
 ﻿import type { ExamQuestion } from "@/types";
-import { hashString, randInt, roundN, shuffleInPlace } from "./utils";
+import { distinctRandInts, hashString, pick, randInt, roundN, shuffleInPlace } from "./utils";
 import { getHumanGeographyGeneratorsForUnit } from "./humanGeographyUnitPools";
 import { getUsHistoryGeneratorsForUnit } from "./usHistoryUnitPools";
 import { getWorldHistoryGeneratorsForUnit } from "./worldHistoryUnitPools";
@@ -48,28 +48,32 @@ function mc(
 /* - - - Calculus / precalc / stats - - - */
 
 export function genDerivativePower(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
- const n = randInt(rng, 2, 9);
- const coef = randInt(rng, 1, 8);
+ const n = randInt(rng, 2, 48);
+ const coefMag = randInt(rng, 1, 72);
+ const sign = pick(rng, [-1, 1] as const);
+ const coef = coefMag * sign;
  const d = coef * n;
- const correct = `${d}x^${n - 1}`;
+ const nm1 = n - 1;
+ const fx = coef < 0 ? `${coef}x^${n}` : `${coef}x^${n}`;
+ const correct = `${d}x^${nm1}`;
  return mc(
  rng,
  ctx,
  i,
  "d-power",
- `If f(x) = ${coef}x^${n}, then f'(x) equals`,
+ `If f(x) = ${fx}, then f'(x) equals`,
  correct,
- `${coef * (n - 1)}x^${n}`,
+ `${coef}x^${nm1}`,
  `${d}x^${n}`,
- `${coef}x^${n - 1}`,
- `Power rule: d/dx of c | x^n is c | n | x^(n-1).`,
+ `${d + randInt(rng, 1, 4)}x^${nm1}`,
+ `Power rule: d/dx[c x^n] = (cn)x^(n-1). Here cn = ${d}.`,
  );
 }
 
 export function genLimitLinear(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
- const a = randInt(rng, 1, 6);
- const b = randInt(rng, -5, 5);
- const c = randInt(rng, 1, 8);
+ const a = randInt(rng, 1, 42);
+ const b = randInt(rng, -60, 60);
+ const c = randInt(rng, 1, 55);
  const lim = a * c + b;
  return mc(
  rng,
@@ -78,16 +82,16 @@ export function genLimitLinear(rng: () => number, ctx: ProcCtx, i: number): Exam
  "lim-lin",
  `Find the limit as x approaches ${c} of (${a}x + ${b}).`,
  `${lim}`,
- `${lim + 1}`,
- `${lim - 1}`,
+ `${lim + randInt(rng, 2, 9)}`,
+ `${lim - randInt(rng, 2, 9)}`,
  `${a + b}`,
  `Substitute x = ${c} into the continuous linear function.`,
  );
 }
 
 export function genIntegralPower(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
- const n = randInt(rng, 2, 5);
- const coef = randInt(rng, 1, 4);
+ const n = randInt(rng, 2, 14);
+ const coef = randInt(rng, 1, 28);
  const exp = n + 1;
  const num = coef;
  const correct = `(${num}/${exp})x^${exp} + C`;
@@ -100,17 +104,17 @@ export function genIntegralPower(rng: () => number, ctx: ProcCtx, i: number): Ex
  correct,
  `${coef}x^${exp} + C`,
  `(${num}/${n})x^${n} + C`,
- `${coef * exp}x^${n - 1} + C`,
+ `${coef + randInt(rng, 1, 5)}x^${exp} + C`,
  `Increase exponent by 1 and divide by the new exponent.`,
  );
 }
 
 export function genCompositionValue(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
- const a = randInt(rng, 1, 4);
- const b = randInt(rng, 1, 5);
- const x0 = randInt(rng, 1, 3);
+ const a = randInt(rng, 1, 18);
+ const b = randInt(rng, 1, 35);
+ const x0 = randInt(rng, 1, 22);
  const inner = a * x0 + b;
- const outerCoef = randInt(rng, 2, 5);
+ const outerCoef = randInt(rng, 2, 24);
  const val = outerCoef * inner;
  return mc(
  rng,
@@ -119,28 +123,41 @@ export function genCompositionValue(rng: () => number, ctx: ProcCtx, i: number):
  "comp",
  `If f(x) = ${outerCoef}x and g(x) = ${a}x + ${b}, what is f(g(${x0}))?`,
  `${val}`,
- `${outerCoef + inner}`,
- `${a * outerCoef}`,
- `${inner}`,
+ `${outerCoef + inner + randInt(rng, 1, 6)}`,
+ `${a * outerCoef + randInt(rng, 0, 4)}`,
+ `${inner + randInt(rng, 1, 7)}`,
  `First g(${x0}) = ${inner}, then f(${inner}) = ${outerCoef} x ${inner}.`,
  );
 }
 
+const TRIG_ROWS: { stem: string; c: string; w: [string, string, string]; ex: string }[] = [
+ { stem: "sin(0) equals", c: "0", w: ["1", "-1", "1/2"], ex: "sin(0) = 0." },
+ { stem: "cos(0) equals", c: "1", w: ["0", "-1", "1/2"], ex: "cos(0) = 1." },
+ { stem: "sin(pi/2) equals", c: "1", w: ["0", "-1", "1/2"], ex: "sin(pi/2) = 1." },
+ { stem: "cos(pi/2) equals", c: "0", w: ["1", "-1", "1/2"], ex: "cos(pi/2) = 0." },
+ { stem: "sin(pi) equals", c: "0", w: ["1", "-1", "1/2"], ex: "sin(pi) = 0." },
+ { stem: "cos(pi) equals", c: "-1", w: ["0", "1", "1/2"], ex: "cos(pi) = -1." },
+ { stem: "sin(3pi/2) equals", c: "-1", w: ["0", "1", "1/2"], ex: "sin(3pi/2) = -1." },
+ { stem: "cos(3pi/2) equals", c: "0", w: ["1", "-1", "1/2"], ex: "cos(3pi/2) = 0." },
+ { stem: "sin(pi/6) equals", c: "1/2", w: ["sqrt(3)/2", "sqrt(2)/2", "1"], ex: "sin(pi/6) = 1/2." },
+ { stem: "cos(pi/6) equals", c: "sqrt(3)/2", w: ["1/2", "sqrt(2)/2", "1"], ex: "cos(pi/6) = sqrt(3)/2." },
+ { stem: "sin(pi/4) equals", c: "sqrt(2)/2", w: ["1/2", "sqrt(3)/2", "1"], ex: "sin(pi/4) = sqrt(2)/2." },
+ { stem: "cos(pi/4) equals", c: "sqrt(2)/2", w: ["1/2", "sqrt(3)/2", "1"], ex: "cos(pi/4) = sqrt(2)/2." },
+ { stem: "sin(pi/3) equals", c: "sqrt(3)/2", w: ["1/2", "sqrt(2)/2", "1"], ex: "sin(pi/3) = sqrt(3)/2." },
+ { stem: "cos(pi/3) equals", c: "1/2", w: ["sqrt(3)/2", "sqrt(2)/2", "1"], ex: "cos(pi/3) = 1/2." },
+ { stem: "tan(0) equals", c: "0", w: ["1", "undefined", "1/2"], ex: "tan(0) = 0." },
+ { stem: "tan(pi/4) equals", c: "1", w: ["0", "sqrt(2)", "1/2"], ex: "tan(pi/4) = 1." },
+];
+
 export function genTrigSpecial(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
- const which = randInt(rng, 0, 3);
- if (which === 0) {
- return mc(rng, ctx, i, "trig", "sin(0) equals", "0", "1", "-1", "1/2", "sin(0) = 0.");
- }
- if (which === 1) {
- return mc(rng, ctx, i, "trig", "cos(0) equals", "1", "0", "-1", "1/2", "cos(0) = 1.");
- }
- return mc(rng, ctx, i, "trig", "sin(pi/2) equals", "1", "0", "-1", "1/2", "sin(pi/2) = 1.");
+ const row = pick(rng, TRIG_ROWS);
+ return mc(rng, ctx, i, "trig", row.stem, row.c, row.w[0], row.w[1], row.w[2], row.ex);
 }
 
 export function genMeanSimple(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
- const a = randInt(rng, 60, 95);
- const b = randInt(rng, 60, 95);
- const c = randInt(rng, 60, 95);
+ const a = randInt(rng, 12, 998);
+ const b = randInt(rng, 12, 998);
+ const c = randInt(rng, 12, 998);
  const mean = roundN((a + b + c) / 3, 2);
  return mc(
  rng,
@@ -151,7 +168,7 @@ export function genMeanSimple(rng: () => number, ctx: ProcCtx, i: number): ExamQ
  `${mean}`,
  `${a + b + c}`,
  `${roundN((a + b) / 2, 2)}`,
- `${roundN(mean + 1, 2)}`,
+ `${roundN(mean + randInt(rng, 3, 40), 2)}`,
  `Add the values and divide by 3.`,
  );
 }
@@ -171,54 +188,104 @@ export function genZScoreConcept(rng: () => number, ctx: ProcCtx, i: number): Ex
  );
 }
 
+const SNACK_BAR_LABELS = [
+ "Granola",
+ "Yogurt",
+ "Chips",
+ "Fruit",
+ "Crackers",
+ "Nuts",
+ "Apples",
+ "Berries",
+ "Cheese",
+ "Pretzels",
+ "Popcorn",
+ "Carrots",
+ "Hummus",
+ "Muffins",
+ "Smoothies",
+ "Jerky",
+ "Rice cakes",
+ "Dark chocolate",
+ "Trail mix",
+ "Pita",
+ "Salsa",
+ "Cookies",
+ "Bagels",
+ "Wraps",
+ "Soup",
+ "Salad",
+] as const;
+
 export function genStatsBarChartMode(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const labels = shuffleInPlace(rng, [...SNACK_BAR_LABELS]).slice(0, 4);
+ const vals = distinctRandInts(rng, 4, 6, 220);
+ const bars = labels.map((label, idx) => ({ label, value: vals[idx] }));
+ let maxI = 0;
+ for (let k = 1; k < 4; k++) if (vals[k] > vals[maxI]) maxI = k;
+ const correct = labels[maxI];
+ const wrong = labels.filter((_, j) => j !== maxI);
+ const stem = pick(rng, [
+ "The bar chart shows counts by favorite snack in a class. Which snack was chosen most often?",
+ "According to the bar chart of favorite snacks (counts in a sample), which category is the mode?",
+ "Which label matches the tallest bar (greatest count) on the chart?",
+ "For these snack counts, which category appears most frequently in the sample?",
+ ]);
  return mc(
  rng,
  ctx,
  i,
  "st-bar",
- "The bar chart shows counts by favorite snack in a class. Which snack was chosen most often?",
- "Chips",
- "Fruit",
- "Granola",
- "Yogurt",
+ stem,
+ correct,
+ wrong[0],
+ wrong[1],
+ wrong[2],
  `The tallest bar corresponds to the mode for this categorical variable.`,
  {
  kind: "bar_chart",
- title: "Favorite snack (counts in a sample)",
- yLabel: "Number of students",
- bars: [
- { label: "Granola", value: 4 },
- { label: "Yogurt", value: 7 },
- { label: "Chips", value: 12 },
- { label: "Fruit", value: 9 },
- ],
+ title: pick(rng, [
+ "Favorite snack (counts in a sample)",
+ "Snack preference counts",
+ "Class snack poll (n shown on axis)",
+ ]),
+ yLabel: pick(rng, ["Number of students", "Count", "Responses"]),
+ bars,
  },
  );
 }
 
+const EXAM_SERIES_LABELS = ["Test A", "Test B", "Test C", "Test D", "Test E", "Quiz 1", "Quiz 2", "Midterm", "Final"] as const;
+
 export function genStatsExamLineTrend(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const xlabs = shuffleInPlace(rng, [...EXAM_SERIES_LABELS]).slice(0, 4);
+ const ys = distinctRandInts(rng, 4, 55, 100);
+ const points = xlabs.map((x, idx) => ({ x, y: ys[idx] }));
+ let maxI = 0;
+ for (let k = 1; k < 4; k++) if (ys[k] > ys[maxI]) maxI = k;
+ const correct = xlabs[maxI];
+ const wrong = xlabs.filter((_, j) => j !== maxI);
+ const stem = pick(rng, [
+ "The line chart shows mean exam score over four tests. Which had the highest mean score?",
+ "According to the line chart, at which labeled point is the mean score greatest?",
+ "Which test label corresponds to the peak mean score on the chart?",
+ ]);
  return mc(
  rng,
  ctx,
  i,
  "st-line",
- "The line chart shows mean exam score over four tests. Which test had the highest mean score?",
- "Test C",
- "Test A",
- "Test B",
- "Test D",
- `Read the y-values at each test; Test C has the maximum.`,
+ stem,
+ correct,
+ wrong[0],
+ wrong[1],
+ wrong[2],
+ `Read the y-values at each point; ${correct} has the maximum.`,
  {
  kind: "line_chart",
- title: "Mean exam score over four tests",
- yLabel: "Score",
- points: [
- { x: "Test A", y: 72 },
- { x: "Test B", y: 78 },
- { x: "Test C", y: 91 },
- { x: "Test D", y: 84 },
- ],
+ title: pick(rng, ["Mean exam score over four tests", "Mean score by assessment", "Class average by test"]),
+ yLabel: pick(rng, ["Score", "Mean score", "Percent"]),
+ points,
  },
  );
 }
@@ -311,28 +378,37 @@ export function genEnergyKE(rng: () => number, ctx: ProcCtx, i: number): ExamQue
  );
 }
 
+const TIME_TICK_LABELS = ["1 s", "2 s", "3 s", "4 s", "5 s", "0.5 s", "1.5 s", "2.5 s", "3.5 s"] as const;
+
 export function genPhysVelocityBarFig(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const labels = shuffleInPlace(rng, [...TIME_TICK_LABELS]).slice(0, 4);
+ const vals = distinctRandInts(rng, 4, 2, 55);
+ const bars = labels.map((label, idx) => ({ label, value: vals[idx] }));
+ let maxI = 0;
+ for (let k = 1; k < 4; k++) if (vals[k] > vals[maxI]) maxI = k;
+ const correct = labels[maxI];
+ const wrong = labels.filter((_, j) => j !== maxI);
+ const stem = pick(rng, [
+ "The bar chart shows the magnitude of a cart's velocity at equal time intervals. At which labeled time is speed greatest?",
+ "Which time label corresponds to the maximum speed magnitude on the chart?",
+ "According to the bars, when is the cart moving fastest?",
+ ]);
  return mc(
  rng,
  ctx,
  i,
  "ph-vbar",
- "The bar chart shows the magnitude of a cart's velocity at equal time intervals. At which labeled time is speed greatest?",
- "3 s",
- "1 s",
- "2 s",
- "4 s",
+ stem,
+ correct,
+ wrong[0],
+ wrong[1],
+ wrong[2],
  `Compare bar heights; the largest value indicates the highest speed.`,
  {
  kind: "bar_chart",
- title: "Speed magnitude at 1 s intervals",
- yLabel: "Speed (m/s)",
- bars: [
- { label: "1 s", value: 2 },
- { label: "2 s", value: 5 },
- { label: "3 s", value: 9 },
- { label: "4 s", value: 6 },
- ],
+ title: pick(rng, ["Speed magnitude at equal time intervals", "Cart speed by time", "Kinematics bar chart"]),
+ yLabel: pick(rng, ["Speed (m/s)", "|v| (m/s)", "m/s"]),
+ bars,
  },
  );
 }
@@ -372,28 +448,55 @@ export function genMolarity(rng: () => number, ctx: ProcCtx, i: number): ExamQue
  );
 }
 
+const SOLUTION_LABELS = [
+ "Solution A",
+ "Solution B",
+ "Solution C",
+ "Solution D",
+ "Solution E",
+ "Solution F",
+ "Flask 1",
+ "Flask 2",
+ "Beaker X",
+ "Beaker Y",
+ "Vial I",
+ "Vial II",
+ "Trial 1",
+ "Trial 2",
+ "Sample P",
+ "Sample Q",
+] as const;
+
 export function genChemConcentrationBarFig(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const labels = shuffleInPlace(rng, [...SOLUTION_LABELS]).slice(0, 4);
+ const raw = distinctRandInts(rng, 4, 5, 250);
+ const vals = raw.map((v) => roundN(v / 100, 2));
+ const bars = labels.map((label, idx) => ({ label, value: vals[idx] }));
+ let maxI = 0;
+ for (let k = 1; k < 4; k++) if (vals[k] > vals[maxI]) maxI = k;
+ const correct = labels[maxI];
+ const wrong = labels.filter((_, j) => j !== maxI);
+ const stem = pick(rng, [
+ "The bar chart shows concentration (M) for four solutions. Which solution is most concentrated?",
+ "Which label has the greatest molarity according to the bar chart?",
+ "For these solutions, which bar indicates the highest concentration (M)?",
+ ]);
  return mc(
  rng,
  ctx,
  i,
  "chem-bar",
- "The bar chart shows concentration (M) for four solutions. Which solution is most concentrated?",
- "Solution C",
- "Solution A",
- "Solution B",
- "Solution D",
+ stem,
+ correct,
+ wrong[0],
+ wrong[1],
+ wrong[2],
  `The tallest bar corresponds to the highest molarity.`,
  {
  kind: "bar_chart",
- title: "Solution concentration (M)",
- yLabel: "Molarity (M)",
- bars: [
- { label: "Solution A", value: 0.4 },
- { label: "Solution B", value: 0.9 },
- { label: "Solution C", value: 1.6 },
- { label: "Solution D", value: 0.7 },
- ],
+ title: pick(rng, ["Solution concentration (M)", "Molarity comparison", "Lab results (M)"]),
+ yLabel: pick(rng, ["Molarity (M)", "Concentration (M)", "M"]),
+ bars,
  },
  );
 }
@@ -428,28 +531,76 @@ export function genDNAbase(rng: () => number, ctx: ProcCtx, i: number): ExamQues
  );
 }
 
+const SPECIES_TABLE_NAMES = [
+ "Species A",
+ "Species B",
+ "Species C",
+ "Species D",
+ "Blue finch",
+ "Marsh thrush",
+ "Pine beetle",
+ "River otter",
+ "Field mouse",
+ "Grass snake",
+ "Oak moth",
+ "Reed warbler",
+ "Dune skink",
+ "Bog frog",
+ "Cliff swift",
+ "Tide crab",
+ "Meadow vole",
+ "Fen newt",
+ "Ridge hawk",
+ "Bay shrimp",
+] as const;
+
 export function genBioSpeciesTableFig(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const labels = shuffleInPlace(rng, [...SPECIES_TABLE_NAMES]).slice(0, 4);
+ const areas = distinctRandInts(rng, 4, 2, 18);
+ const dScaled = distinctRandInts(rng, 4, 35, 220);
+ dScaled.sort((a, b) => a - b);
+ const densSorted = dScaled.map((x) => x / 10);
+ const perm = shuffleInPlace(rng, [0, 1, 2, 3]);
+ const densitiesNum = [0, 1, 2, 3].map((row) => densSorted[perm[row]]);
+ const actualD = densitiesNum.map((d, k) => {
+ const ind = Math.max(1, Math.round(d * areas[k]));
+ return ind / areas[k];
+ });
+ let maxI = 0;
+ for (let k = 1; k < 4; k++) if (actualD[k] > actualD[maxI]) maxI = k;
+ const rows = labels.map((name, k) => {
+ const ind = Math.max(1, Math.round(densitiesNum[k] * areas[k]));
+ const density = ind / areas[k];
+ const densStr = String(roundN(density, 1));
+ return [name, String(ind), String(areas[k]), densStr] as [string, string, string, string];
+ });
+ const correct = labels[maxI];
+ const wrong = labels.filter((_, j) => j !== maxI);
+ const stem = pick(rng, [
+ "According to the table, which species had the greatest estimated population density (individuals per km^2) in the sample plot?",
+ "Which species shows the highest density value in the table?",
+ "Using individuals and plot area, which row has the greatest population density?",
+ ]);
  return mc(
  rng,
  ctx,
  i,
  "bio-tbl",
- "According to the table, which species had the greatest estimated population density (individuals per km^2) in the sample plot?",
- "Species B",
- "Species A",
- "Species C",
- "Species D",
+ stem,
+ correct,
+ wrong[0],
+ wrong[1],
+ wrong[2],
  `Compare the density column and select the largest value.`,
  {
  kind: "table",
- title: "Sample plot - species counts and area",
+ title: pick(rng, [
+ "Sample plot - species counts and area",
+ "Field plot census",
+ "Population density by species",
+ ]),
  headers: ["Species", "Individuals", "Plot area (km^2)", "Density (per km^2)"],
- rows: [
- ["Species A", "24", "2", "12"],
- ["Species B", "45", "2", "22.5"],
- ["Species C", "18", "3", "6"],
- ["Species D", "30", "5", "6"],
- ],
+ rows,
  },
  );
 }
@@ -651,80 +802,181 @@ export function genGeoBidRent(rng: () => number, ctx: ProcCtx, i: number): ExamQ
  );
 }
 
+const URBAN_AREA_LABELS = [
+ "River Delta Metro",
+ "Inland Hub",
+ "Coastal Port",
+ "Plateau Town",
+ "Harbor City",
+ "Highland Ridge",
+ "Lake District",
+ "Desert Oasis",
+ "Forest Edge",
+ "Steppe Junction",
+ "Bayfront",
+ "Canal District",
+ "Summit City",
+ "Delta Plains",
+ "Ironworks Valley",
+ "University Town",
+ "Border Station",
+ "Transit Hub",
+ "Market Quarter",
+ "Old Fort",
+ "Riverbend",
+ "Seaport",
+ "Uplands",
+ "Lowlands",
+ "Gateway",
+] as const;
+
 export function genGeoPopulationBarFig(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const labels = shuffleInPlace(rng, [...URBAN_AREA_LABELS]).slice(0, 4);
+ const vals = distinctRandInts(rng, 4, 1, 48);
+ const bars = labels.map((label, idx) => ({ label, value: vals[idx] }));
+ let maxI = 0;
+ for (let k = 1; k < 4; k++) if (vals[k] > vals[maxI]) maxI = k;
+ const correct = labels[maxI];
+ const wrong = labels.filter((_, j) => j !== maxI);
+ const stem = pick(rng, [
+ "According to the bar chart, which urban area has the largest population shown?",
+ "Which label matches the tallest population bar?",
+ "For these urban areas, which has the greatest population (millions) on the chart?",
+ ]);
  return mc(
  rng,
  ctx,
  i,
  "geo-pbar",
- "According to the bar chart, which urban area has the largest population shown?",
- "River Delta Metro",
- "Inland Hub",
- "Coastal Port",
- "Plateau Town",
+ stem,
+ correct,
+ wrong[0],
+ wrong[1],
+ wrong[2],
  `Compare bar heights to find the maximum.`,
  {
  kind: "bar_chart",
- title: "Population of selected urban areas (millions)",
- yLabel: "Millions",
- bars: [
- { label: "River Delta Metro", value: 18 },
- { label: "Inland Hub", value: 9 },
- { label: "Coastal Port", value: 6 },
- { label: "Plateau Town", value: 2 },
- ],
+ title: pick(rng, [
+ "Population of selected urban areas (millions)",
+ "Urban population snapshot (millions)",
+ "Metro area sizes (millions)",
+ ]),
+ yLabel: pick(rng, ["Millions", "Population (millions)", "People (millions)"]),
+ bars,
  },
  );
 }
 
+const URBAN_PERIOD_LABELS = [
+ "2000-2005",
+ "2005-2010",
+ "2010-2015",
+ "2015-2020",
+ "2016-2021",
+ "2018-2023",
+ "1998-2003",
+ "2002-2007",
+ "2008-2013",
+ "2012-2017",
+ "2014-2019",
+ "2020-2025",
+] as const;
+
 export function genGeoUrbanGrowthLineFig(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const xlabs = shuffleInPlace(rng, [...URBAN_PERIOD_LABELS]).slice(0, 4);
+ const raw = distinctRandInts(rng, 4, 8, 52);
+ const ys = raw.map((v) => roundN(v / 10, 1));
+ const points = xlabs.map((x, idx) => ({ x, y: ys[idx] }));
+ let maxI = 0;
+ for (let k = 1; k < 4; k++) if (ys[k] > ys[maxI]) maxI = k;
+ const correct = xlabs[maxI];
+ const wrong = xlabs.filter((_, j) => j !== maxI);
+ const stem = pick(rng, [
+ "According to the line chart, in which period was urban growth (percentage change) fastest?",
+ "Which period shows the highest percentage change on the chart?",
+ "At which labeled interval is the urban growth rate greatest?",
+ ]);
  return mc(
  rng,
  ctx,
  i,
  "geo-line",
- "According to the line chart, in which period was urban growth (percentage change) fastest?",
- "2010-2015",
- "2000-2005",
- "2005-2010",
- "2015-2020",
- `The steepest upward segment indicates the fastest growth rate.`,
+ stem,
+ correct,
+ wrong[0],
+ wrong[1],
+ wrong[2],
+ `The highest point indicates the fastest growth rate for that interval.`,
  {
  kind: "line_chart",
- title: "Urban population growth rate (% per period)",
- yLabel: "% change",
- points: [
- { x: "2000-2005", y: 1.1 },
- { x: "2005-2010", y: 1.4 },
- { x: "2010-2015", y: 2.6 },
- { x: "2015-2020", y: 1.8 },
- ],
+ title: pick(rng, [
+ "Urban population growth rate (% per period)",
+ "Urban growth by period",
+ "City growth rates (% change)",
+ ]),
+ yLabel: pick(rng, ["% change", "Growth (%)", "Percent change"]),
+ points,
  },
  );
 }
 
+const CROP_NAMES = [
+ "Wheat",
+ "Maize",
+ "Rice",
+ "Barley",
+ "Soybeans",
+ "Sorghum",
+ "Oats",
+ "Rye",
+ "Millet",
+ "Sunflower",
+ "Cotton",
+ "Potatoes",
+ "Sugar beets",
+ "Canola",
+ "Peanuts",
+ "Cassava",
+] as const;
+
 export function genGeoCropsTableFig(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const crops = shuffleInPlace(rng, [...CROP_NAMES]).slice(0, 4);
+ const y1base = randInt(rng, 2010, 2022);
+ const y2 = y1base + 1;
+ const h1 = `Year ${y1base}`;
+ const h2 = `Year ${y2}`;
+ const y2vals = distinctRandInts(rng, 4, 18, 220);
+ const y1vals = crops.map(() => String(randInt(rng, 12, 200)));
+ let maxI = 0;
+ for (let k = 1; k < 4; k++) if (y2vals[k] > y2vals[maxI]) maxI = k;
+ const correct = crops[maxI];
+ const wrong = crops.filter((_, j) => j !== maxI);
+ const rows = crops.map((c, k) => [c, y1vals[k], String(y2vals[k])] as [string, string, string]);
+ const stem = pick(rng, [
+ `According to the table, which crop had the highest national production (million metric tons) in ${h2}?`,
+ `In ${h2}, which crop shows the greatest production in the table?`,
+ `Compare the ${h2} column: which crop has the largest value?`,
+ ]);
  return mc(
  rng,
  ctx,
  i,
  "geo-tbl",
- "According to the table, which crop had the highest national production (million metric tons) in Year 2?",
- "Maize",
- "Wheat",
- "Rice",
- "Barley",
- `Read the Year 2 column and select the largest value.`,
+ stem,
+ correct,
+ wrong[0],
+ wrong[1],
+ wrong[2],
+ `Read the ${h2} column and select the largest value.`,
  {
  kind: "table",
- title: "Crop production (million metric tons) - sample country",
- headers: ["Crop", "Year 1", "Year 2"],
- rows: [
- ["Wheat", "42", "48"],
- ["Maize", "55", "71"],
- ["Rice", "30", "33"],
- ["Barley", "18", "20"],
- ],
+ title: pick(rng, [
+ "Crop production (million metric tons) - sample country",
+ "National crop output (MMT)",
+ "Harvest totals (million metric tons)",
+ ]),
+ headers: ["Crop", h1, h2],
+ rows,
  },
  );
 }
@@ -808,28 +1060,37 @@ export function genGDPdeflator(rng: () => number, ctx: ProcCtx, i: number): Exam
  );
 }
 
+const QUARTER_LABELS = ["Q1", "Q2", "Q3", "Q4", "Jan", "Apr", "Jul", "Oct"] as const;
+
 export function genEconUnemploymentLineFig(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const xlabs = shuffleInPlace(rng, [...QUARTER_LABELS]).slice(0, 4);
+ const ys = distinctRandInts(rng, 4, 35, 120);
+ const points = xlabs.map((x, idx) => ({ x, y: roundN(ys[idx] / 10, 1) }));
+ let maxI = 0;
+ for (let k = 1; k < 4; k++) if (points[k].y > points[maxI].y) maxI = k;
+ const correct = xlabs[maxI];
+ const wrong = xlabs.filter((_, j) => j !== maxI);
+ const stem = pick(rng, [
+ "According to the line chart, the unemployment rate was highest in",
+ "Which period shows the peak unemployment rate on the chart?",
+ "At which labeled time is unemployment greatest?",
+ ]);
  return mc(
  rng,
  ctx,
  i,
  "econ-un",
- "According to the line chart, the unemployment rate was highest in",
- "Q2",
- "Q1",
- "Q3",
- "Q4",
+ stem,
+ correct,
+ wrong[0],
+ wrong[1],
+ wrong[2],
  `Identify which point has the maximum unemployment rate.`,
  {
  kind: "line_chart",
- title: "Unemployment rate (%) by quarter",
- yLabel: "Percent",
- points: [
- { x: "Q1", y: 4.2 },
- { x: "Q2", y: 6.8 },
- { x: "Q3", y: 5.1 },
- { x: "Q4", y: 4.5 },
- ],
+ title: pick(rng, ["Unemployment rate (%) by quarter", "Unemployment over time", "Labor market indicator"]),
+ yLabel: pick(rng, ["Percent", "Rate (%)", "Unemployment (%)"]),
+ points,
  },
  );
 }

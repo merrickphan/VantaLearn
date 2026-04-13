@@ -1,7 +1,7 @@
 ﻿import { AP_COURSES } from "@/lib/apCatalog";
 import { getUnitOrFirst } from "@/lib/apUnits";
 import type { ExamQuestion } from "@/types";
-import { createRng, hashString, shuffleInPlace } from "./utils";
+import { createRng, hashString, proceduralQuestionFingerprint, randomSeedEntropy, shuffleInPlace } from "./utils";
 import { getGeneratorsForCourse, type ProcCtx } from "./generators";
 
 export interface GenerateProceduralParams {
@@ -23,9 +23,7 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
  throw new Error(`No units defined for course: ${params.courseId}`);
  }
 
- const seedBase =
- params.seed ??
- `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+ const seedBase = params.seed ?? randomSeedEntropy();
 
  const ctx: ProcCtx = {
  courseId: course.id,
@@ -40,26 +38,31 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
  const out: ExamQuestion[] = [];
  const n = Math.min(100, Math.max(1, Math.floor(params.count)));
 
- /** Stratified rotation through generators + deduped stems so a session rarely repeats the same prompt. */
+ /** Stratified rotation through generators + deduped content fingerprints (stem + answer + figure). */
  const order = shuffleInPlace(createRng(seedBase, `strat|${course.id}|${unit.id}`), [...Array(pool.length).keys()]);
- const seenStems = new Set<string>();
+ const seen = new Set<string>();
+
+ const MAX_ATTEMPTS = 512;
 
  for (let i = 0; i < n; i++) {
  let q: ExamQuestion | undefined;
- for (let attempt = 0; attempt < 72; attempt++) {
+ for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
  const genIndex = order[(i + attempt) % order.length];
- const rng = createRng(seedBase, `slot${i}|g${genIndex}|t${attempt}|${hashString(unit.id)}`);
+ const rng = createRng(
+ seedBase,
+ `slot${i}|g${genIndex}|t${attempt}|${hashString(unit.id)}|${hashString(String(attempt * 9301 + genIndex * 104729))}`,
+ );
  const cand = pool[genIndex](rng, ctx, i);
- const stem = cand.question.trim();
- if (!seenStems.has(stem)) {
- seenStems.add(stem);
+ const fp = proceduralQuestionFingerprint(cand);
+ if (!seen.has(fp)) {
+ seen.add(fp);
  q = cand;
  break;
  }
  }
  if (!q) {
  const genIndex = order[i % order.length];
- const rng = createRng(seedBase, `fallback|${i}|${hashString(unit.id)}|${i * 9973}`);
+ const rng = createRng(seedBase, `fallback|${i}|${hashString(unit.id)}|${i * 9973}|${hashString("fb")}`);
  q = pool[genIndex](rng, ctx, i);
  }
  out.push(q);
