@@ -54,9 +54,12 @@ export default function HomePage() {
  <div className="fade-up flex flex-col sm:flex-row gap-3">
  <Link
  href="/auth/signup"
- className="bg-sky-500/20 hover:bg-sky-400/30 text-slate-900 border border-sky-400/50 px-8 py-3.5 rounded-lg font-semibold text-base btn-shine"
+ className="inline-flex items-center justify-center gap-2 bg-sky-500/20 hover:bg-sky-400/30 text-slate-900 border border-sky-400/50 px-8 py-3.5 rounded-lg font-semibold text-base btn-shine"
  >
- Start Studying Free (next)
+ <span>Start Studying Free</span>
+ <span aria-hidden className="font-normal opacity-90">
+ →
+ </span>
  </Link>
  <Link
  href="/auth/login"
