@@ -12,7 +12,7 @@ import {
  MOLARITY_TABLE_STEMS,
  ZSCORE_TABLE_STEMS,
 } from "./stemBanks";
-import { distinctRandInts, hashString, pick, randInt, roundN, shuffleInPlace } from "./utils";
+import { distinctRandInts, hashString, pick, pickThreeDistinct, randInt, roundN, shuffleInPlace } from "./utils";
 import {
  examFromMassRow,
  pickEconMassRow,
@@ -34,6 +34,14 @@ export interface ProcCtx {
 }
 
 export type QuestionGen = (rng: () => number, ctx: ProcCtx, i: number) => ExamQuestion;
+
+function isApCsp(ctx: ProcCtx): boolean {
+ return ctx.courseId === "csp";
+}
+
+function formatCspListLiteral(list: readonly (string | number)[]): string {
+ return list.map((x) => (typeof x === "number" ? String(x) : `"${x}"`)).join(", ");
+}
 
 function idFor(ctx: ProcCtx, i: number, tag: string): string {
  return `proc-${ctx.courseId}-${ctx.unitId}-${i}-${hashString(ctx.seedBase + tag).toString(36)}`;
@@ -421,9 +429,12 @@ export function genStatsExamLineTrend(rng: () => number, ctx: ProcCtx, i: number
 /* - - - Computer science - - - */
 
 export function genBigO(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const body = isApCsp(ctx)
+ ? "An AP CSP module compares algorithms that reorder n distinct values using pairwise comparisons. Worst-case efficiency is described with big-O notation in n, following the Course and Exam Description."
+ : "A Java class studies comparison-based sorting algorithms that reorder n distinct items using pairwise comparisons. Worst-case running time is expressed using big-O notation in n.";
  const fig: ExamFigure = {
  kind: "stimulus",
- body: "A class studies comparison-based sorting algorithms that reorder n distinct items using pairwise comparisons. Worst-case running time is expressed using big-O notation in n.",
+ body,
  };
  return mc(
  rng,
@@ -436,16 +447,22 @@ export function genBigO(rng: () => number, ctx: ProcCtx, i: number): ExamQuestio
  "O(n^2) for every algorithm",
  "O(1)",
  `Optimal comparison sorts are Theta(n log n) worst case (e.g., mergesort).`,
- { figure: fig },
+ {
+ figure: fig,
+ procedural_structure_id: isApCsp(ctx) ? "cs-big-o-csp" : "cs-big-o-java",
+ },
  );
 }
 
 export function genLoopCount(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const n = randInt(rng, 5, 20);
  const total = n * (n + 1) / 2;
+ const body = isApCsp(ctx)
+ ? `The procedure below follows AP Computer Science Principles pseudocode conventions (assignment uses ←, lists index from 1 unless stated otherwise).\n\nn ← ${n}\nsum ← 0\nFOR i FROM 1 TO n\n{\n   sum ← sum + i\n}`
+ : `Integer variable n is ${n}. The Java fragment initializes sum to 0 and accumulates a series:\n\nfor (int i = 1; i <= n; i++) {\n  sum += i;\n}`;
  const fig: ExamFigure = {
  kind: "stimulus",
- body: `Integer variable n is ${n}. The fragment below initializes sum to 0 and accumulates a series:\n\nfor (int i = 1; i <= n; i++) {\n  sum += i;\n}`,
+ body,
  };
  return mc(
  rng,
@@ -458,11 +475,71 @@ export function genLoopCount(rng: () => number, ctx: ProcCtx, i: number): ExamQu
  `${n + 1}`,
  `${n}`,
  `This sums 1 + 2 + ... + ${n} = ${n}(${n}+1)/2 = ${total}.`,
- { figure: fig },
+ {
+ figure: fig,
+ procedural_structure_id: isApCsp(ctx) ? `cs-loop-csp-n${n}` : `cs-loop-java-n${n}`,
+ },
  );
 }
 
 export function genBooleanExpr(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ if (isApCsp(ctx)) {
+ type BoolPat = {
+ id: string;
+ expr: string;
+ correct: string;
+ w: [string, string, string];
+ explanation: string;
+ };
+ const patterns: BoolPat[] = [
+ {
+ id: "andff",
+ expr: "true AND false",
+ correct: "false",
+ w: ["true", "INVALID", "neither true nor false"],
+ explanation: "AND is true only when both operands are true.",
+ },
+ {
+ id: "ortt",
+ expr: "true OR false",
+ correct: "true",
+ w: ["false", "INVALID", "neither true nor false"],
+ explanation: "OR is true when at least one operand is true.",
+ },
+ {
+ id: "notf",
+ expr: "NOT false",
+ correct: "true",
+ w: ["false", "INVALID", "neither true nor false"],
+ explanation: "NOT inverts the Boolean value.",
+ },
+ {
+ id: "notand",
+ expr: "NOT (true AND false)",
+ correct: "true",
+ w: ["false", "INVALID", "neither true nor false"],
+ explanation: "true AND false is false; NOT false is true.",
+ },
+ ];
+ const p = pick(rng, patterns);
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ body: `Boolean values and operators follow the AP CSP exam reference (NOT, AND, OR).\n\n${p.expr}`,
+ };
+ return mc(
+ rng,
+ ctx,
+ i,
+ `bool-${p.id}`,
+ "The expression evaluates to",
+ p.correct,
+ p.w[0],
+ p.w[1],
+ p.w[2],
+ p.explanation,
+ { figure: fig, procedural_structure_id: `cs-bool-csp-${p.id}` },
+ );
+ }
  const fig: ExamFigure = {
  kind: "stimulus",
  body: "Consider the following Java boolean expression using literals:\n\n  true && false",
@@ -477,8 +554,42 @@ export function genBooleanExpr(rng: () => number, ctx: ProcCtx, i: number): Exam
  "true",
  "null",
  "error",
- `Logical AND requires both operands true.`,
- { figure: fig },
+ `Logical AND requires both operands true; primitive booleans are not null.`,
+ { figure: fig, procedural_structure_id: "cs-bool-java" },
+ );
+}
+
+/** List indexing practice in AP CSP pseudocode (1-based, per CED unless a problem states otherwise). */
+export function genCspListIndex(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const rows: { list: readonly (string | number)[]; idx: number }[] = [
+ { list: [5, 10, 15], idx: 2 },
+ { list: [5, 10, 15], idx: 1 },
+ { list: ["sensor", "motor", "display"], idx: 3 },
+ { list: [2, 4, 6, 8], idx: 4 },
+ { list: ["low", "medium", "high"], idx: 2 },
+ ];
+ const p = pick(rng, rows);
+ const correct = String(p.list[p.idx - 1]);
+ const wrongPool = p.list.map(String).filter((s) => s !== correct);
+ const wrongCandidates = [...wrongPool, "INVALID", "0", "(no output)"];
+ const [w1, w2, w3] = pickThreeDistinct(rng, wrongCandidates, correct);
+ const inner = formatCspListLiteral(p.list);
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ body: `Unless otherwise indicated, list indexes begin at 1 (AP CSP pseudocode reference).\n\naList ← [ ${inner} ]\nn ← ${p.idx}\nDISPLAY(aList[n])`,
+ };
+ return mc(
+ rng,
+ ctx,
+ i,
+ "csp-idx",
+ "After the segment runs, the program displays",
+ correct,
+ w1,
+ w2,
+ w3,
+ `aList[${p.idx}] selects the ${p.idx === 1 ? "first" : p.idx === 2 ? "second" : p.idx === 3 ? "third" : "fourth"} item in this 1-based list: ${correct}.`,
+ { figure: fig, procedural_structure_id: `csp-idx-n${p.idx}-len${p.list.length}` },
  );
 }
 
@@ -495,7 +606,7 @@ export function genKinematicsV(rng: () => number, ctx: ProcCtx, i: number): Exam
  kind: "table",
  title: "Table 1. One-dimensional kinematics (SI)",
  headers: ["v0", "a", "t"],
- rows: [[`${v0} m/s`, `${a} m/s^2`, `${t} s`]],
+ rows: [[`${v0} m/s`, `${a} m/s²`, `${t} s`]],
  };
  return mc(
  rng,
@@ -597,7 +708,7 @@ export function genCoulombConcept(rng: () => number, ctx: ProcCtx, i: number): E
  "the distance",
  "the cube of the distance",
  "the charges only",
- `Coulomb's law: F ~ 1/r^2.`,
+ `Coulomb's law: F is proportional to 1/r².`,
  { figure: fig },
  );
 }
@@ -613,7 +724,7 @@ export function genMolarity(rng: () => number, ctx: ProcCtx, i: number): ExamQue
  const fig: ExamFigure = {
  kind: "table",
  title: "Table 1. Solution data",
- headers: ["moles of solute (mol)", "solution volume (L)"],
+ headers: ["Amount of solute (mol)", "Volume of solution (L)"],
  rows: [[String(mol), String(L)]],
  };
  return mc(
@@ -626,7 +737,7 @@ export function genMolarity(rng: () => number, ctx: ProcCtx, i: number): ExamQue
  `${mol * L} M`,
  `${mol + L} M`,
  `${roundN(M * 2, 3)} M`,
- `Molarity is moles per liter: ${mol}/${L}.`,
+ `Molarity M = moles of solute / liters of solution = ${mol}/${L} = ${M} M.`,
  {
  figure: fig,
  procedural_structure_id: `chem-mol-s${stemIdx}-n${mol}`,
@@ -1564,7 +1675,8 @@ const STATS_TEXT: QuestionGen[] = [genMeanSimple, genZScoreConcept];
 const STATS_FIG: QuestionGen[] = [genStatsBarChartMode, genStatsExamLineTrend];
 const STATS_FULL: QuestionGen[] = [...STATS_TEXT, ...STATS_FIG];
 
-const CS: QuestionGen[] = [genBigO, genLoopCount, genBooleanExpr];
+const CS_A: QuestionGen[] = [genBigO, genLoopCount, genBooleanExpr];
+const CSP: QuestionGen[] = [genBigO, genLoopCount, genBooleanExpr, genCspListIndex];
 const PHYS_ALG: QuestionGen[] = [genKinematicsV, genEnergyKE];
 const PHYS_C: QuestionGen[] = [genKinematicsV, genEnergyKE, genCoulombConcept];
 const CHEM: QuestionGen[] = [genMolarity, genPHScale, genChemConcentrationBarFig];
@@ -1601,8 +1713,8 @@ const COURSE_POOL: Record<string, QuestionGen[]> = {
  "calc-bc": [...CALC, ...STATS_TEXT],
  precalc: [...CALC, ...STATS_TEXT],
  stats: STATS_FULL,
- "cs-a": [...CS, genVariableControl],
- csp: [...CS, genVariableControl],
+ "cs-a": [...CS_A, genVariableControl],
+ csp: [...CSP, genVariableControl],
  "physics-1": [...PHYS_ALG, genVariableControl, genPhysVelocityBarFig],
  "physics-2": [...PHYS_ALG, genPHScale, genVariableControl, genPhysVelocityBarFig],
  "physics-c-m": [...PHYS_C, genVariableControl],

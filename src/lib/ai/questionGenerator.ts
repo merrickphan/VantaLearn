@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import type { ExamFigure, ExamQuestion } from "@/types";
-import { findUnitById } from "@/lib/apUnits";
+import { findUnitById, getCourseIdFromSubjectName } from "@/lib/apUnits";
 import { buildUnitCurriculumBlock, buildUnitVarietyDirective } from "@/lib/ai/unitQuestionProcedure";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -33,6 +33,29 @@ interface RawAiPayload {
 
 function clampCount(n: number): number {
  return Math.min(12, Math.max(1, Math.floor(n)));
+}
+
+/** Extra prompt constraints so AI items match each course's real exam conventions. */
+function courseExamStyleRules(courseId: string | undefined): string {
+ switch (courseId) {
+ case "csp":
+ return `- AP Computer Science Principles: use ONLY the College Board CSP pseudocode reference (e.g., ← for assignment, FOR/FOR EACH/REPEAT, list indices starting at 1 unless a problem states otherwise, NOT/AND/OR). Never Java, Python, C++, or JavaScript syntax in code snippets.`;
+ case "cs-a":
+ return `- AP Computer Science A: use Java as on the exam (loops, classes, primitives vs references) — not pseudocode unless the stem explicitly compares languages.`;
+ case "physics-1":
+ case "physics-2":
+ return `- AP Physics 1/2: SI units; use notation like m/s² for acceleration squared; algebra-based stems consistent with the course exam.`;
+ case "chem":
+ return `- AP Chemistry: use M for molarity, mol, L, and vocabulary aligned with the AP Chemistry Course and Exam Description.`;
+ case "calc-ab":
+ case "calc-bc":
+ case "precalc":
+ return `- AP Calculus / Precalculus: standard prime / Leibniz notation as on AP exams; avoid calculator-specific syntax unless the stem is about technology.`;
+ case "stats":
+ return `- AP Statistics: use vocabulary from the CED (e.g., experimental units, inference conditions, interpret context).`;
+ default:
+ return "";
+ }
 }
 
 function normalizeFigure(f: unknown): ExamFigure | undefined {
@@ -113,6 +136,8 @@ export async function generateExamQuestions(input: GenerateQuestionsInput): Prom
  const topicLine = input.topic ? ` Additional focus: ${input.topic}.` : "";
 
  const unitCtx = input.unitId ? findUnitById(input.unitId) : null;
+ const resolvedCourseId = unitCtx?.courseId ?? getCourseIdFromSubjectName(input.subject);
+ const courseRules = courseExamStyleRules(resolvedCourseId);
  const seed =
  typeof input.varietySeed === "number" && Number.isFinite(input.varietySeed)
  ? Math.floor(input.varietySeed)
@@ -159,7 +184,7 @@ Rules:
 - Distractors must be plausible.
 - Options must be exactly 4 strings.
 - correct_answer must be character-for-character equal to one option.
-${unitBlock ? "- When a UNIT SCOPE is given, never assess outcomes from other units." : ""}`;
+${courseRules ? `${courseRules}\n` : ""}${unitBlock ? "- When a UNIT SCOPE is given, never assess outcomes from other units." : ""}`;
 
  const user = `${unitBlock ? `${unitBlock}\n\n` : ""}Subject line for metadata: ${input.subject}.${topicLine}
 Generate ${count} distinct multiple-choice questions.

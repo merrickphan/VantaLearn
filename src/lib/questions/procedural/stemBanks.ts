@@ -129,16 +129,16 @@ export const MEAN_STEMS = [
 ] as const;
 
 export const KINEMATICS_STEMS = [
- "A particle accelerates from {{v0}} m/s at {{a}} m/s^2 for {{t}} s. Its final speed is",
- "Starting at {{v0}} m/s with constant acceleration {{a}} m/s^2 for {{t}} s, final speed equals",
+ "A particle accelerates from {{v0}} m/s at {{a}} m/s² for {{t}} s. Its final speed is",
+ "Starting at {{v0}} m/s with constant acceleration {{a}} m/s² for {{t}} s, final speed equals",
  "Use v = v0 + at with v0 = {{v0}}, a = {{a}}, t = {{t}}. Final speed is",
- "A cart starts at {{v0}} m/s and accelerates at {{a}} m/s^2 for {{t}} s. Its speed at the end is",
- "From rest speed {{v0}} m/s, acceleration {{a}} m/s^2 for {{t}} s gives final speed",
- "Kinematics: v0 = {{v0}} m/s, a = {{a}} m/s^2, t = {{t}} s. Find v.",
- "After {{t}} s, with v0 = {{v0}} m/s and a = {{a}} m/s^2, speed is",
- "A particle has v0 = {{v0}} m/s and a = {{a}} m/s^2 for {{t}} s. Final |v| (speed magnitude) is",
- "Constant acceleration {{a}} m/s^2 for {{t}} s from {{v0}} m/s yields final speed",
- "Compute final speed: v0 = {{v0}} m/s, a = {{a}} m/s^2, t = {{t}} s.",
+ "A cart starts at {{v0}} m/s and accelerates at {{a}} m/s² for {{t}} s. Its speed at the end is",
+ "From rest speed {{v0}} m/s, acceleration {{a}} m/s² for {{t}} s gives final speed",
+ "Kinematics: v0 = {{v0}} m/s, a = {{a}} m/s², t = {{t}} s. Find v.",
+ "After {{t}} s, with v0 = {{v0}} m/s and a = {{a}} m/s², speed is",
+ "A particle has v0 = {{v0}} m/s and a = {{a}} m/s² for {{t}} s. Final |v| (speed magnitude) is",
+ "Constant acceleration {{a}} m/s² for {{t}} s from {{v0}} m/s yields final speed",
+ "Compute final speed: v0 = {{v0}} m/s, a = {{a}} m/s², t = {{t}} s.",
 ] as const;
 
 export const KINETIC_ENERGY_STEMS = [
