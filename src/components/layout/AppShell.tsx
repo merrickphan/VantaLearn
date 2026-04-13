@@ -71,7 +71,7 @@ const mainNav = [
  { href: "/dashboard", label: "Dashboard", icon: <LayoutGridIcon /> },
  { href: "/study", label: "Practice", icon: <BookIcon /> },
  { href: "/dashboard/predictor", label: "Predictor", icon: <TrendIcon /> },
- { href: "/dashboard/score-calculator", label: "AP scores", icon: <SimpleIconBox name="calculator" size={22} /> },
+ { href: "/dashboard/score-calculator", label: "AP® scores", icon: <SimpleIconBox name="calculator" size={22} /> },
  { href: "/dashboard/progress", label: "Progress", icon: <BarChartIcon /> },
  { href: "/dashboard/settings", label: "Settings", icon: <SettingsIcon /> },
 ];
@@ -98,7 +98,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
  VantaLearn
  </span>
  </Link>
- <p className="text-xs text-vanta-muted uppercase tracking-widest mt-3">AP subjects</p>
+ <p className="text-xs text-vanta-muted uppercase tracking-widest mt-3">AP® subjects</p>
  </div>
  <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-1">
  {AP_COURSES.map((c) => {

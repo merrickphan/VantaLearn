@@ -26,7 +26,7 @@ function stripTrailingScoreWord(label: string): string {
 	return label.replace(/\s+score$/i, "").trim() || label;
 }
 
-/** Group inputs like common AP calculator layouts: two composite buckets when defined, else one list. */
+/** Group inputs like common AP® calculator layouts: two composite buckets when defined, else one list. */
 function partitionSectionsForDisplay(model: ApSubjectScoreModel): { title: string; sections: ApScoreSectionDef[] }[] {
 	const d = model.twoPartComposite;
 	if (!d) {
@@ -157,7 +157,7 @@ export default function ScoreCalculatorPage() {
 					Score calculator <span className="text-sky-400/90 font-normal text-2xl md:text-3xl">{examYear}</span>
 				</h1>
 				<p className="text-vanta-muted text-lg mt-3 max-w-2xl leading-relaxed">
-					Choose a course, then enter raw points per section using the sliders (same flow as leading AP estimate
+					Choose a course, then enter raw points per section using the sliders (same flow as leading AP® estimate
 					calculators). Each exam uses the section breakdown for that subject. Curves are{" "}
 					<strong className="text-vanta-text">practice estimates only</strong> — not from College Board.
 				</p>
@@ -183,7 +183,7 @@ export default function ScoreCalculatorPage() {
 										: "border-vanta-border text-vanta-muted hover:border-sky-500/40 hover:text-vanta-text"
 								}`}
 							>
-								{key === "ap_subject" ? "AP by subject" : "AP quick %"}
+								{key === "ap_subject" ? "AP® by subject" : "AP® quick %"}
 							</button>
 						))}
 					</div>
@@ -213,7 +213,7 @@ export default function ScoreCalculatorPage() {
 
 							<div className="mb-2">
 								<label className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.15em] block mb-2">
-									AP course
+									AP® course
 								</label>
 								<select
 									value={courseId}
@@ -284,7 +284,7 @@ export default function ScoreCalculatorPage() {
 																	</p>
 																</div>
 																{w != null && w !== s.maxPoints ? (
-																	<p className="text-[11px] text-teal-200/70 mb-3 leading-relaxed">
+																	<p className="text-[11px] text-sky-300/80 mb-3 leading-relaxed">
 																		Counts toward {(w / s.maxPoints).toFixed(2)}× exam weight in the composite
 																		(rubric max {s.maxPoints}).
 																	</p>
@@ -295,7 +295,7 @@ export default function ScoreCalculatorPage() {
 																	<button
 																		type="button"
 																		aria-label="Decrease score"
-																		className="shrink-0 h-10 w-10 rounded-full border border-slate-500/60 bg-slate-900/80 text-slate-200 text-lg font-medium leading-none hover:bg-slate-800 hover:border-teal-500/40 transition-colors disabled:opacity-40"
+																		className="shrink-0 h-10 w-10 rounded-full border border-slate-500/60 bg-slate-900/80 text-slate-200 text-lg font-medium leading-none hover:bg-slate-800 hover:border-sky-400/50 transition-colors disabled:opacity-40"
 																		disabled={e <= 0}
 																		onClick={() => setClamped(e - step)}
 																	>
@@ -307,7 +307,7 @@ export default function ScoreCalculatorPage() {
 																			aria-hidden
 																		/>
 																		<div
-																			className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-2 rounded-l-full bg-teal-500 transition-[width] duration-200 ease-out"
+																			className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-2 rounded-l-full bg-sky-500 transition-[width] duration-200 ease-out"
 																			style={{
 																				width: `calc((100% - 16px) * ${pct / 100} + 0px)`,
 																				maxWidth: "calc(100% - 16px)",
@@ -328,7 +328,7 @@ export default function ScoreCalculatorPage() {
 																	<button
 																		type="button"
 																		aria-label="Increase score"
-																		className="shrink-0 h-10 w-10 rounded-full border border-slate-500/60 bg-slate-900/80 text-slate-200 text-lg font-medium leading-none hover:bg-slate-800 hover:border-teal-500/40 transition-colors disabled:opacity-40"
+																		className="shrink-0 h-10 w-10 rounded-full border border-slate-500/60 bg-slate-900/80 text-slate-200 text-lg font-medium leading-none hover:bg-slate-800 hover:border-sky-400/50 transition-colors disabled:opacity-40"
 																		disabled={e >= s.maxPoints}
 																		onClick={() => setClamped(e + step)}
 																	>
@@ -430,7 +430,7 @@ export default function ScoreCalculatorPage() {
 								</div>
 							</div>
 							<p className="text-sm text-vanta-muted mb-6 leading-relaxed">
-								Single practice-test percentage mapped to a generic AP 1–5 band.
+								Single practice-test percentage mapped to a generic AP® 1–5 band.
 							</p>
 							<Button
 								type="button"
@@ -534,7 +534,7 @@ export default function ScoreCalculatorPage() {
 							</div>
 
 							<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.2em] mb-3">
-								AP score scale
+								AP® score scale
 							</p>
 							<div className="grid grid-cols-5 gap-2">
 								{([1, 2, 3, 4, 5] as const).map((score) => (
@@ -607,7 +607,7 @@ export default function ScoreCalculatorPage() {
 								</div>
 							</div>
 							<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.2em] mt-8 mb-3">
-								AP score scale
+								AP® score scale
 							</p>
 							<div className="grid grid-cols-5 gap-2">
 								{([1, 2, 3, 4, 5] as const).map((score) => (
@@ -633,7 +633,7 @@ export default function ScoreCalculatorPage() {
 							</p>
 							<p className="text-vanta-muted text-sm leading-relaxed">
 								{mode === "ap_subject"
-									? "Select a course and move the sliders — your predicted AP score, section scores, and raw breakdown appear here."
+									? "Select a course and move the sliders — your predicted AP® score, section scores, and raw breakdown appear here."
 									: "Enter raw correct count and total questions, then tap Calculate."}
 							</p>
 						</Card>
@@ -649,7 +649,7 @@ export default function ScoreCalculatorPage() {
 					</span>
 				</Link>
 				<p className="text-sm text-vanta-muted max-w-xl leading-relaxed">
-					Layouts follow the same information architecture as widely used AP estimators: per-section sliders, scaled
+					Layouts follow the same information architecture as widely used AP® estimators: per-section sliders, scaled
 					buckets where applicable, composite, and score scale. Curves are heuristic study aids, not official
 					projections.
 				</p>

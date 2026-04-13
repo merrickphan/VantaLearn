@@ -480,7 +480,7 @@ input[type="range"].score-slider::-moz-range-thumb {
  animation: ap-cal-bar-glow 2s ease-in-out infinite;
 }
 
-/* FRQ slider — transparent track (fill drawn in UI), teal-ring thumb */
+/* FRQ slider — transparent track (fill drawn in UI); thumb ring matches --vanta-accent (sky) */
 input[type="range"].frq-cal-thumb-only {
  -webkit-appearance: none;
  appearance: none;
@@ -502,7 +502,7 @@ input[type="range"].frq-cal-thumb-only::-webkit-slider-thumb {
  margin-top: -7px;
  border-radius: 50%;
  background: #f8fafc;
- border: 2px solid #14b8a6;
+ border: 2px solid var(--vanta-accent, #38bdf8);
  cursor: pointer;
  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
  transition: transform 0.15s ease, box-shadow 0.2s ease;
@@ -510,7 +510,7 @@ input[type="range"].frq-cal-thumb-only::-webkit-slider-thumb {
 
 input[type="range"].frq-cal-thumb-only::-webkit-slider-thumb:hover {
  transform: scale(1.06);
- box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.35);
+ box-shadow: 0 0 0 3px var(--vanta-accent-glow, rgba(56, 189, 248, 0.4));
 }
 
 input[type="range"].frq-cal-thumb-only::-moz-range-track {
@@ -523,6 +523,6 @@ input[type="range"].frq-cal-thumb-only::-moz-range-thumb {
  height: 22px;
  border-radius: 50%;
  background: #f8fafc;
- border: 2px solid #14b8a6;
+ border: 2px solid var(--vanta-accent, #38bdf8);
  cursor: pointer;
 }
