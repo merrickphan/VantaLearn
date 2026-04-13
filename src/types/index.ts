@@ -69,6 +69,7 @@ export type ExamFigure =
  | {
  /** Short scenario, experimental setup, or exhibit (College Board-style stimulus). */
  kind: "stimulus";
+ /** Optional caption; omit for sentence-only stimuli shown inline like AP Lang. */
  title?: string;
  body: string;
  };

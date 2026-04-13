@@ -87,7 +87,6 @@ export function genDerivativePower(rng: () => number, ctx: ProcCtx, i: number): 
  const stem = DERIVATIVE_AFTER_STIM_STEMS[stemIdx];
  const fig: ExamFigure = {
  kind: "stimulus",
- title: "Stimulus",
  body: `${pick(rng, CALC_FUNCTION_INTROS)}\n\nf(x) = ${fx}`,
  };
  return mc(
@@ -150,7 +149,6 @@ export function genIntegralPower(rng: () => number, ctx: ProcCtx, i: number): Ex
  const stem = INTEGRAL_AFTER_STIM_STEMS[stemIdx];
  const fig: ExamFigure = {
  kind: "stimulus",
- title: "Stimulus",
  body: `${pick(rng, CALC_FUNCTION_INTROS)}\n\nf(x) = ${coef}x^${n}`,
  };
  return mc(
@@ -425,7 +423,6 @@ export function genStatsExamLineTrend(rng: () => number, ctx: ProcCtx, i: number
 export function genBigO(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const fig: ExamFigure = {
  kind: "stimulus",
- title: "Stimulus",
  body: "A class studies comparison-based sorting algorithms that reorder n distinct items using pairwise comparisons. Worst-case running time is expressed using big-O notation in n.",
  };
  return mc(
@@ -448,7 +445,6 @@ export function genLoopCount(rng: () => number, ctx: ProcCtx, i: number): ExamQu
  const total = n * (n + 1) / 2;
  const fig: ExamFigure = {
  kind: "stimulus",
- title: "Stimulus",
  body: `Integer variable n is ${n}. The fragment below initializes sum to 0 and accumulates a series:\n\nfor (int i = 1; i <= n; i++) {\n  sum += i;\n}`,
  };
  return mc(
@@ -469,7 +465,6 @@ export function genLoopCount(rng: () => number, ctx: ProcCtx, i: number): ExamQu
 export function genBooleanExpr(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const fig: ExamFigure = {
  kind: "stimulus",
- title: "Stimulus",
  body: "Consider the following Java boolean expression using literals:\n\n  true && false",
  };
  return mc(
@@ -590,7 +585,6 @@ export function genPhysVelocityBarFig(rng: () => number, ctx: ProcCtx, i: number
 export function genCoulombConcept(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const fig: ExamFigure = {
  kind: "stimulus",
- title: "Stimulus",
  body: "Two point charges q1 and q2 are separated by a center-to-center distance r in vacuum.\n\nCoulomb's law gives the magnitude of the electrostatic force between them.",
  };
  return mc(
@@ -727,7 +721,6 @@ export function genPHScale(rng: () => number, ctx: ProcCtx, i: number): ExamQues
 export function genDNAbase(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const fig: ExamFigure = {
  kind: "stimulus",
- title: "Stimulus",
  body: "Complementary base pairing in double-stranded DNA (hydrogen bonds between strands):\n\n  A — T\n  C — G\n\n(RNA uses uracil instead of thymine.)",
  };
  return mc(
@@ -824,7 +817,6 @@ export function genBioSpeciesTableFig(rng: () => number, ctx: ProcCtx, i: number
 export function genCarryingCapacity(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const fig: ExamFigure = {
  kind: "stimulus",
- title: "Stimulus",
  body: "A population’s growth is modeled by a logistic curve: growth is nearly exponential at first, then slows as resources become limiting, and the curve levels off at an upper horizontal asymptote labeled K.",
  };
  return mc(
@@ -1286,7 +1278,6 @@ export function genOppCost(rng: () => number, ctx: ProcCtx, i: number): ExamQues
 export function genGDPdeflator(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const fig: ExamFigure = {
  kind: "stimulus",
- title: "Stimulus",
  body: "National accounts report:\n• Nominal GDP: current-price output\n• Real GDP: constant-price output (base year)\n\nAnalysts form a price index that compares them economy-wide.",
  };
  return mc(
@@ -1346,7 +1337,6 @@ export function genEconUnemploymentLineFig(rng: () => number, ctx: ProcCtx, i: n
 export function genNeuronPart(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const fig: ExamFigure = {
  kind: "stimulus",
- title: "Stimulus",
  body: "Diagram description: Neuron A (presynaptic) —(vesicles release neurotransmitter)→ gap ←(receptors)— Neuron B (postsynaptic). The narrow space is labeled.",
  };
  return mc(
@@ -1367,7 +1357,6 @@ export function genNeuronPart(rng: () => number, ctx: ProcCtx, i: number): ExamQ
 export function genOperant(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const fig: ExamFigure = {
  kind: "stimulus",
- title: "Stimulus",
  body: "A dog trainer says “sit.” When the dog sits, the trainer immediately gives a small food treat. Over trials, sitting becomes more frequent.",
  };
  return mc(
@@ -1390,7 +1379,6 @@ export function genOperant(rng: () => number, ctx: ProcCtx, i: number): ExamQues
 export function genFallacy(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const fig: ExamFigure = {
  kind: "stimulus",
- title: "Stimulus",
  body: "Speaker: “We should fund the new lab.”\nOpponent: “You can’t trust anything they say — they failed chemistry in high school.”",
  };
  return mc(
@@ -1411,7 +1399,6 @@ export function genFallacy(rng: () => number, ctx: ProcCtx, i: number): ExamQues
 export function genRhetoricalAppeal(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const fig: ExamFigure = {
  kind: "stimulus",
- title: "Stimulus",
  body: "A surgeon begins a public health talk: “In twenty years of practice at this hospital, I’ve seen hundreds of cases like this…”",
  };
  return mc(
@@ -1434,7 +1421,6 @@ export function genRhetoricalAppeal(rng: () => number, ctx: ProcCtx, i: number):
 export function genRenaissanceArt(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const fig: ExamFigure = {
  kind: "stimulus",
- title: "Stimulus",
  body: "Exhibit: Architectural and pictorial works from Quattrocento Italy increasingly use converging orthogonals and a single vanishing point to organize space on a flat surface.",
  };
  return mc(
@@ -1455,7 +1441,6 @@ export function genRenaissanceArt(rng: () => number, ctx: ProcCtx, i: number): E
 export function genCadence(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const fig: ExamFigure = {
  kind: "stimulus",
- title: "Stimulus",
  body: "Notation (Roman numeral analysis): a phrase ends on the dominant chord (V) rather than the tonic (I), leaving a sense of pause or expectation.",
  };
  return mc(
@@ -1504,7 +1489,6 @@ export function genNumberPatternEs(rng: () => number, ctx: ProcCtx, i: number): 
 export function genCitationEthics(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const fig: ExamFigure = {
  kind: "stimulus",
- title: "Stimulus",
  body: "A student rewrites two paragraphs from a journal article in their own words but does not add in-text citations or a bibliography entry.",
  };
  return mc(

@@ -6,6 +6,7 @@ import { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { SAMPLE_RESOURCES } from "@/lib/utils/sampleData";
 import { AP_COURSES } from "@/lib/apCatalog";
+import { proceduralPracticeMcqCountForCourse } from "@/lib/apPracticeExamFormat";
 import { getUnitOrFirst } from "@/lib/apUnits";
 import { ExamContent, ExamQuestion } from "@/types";
 import { Button, Spinner } from "@/components/ui";
@@ -32,7 +33,11 @@ function ProceduralExamSession({ courseId, unitId }: { courseId: string; unitId?
  const res = await fetch("/api/questions/procedural", {
  method: "POST",
  headers: { "Content-Type": "application/json" },
- body: JSON.stringify({ courseId, unitId: unit?.id, count: 10 }),
+ body: JSON.stringify({
+ courseId,
+ unitId: unit?.id,
+ count: proceduralPracticeMcqCountForCourse(courseId),
+ }),
  });
  const data = await res.json();
  if (!res.ok) throw new Error(data.error || "Could not generate questions.");

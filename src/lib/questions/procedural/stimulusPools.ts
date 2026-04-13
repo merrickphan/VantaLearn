@@ -115,7 +115,6 @@ export function stimulusFigureForMassRow(rng: () => number, rowId: string): Exam
  const pool = BY_PREFIX[key] ?? GENERIC;
  return {
  kind: "stimulus",
- title: "Stimulus",
  body: pick(rng, pool),
  };
 }
@@ -255,7 +254,6 @@ export function thematicStimulusUsh(rng: () => number, unitIndex: number): ExamF
  const pool = USH_THEMATIC[unitIndex] ?? HIST_GENERIC;
  return {
  kind: "stimulus",
- title: "Stimulus",
  body: pick(rng, pool),
  };
 }
@@ -265,7 +263,6 @@ export function thematicStimulusWh(rng: () => number, unitIndex: number): ExamFi
  const pool = WH_THEMATIC[unitIndex] ?? HIST_GENERIC;
  return {
  kind: "stimulus",
- title: "Stimulus",
  body: pick(rng, pool),
  };
 }
@@ -275,7 +272,6 @@ export function thematicStimulusHg(rng: () => number, unitIndex: number): ExamFi
  const pool = HG_THEMATIC[unitIndex] ?? HIST_GENERIC;
  return {
  kind: "stimulus",
- title: "Stimulus",
  body: pick(rng, pool),
  };
 }

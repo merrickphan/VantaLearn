@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, type ReactNode } from "react";
 import Link from "next/link";
-import type { ExamQuestion } from "@/types";
+import type { ExamFigure as ExamFigureData, ExamQuestion } from "@/types";
 import { useExamProgress } from "@/hooks/useProgress";
 import { Button, Card, Badge, ProgressBar, Textarea, Spinner } from "@/components/ui";
 import { calculateAPScore } from "@/lib/calculateAPScore";
@@ -10,13 +10,29 @@ import { ExamFigure } from "@/components/exam/ExamFigure";
 import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 import { recordExamComplete } from "@/lib/cmdStats";
 
+function isStimulusFigure(f: ExamQuestion["figure"]): f is Extract<ExamFigureData, { kind: "stimulus" }> {
+ return f?.kind === "stimulus";
+}
+
+/** Stems that reference information "above" need the exhibit before the numbered stem. */
+function stimulusBeforeStem(question: ExamQuestion): boolean {
+ if (!isStimulusFigure(question.figure)) return false;
+ const q = question.question.trim();
+ return /^(Based on the stimulus|According to the scenario described above|With reference to the information above|Using only the stimulus)/i.test(
+ q,
+ );
+}
+
 function QuestionCard({
  question,
+ questionNumber,
  answer,
  onAnswer,
  submitted,
 }: {
  question: ExamQuestion;
+ /** 1-based index shown like College Board booklets. */
+ questionNumber: number;
  answer: string;
  onAnswer: (a: string) => void;
  submitted: boolean;
@@ -50,20 +66,40 @@ function QuestionCard({
  setLoadingFeedback(false);
  };
 
+ const fig = question.figure;
+ const stim = isStimulusFigure(fig) ? fig : null;
+ const dataFig = fig && !isStimulusFigure(fig) ? fig : null;
+ const stimFirst = stim && stimulusBeforeStem(question);
+ const stimAfter = stim && !stimFirst;
+
  return (
  <Card
  className={`p-6 mb-4 transition-all duration-300 exam-card-enter ${isCorrect ? "border-vanta-success/70 shadow-[inset_0_0_0_1px_rgba(74,222,128,0.25)]" : isWrong ? "border-vanta-error/70 shadow-[inset_0_0_0_1px_rgba(248,113,113,0.25)]" : ""}`}
  >
- {question.figure ? (
- <div className="figure-reveal mb-2">
- <ExamFigure figure={question.figure} />
+ {dataFig ? (
+ <div className="figure-reveal mb-3">
+ <ExamFigure figure={dataFig} />
  </div>
  ) : null}
- <p className="text-vanta-text font-medium mb-4 leading-relaxed">{question.question}</p>
+ {stimFirst ? (
+ <p className="mb-3 font-serif text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
+ {stim.body}
+ </p>
+ ) : null}
+ <p className="text-vanta-text font-medium mb-3 leading-relaxed font-serif text-[15px]">
+ <span className="tabular-nums">{questionNumber}. </span>
+ {question.question}
+ </p>
+ {stimAfter ? (
+ <p className="mb-4 font-serif text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
+ {stim.body}
+ </p>
+ ) : null}
 
  {question.type === "multiple_choice" && question.options ? (
  <div className="space-y-2">
  {question.options.map((opt, optIdx) => {
+ const letter = String.fromCharCode(65 + optIdx);
  const isSelected = answer === opt;
  const isCorrectOpt = submitted && opt === question.correct_answer;
  const isWrongOpt = submitted && isSelected && !isCorrectOpt;
@@ -72,6 +108,7 @@ function QuestionCard({
  <button
  key={`${question.id}-opt-${optIdx}`}
  type="button"
+ aria-label={`Answer ${letter}: ${opt}`}
  onClick={() => {
  if (submitted) return;
  setTapOptionIdx(optIdx);
@@ -79,7 +116,7 @@ function QuestionCard({
  onAnswer(opt);
  }}
  disabled={submitted}
- className={`exam-mcq-idle w-full text-left px-4 py-3 rounded-lg text-sm border
+ className={`exam-mcq-idle w-full text-left px-4 py-3 rounded-lg text-[15px] border font-serif
  ${tapOptionIdx === optIdx ? "exam-mcq-option-tap" : ""}
  ${isCorrectOpt ? "exam-mcq-correct" : ""}
  ${isWrongOpt ? "exam-mcq-wrong" : ""}
@@ -88,8 +125,11 @@ function QuestionCard({
  ${isDimmed ? "opacity-45 border-slate-300 bg-slate-100 text-neutral-950" : ""}
  disabled:cursor-default`}
  >
- <span className="flex items-center justify-between gap-3 w-full">
- <span className="leading-relaxed text-neutral-950">{opt}</span>
+ <span className="flex items-start justify-between gap-3 w-full">
+ <span className="flex flex-1 items-start gap-3 min-w-0">
+ <span className="shrink-0 w-8 tabular-nums font-medium text-vanta-text pt-0.5">{letter}.</span>
+ <span className="leading-relaxed text-neutral-950 flex-1 min-w-0">{opt}</span>
+ </span>
  {submitted && isCorrectOpt ? (
  <span className="shrink-0 text-lg font-bold text-green-800" aria-hidden>
  OK
@@ -187,7 +227,7 @@ export function ExamGame({
  const { apScore, percentage } = calculateAPScore({ rawScore: correctCount, totalQuestions: questions.length });
 
  return (
- <div className="max-w-2xl mx-auto px-4 py-8">
+ <div className="max-w-3xl mx-auto px-4 py-8">
  <div className="text-center mb-8 fade-up">
  <div className="mb-4 flex justify-center motion-float" aria-hidden>
  <SimpleIconBox name="chart" size={48} />
@@ -216,10 +256,11 @@ export function ExamGame({
 
  <div className="space-y-4">
  <h2 className="text-sm font-semibold text-vanta-muted uppercase tracking-wider">Review Answers</h2>
- {questions.map((q) => (
+ {questions.map((q, qi) => (
  <QuestionCard
  key={q.id}
  question={q}
+ questionNumber={qi + 1}
  answer={answers[q.id] || ""}
  onAnswer={() => {}}
  submitted={true}
@@ -242,7 +283,7 @@ export function ExamGame({
  }
 
  return (
- <div className="max-w-2xl mx-auto px-4 py-8">
+ <div className="max-w-3xl mx-auto px-4 py-8">
  <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
  <div>
  <Link href="/study" className="text-xs text-vanta-muted hover:text-vanta-blue">
@@ -263,9 +304,9 @@ export function ExamGame({
  <div className="space-y-4 stagger">
  {questions.map((q, i) => (
  <div key={q.id} className="exam-card-enter" style={{ animationDelay: `${i * 45}ms` }}>
- <p className="text-xs text-vanta-muted mb-2">Question {i + 1}</p>
  <QuestionCard
  question={q}
+ questionNumber={i + 1}
  answer={answers[q.id] || ""}
  onAnswer={(a) => answerQuestion(q.id, a)}
  submitted={false}

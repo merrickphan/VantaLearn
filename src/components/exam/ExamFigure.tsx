@@ -4,13 +4,19 @@ import type { ExamFigure as ExamFigureType } from "@/types";
 
 export function ExamFigure({ figure }: { figure: ExamFigureType }) {
  if (figure.kind === "stimulus") {
+ const titled = figure.title && figure.title.trim().length > 0 && figure.title !== "Stimulus";
+ if (!titled) {
+ return (
+ <p className="mb-4 font-serif text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
+ {figure.body}
+ </p>
+ );
+ }
  return (
  <div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 overflow-hidden">
- {figure.title && (
  <p className="text-xs text-vanta-muted uppercase tracking-wider px-3 py-2 border-b border-vanta-border">
  {figure.title}
  </p>
- )}
  <div className="px-3 py-3 text-sm text-vanta-text leading-relaxed whitespace-pre-wrap font-serif">
  {figure.body}
  </div>

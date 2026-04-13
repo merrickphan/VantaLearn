@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { ExamQuestion } from "@/types";
 import { Button, Card } from "@/components/ui";
 import { ExamGame } from "@/components/study/ExamGame";
+import { proceduralPracticeMcqCountForCourse } from "@/lib/apPracticeExamFormat";
 import { findUnitById, getCourseIdFromSubjectName } from "@/lib/apUnits";
 
 type Phase = "loading" | "ready" | "error";
@@ -39,13 +40,14 @@ export function AiExamSession({
  if (!courseId) {
  throw new Error("That subject is not linked to a catalog course for offline practice.");
  }
+ const count = proceduralPracticeMcqCountForCourse(courseId);
  const res = await fetch("/api/questions/procedural", {
  method: "POST",
  headers: { "Content-Type": "application/json" },
  body: JSON.stringify({
  courseId,
  unitId: unitId || undefined,
- count: 8,
+ count,
  }),
  });
  const data = await res.json();
@@ -69,6 +71,10 @@ export function AiExamSession({
  return;
  }
 
+ const courseIdForCount = getCourseIdFromSubjectName(subject);
+ const aiCount = courseIdForCount
+ ? proceduralPracticeMcqCountForCourse(courseIdForCount)
+ : 5;
  const varietySeed = Date.now() ^ (Math.floor(Math.random() * 0xffff) << 8);
  const res = await fetch("/api/ai/questions", {
  method: "POST",
@@ -76,7 +82,7 @@ export function AiExamSession({
  body: JSON.stringify({
  subject,
  topic: topic || undefined,
- count: 8,
+ count: aiCount,
  includeFigures: true,
  unitId: unitId || undefined,
  varietySeed,

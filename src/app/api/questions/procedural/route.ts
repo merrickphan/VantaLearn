@@ -1,4 +1,5 @@
 ﻿import { NextResponse } from "next/server";
+import { proceduralPracticeMcqCountForCourse } from "@/lib/apPracticeExamFormat";
 import { generateProceduralQuestions } from "@/lib/questions/procedural";
 
 export async function POST(req: Request) {
@@ -6,7 +7,9 @@ export async function POST(req: Request) {
  const body = await req.json();
  const courseId = typeof body.courseId === "string" ? body.courseId.trim() : "";
  const unitId = typeof body.unitId === "string" ? body.unitId.trim() : undefined;
- const count = typeof body.count === "number" ? body.count : 10;
+ const rawCount =
+ typeof body.count === "number" ? body.count : proceduralPracticeMcqCountForCourse(courseId);
+ const count = Math.min(100, Math.max(1, Math.floor(rawCount)));
  const seed = typeof body.seed === "string" ? body.seed : undefined;
 
  if (!courseId) {
