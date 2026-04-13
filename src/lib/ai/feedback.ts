@@ -1,22 +1,22 @@
 import OpenAI from "openai";
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+ apiKey: process.env.OPENAI_API_KEY,
 });
 
 export interface FeedbackOptions {
-  question: string;
-  userAnswer: string;
-  correctAnswer: string;
-  subject: string;
+ question: string;
+ userAnswer: string;
+ correctAnswer: string;
+ subject: string;
 }
 
 export async function generateFeedback(
-  options: FeedbackOptions
+ options: FeedbackOptions
 ): Promise<string> {
-  const { question, userAnswer, correctAnswer, subject } = options;
+ const { question, userAnswer, correctAnswer, subject } = options;
 
-  const prompt = `You are a helpful tutor for ${subject}. A student answered a practice question.
+ const prompt = `You are a helpful tutor for ${subject}. A student answered a practice question.
 
 Question: ${question}
 
@@ -32,41 +32,41 @@ Please provide:
 
 Keep your response concise and student-friendly. Use clear, simple language suitable for high school students.`;
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [{ role: "user", content: prompt }],
-    max_tokens: 400,
-    temperature: 0.7,
-  });
+ const response = await openai.chat.completions.create({
+ model: "gpt-4o-mini",
+ messages: [{ role: "user", content: prompt }],
+ max_tokens: 400,
+ temperature: 0.7,
+ });
 
-  return response.choices[0]?.message?.content ?? "Unable to generate feedback at this time.";
+ return response.choices[0]?.message?.content ?? "Unable to generate feedback at this time.";
 }
 
 export interface StudyTipOptions {
-  subject: string;
-  topic?: string;
+ subject: string;
+ topic?: string;
 }
 
 export async function generateStudyTip(
-  options: StudyTipOptions
+ options: StudyTipOptions
 ): Promise<string> {
-  const { subject, topic } = options;
+ const { subject, topic } = options;
 
-  const prompt = `Give a high school student one highly specific, actionable study tip for ${subject}${topic ? ` focused on "${topic}"` : ""}. 
-  
-  Format it as:
-  - A clear tip title (bold)
-  - 2-3 sentences explaining how to apply it
-  - A quick example if helpful
-  
-  Be encouraging and practical. Avoid generic advice.`;
+ const prompt = `Give a high school student one highly specific, actionable study tip for ${subject}${topic ? ` focused on "${topic}"` : ""}. 
+ 
+ Format it as:
+ - A clear tip title (bold)
+ - 2-3 sentences explaining how to apply it
+ - A quick example if helpful
+ 
+ Be encouraging and practical. Avoid generic advice.`;
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [{ role: "user", content: prompt }],
-    max_tokens: 250,
-    temperature: 0.8,
-  });
+ const response = await openai.chat.completions.create({
+ model: "gpt-4o-mini",
+ messages: [{ role: "user", content: prompt }],
+ max_tokens: 250,
+ temperature: 0.8,
+ });
 
-  return response.choices[0]?.message?.content ?? "Keep practicing consistently — every session builds your confidence!";
+ return response.choices[0]?.message?.content ?? "Keep practicing consistently - every session builds your confidence!";
 }

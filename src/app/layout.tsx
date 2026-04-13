@@ -4,45 +4,45 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+ variable: "--font-geist-sans",
+ subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+ variable: "--font-geist-mono",
+ subsets: ["latin"],
 });
 
 const orbitron = Orbitron({
-  variable: "--font-orbitron",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+ variable: "--font-orbitron",
+ subsets: ["latin"],
+ weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "VantaLearn — Master AP & SAT Exams",
-  description:
-    "Free AI-powered study platform for high school students. Practice exams, flashcards, and smart feedback to help you ace AP and SAT tests.",
-  keywords: ["AP exam prep", "SAT study", "flashcards", "practice tests", "high school"],
-  openGraph: {
-    title: "VantaLearn",
-    description: "AI-powered AP & SAT prep for high school students",
-    type: "website",
-  },
+ title: "VantaLearn - Master AP & SAT Exams",
+ description:
+ "Free AI-powered study platform for high school students. Practice exams, flashcards, and smart feedback to help you ace AP and SAT tests.",
+ keywords: ["AP exam prep", "SAT study", "flashcards", "practice tests", "high school"],
+ openGraph: {
+ title: "VantaLearn",
+ description: "AI-powered AP & SAT prep for high school students",
+ type: "website",
+ },
 };
 
 export default function RootLayout({
-  children,
+ children,
 }: Readonly<{
-  children: React.ReactNode;
+ children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en" className="dark">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${orbitron.variable} antialiased bg-vanta-bg text-vanta-text min-h-screen text-lg leading-relaxed`}
-      >
-        <Providers>{children}</Providers>
-      </body>
-    </html>
-  );
+ return (
+ <html lang="en" className="dark">
+ <body
+ className={`${geistSans.variable} ${geistMono.variable} ${orbitron.variable} antialiased bg-vanta-bg text-vanta-text min-h-screen text-lg leading-relaxed`}
+ >
+ <Providers>{children}</Providers>
+ </body>
+ </html>
+ );
 }
