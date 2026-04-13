@@ -142,17 +142,71 @@ export const AP_UNITS_BY_COURSE_ID: Record<string, ApUnit[]> = {
     "Aquatic and Terrestrial Pollution",
     "Global Change",
   ]),
-  ush: U("ush", [
-    "Period 1: 1491–1607",
-    "Period 2: 1607–1754",
-    "Period 3: 1754–1800",
-    "Period 4: 1800–1848",
-    "Period 5: 1844–1877",
-    "Period 6: 1865–1898",
-    "Period 7: 1890–1945",
-    "Period 8: 1945–1980",
-    "Period 9: 1980–Present",
-  ]),
+  ush: [
+    {
+      id: "ush-u1",
+      index: 1,
+      title: "Period 1: 1491–1607",
+      summary:
+        "Indigenous societies and environments; peopling of the Americas; European exploration and Columbian Exchange; Spanish colonial systems (including encomienda); early rival empires; introduction of African slavery in the Atlantic world; first sustained English and French footholds.",
+    },
+    {
+      id: "ush-u2",
+      index: 2,
+      title: "Period 2: 1607–1754",
+      summary:
+        "British, French, Dutch, and Spanish colonies; labor (indenture, slavery, family farming); mercantilism and Navigation Acts; regional cultures (Chesapeake, New England, middle colonies); Native diplomacy and conflict; Bacon’s Rebellion; slavery’s growth; First Great Awakening; imperial wars culminating in the Seven Years’ War.",
+    },
+    {
+      id: "ush-u3",
+      index: 3,
+      title: "Period 3: 1754–1800",
+      summary:
+        "French and Indian War to independence; imperial reforms and resistance (taxation, protest, loyalism); revolution, war, and Native alliances; state and national experiments under the Articles; Constitutional Convention and Bill of Rights; Hamilton–Jefferson divisions; Washington’s presidency and early foreign policy.",
+    },
+    {
+      id: "ush-u4",
+      index: 4,
+      title: "Period 4: 1800–1848",
+      summary:
+        "Jeffersonian and Jacksonian democracy; Louisiana Purchase and exploration; War of 1812; Market Revolution and transportation; Indian Removal; Monroe Doctrine; sectionalism and slavery’s expansion; reform movements (abolition, women’s rights, temperance); Mexican-American War and territorial acquisition.",
+    },
+    {
+      id: "ush-u5",
+      index: 5,
+      title: "Period 5: 1844–1877",
+      summary:
+        "Manifest destiny and the Mexican Cession; compromise and crisis (Compromise of 1850, Kansas–Nebraska, Dred Scott); Civil War mobilization, emancipation, and turning points; Reconstruction plans, amendments, Freedmen’s Bureau; retreat from Reconstruction and contested endings.",
+    },
+    {
+      id: "ush-u6",
+      index: 6,
+      title: "Period 6: 1865–1898",
+      summary:
+        "Industrialization, immigration, and urban growth; labor conflict and agrarian protest; Gilded Age politics and corruption; segregation and disenfranchisement after Reconstruction; Populists; overseas expansion and the Spanish-American War; debates over empire, markets, and reform.",
+    },
+    {
+      id: "ush-u7",
+      index: 7,
+      title: "Period 7: 1890–1945",
+      summary:
+        "Progressivism and regulatory state; women’s suffrage; World War I and its aftermath; Great Migration; Roaring Twenties; Great Depression; New Deal; World War II mobilization, home front, and internment; paths toward postwar superpower status.",
+    },
+    {
+      id: "ush-u8",
+      index: 8,
+      title: "Period 8: 1945–1980",
+      summary:
+        "Cold War containment, Korea, and Vietnam; civil rights movement and landmark legislation; Great Society; suburbanization; environmental and consumer culture; Watergate; stagflation; shifting foreign policy and détente; social movements (feminism, environmentalism, conservatism’s rise).",
+    },
+    {
+      id: "ush-u9",
+      index: 9,
+      title: "Period 9: 1980–Present",
+      summary:
+        "Reagan revolution and end of Cold War; globalization, trade, and immigration after 1965; culture wars; digital economy; war on terror and security policy; recurring debates over inequality, health care, climate, and partisan polarization—interpretation of very recent events remains contested.",
+    },
+  ],
   wh: [
     {
       id: "wh-u1",

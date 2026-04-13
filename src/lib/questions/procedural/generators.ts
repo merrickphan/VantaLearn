@@ -1,6 +1,7 @@
 import type { ExamQuestion } from "@/types";
 import { hashString, randInt, roundN, shuffleInPlace } from "./utils";
 import { getHumanGeographyGeneratorsForUnit } from "./humanGeographyUnitPools";
+import { getUsHistoryGeneratorsForUnit } from "./usHistoryUnitPools";
 import { getWorldHistoryGeneratorsForUnit } from "./worldHistoryUnitPools";
 
 export interface ProcCtx {
@@ -1040,7 +1041,6 @@ const COURSE_POOL: Record<string, QuestionGen[]> = {
   chem: [...CHEM, genVariableControl],
   bio: [...BIO, genVariableControl],
   env: [...ENV, genVariableControl],
-  ush: [...HIST_SHARED, ...GOV],
   euro: [...HIST_SHARED, ...HIST_GLOBAL],
   gov: [...GOV],
   "comp-gov": [...COMP_GOV],
@@ -1068,6 +1068,9 @@ export function getGeneratorsForCourse(courseId: string, unitIndex: number = 1):
   }
   if (courseId === "hum-geo" && unitIndex >= 1 && unitIndex <= 7) {
     return getHumanGeographyGeneratorsForUnit(unitIndex) as QuestionGen[];
+  }
+  if (courseId === "ush" && unitIndex >= 1 && unitIndex <= 9) {
+    return getUsHistoryGeneratorsForUnit(unitIndex) as QuestionGen[];
   }
   return COURSE_POOL[courseId] ?? DEFAULT_POOL;
 }

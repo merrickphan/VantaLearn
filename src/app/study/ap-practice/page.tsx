@@ -27,7 +27,9 @@ function ApPracticeInner() {
               ? "Multiple-choice practice is organized by historical era (nine spans from 1200 CE to the present). Pick an era to drill themes and terms—items stay within that time frame."
               : course.id === "hum-geo"
                 ? "Multiple-choice practice is grouped by topic (seven themes from geographic foundations through economic development). Pick a theme so generated items stay in that area."
-                : undefined
+                : course.id === "ush"
+                  ? "Multiple-choice practice follows nine chronological spans from Indigenous North America and early contact through the late 20th and 21st centuries. Pick a span so generated items stay in that window."
+                  : undefined
           }
         />
       </div>
