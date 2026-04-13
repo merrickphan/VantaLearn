@@ -108,6 +108,26 @@
   animation: fadeUp 0.3s ease-out both;
 }
 
+/* Multiple-choice option: brief ring pulse when selected */
+@keyframes mcOptionSelected {
+  0% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.45);
+    transform: scale(1);
+  }
+  60% {
+    box-shadow: 0 0 0 6px rgba(56, 189, 248, 0.12);
+    transform: scale(1.02);
+  }
+  100% {
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18);
+    transform: scale(1.01);
+  }
+}
+
+.mc-option-selected {
+  animation: mcOptionSelected 0.38s ease-out forwards;
+}
+
 /* Staggered children */
 .stagger > *:nth-child(1) { animation-delay: 0ms; }
 .stagger > *:nth-child(2) { animation-delay: 80ms; }

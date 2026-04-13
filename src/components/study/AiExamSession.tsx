@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { ExamQuestion } from "@/types";
 import { Button, Card } from "@/components/ui";
 import { ExamGame } from "@/components/study/ExamGame";
-import { findUnitById } from "@/lib/apUnits";
+import { findUnitById, getCourseIdFromSubjectName } from "@/lib/apUnits";
 
 type Phase = "loading" | "ready" | "error";
 
@@ -35,11 +35,15 @@ export function AiExamSession({
       : `${subject} · ${usedProcedural ? "Offline practice" : "AI practice"}`;
 
   const loadProcedural = useCallback(async () => {
+    const courseId = getCourseIdFromSubjectName(subject);
+    if (!courseId) {
+      throw new Error("That subject is not linked to a catalog course for offline practice.");
+    }
     const res = await fetch("/api/questions/procedural", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        subject,
+        courseId,
         unitId: unitId || undefined,
         count: 8,
       }),

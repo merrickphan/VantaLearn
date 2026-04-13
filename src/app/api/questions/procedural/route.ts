@@ -1,29 +1,22 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { generateProceduralQuestions } from "@/lib/questions/procedural";
 
-export async function POST(request: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const body = await request.json();
-    const subject = typeof body.subject === "string" ? body.subject.trim() : "";
-    if (!subject || subject.length > 120) {
-      return NextResponse.json({ error: "Invalid subject" }, { status: 400 });
-    }
-    const count = typeof body.count === "number" ? body.count : 8;
+    const body = await req.json();
+    const courseId = typeof body.courseId === "string" ? body.courseId.trim() : "";
     const unitId = typeof body.unitId === "string" ? body.unitId.trim() : undefined;
+    const count = typeof body.count === "number" ? body.count : 10;
+    const seed = typeof body.seed === "string" ? body.seed : undefined;
 
-    const questions = generateProceduralQuestions({
-      subject,
-      unitId,
-      count,
-    });
+    if (!courseId) {
+      return NextResponse.json({ error: "courseId is required" }, { status: 400 });
+    }
 
-    return NextResponse.json({
-      questions,
-      source: "procedural" as const,
-      note: "Generated locally with randomized parameters — no API usage.",
-    });
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Failed to generate questions";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const questions = generateProceduralQuestions({ courseId, unitId, count, seed });
+    return NextResponse.json({ questions, seed: seed ?? null });
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Failed to generate questions";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }

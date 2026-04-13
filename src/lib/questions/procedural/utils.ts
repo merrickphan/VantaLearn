@@ -1,41 +1,73 @@
-/** Seeded-ish mixing per question index (deterministic given session offset) */
-export function randInt(min: number, max: number, salt: number): number {
-  const x = Math.sin(salt * 12.9898 + min * 78.233 + max * 43.758) * 43758.5453;
-  const t = x - Math.floor(x);
-  return min + Math.floor(t * (max - min + 1));
-}
-
-export function shuffle<T>(arr: T[], salt: number): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = randInt(0, i, salt + i * 31);
-    [a[i], a[j]] = [a[j], a[i]];
+﻿/** Deterministic hash for seed strings (FNV-1a style). */
+export function hashString(s: string): number {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
   }
-  return a;
+  return h >>> 0;
 }
 
-export function pick<T>(arr: T[], salt: number): T {
-  return arr[randInt(0, arr.length - 1, salt)];
+/** Mulberry32 PRNG; returns values in [0, 1). */
+export function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a += 0x6d2b79f5;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
 }
 
-export function makeQuestionId(prefix: string, salt: number): string {
-  return `proc-${prefix}-${salt}-${Math.random().toString(36).slice(2, 9)}`;
+export function createRng(seedBase: string, salt: string | number): () => number {
+  return mulberry32(hashString(`${seedBase}|${salt}`));
 }
 
-export function round(n: number, d = 2): string {
-  const f = 10 ** d;
-  return String(Math.round(n * f) / f);
+export function randInt(rng: () => number, min: number, maxInclusive: number): number {
+  return min + Math.floor(rng() * (maxInclusive - min + 1));
 }
 
-/** Ensures wrong answers are distinct from the correct string and from each other (avoids duplicate React keys / ambiguous MCQs). */
-export function dedupeWrongOptions(correct: string, wrong: string[]): string[] {
-  const used = new Set<string>([correct]);
-  return wrong.map((w) => {
-    let x = w;
-    while (used.has(x)) {
-      x += "\u200b";
-    }
-    used.add(x);
-    return x;
-  });
+export function pick<T>(rng: () => number, arr: readonly T[]): T {
+  if (arr.length === 0) throw new Error("pick: empty array");
+  return arr[Math.floor(rng() * arr.length)];
+}
+
+/** Distinct wrong answers for MC (shuffled with correct elsewhere). */
+export function pickThreeDistinct(
+  rng: () => number,
+  pool: readonly string[],
+  exclude: string,
+): [string, string, string] {
+  const filtered = pool.filter((x) => x !== exclude);
+  const extra = [
+    "a claim most historians would treat cautiously",
+    "a pattern documented only in one unreliable source",
+    "an outcome that contradicts typical regional evidence",
+  ];
+  for (const e of extra) {
+    if (filtered.length >= 3) break;
+    if (!filtered.includes(e)) filtered.push(e);
+  }
+  const shuffled = shuffleInPlace(rng, [...filtered]);
+  return [shuffled[0], shuffled[1], shuffled[2]];
+}
+
+export function shuffleInPlace<T>(rng: () => number, arr: T[]): T[] {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+export function roundN(n: number, places: number): number {
+  const p = 10 ** places;
+  return Math.round(n * p) / p;
+}
+
+export function uniqueOptions(correct: string, wrong: string[], rng: () => number): string[] {
+  const set = new Set<string>([correct, ...wrong]);
+  const opts = shuffleInPlace(rng, [...set]);
+  return opts.slice(0, Math.min(4, opts.length));
 }

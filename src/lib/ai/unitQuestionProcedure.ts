@@ -5,7 +5,8 @@ import type { ApUnit } from "@/lib/apUnits/types";
  * so each API call emphasizes different angles (near-infinite combinations over time).
  */
 export function buildUnitVarietyDirective(unit: ApUnit, varietySeed: number): string {
-  const hooks = unit.questionHooks;
+  const fallback = [unit.title, "ideas in the unit summary", "skills typical for this unit"];
+  const hooks = unit.questionHooks?.length ? unit.questionHooks : fallback;
   const n = hooks.length;
   const a = ((varietySeed % n) + n) % n;
   const b = ((Math.floor(varietySeed / 7) % n) + n) % n;

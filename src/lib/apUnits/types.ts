@@ -1,13 +1,9 @@
-/**
- * One curriculum unit per AP course. IDs are globally unique: `${courseId}-u${n}`.
- */
+﻿/** One College Board–style instructional unit for an AP course. */
 export interface ApUnit {
   id: string;
-  /** 1-based display order within the course */
   index: number;
   title: string;
-  /** What this unit covers — used in AI prompts */
   summary: string;
-  /** Rotate these to force stem/figure variety across requests */
-  questionHooks: string[];
+  /** Optional rotating prompt angles for AI generation (not all catalogs define these). */
+  questionHooks?: string[];
 }
