@@ -48,7 +48,7 @@ function DashboardContent() {
             Your AP command center
           </h1>
           <p className="text-vanta-muted text-lg mt-3 max-w-xl">
-            CB-style practice • Live countdowns • Score predictor • Analytics — {userName ? `${userName}, ` : ""}
+            Exam-style practice • Live countdowns • Score predictor • Analytics — {userName ? `${userName}, ` : ""}
             stay exam-ready.
           </p>
         </div>
@@ -106,7 +106,7 @@ function DashboardContent() {
           backLabel="← All AP exams"
           intro={
             selectedCourse.id === "wh"
-              ? "Multiple-choice practice is built for each College Board unit (nine units, 1200 CE to present). Pick a unit to drill themes and terms for that era—items are not drawn from unrelated periods."
+              ? "Multiple-choice practice is organized by historical era (nine spans from 1200 CE to the present). Pick an era to drill themes and terms—items stay within that time frame."
               : undefined
           }
         />
@@ -130,7 +130,7 @@ function DashboardContent() {
             </h2>
             {!selectedCourse ? (
               <p className="text-vanta-muted text-sm mt-2 max-w-2xl">
-                Choose a subject area, then an exam. You’ll see every College Board unit and can start infinite generated practice for any unit.
+                Choose a subject area, then an exam. You’ll see each topic unit and can start unlimited generated practice for any unit.
               </p>
             ) : (
               <p className="text-vanta-muted text-sm mt-2 max-w-2xl">

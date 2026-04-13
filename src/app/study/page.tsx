@@ -29,7 +29,7 @@ function StudyLibrary() {
           <Link href="/study/ap-practice" className="text-sky-400 hover:underline font-medium">
             AP practice by section & unit
           </Link>
-          <span className="text-vanta-muted"> — unlimited generated MCQ per College Board unit.</span>
+          <span className="text-vanta-muted"> — unlimited generated MCQ by topic.</span>
         </p>
         <p className="text-vanta-muted text-lg mt-2">
           {subjectFilter ? (
@@ -40,7 +40,7 @@ function StudyLibrary() {
               </Link>
             </>
           ) : (
-            "Browse flashcard decks and CB-style exams (including graph & data sets)"
+            "Browse flashcard decks and exam-style practice sets (including graph & data sets)"
           )}
         </p>
       </div>

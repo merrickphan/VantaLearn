@@ -24,7 +24,7 @@ function ApPracticeInner() {
           backLabel="← All sections"
           intro={
             course.id === "wh"
-              ? "Multiple-choice practice is built for each College Board unit (nine units, 1200 CE to present). Pick a unit to drill themes and terms for that era—items are not drawn from unrelated periods."
+              ? "Multiple-choice practice is organized by historical era (nine spans from 1200 CE to the present). Pick an era to drill themes and terms—items stay within that time frame."
               : undefined
           }
         />
