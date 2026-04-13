@@ -39,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${orbitron.variable} antialiased bg-vanta-bg text-vanta-text min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} ${orbitron.variable} antialiased bg-vanta-bg text-vanta-text min-h-screen text-lg leading-relaxed`}
       >
         <Providers>{children}</Providers>
       </body>

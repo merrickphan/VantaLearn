@@ -17,7 +17,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const base =
-    "inline-flex items-center justify-center font-medium rounded-lg focus-blue disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100";
+    "inline-flex items-center justify-center font-semibold rounded-xl focus-blue disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100";
 
   const variants = {
     primary:
@@ -31,9 +31,9 @@ export function Button({
   };
 
   const sizes = {
-    sm: "text-sm px-3 py-1.5 gap-1.5",
-    md: "text-sm px-4 py-2 gap-2",
-    lg: "text-base px-6 py-3 gap-2",
+    sm: "text-base px-4 py-2.5 gap-2 min-h-[2.75rem]",
+    md: "text-base px-5 py-3 gap-2 min-h-[3rem]",
+    lg: "text-lg px-7 py-3.5 gap-2.5 min-h-[3.25rem]",
   };
 
   return (
@@ -43,7 +43,7 @@ export function Button({
       {...props}
     >
       {loading && (
-        <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+        <span className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
       )}
       {children}
     </button>
@@ -62,7 +62,7 @@ export function Card({ children, className = "", hover, onClick }: CardProps) {
   return (
     <div
       onClick={onClick}
-      className={`bg-vanta-surface border border-vanta-border rounded-card shadow-card
+      className={`bg-vanta-surface border border-vanta-border rounded-2xl shadow-card
         ${hover ? "hover:shadow-card-hover hover:border-vanta-blue/35 transition-all duration-300 cursor-pointer hover:-translate-y-0.5 active:translate-y-0" : ""}
         ${className}`}
     >
@@ -86,7 +86,7 @@ export function Badge({ children, variant = "blue", className = "" }: BadgeProps
     gray: "bg-vanta-border/50 text-vanta-muted border border-vanta-border",
   };
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${variants[variant]} ${className}`}>
+    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${variants[variant]} ${className}`}>
       {children}
     </span>
   );
@@ -104,14 +104,14 @@ export function ProgressBar({ value, className = "", showLabel, color = "blue" }
   const fill = color === "green" ? "bg-vanta-success" : "bg-vanta-blue";
   return (
     <div className={`flex items-center gap-3 ${className}`}>
-      <div className="flex-1 h-2 bg-vanta-border rounded-full overflow-hidden">
+      <div className="flex-1 h-3 bg-vanta-border rounded-full overflow-hidden">
         <div
           className={`h-full ${fill} rounded-full fill-bar transition-all duration-500`}
           style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
         />
       </div>
       {showLabel && (
-        <span className="text-xs text-vanta-muted w-10 text-right">{Math.round(value)}%</span>
+        <span className="text-sm text-vanta-muted w-12 text-right tabular-nums">{Math.round(value)}%</span>
       )}
     </div>
   );
@@ -125,28 +125,28 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export function Input({ label, error, className = "", id, ...props }: InputProps) {
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-2">
       {label && (
-        <label htmlFor={id} className="text-sm text-vanta-muted font-medium">
+        <label htmlFor={id} className="text-base text-vanta-muted font-medium">
           {label}
         </label>
       )}
       <input
         id={id}
-        className={`w-full bg-vanta-surface-elevated text-vanta-text placeholder-vanta-muted/60 rounded-lg px-4 py-2.5 text-sm
+        className={`w-full bg-vanta-surface-elevated text-vanta-text placeholder-vanta-muted/60 rounded-xl px-4 py-3 text-base min-h-[3rem]
           border border-vanta-border focus:border-vanta-blue focus:outline-none transition-colors
           ${error ? "border-vanta-error" : ""}
           ${className}`}
         {...props}
       />
-      {error && <p className="text-xs text-vanta-error">{error}</p>}
+      {error && <p className="text-sm text-vanta-error">{error}</p>}
     </div>
   );
 }
 
 // --- Spinner ---
 export function Spinner({ size = "md", className = "" }: { size?: "sm" | "md" | "lg"; className?: string }) {
-  const sizes = { sm: "w-4 h-4", md: "w-6 h-6", lg: "w-10 h-10" };
+  const sizes = { sm: "w-5 h-5", md: "w-7 h-7", lg: "w-11 h-11" };
   return (
     <div className={`${sizes[size]} border-2 border-vanta-border border-t-vanta-blue rounded-full animate-spin ${className}`} />
   );
@@ -160,21 +160,21 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
 
 export function Textarea({ label, error, className = "", id, ...props }: TextareaProps) {
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-2">
       {label && (
-        <label htmlFor={id} className="text-sm text-vanta-muted font-medium">
+        <label htmlFor={id} className="text-base text-vanta-muted font-medium">
           {label}
         </label>
       )}
       <textarea
         id={id}
-        className={`w-full bg-vanta-surface-elevated text-vanta-text placeholder-vanta-muted/60 rounded-lg px-4 py-2.5 text-sm
+        className={`w-full bg-vanta-surface-elevated text-vanta-text placeholder-vanta-muted/60 rounded-xl px-4 py-3 text-base
           border border-vanta-border focus:border-vanta-blue focus:outline-none transition-colors resize-none
           ${error ? "border-vanta-error" : ""}
           ${className}`}
         {...props}
       />
-      {error && <p className="text-xs text-vanta-error">{error}</p>}
+      {error && <p className="text-sm text-vanta-error">{error}</p>}
     </div>
   );
 }

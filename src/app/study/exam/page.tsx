@@ -70,12 +70,12 @@ function QuestionCard({
   };
 
   return (
-    <Card className={`p-6 mb-4 transition-colors ${isCorrect ? "border-vanta-success/40" : isWrong ? "border-vanta-error/40" : ""}`}>
+    <Card className={`p-8 mb-6 transition-colors rounded-2xl ${isCorrect ? "border-vanta-success/40" : isWrong ? "border-vanta-error/40" : ""}`}>
       {question.figure ? <ExamFigure figure={question.figure} /> : null}
-      <p className="text-vanta-text font-medium mb-4 leading-relaxed">{question.question}</p>
+      <p className="text-vanta-text font-medium mb-6 leading-relaxed text-lg">{question.question}</p>
 
       {question.type === "multiple_choice" && question.options ? (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {question.options.map((opt) => {
             const isSelected = answer === opt;
             const isCorrectOpt = submitted && opt === question.correct_answer;
@@ -83,9 +83,10 @@ function QuestionCard({
             return (
               <button
                 key={opt}
+                type="button"
                 onClick={() => !submitted && onAnswer(opt)}
                 disabled={submitted}
-                className={`w-full text-left px-4 py-3 rounded-lg text-sm border transition-all
+                className={`w-full text-left px-5 py-4 rounded-xl text-base border transition-all min-h-[3.25rem]
                   ${isCorrectOpt ? "bg-vanta-success/15 border-vanta-success text-vanta-success" :
                     isWrongOpt ? "bg-vanta-error/15 border-vanta-error text-vanta-error" :
                     isSelected ? "bg-vanta-blue/15 border-vanta-blue text-vanta-blue" :
@@ -103,40 +104,41 @@ function QuestionCard({
           value={answer}
           onChange={(e) => onAnswer(e.target.value)}
           disabled={submitted}
-          rows={5}
+          rows={7}
+          className="text-base min-h-[180px]"
         />
       )}
 
       {submitted && question.explanation && (
-        <div className="mt-4 p-4 bg-vanta-bg rounded-lg border border-vanta-border">
-          <p className="text-xs text-vanta-muted font-semibold uppercase tracking-wider mb-1">Explanation</p>
-          <p className="text-vanta-text text-sm leading-relaxed">{question.explanation}</p>
+        <div className="mt-6 p-5 bg-vanta-bg rounded-xl border border-vanta-border">
+          <p className="text-sm text-vanta-muted font-semibold uppercase tracking-wider mb-2">Explanation</p>
+          <p className="text-vanta-text text-base leading-relaxed">{question.explanation}</p>
         </div>
       )}
 
       {submitted && (
-        <div className="mt-3">
+        <div className="mt-5">
           {!feedbackRequested ? (
-            <Button variant="ghost" size="sm" onClick={getAIFeedback} className="gap-2">
+            <Button variant="ghost" size="md" onClick={getAIFeedback} className="gap-2">
               <span aria-hidden className="inline-flex">
-                <SimpleIconBox name="spark" size={22} />
+                <SimpleIconBox name="spark" size={26} />
               </span>
               Get AI feedback
             </Button>
           ) : loadingFeedback ? (
-            <div className="flex items-center gap-2 text-vanta-muted text-sm">
+            <div className="flex items-center gap-3 text-vanta-muted text-base">
               <Spinner size="sm" />
               <span className="ai-pulse">Analyzing your answer...</span>
             </div>
           ) : aiFeedback ? (
-            <div className="mt-3 p-4 bg-vanta-blue/5 border border-vanta-blue/20 rounded-lg">
-              <p className="text-xs text-vanta-blue font-semibold mb-2 flex items-center gap-2">
+            <div className="mt-4 p-5 bg-vanta-blue/5 border border-vanta-blue/20 rounded-xl">
+              <p className="text-sm text-vanta-blue font-semibold mb-2 flex items-center gap-2">
                 <span aria-hidden className="inline-flex">
-                  <SimpleIconBox name="spark" size={20} />
+                  <SimpleIconBox name="spark" size={24} />
                 </span>
                 AI feedback
               </p>
-              <p className="text-vanta-text text-sm leading-relaxed whitespace-pre-line">{aiFeedback}</p>
+              <p className="text-vanta-text text-base leading-relaxed whitespace-pre-line">{aiFeedback}</p>
             </div>
           ) : null}
         </div>
@@ -163,35 +165,35 @@ function ExamGame({ questions, title }: { questions: ExamQuestion[]; title: stri
     const { apScore, percentage } = calculateAPScore({ rawScore: correctCount, totalQuestions: questions.length });
 
     return (
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        <div className="text-center mb-8 fade-up">
-          <div className="mb-4 flex justify-center" aria-hidden>
-            <SimpleIconBox name="chart" size={48} />
+      <div className="max-w-3xl mx-auto px-4 sm:px-8 py-10 md:py-12">
+        <div className="text-center mb-10 fade-up">
+          <div className="mb-5 flex justify-center" aria-hidden>
+            <SimpleIconBox name="chart" size={56} />
           </div>
-          <h1 className="text-2xl font-bold text-vanta-text mb-2">Exam Complete</h1>
-          <p className="text-vanta-muted">{title}</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-vanta-text mb-3">Exam Complete</h1>
+          <p className="text-vanta-muted text-lg">{title}</p>
         </div>
 
-        <Card className="p-6 mb-6 text-center fade-up">
-          <div className="grid grid-cols-3 gap-6">
+        <Card className="p-8 mb-8 text-center fade-up rounded-2xl">
+          <div className="grid grid-cols-3 gap-8">
             <div>
-              <p className="text-3xl font-bold text-vanta-blue">{correctCount}/{questions.length}</p>
-              <p className="text-xs text-vanta-muted mt-1">Raw Score</p>
+              <p className="text-4xl font-bold text-vanta-blue">{correctCount}/{questions.length}</p>
+              <p className="text-sm text-vanta-muted mt-2">Raw Score</p>
             </div>
             <div>
-              <p className="text-3xl font-bold text-vanta-text">{percentage.toFixed(0)}%</p>
-              <p className="text-xs text-vanta-muted mt-1">Accuracy</p>
+              <p className="text-4xl font-bold text-vanta-text">{percentage.toFixed(0)}%</p>
+              <p className="text-sm text-vanta-muted mt-2">Accuracy</p>
             </div>
             <div>
-              <p className={`text-3xl font-bold ${apScore >= 3 ? "text-vanta-success" : "text-vanta-error"}`}>{apScore}</p>
-              <p className="text-xs text-vanta-muted mt-1">Est. AP Score</p>
+              <p className={`text-4xl font-bold ${apScore >= 3 ? "text-vanta-success" : "text-vanta-error"}`}>{apScore}</p>
+              <p className="text-sm text-vanta-muted mt-2">Est. AP Score</p>
             </div>
           </div>
-          <ProgressBar value={percentage} className="mt-4" color={percentage >= 60 ? "green" : "blue"} showLabel />
+          <ProgressBar value={percentage} className="mt-6" color={percentage >= 60 ? "green" : "blue"} showLabel />
         </Card>
 
-        <div className="space-y-4">
-          <h2 className="text-sm font-semibold text-vanta-muted uppercase tracking-wider">Review Answers</h2>
+        <div className="space-y-6">
+          <h2 className="text-base font-semibold text-vanta-muted uppercase tracking-wider">Review Answers</h2>
           {questions.map((q) => (
             <QuestionCard
               key={q.id}
@@ -203,30 +205,30 @@ function ExamGame({ questions, title }: { questions: ExamQuestion[]; title: stri
           ))}
         </div>
 
-        <div className="flex gap-3 mt-6">
-          <Link href="/study" className="flex-1"><Button variant="secondary" className="w-full">Back to Library</Button></Link>
-          <Button onClick={() => window.location.reload()} className="flex-1">Try Again</Button>
+        <div className="flex flex-col sm:flex-row gap-4 mt-8">
+          <Link href="/study" className="flex-1"><Button variant="secondary" className="w-full" size="lg">Back to Library</Button></Link>
+          <Button onClick={() => window.location.reload()} className="flex-1" size="lg">Try Again</Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="max-w-3xl mx-auto px-4 sm:px-8 py-10 md:py-12">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
         <div>
-          <Link href="/study" className="text-xs text-vanta-muted hover:text-vanta-blue">← Library</Link>
-          <h1 className="text-vanta-text font-semibold mt-0.5">{title}</h1>
+          <Link href="/study" className="text-sm text-vanta-muted hover:text-vanta-blue">← Library</Link>
+          <h1 className="text-vanta-text font-semibold text-2xl mt-1">{title}</h1>
         </div>
         <Badge variant="gray">{stats.answeredCount}/{questions.length} answered</Badge>
       </div>
 
-      <ProgressBar value={stats.progress} className="mb-8" />
+      <ProgressBar value={stats.progress} className="mb-10" />
 
-      <div className="space-y-4 stagger">
+      <div className="space-y-6 stagger">
         {questions.map((q, i) => (
           <div key={q.id}>
-            <p className="text-xs text-vanta-muted mb-2">Question {i + 1}</p>
+            <p className="text-sm text-vanta-muted mb-3 font-medium">Question {i + 1}</p>
             <QuestionCard
               question={q}
               answer={answers[q.id] || ""}
@@ -237,11 +239,12 @@ function ExamGame({ questions, title }: { questions: ExamQuestion[]; title: stri
         ))}
       </div>
 
-      <div className="mt-6 flex justify-end">
+      <div className="mt-10 flex justify-end">
         <Button
           size="lg"
           onClick={submit}
           disabled={stats.answeredCount === 0}
+          className="min-w-[200px]"
         >
           Submit Exam →
         </Button>

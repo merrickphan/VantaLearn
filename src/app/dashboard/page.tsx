@@ -29,18 +29,18 @@ function SubjectCard({
     <Link href={`/study?subject=${encodeURIComponent(name)}`}>
       <Card
         hover
-        className="p-4 h-full border-vanta-border/80 bg-vanta-surface/60 hover:border-sky-500/30 hover:bg-vanta-surface-hover transition-all"
+        className="p-6 h-full border-vanta-border/80 bg-vanta-surface/60 hover:border-sky-500/30 hover:bg-vanta-surface-hover transition-all"
       >
-        <div className="flex items-start justify-between gap-2 mb-3">
+        <div className="flex items-start justify-between gap-2 mb-4">
           <span aria-hidden>
-            <SimpleIconBox name={icon} size={32} />
+            <SimpleIconBox name={icon} size={40} />
           </span>
-          <span className="text-[10px] font-mono tabular-nums shrink-0 rounded px-1.5 py-0.5 bg-slate-200 text-slate-900">
+          <span className="text-xs font-mono tabular-nums shrink-0 rounded-md px-2 py-1 bg-slate-200 text-slate-900">
             {timerLabel}
           </span>
         </div>
-        <h3 className="text-sm font-semibold text-vanta-text leading-snug mb-1">{name}</h3>
-        <p className="text-[11px] text-vanta-muted leading-relaxed line-clamp-2">{short}</p>
+        <h3 className="text-base font-semibold text-vanta-text leading-snug mb-2">{name}</h3>
+        <p className="text-sm text-vanta-muted leading-relaxed line-clamp-3">{short}</p>
       </Card>
     </Link>
   );
@@ -68,73 +68,73 @@ export default function DashboardPage() {
   const streak = cmdStats?.streak ?? 0;
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-8">
-      <section className="mb-10 fade-up flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+    <div className="max-w-[1400px] mx-auto px-4 sm:px-8 py-10 md:py-12">
+      <section className="mb-12 fade-up flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
         <div>
-          <p className="text-[10px] text-sky-400 uppercase tracking-[0.2em] font-semibold mb-2">Command center</p>
-          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-vanta-text tracking-wide">
+          <p className="text-xs text-sky-400 uppercase tracking-[0.2em] font-semibold mb-3">Command center</p>
+          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-vanta-text tracking-wide">
             Your AP command center
           </h1>
-          <p className="text-vanta-muted text-sm mt-2 max-w-xl">
+          <p className="text-vanta-muted text-lg mt-3 max-w-xl">
             CB-style practice • Live countdowns • Score predictor • Analytics — {userName ? `${userName}, ` : ""}
             stay exam-ready.
           </p>
         </div>
-        <div className="flex flex-wrap gap-6 lg:gap-10 font-display">
+        <div className="flex flex-wrap gap-8 lg:gap-12 font-display">
           <div className="text-right">
-            <p className="text-2xl sm:text-3xl font-bold text-sky-400 tabular-nums">{AP_COURSES.length}</p>
-            <p className="text-[10px] text-vanta-muted uppercase tracking-widest">Subjects</p>
+            <p className="text-3xl sm:text-4xl font-bold text-sky-400 tabular-nums">{AP_COURSES.length}</p>
+            <p className="text-xs text-vanta-muted uppercase tracking-widest">Subjects</p>
           </div>
           <div className="text-right">
-            <p className="text-2xl sm:text-3xl font-bold text-vanta-text tabular-nums">{attempts}</p>
-            <p className="text-[10px] text-vanta-muted uppercase tracking-widest">Attempts</p>
+            <p className="text-3xl sm:text-4xl font-bold text-vanta-text tabular-nums">{attempts}</p>
+            <p className="text-xs text-vanta-muted uppercase tracking-widest">Attempts</p>
           </div>
           <div className="text-right">
-            <p className="text-2xl sm:text-3xl font-bold text-emerald-400 tabular-nums">{attempts ? `${accuracy}%` : "—"}</p>
-            <p className="text-[10px] text-vanta-muted uppercase tracking-widest">Accuracy</p>
+            <p className="text-3xl sm:text-4xl font-bold text-emerald-400 tabular-nums">{attempts ? `${accuracy}%` : "—"}</p>
+            <p className="text-xs text-vanta-muted uppercase tracking-widest">Accuracy</p>
           </div>
         </div>
       </section>
 
-      <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-10 stagger">
-        <Card className="p-4 border-vanta-border bg-vanta-surface/50">
-          <span className="mb-2 inline-block" aria-hidden>
-            <SimpleIconBox name="clipboard" size={28} />
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-12 stagger">
+        <Card className="p-6 border-vanta-border bg-vanta-surface/50">
+          <span className="mb-3 inline-block" aria-hidden>
+            <SimpleIconBox name="clipboard" size={36} />
           </span>
-          <p className="text-2xl font-display font-bold text-vanta-text">{attempts}</p>
-          <p className="text-[11px] text-vanta-muted uppercase tracking-wider">Total attempts</p>
+          <p className="text-3xl font-display font-bold text-vanta-text">{attempts}</p>
+          <p className="text-sm text-vanta-muted uppercase tracking-wider">Total attempts</p>
         </Card>
-        <Card className="p-4 border-vanta-border bg-vanta-surface/50">
-          <span className="mb-2 inline-block" aria-hidden>
-            <SimpleIconBox name="check" size={28} />
+        <Card className="p-6 border-vanta-border bg-vanta-surface/50">
+          <span className="mb-3 inline-block" aria-hidden>
+            <SimpleIconBox name="check" size={36} />
           </span>
-          <p className="text-2xl font-display font-bold text-emerald-400">{correct}</p>
-          <p className="text-[11px] text-vanta-muted uppercase tracking-wider">Correct answers</p>
+          <p className="text-3xl font-display font-bold text-emerald-400">{correct}</p>
+          <p className="text-sm text-vanta-muted uppercase tracking-wider">Correct answers</p>
         </Card>
-        <Card className="p-4 border-vanta-border bg-vanta-surface/50">
-          <span className="mb-2 inline-block" aria-hidden>
-            <SimpleIconBox name="book" size={28} />
+        <Card className="p-6 border-vanta-border bg-vanta-surface/50">
+          <span className="mb-3 inline-block" aria-hidden>
+            <SimpleIconBox name="book" size={36} />
           </span>
-          <p className="text-2xl font-display font-bold text-sky-400">{subjectsPracticed}</p>
-          <p className="text-[11px] text-vanta-muted uppercase tracking-wider">Subjects practiced</p>
+          <p className="text-3xl font-display font-bold text-sky-400">{subjectsPracticed}</p>
+          <p className="text-sm text-vanta-muted uppercase tracking-wider">Subjects practiced</p>
         </Card>
-        <Card className="p-4 border-vanta-border bg-vanta-surface/50">
-          <span className="mb-2 inline-block" aria-hidden>
-            <SimpleIconBox name="flame" size={28} />
+        <Card className="p-6 border-vanta-border bg-vanta-surface/50">
+          <span className="mb-3 inline-block" aria-hidden>
+            <SimpleIconBox name="flame" size={36} />
           </span>
-          <p className="text-2xl font-display font-bold text-amber-400">{streak}</p>
-          <p className="text-[11px] text-vanta-muted uppercase tracking-wider">Strong-exam streak</p>
+          <p className="text-3xl font-display font-bold text-amber-400">{streak}</p>
+          <p className="text-sm text-vanta-muted uppercase tracking-wider">Strong-exam streak</p>
         </Card>
       </section>
 
-      <section className="mb-10">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xs font-semibold text-vanta-muted uppercase tracking-widest">All AP exams</h2>
-          <Link href="/study" className="text-xs text-sky-400 hover:underline">
+      <section className="mb-12">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-sm font-semibold text-vanta-muted uppercase tracking-widest">All AP exams</h2>
+          <Link href="/study" className="text-sm text-sky-400 hover:underline">
             Open practice library →
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {AP_COURSES.map((c) => (
             <SubjectCard key={c.id} icon={c.icon} name={c.name} short={c.short} examDate={c.examDate} />
           ))}
@@ -142,16 +142,16 @@ export default function DashboardPage() {
       </section>
 
       <section>
-        <h2 className="text-xs font-semibold text-vanta-muted uppercase tracking-widest mb-3">Featured practice sets</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <h2 className="text-sm font-semibold text-vanta-muted uppercase tracking-widest mb-4">Featured practice sets</h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {practiceExams.slice(0, 6).map((exam) => {
             const n = (exam.content_data as { questions: unknown[] }).questions.length;
             return (
               <Link key={exam.id} href={`/study/exam?id=${exam.id}`}>
-                <Card hover className="p-4 h-full border-vanta-border/80">
-                  <p className="text-xs text-sky-400 font-medium mb-1">{exam.subject}</p>
-                  <p className="text-sm font-semibold text-vanta-text">{exam.title}</p>
-                  <p className="text-[11px] text-vanta-muted mt-2">{n} questions · MC & figures where noted</p>
+                <Card hover className="p-6 h-full border-vanta-border/80">
+                  <p className="text-sm text-sky-400 font-medium mb-2">{exam.subject}</p>
+                  <p className="text-lg font-semibold text-vanta-text">{exam.title}</p>
+                  <p className="text-sm text-vanta-muted mt-3">{n} questions · MC & figures where noted</p>
                 </Card>
               </Link>
             );
