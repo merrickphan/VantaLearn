@@ -28,6 +28,31 @@ export function randInt(rng: () => number, min: number, maxInclusive: number): n
   return min + Math.floor(rng() * (maxInclusive - min + 1));
 }
 
+export function pick<T>(rng: () => number, arr: readonly T[]): T {
+  if (arr.length === 0) throw new Error("pick: empty array");
+  return arr[Math.floor(rng() * arr.length)];
+}
+
+/** Distinct wrong answers for MC (shuffled with correct elsewhere). */
+export function pickThreeDistinct(
+  rng: () => number,
+  pool: readonly string[],
+  exclude: string,
+): [string, string, string] {
+  const filtered = pool.filter((x) => x !== exclude);
+  const extra = [
+    "a claim most historians would treat cautiously",
+    "a pattern documented only in one unreliable source",
+    "an outcome that contradicts typical regional evidence",
+  ];
+  for (const e of extra) {
+    if (filtered.length >= 3) break;
+    if (!filtered.includes(e)) filtered.push(e);
+  }
+  const shuffled = shuffleInPlace(rng, [...filtered]);
+  return [shuffled[0], shuffled[1], shuffled[2]];
+}
+
 export function shuffleInPlace<T>(rng: () => number, arr: T[]): T[] {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));

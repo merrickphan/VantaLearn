@@ -1,54 +1,15 @@
-import type { ExamQuestion } from "@/types";
-import { hashString, shuffleInPlace } from "./utils";
-
-/** Call-site compatible with ProcCtx in generators.ts */
-interface WhCtx {
-  courseId: string;
-  courseName: string;
-  unitId: string;
-  unitIndex: number;
-  unitTitle: string;
-  seedBase: string;
-}
-
-export type WhQuestionGen = (rng: () => number, ctx: WhCtx, i: number) => ExamQuestion;
-
-function whMc(
-  rng: () => number,
-  ctx: WhCtx,
-  i: number,
-  tag: string,
-  stem: string,
-  correct: string,
-  w1: string,
-  w2: string,
-  w3: string,
-  explanation: string,
-  figure?: ExamQuestion["figure"],
-): ExamQuestion {
-  const options = shuffleInPlace(rng, [correct, w1, w2, w3]);
-  const base: ExamQuestion = {
-    id: `proc-${ctx.courseId}-${ctx.unitId}-${i}-${hashString(ctx.seedBase + tag).toString(36)}`,
-    question: stem,
-    type: "multiple_choice",
-    options,
-    correct_answer: correct,
-    explanation,
-    subject: ctx.courseName,
-  };
-  return figure ? { ...base, figure } : base;
-}
-
-function item(
-  tag: string,
-  stem: string,
-  correct: string,
-  w: [string, string, string],
-  explanation: string,
-  figure?: ExamQuestion["figure"],
-): WhQuestionGen {
-  return (rng, ctx, i) => whMc(rng, ctx, i, tag, stem, correct, w[0], w[1], w[2], explanation, figure);
-}
+import { item, type WhQuestionGen } from "./worldHistoryCore";
+import {
+  WH_U1_DYNAMIC,
+  WH_U2_DYNAMIC,
+  WH_U3_DYNAMIC,
+  WH_U4_DYNAMIC,
+  WH_U5_DYNAMIC,
+  WH_U6_DYNAMIC,
+  WH_U7_DYNAMIC,
+  WH_U8_DYNAMIC,
+  WH_U9_DYNAMIC,
+} from "./worldHistoryDynamicPools";
 
 /* ——— Unit 1: The Global Tapestry (c. 1200) ——— */
 
@@ -746,9 +707,19 @@ const WH_U9: WhQuestionGen[] = [
   ),
 ];
 
-const WH_BY_UNIT: WhQuestionGen[][] = [WH_U1, WH_U2, WH_U3, WH_U4, WH_U5, WH_U6, WH_U7, WH_U8, WH_U9];
+const WH_BY_UNIT: WhQuestionGen[][] = [
+  [...WH_U1, ...WH_U1_DYNAMIC],
+  [...WH_U2, ...WH_U2_DYNAMIC],
+  [...WH_U3, ...WH_U3_DYNAMIC],
+  [...WH_U4, ...WH_U4_DYNAMIC],
+  [...WH_U5, ...WH_U5_DYNAMIC],
+  [...WH_U6, ...WH_U6_DYNAMIC],
+  [...WH_U7, ...WH_U7_DYNAMIC],
+  [...WH_U8, ...WH_U8_DYNAMIC],
+  [...WH_U9, ...WH_U9_DYNAMIC],
+];
 
 export function getWorldHistoryGeneratorsForUnit(unitIndex: number): WhQuestionGen[] {
   const i = Math.min(9, Math.max(1, Math.floor(unitIndex))) - 1;
-  return WH_BY_UNIT[i] ?? WH_U1;
+  return WH_BY_UNIT[i] ?? WH_BY_UNIT[0];
 }

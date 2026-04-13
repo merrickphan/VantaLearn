@@ -150,22 +150,23 @@ function QuestionCard({
 
       {question.type === "multiple_choice" && question.options ? (
         <div className="space-y-3">
-          {question.options.map((opt) => {
+          {question.options.map((opt, optIdx) => {
             const isSelected = answer === opt;
             const isCorrectOpt = submitted && opt === question.correct_answer;
             const isWrongOpt = submitted && isSelected && !isCorrectOpt;
             return (
               <button
-                key={opt}
+                key={`${question.id}-opt-${optIdx}`}
                 type="button"
                 onClick={() => !submitted && onAnswer(opt)}
                 disabled={submitted}
-                className={`w-full text-left px-5 py-4 rounded-xl text-base border transition-all min-h-[3.25rem]
+                className={`w-full text-left px-5 py-4 rounded-xl text-base border min-h-[3.25rem] transition-[transform,box-shadow,background-color,border-color] duration-200 ease-out
                   ${isCorrectOpt ? "bg-vanta-success/15 border-vanta-success text-vanta-success" :
                     isWrongOpt ? "bg-vanta-error/15 border-vanta-error text-vanta-error" :
-                    isSelected ? "bg-vanta-blue/15 border-vanta-blue text-vanta-blue" :
-                    "border-vanta-border text-vanta-text hover:border-vanta-blue/40 hover:bg-vanta-blue/5"
-                  } disabled:cursor-default`}
+                    isSelected && !submitted
+                      ? "mc-option-selected border-sky-500/70 bg-sky-500/10 text-neutral-950 dark:text-neutral-100 ring-2 ring-sky-400/50"
+                      : "border-vanta-border text-vanta-text hover:border-vanta-blue/40 hover:bg-vanta-blue/5"
+                  } disabled:cursor-default active:scale-[0.99]`}
               >
                 {opt}
               </button>

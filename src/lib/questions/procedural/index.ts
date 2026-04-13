@@ -1,7 +1,7 @@
 import { AP_COURSES } from "@/lib/apCatalog";
 import { getUnitOrFirst } from "@/lib/apUnits";
 import type { ExamQuestion } from "@/types";
-import { createRng, hashString } from "./utils";
+import { createRng, hashString, shuffleInPlace } from "./utils";
 import { getGeneratorsForCourse, type ProcCtx } from "./generators";
 
 export interface GenerateProceduralParams {
@@ -40,10 +40,29 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
   const out: ExamQuestion[] = [];
   const n = Math.min(100, Math.max(1, Math.floor(params.count)));
 
+  /** Stratified rotation through generators + deduped stems so a session rarely repeats the same prompt. */
+  const order = shuffleInPlace(createRng(seedBase, `strat|${course.id}|${unit.id}`), [...Array(pool.length).keys()]);
+  const seenStems = new Set<string>();
+
   for (let i = 0; i < n; i++) {
-    const rng = createRng(seedBase, `${i}-${hashString(unit.id)}`);
-    const pick = pool[Math.floor(rng() * pool.length)] ?? pool[0];
-    out.push(pick(rng, ctx, i));
+    let q: ExamQuestion | undefined;
+    for (let attempt = 0; attempt < 72; attempt++) {
+      const genIndex = order[(i + attempt) % order.length];
+      const rng = createRng(seedBase, `slot${i}|g${genIndex}|t${attempt}|${hashString(unit.id)}`);
+      const cand = pool[genIndex](rng, ctx, i);
+      const stem = cand.question.trim();
+      if (!seenStems.has(stem)) {
+        seenStems.add(stem);
+        q = cand;
+        break;
+      }
+    }
+    if (!q) {
+      const genIndex = order[i % order.length];
+      const rng = createRng(seedBase, `fallback|${i}|${hashString(unit.id)}|${i * 9973}`);
+      q = pool[genIndex](rng, ctx, i);
+    }
+    out.push(q);
   }
 
   return out;
