@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, Button, Input } from "@/components/ui";
+import { Card, Button } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
 import { ALL_EXAMS, COMMON_EXAM_DATES } from "@/lib/utils";
 

@@ -24,7 +24,7 @@ function ExamPlayer() {
   }
 
   const { questions } = resource.content_data as ExamContent;
-  return <ExamGame questions={questions} title={resource.title} subject={resource.subject} />;
+  return <ExamGame questions={questions} title={resource.title} />;
 }
 
 function QuestionCard({
@@ -133,7 +133,7 @@ function QuestionCard({
   );
 }
 
-function ExamGame({ questions, title, subject }: { questions: ExamQuestion[]; title: string; subject: string }) {
+function ExamGame({ questions, title }: { questions: ExamQuestion[]; title: string }) {
   const { answers, submitted, answerQuestion, submit, stats } = useExamProgress(questions.length);
 
   if (submitted) {

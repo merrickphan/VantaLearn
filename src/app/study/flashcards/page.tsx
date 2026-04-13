@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { SAMPLE_RESOURCES } from "@/lib/utils/sampleData";
 import { FlashcardContent, FlashcardItem } from "@/types";
@@ -10,7 +10,6 @@ import Link from "next/link";
 
 function FlashcardPlayer() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const id = searchParams.get("id");
 
   const resource = SAMPLE_RESOURCES.find((r) => r.id === id && r.type === "flashcard_set");
@@ -25,10 +24,10 @@ function FlashcardPlayer() {
   }
 
   const { cards } = resource.content_data as FlashcardContent;
-  return <FlashcardGame cards={cards} title={resource.title} subject={resource.subject} />;
+  return <FlashcardGame cards={cards} title={resource.title} />;
 }
 
-function FlashcardGame({ cards, title, subject }: { cards: FlashcardItem[]; title: string; subject: string }) {
+function FlashcardGame({ cards, title }: { cards: FlashcardItem[]; title: string }) {
   const { currentIndex, isFlipped, statuses, markCard, flip, stats } = useFlashcardProgress(cards.length);
   const card = cards[currentIndex];
   const isLastCard = currentIndex === cards.length - 1;

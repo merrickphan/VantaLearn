@@ -78,7 +78,7 @@ export default function SignupPage() {
               <span className="text-slate-950 font-bold">2</span>
             </div>
             <h1 className="text-2xl font-bold text-vanta-text mb-2">Which exams are you preparing for?</h1>
-            <p className="text-vanta-muted text-sm">We'll set up countdown timers for your selected exams</p>
+            <p className="text-vanta-muted text-sm">We&apos;ll set up countdown timers for your selected exams</p>
           </div>
 
           <div className="bg-vanta-surface border border-vanta-border rounded-card p-6 mb-6">
@@ -143,7 +143,7 @@ export default function SignupPage() {
           <span className="text-xs text-vanta-muted bg-vanta-border px-2 py-0.5 rounded-full">Step 1 of 2</span>
         </div>
         <h1 className="text-2xl font-bold text-vanta-text mb-1">Create your account</h1>
-        <p className="text-vanta-muted text-sm mb-8">Start studying smarter today — it's free</p>
+        <p className="text-vanta-muted text-sm mb-8">Start studying smarter today — it&apos;s free</p>
 
         {error && (
           <div className="mb-4 px-4 py-3 bg-vanta-error/10 border border-vanta-error/30 rounded-lg text-vanta-error text-sm">

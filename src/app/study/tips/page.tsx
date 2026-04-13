@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Card, Badge, Spinner } from "@/components/ui";
+import { Button, Card } from "@/components/ui";
 import { AP_SUBJECTS, SAT_SUBJECTS } from "@/lib/utils";
 
 export default function StudyTipsPage() {
@@ -32,7 +32,7 @@ export default function StudyTipsPage() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setTip(data.tip || data.feedback || "");
-    } catch (e) {
+    } catch {
       setError("Could not generate tip. Please check your OpenAI API key in .env.local");
     }
     setLoading(false);
