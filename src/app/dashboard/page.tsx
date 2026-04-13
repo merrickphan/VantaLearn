@@ -48,7 +48,7 @@ function DashboardContent() {
             Your AP command center
           </h1>
           <p className="text-vanta-muted text-lg mt-3 max-w-xl">
-            Exam-style practice ΓÇó Live countdowns ΓÇó Score predictor ΓÇó Analytics ΓÇö {userName ? `${userName}, ` : ""}
+            Exam-style practice • Live countdowns • Score predictor • Analytics — {userName ? `${userName}, ` : ""}
             stay exam-ready.
           </p>
         </div>
@@ -62,7 +62,7 @@ function DashboardContent() {
             <p className="text-xs text-vanta-muted uppercase tracking-widest">Attempts</p>
           </div>
           <div className="text-right">
-            <p className="text-3xl sm:text-4xl font-bold text-emerald-400 tabular-nums">{attempts ? `${accuracy}%` : "ΓÇö"}</p>
+            <p className="text-3xl sm:text-4xl font-bold text-emerald-400 tabular-nums">{attempts ? `${accuracy}%` : "—"}</p>
             <p className="text-xs text-vanta-muted uppercase tracking-widest">Accuracy</p>
           </div>
         </div>
@@ -103,10 +103,10 @@ function DashboardContent() {
         <ApCourseUnitList
           courseId={selectedCourse.id}
           backHref="/dashboard"
-          backLabel="ΓåÉ All AP exams"
+          backLabel="← All AP exams"
           intro={
             selectedCourse.id === "wh"
-              ? "Multiple-choice practice is organized by historical era (nine spans from 1200 CE to the present). Pick an era to drill themes and termsΓÇöitems stay within that time frame."
+              ? "Multiple-choice practice is organized by historical era (nine spans from 1200 CE to the present). Pick an era to drill themes and terms—items stay within that time frame."
               : selectedCourse.id === "hum-geo"
                 ? "Multiple-choice practice is grouped by topic (seven themes from geographic foundations through economic development). Pick a theme so generated items stay in that area."
                 : selectedCourse.id === "ush"
@@ -134,7 +134,7 @@ function DashboardContent() {
             </h2>
             {!selectedCourse ? (
               <p className="text-vanta-muted text-sm mt-2 max-w-2xl">
-                Choose a subject area, then an exam. YouΓÇÖll see each topic unit and can start unlimited generated practice for any unit.
+                Choose a subject area, then an exam. You’ll see each topic unit and can start unlimited generated practice for any unit.
               </p>
             ) : (
               <p className="text-vanta-muted text-sm mt-2 max-w-2xl">
@@ -144,10 +144,10 @@ function DashboardContent() {
           </div>
           <div className="flex flex-wrap gap-3 justify-end">
             <Link href="/study/ap-practice" className="text-sm text-sky-400 hover:underline whitespace-nowrap">
-              AP practice (full page) ΓåÆ
+              AP practice (full page) →
             </Link>
             <Link href="/study" className="text-sm text-vanta-muted hover:text-sky-400 whitespace-nowrap">
-              Practice library ΓåÆ
+              Practice library →
             </Link>
           </div>
         </div>
@@ -184,7 +184,7 @@ function DashboardContent() {
       <section>
         <div className="flex flex-wrap items-baseline justify-between gap-4 mb-4">
           <h2 className="text-sm font-semibold text-vanta-muted uppercase tracking-widest">Featured practice sets</h2>
-          <p className="text-xs text-vanta-muted">Static exams ┬╖ Link to unit drills when the subject matches an AP course</p>
+          <p className="text-xs text-vanta-muted">Static exams · Link to unit drills when the subject matches an AP course</p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {practiceExams.slice(0, 6).map((exam) => {
@@ -196,7 +196,7 @@ function DashboardContent() {
                 <Link href={`/study/exam?id=${exam.id}`} className="group">
                   <p className="text-lg font-semibold text-vanta-text group-hover:text-sky-300 transition-colors">{exam.title}</p>
                 </Link>
-                <p className="text-sm text-vanta-muted mt-3 flex-1">{n} questions ┬╖ MC & figures where noted</p>
+                <p className="text-sm text-vanta-muted mt-3 flex-1">{n} questions · MC & figures where noted</p>
                 {matched ? (
                   <Link
                     href={`/dashboard?course=${encodeURIComponent(matched.id)}`}
@@ -258,7 +258,7 @@ function CourseExamCard({
         </div>
         <h3 className="text-base font-semibold text-vanta-text leading-snug mb-2">{name}</h3>
         <p className="text-sm text-vanta-muted leading-relaxed line-clamp-3 mb-3">{short}</p>
-        <p className="text-xs font-medium text-sky-400/90 uppercase tracking-wider">{unitCount} units ┬╖ tap for drills</p>
+        <p className="text-xs font-medium text-sky-400/90 uppercase tracking-wider">{unitCount} units · tap for drills</p>
       </Card>
     </Link>
   );
@@ -269,7 +269,7 @@ export default function DashboardPage() {
     <Suspense
       fallback={
         <div className="max-w-[1400px] mx-auto px-4 sm:px-8 py-16 flex items-center justify-center text-vanta-muted text-lg">
-          Loading dashboardΓÇª
+          Loading dashboard…
         </div>
       }
     >

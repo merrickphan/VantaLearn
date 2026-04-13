@@ -45,7 +45,7 @@ function mc(
   return figure ? { ...base, figure } : base;
 }
 
-/* ΓÇöΓÇöΓÇö Calculus / precalc / stats ΓÇöΓÇöΓÇö */
+/* ——— Calculus / precalc / stats ——— */
 
 export function genDerivativePower(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
   const n = randInt(rng, 2, 9);
@@ -57,12 +57,12 @@ export function genDerivativePower(rng: () => number, ctx: ProcCtx, i: number): 
     ctx,
     i,
     "d-power",
-    `If f(x) = ${coef}x^${n}, then fΓÇ▓(x) equals`,
+    `If f(x) = ${coef}x^${n}, then f′(x) equals`,
     correct,
     `${coef * (n - 1)}x^${n}`,
     `${d}x^${n}`,
     `${coef}x^${n - 1}`,
-    `Power rule: d/dx of c┬╖x^n is c┬╖n┬╖x^(nΓêÆ1).`,
+    `Power rule: d/dx of c·x^n is c·n·x^(n−1).`,
   );
 }
 
@@ -122,7 +122,7 @@ export function genCompositionValue(rng: () => number, ctx: ProcCtx, i: number):
     `${outerCoef + inner}`,
     `${a * outerCoef}`,
     `${inner}`,
-    `First g(${x0}) = ${inner}, then f(${inner}) = ${outerCoef} ├ù ${inner}.`,
+    `First g(${x0}) = ${inner}, then f(${inner}) = ${outerCoef} × ${inner}.`,
   );
 }
 
@@ -134,7 +134,7 @@ export function genTrigSpecial(rng: () => number, ctx: ProcCtx, i: number): Exam
   if (which === 1) {
     return mc(rng, ctx, i, "trig", "cos(0) equals", "1", "0", "-1", "1/2", "cos(0) = 1.");
   }
-  return mc(rng, ctx, i, "trig", "sin(╧Ç/2) equals", "1", "0", "-1", "1/2", "sin(╧Ç/2) = 1.");
+  return mc(rng, ctx, i, "trig", "sin(π/2) equals", "1", "0", "-1", "1/2", "sin(π/2) = 1.");
 }
 
 export function genMeanSimple(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
@@ -162,11 +162,11 @@ export function genZScoreConcept(rng: () => number, ctx: ProcCtx, i: number): Ex
     ctx,
     i,
     "z",
-    "The z-score for an observation x with mean ╬╝ and standard deviation ╧â is",
-    "(x ΓêÆ ╬╝) / ╧â",
-    "(x + ╬╝) / ╧â",
-    "(x ΓêÆ ╬╝) ┬╖ ╧â",
-    "╬╝ / ╧â",
+    "The z-score for an observation x with mean μ and standard deviation σ is",
+    "(x − μ) / σ",
+    "(x + μ) / σ",
+    "(x − μ) · σ",
+    "μ / σ",
     `Standardize by subtracting the mean and dividing by the standard deviation.`,
   );
 }
@@ -223,7 +223,7 @@ export function genStatsExamLineTrend(rng: () => number, ctx: ProcCtx, i: number
   );
 }
 
-/* ΓÇöΓÇöΓÇö Computer science ΓÇöΓÇöΓÇö */
+/* ——— Computer science ——— */
 
 export function genBigO(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
   return mc(
@@ -234,9 +234,9 @@ export function genBigO(rng: () => number, ctx: ProcCtx, i: number): ExamQuestio
     "Which best describes the worst-case time complexity of comparison-based sorting of n items?",
     "O(n log n)",
     "O(n)",
-    "O(n┬▓) for every algorithm",
+    "O(n²) for every algorithm",
     "O(1)",
-    `Optimal comparison sorts are ╬ÿ(n log n) worst case (e.g., mergesort).`,
+    `Optimal comparison sorts are Θ(n log n) worst case (e.g., mergesort).`,
   );
 }
 
@@ -253,7 +253,7 @@ export function genLoopCount(rng: () => number, ctx: ProcCtx, i: number): ExamQu
     `${n * n}`,
     `${n + 1}`,
     `${n}`,
-    `This sums 1 + 2 + ΓÇª + ${n} = ${n}(${n}+1)/2 = ${total}.`,
+    `This sums 1 + 2 + … + ${n} = ${n}(${n}+1)/2 = ${total}.`,
   );
 }
 
@@ -272,7 +272,7 @@ export function genBooleanExpr(rng: () => number, ctx: ProcCtx, i: number): Exam
   );
 }
 
-/* ΓÇöΓÇöΓÇö Physics ΓÇöΓÇöΓÇö */
+/* ——— Physics ——— */
 
 export function genKinematicsV(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
   const v0 = randInt(rng, 0, 10);
@@ -284,12 +284,12 @@ export function genKinematicsV(rng: () => number, ctx: ProcCtx, i: number): Exam
     ctx,
     i,
     "kin",
-    `A particle accelerates from ${v0} m/s at ${a} m/s┬▓ for ${t} s. Its final speed is`,
+    `A particle accelerates from ${v0} m/s at ${a} m/s² for ${t} s. Its final speed is`,
     `${v} m/s`,
     `${v0 * t} m/s`,
     `${a * t} m/s`,
     `${v + 1} m/s`,
-    `Use v = vΓéÇ + at = ${v0} + (${a})(${t}).`,
+    `Use v = v₀ + at = ${v0} + (${a})(${t}).`,
   );
 }
 
@@ -302,12 +302,12 @@ export function genEnergyKE(rng: () => number, ctx: ProcCtx, i: number): ExamQue
     ctx,
     i,
     "ke",
-    `Kinetic energy K = ┬╜mv┬▓ for m = ${m} kg and v = ${v} m/s is`,
+    `Kinetic energy K = ½mv² for m = ${m} kg and v = ${v} m/s is`,
     `${ke} J`,
     `${m * v} J`,
     `${2 * ke} J`,
     `${roundN(ke / 2, 0)} J`,
-    `Compute ┬╜ ├ù ${m} ├ù ${v}┬▓ = ${ke} J.`,
+    `Compute ½ × ${m} × ${v}² = ${ke} J.`,
   );
 }
 
@@ -317,7 +317,7 @@ export function genPhysVelocityBarFig(rng: () => number, ctx: ProcCtx, i: number
     ctx,
     i,
     "ph-vbar",
-    "The bar chart shows the magnitude of a cartΓÇÖs velocity at equal time intervals. At which labeled time is speed greatest?",
+    "The bar chart shows the magnitude of a cart’s velocity at equal time intervals. At which labeled time is speed greatest?",
     "3 s",
     "1 s",
     "2 s",
@@ -348,11 +348,11 @@ export function genCoulombConcept(rng: () => number, ctx: ProcCtx, i: number): E
     "the distance",
     "the cube of the distance",
     "the charges only",
-    `Coulomb's law: F Γê¥ 1/r┬▓.`,
+    `Coulomb's law: F ∝ 1/r².`,
   );
 }
 
-/* ΓÇöΓÇöΓÇö Chemistry / bio / env ΓÇöΓÇöΓÇö */
+/* ——— Chemistry / bio / env ——— */
 
 export function genMolarity(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
   const mol = randInt(rng, 1, 5);
@@ -404,12 +404,12 @@ export function genPHScale(rng: () => number, ctx: ProcCtx, i: number): ExamQues
     ctx,
     i,
     "ph",
-    "At 25┬░C, a neutral aqueous solution has pH closest to",
+    "At 25°C, a neutral aqueous solution has pH closest to",
     "7",
     "0",
     "14",
     "1",
-    `Neutral water has [HΓü║] = 10Γü╗Γü╖ M, so pH = 7.`,
+    `Neutral water has [H⁺] = 10⁻⁷ M, so pH = 7.`,
   );
 }
 
@@ -424,7 +424,7 @@ export function genDNAbase(rng: () => number, ctx: ProcCtx, i: number): ExamQues
     "cytosine",
     "guanine",
     "uracil",
-    `DNA uses AΓÇôT and GΓÇôC pairing (RNA uses AΓÇôU).`,
+    `DNA uses A–T and G–C pairing (RNA uses A–U).`,
   );
 }
 
@@ -434,7 +434,7 @@ export function genBioSpeciesTableFig(rng: () => number, ctx: ProcCtx, i: number
     ctx,
     i,
     "bio-tbl",
-    "According to the table, which species had the greatest estimated population density (individuals per km┬▓) in the sample plot?",
+    "According to the table, which species had the greatest estimated population density (individuals per km²) in the sample plot?",
     "Species B",
     "Species A",
     "Species C",
@@ -442,8 +442,8 @@ export function genBioSpeciesTableFig(rng: () => number, ctx: ProcCtx, i: number
     `Compare the density column and select the largest value.`,
     {
       kind: "table",
-      title: "Sample plot ΓÇö species counts and area",
-      headers: ["Species", "Individuals", "Plot area (km┬▓)", "Density (per km┬▓)"],
+      title: "Sample plot — species counts and area",
+      headers: ["Species", "Individuals", "Plot area (km²)", "Density (per km²)"],
       rows: [
         ["Species A", "24", "2", "12"],
         ["Species B", "45", "2", "22.5"],
@@ -469,7 +469,7 @@ export function genCarryingCapacity(rng: () => number, ctx: ProcCtx, i: number):
   );
 }
 
-/* ΓÇöΓÇöΓÇö History / gov / geo ΓÇöΓÇöΓÇö */
+/* ——— History / gov / geo ——— */
 
 export function genAmendmentFreeSpeech(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
   return mc(
@@ -557,7 +557,7 @@ export function genNationState(rng: () => number, ctx: ProcCtx, i: number): Exam
     "regime type only",
     "civil society",
     "interest group",
-    `In comparative politics, ΓÇ£stateΓÇ¥ often denotes the organized political community with territorial sovereignty.`,
+    `In comparative politics, “state” often denotes the organized political community with territorial sovereignty.`,
   );
 }
 
@@ -572,7 +572,7 @@ export function genMapScale(rng: () => number, ctx: ProcCtx, i: number): ExamQue
     "a larger area with less detail",
     "only elevation",
     "only political boundaries",
-    `Large scale ΓçÆ smaller geographic area, finer detail.`,
+    `Large scale → smaller geographic area, finer detail.`,
   );
 }
 
@@ -586,7 +586,7 @@ export function genGeoDistanceDecay(rng: () => number, ctx: ProcCtx, i: number):
     "distance decay",
     "possibilism",
     "environmental determinism",
-    "coreΓÇôperiphery theory",
+    "core–periphery theory",
     `Interaction typically tails off with distance (time and cost of movement).`,
   );
 }
@@ -642,7 +642,7 @@ export function genGeoBidRent(rng: () => number, ctx: ProcCtx, i: number): ExamQ
     ctx,
     i,
     "bid",
-    "In the bidΓÇôrent model, land closest to the central business district (CBD) is typically bid highest by",
+    "In the bid–rent model, land closest to the central business district (CBD) is typically bid highest by",
     "retail and office uses",
     "extensive grain farming",
     "subsistence herding",
@@ -684,20 +684,20 @@ export function genGeoUrbanGrowthLineFig(rng: () => number, ctx: ProcCtx, i: num
     i,
     "geo-line",
     "According to the line chart, in which period was urban growth (percentage change) fastest?",
-    "2010ΓÇô2015",
-    "2000ΓÇô2005",
-    "2005ΓÇô2010",
-    "2015ΓÇô2020",
+    "2010–2015",
+    "2000–2005",
+    "2005–2010",
+    "2015–2020",
     `The steepest upward segment indicates the fastest growth rate.`,
     {
       kind: "line_chart",
       title: "Urban population growth rate (% per period)",
       yLabel: "% change",
       points: [
-        { x: "2000ΓÇô2005", y: 1.1 },
-        { x: "2005ΓÇô2010", y: 1.4 },
-        { x: "2010ΓÇô2015", y: 2.6 },
-        { x: "2015ΓÇô2020", y: 1.8 },
+        { x: "2000–2005", y: 1.1 },
+        { x: "2005–2010", y: 1.4 },
+        { x: "2010–2015", y: 2.6 },
+        { x: "2015–2020", y: 1.8 },
       ],
     },
   );
@@ -717,7 +717,7 @@ export function genGeoCropsTableFig(rng: () => number, ctx: ProcCtx, i: number):
     `Read the Year 2 column and select the largest value.`,
     {
       kind: "table",
-      title: "Crop production (million metric tons) ΓÇö sample country",
+      title: "Crop production (million metric tons) — sample country",
       headers: ["Crop", "Year 1", "Year 2"],
       rows: [
         ["Wheat", "42", "48"],
@@ -740,7 +740,7 @@ export function genWW2Turning(rng: () => number, ctx: ProcCtx, i: number): ExamQ
     "Verdun",
     "Somme",
     "Waterloo",
-    `The Battle of Stalingrad (1942ΓÇô43) marked a major Soviet shift.`,
+    `The Battle of Stalingrad (1942–43) marked a major Soviet shift.`,
   );
 }
 
@@ -750,7 +750,7 @@ export function genPrintingPressSpread(rng: () => number, ctx: ProcCtx, i: numbe
     ctx,
     i,
     "print",
-    "The rapid spread of printed books in 15thΓÇô16th century Europe most strongly helped",
+    "The rapid spread of printed books in 15th–16th century Europe most strongly helped",
     "diffuse religious and scientific ideas",
     "end all regional wars",
     "abolish feudalism overnight",
@@ -766,7 +766,7 @@ export function genScrambleAfrica(rng: () => number, ctx: ProcCtx, i: number): E
     i,
     "berlin",
     "The late 19th-century European partitioning of African territory is most associated with",
-    "the Berlin Conference (1884ΓÇô85)",
+    "the Berlin Conference (1884–85)",
     "the Congress of Vienna",
     "the Treaty of Versailles",
     "the Yalta Conference",
@@ -774,7 +774,7 @@ export function genScrambleAfrica(rng: () => number, ctx: ProcCtx, i: number): E
   );
 }
 
-/* ΓÇöΓÇöΓÇö Economics ΓÇöΓÇöΓÇö */
+/* ——— Economics ——— */
 
 export function genOppCost(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
   const a = randInt(rng, 8, 20);
@@ -800,10 +800,10 @@ export function genGDPdeflator(rng: () => number, ctx: ProcCtx, i: number): Exam
     i,
     "gdp",
     "The GDP deflator is calculated as",
-    "Nominal GDP / Real GDP ├ù 100",
-    "Real GDP / Nominal GDP ├ù 100",
+    "Nominal GDP / Real GDP × 100",
+    "Real GDP / Nominal GDP × 100",
     "CPI / GDP",
-    "Exports ΓêÆ Imports",
+    "Exports − Imports",
     `Deflator compares nominal output to real output.`,
   );
 }
@@ -834,7 +834,7 @@ export function genEconUnemploymentLineFig(rng: () => number, ctx: ProcCtx, i: n
   );
 }
 
-/* ΓÇöΓÇöΓÇö Psychology ΓÇöΓÇöΓÇö */
+/* ——— Psychology ——— */
 
 export function genNeuronPart(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
   return mc(
@@ -866,7 +866,7 @@ export function genOperant(rng: () => number, ctx: ProcCtx, i: number): ExamQues
   );
 }
 
-/* ΓÇöΓÇöΓÇö English ΓÇöΓÇöΓÇö */
+/* ——— English ——— */
 
 export function genFallacy(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
   return mc(
@@ -898,7 +898,7 @@ export function genRhetoricalAppeal(rng: () => number, ctx: ProcCtx, i: number):
   );
 }
 
-/* ΓÇöΓÇöΓÇö Arts ΓÇöΓÇöΓÇö */
+/* ——— Arts ——— */
 
 export function genRenaissanceArt(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
   return mc(
@@ -930,7 +930,7 @@ export function genCadence(rng: () => number, ctx: ProcCtx, i: number): ExamQues
   );
 }
 
-/* ΓÇöΓÇöΓÇö World languages (pattern drills) ΓÇöΓÇöΓÇö */
+/* ——— World languages (pattern drills) ——— */
 
 export function genNumberPatternEs(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
   const n = randInt(rng, 2, 9);
@@ -949,7 +949,7 @@ export function genNumberPatternEs(rng: () => number, ctx: ProcCtx, i: number): 
   );
 }
 
-/* ΓÇöΓÇöΓÇö Capstone ΓÇöΓÇöΓÇö */
+/* ——— Capstone ——— */
 
 export function genCitationEthics(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
   return mc(
@@ -981,7 +981,7 @@ export function genVariableControl(rng: () => number, ctx: ProcCtx, i: number): 
   );
 }
 
-/* ΓÇöΓÇöΓÇö Pools ΓÇöΓÇöΓÇö */
+/* ——— Pools ——— */
 
 const CALC: QuestionGen[] = [
   genDerivativePower,
@@ -1024,7 +1024,7 @@ const ART: QuestionGen[] = [genRenaissanceArt, genCadence];
 const LANG: QuestionGen[] = [genNumberPatternEs, genRhetoricalAppeal];
 const CAP: QuestionGen[] = [genCitationEthics, genVariableControl];
 
-/** Fallback when a catalog course is missing from the map ΓÇö should not happen in normal use. */
+/** Fallback when a catalog course is missing from the map — should not happen in normal use. */
 const DEFAULT_POOL: QuestionGen[] = [genFallacy, genRhetoricalAppeal];
 
 const COURSE_POOL: Record<string, QuestionGen[]> = {

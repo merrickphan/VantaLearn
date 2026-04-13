@@ -29,12 +29,12 @@ function StudyLibrary() {
           <Link href="/study/ap-practice" className="text-sky-400 hover:underline font-medium">
             AP practice by section & unit
           </Link>
-          <span className="text-vanta-muted"> ΓÇö unlimited generated MCQ by topic.</span>
+          <span className="text-vanta-muted"> — unlimited generated MCQ by topic.</span>
         </p>
         <p className="text-vanta-muted text-lg mt-2">
           {subjectFilter ? (
             <>
-              Filtered: <span className="text-sky-400">{subjectFilter}</span> ┬╖{" "}
+              Filtered: <span className="text-sky-400">{subjectFilter}</span> ·{" "}
               <Link href="/study" className="text-sky-400 hover:underline">
                 Clear filter
               </Link>
@@ -125,7 +125,7 @@ function StudyLibrary() {
                 <SimpleIconBox name="calculator" size={44} />
               </span>
               <h3 className="text-vanta-text font-semibold text-xl mb-2">Score calculator</h3>
-              <p className="text-vanta-muted text-base">Estimate AP scores (1ΓÇô5) by course or quick %</p>
+              <p className="text-vanta-muted text-base">Estimate AP scores (1–5) by course or quick %</p>
             </Card>
           </Link>
         </div>
@@ -136,7 +136,7 @@ function StudyLibrary() {
 
 export default function StudyPage() {
   return (
-    <Suspense fallback={<div className="min-h-[40vh] flex items-center justify-center text-vanta-muted text-lg">LoadingΓÇª</div>}>
+    <Suspense fallback={<div className="min-h-[40vh] flex items-center justify-center text-vanta-muted text-lg">Loading…</div>}>
       <StudyLibrary />
     </Suspense>
   );

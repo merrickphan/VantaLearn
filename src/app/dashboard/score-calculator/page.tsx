@@ -96,7 +96,7 @@ export default function ScoreCalculatorPage() {
         <h1 className="font-display text-3xl md:text-4xl font-bold text-vanta-text">Score calculators</h1>
         <p className="text-vanta-muted text-lg mt-2 max-w-2xl">
           <strong className="text-vanta-text">Subject-specific AP</strong> models use section weights (MC, FRQ, essays, portfolio, etc.)
-          and a tuned curve per subject family. Results are <strong className="text-vanta-text">practice estimates only</strong> ΓÇö not
+          and a tuned curve per subject family. Results are <strong className="text-vanta-text">practice estimates only</strong> — not
           from College Board.
         </p>
       </div>
@@ -175,7 +175,7 @@ export default function ScoreCalculatorPage() {
                         onChange={(e) =>
                           setSectionValues((prev) => ({ ...prev, [s.id]: e.target.value }))
                         }
-                        placeholder={`0 ΓÇô ${s.maxPoints}`}
+                        placeholder={`0 – ${s.maxPoints}`}
                         className="flex-1 min-w-0 bg-vanta-surface-elevated text-vanta-text placeholder-vanta-muted/70 rounded-xl px-4 py-3 text-base border border-vanta-border focus:border-vanta-blue focus:outline-none"
                       />
                       <input
@@ -228,7 +228,7 @@ export default function ScoreCalculatorPage() {
                 </div>
               </div>
               <p className="text-sm text-vanta-muted mb-6">
-                Single practice-test percentage mapped to a generic AP 1ΓÇô5 band (not course-specific).
+                Single practice-test percentage mapped to a generic AP 1–5 band (not course-specific).
               </p>
               <Button type="button" onClick={calculate} className="w-full" size="lg">
                 Calculate
@@ -257,7 +257,7 @@ export default function ScoreCalculatorPage() {
                 </p>
                 <p className="text-vanta-muted text-base">{apScoreDescriptions[result.data.apScore]}</p>
                 <p className="text-xs text-vanta-muted mt-3 leading-relaxed">
-                  {result.data.model.courseName} ┬╖ composite {result.data.compositePercent.toFixed(1)}% (
+                  {result.data.model.courseName} · composite {result.data.compositePercent.toFixed(1)}% (
                   {result.data.totalEarned.toFixed(1)} / {result.data.totalPossible} pts)
                 </p>
               </div>

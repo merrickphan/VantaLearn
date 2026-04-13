@@ -12,7 +12,7 @@ import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 function SidebarCountdown({ examDate }: { examDate: string }) {
   const { days, hours, minutes } = useCountdown(examDate);
   const done = days <= 0 && hours <= 0 && minutes <= 0;
-  if (done) return <span className="text-xs text-vanta-muted">ΓÇö</span>;
+  if (done) return <span className="text-xs text-vanta-muted">—</span>;
   return (
     <span className="text-xs font-mono tabular-nums rounded-md px-1.5 py-0.5 bg-slate-200 text-slate-900">
       {days}d {hours}h {minutes}m
@@ -88,7 +88,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-vanta-bg">
-      {/* AP subjects sidebar ΓÇö desktop */}
+      {/* AP subjects sidebar — desktop */}
       <aside className="hidden lg:flex flex-col w-[280px] shrink-0 border-r border-vanta-border bg-vanta-surface/80 fixed left-0 top-0 h-full z-40">
         <div className="p-5 border-b border-vanta-border">
           <Link href="/dashboard" className="flex items-center gap-3 group">
@@ -173,7 +173,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <input
                   type="search"
                   readOnly
-                  placeholder="Search subjectsΓÇª"
+                  placeholder="Search subjects…"
                   className="w-full bg-vanta-surface-elevated border border-vanta-border rounded-xl py-2.5 pl-10 pr-4 text-sm text-vanta-muted placeholder:text-vanta-muted/50 cursor-default"
                   aria-label="Search (coming soon)"
                 />
