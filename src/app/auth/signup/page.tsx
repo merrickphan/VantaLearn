@@ -74,8 +74,8 @@ export default function SignupPage() {
       <div className="min-h-screen bg-vanta-bg px-4 py-12">
         <div className="max-w-lg mx-auto">
           <div className="text-center mb-8 fade-up">
-            <div className="w-10 h-10 bg-sky-200 border border-sky-400/50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-slate-950 font-bold">2</span>
+            <div className="w-10 h-10 bg-sky-500/20 border border-sky-400/40 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-sky-200 font-bold font-display">2</span>
             </div>
             <h1 className="text-2xl font-bold text-vanta-text mb-2">Which exams are you preparing for?</h1>
             <p className="text-vanta-muted text-sm">We&apos;ll set up countdown timers for your selected exams</p>
@@ -109,7 +109,7 @@ export default function SignupPage() {
                     type="date"
                     value={examDates[exam] || ""}
                     onChange={(e) => setExamDates((prev) => ({ ...prev, [exam]: e.target.value }))}
-                    className="bg-white text-vanta-text text-sm border border-vanta-border focus:border-vanta-blue rounded-lg px-3 py-1.5 focus:outline-none"
+                    className="bg-vanta-surface-elevated text-vanta-text text-sm border border-vanta-border focus:border-vanta-blue rounded-lg px-3 py-1.5 focus:outline-none"
                   />
                 </div>
               ))}
@@ -132,10 +132,10 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen bg-vanta-bg flex flex-col items-center justify-center px-4">
       <Link href="/" className="flex items-center gap-2 mb-10">
-        <span className="rounded-lg p-1 ring-1 ring-vanta-border bg-white shadow-sm">
-          <VantaLogo size={28} />
+        <span className="rounded-lg p-1 ring-1 ring-sky-500/25 bg-vanta-surface-elevated">
+          <VantaLogo size={28} variant="command" />
         </span>
-        <span className="text-vanta-text font-semibold text-lg tracking-tight">VantaLearn</span>
+        <span className="font-display text-vanta-text font-semibold text-lg tracking-wide">VantaLearn</span>
       </Link>
 
       <div className="w-full max-w-sm bg-vanta-surface border border-vanta-border rounded-card p-8 shadow-card fade-up">
@@ -154,7 +154,7 @@ export default function SignupPage() {
         <button
           onClick={handleGoogleSignup}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-3 bg-slate-100 hover:bg-slate-200 border border-vanta-border hover:border-vanta-blue/35 text-vanta-text rounded-lg py-2.5 text-sm font-medium transition-all mb-6 disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 bg-vanta-surface-elevated hover:bg-vanta-surface-hover border border-vanta-border hover:border-sky-500/35 text-vanta-text rounded-lg py-2.5 text-sm font-medium transition-all mb-6 disabled:opacity-50"
         >
           <svg width="18" height="18" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

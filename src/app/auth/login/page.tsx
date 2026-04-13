@@ -48,10 +48,10 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-vanta-bg flex flex-col items-center justify-center px-4">
       <Link href="/" className="flex items-center gap-2 mb-10">
-        <span className="rounded-lg p-1 ring-1 ring-vanta-border bg-white shadow-sm">
-          <VantaLogo size={28} />
+        <span className="rounded-lg p-1 ring-1 ring-sky-500/25 bg-vanta-surface-elevated">
+          <VantaLogo size={28} variant="command" />
         </span>
-        <span className="text-vanta-text font-semibold text-lg tracking-tight">VantaLearn</span>
+        <span className="font-display text-vanta-text font-semibold text-lg tracking-wide">VantaLearn</span>
       </Link>
 
       <div className="w-full max-w-sm bg-vanta-surface border border-vanta-border rounded-card p-8 shadow-card fade-up">
@@ -67,7 +67,7 @@ export default function LoginPage() {
         <button
           onClick={handleGoogleLogin}
           disabled={googleLoading}
-          className="w-full flex items-center justify-center gap-3 bg-slate-100 hover:bg-slate-200 border border-vanta-border hover:border-vanta-blue/35 text-vanta-text rounded-lg py-2.5 text-sm font-medium transition-all mb-6 disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 bg-vanta-surface-elevated hover:bg-vanta-surface-hover border border-vanta-border hover:border-sky-500/35 text-vanta-text rounded-lg py-2.5 text-sm font-medium transition-all mb-6 disabled:opacity-50"
         >
           {googleLoading ? (
             <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />

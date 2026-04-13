@@ -46,6 +46,27 @@ export interface ExamContent {
   time_limit_minutes?: number;
 }
 
+/** CB-style stimulus: charts, tables (rendered like exam booklets). */
+export type ExamFigure =
+  | {
+      kind: "bar_chart";
+      title?: string;
+      yLabel?: string;
+      bars: { label: string; value: number }[];
+    }
+  | {
+      kind: "line_chart";
+      title?: string;
+      yLabel?: string;
+      points: { x: string; y: number }[];
+    }
+  | {
+      kind: "table";
+      title?: string;
+      headers: string[];
+      rows: string[][];
+    };
+
 export interface ExamQuestion {
   id: string;
   question: string;
@@ -54,6 +75,8 @@ export interface ExamQuestion {
   correct_answer: string;
   explanation?: string;
   subject: string;
+  /** Optional graph/table shown above the stem (AP-style). */
+  figure?: ExamFigure;
 }
 
 export interface ExamAttempt {

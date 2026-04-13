@@ -1,6 +1,7 @@
 import { StudyResource } from "@/types";
+import { EXAM_BANK_RESOURCES } from "@/lib/utils/examBank";
 
-export const SAMPLE_RESOURCES: StudyResource[] = [
+const CORE_RESOURCES: StudyResource[] = [
   {
     id: "1",
     title: "AP Biology: Cell Processes",
@@ -173,3 +174,5 @@ export const SAMPLE_RESOURCES: StudyResource[] = [
     },
   },
 ];
+
+export const SAMPLE_RESOURCES: StudyResource[] = [...CORE_RESOURCES, ...EXAM_BANK_RESOURCES];

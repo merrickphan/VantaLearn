@@ -1,13 +1,15 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import { SAMPLE_RESOURCES } from "@/lib/utils/sampleData";
 import { ExamContent, ExamQuestion } from "@/types";
 import { useExamProgress } from "@/hooks/useProgress";
 import { Button, Card, Badge, ProgressBar, Textarea, Spinner } from "@/components/ui";
 import { calculateAPScore } from "@/lib/utils";
 import Link from "next/link";
+import { ExamFigure } from "@/components/exam/ExamFigure";
+import { recordExamComplete } from "@/lib/cmdStats";
 
 function ExamPlayer() {
   const searchParams = useSearchParams();
@@ -68,6 +70,7 @@ function QuestionCard({
 
   return (
     <Card className={`p-6 mb-4 transition-colors ${isCorrect ? "border-vanta-success/40" : isWrong ? "border-vanta-error/40" : ""}`}>
+      {question.figure ? <ExamFigure figure={question.figure} /> : null}
       <p className="text-vanta-text font-medium mb-4 leading-relaxed">{question.question}</p>
 
       {question.type === "multiple_choice" && question.options ? (
@@ -135,6 +138,16 @@ function QuestionCard({
 
 function ExamGame({ questions, title }: { questions: ExamQuestion[]; title: string }) {
   const { answers, submitted, answerQuestion, submit, stats } = useExamProgress(questions.length);
+  const statsRecorded = useRef(false);
+
+  useEffect(() => {
+    if (!submitted || statsRecorded.current) return;
+    statsRecorded.current = true;
+    const correctCount = questions.filter((q) => answers[q.id] === q.correct_answer).length;
+    const subject = questions[0]?.subject ?? "Mixed";
+    recordExamComplete(subject, correctCount, questions.length);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- answers captured when submit completes
+  }, [submitted, questions]);
 
   if (submitted) {
     const correctCount = questions.filter((q) => answers[q.id] === q.correct_answer).length;

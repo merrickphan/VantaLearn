@@ -3,8 +3,9 @@
 :root {
   --font-geist-sans: "Geist", system-ui, sans-serif;
   --font-geist-mono: "Geist Mono", monospace;
-  --vanta-accent: #2563eb;
-  --vanta-accent-glow: rgba(37, 99, 235, 0.35);
+  --font-orbitron: "Orbitron", system-ui, sans-serif;
+  --vanta-accent: #38bdf8;
+  --vanta-accent-glow: rgba(56, 189, 248, 0.4);
 }
 
 /* Custom scrollbar */
@@ -13,14 +14,14 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #e2e8f0;
+  background: #0b0f14;
 }
 ::-webkit-scrollbar-thumb {
-  background: #94a3b8;
+  background: #334155;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #2563eb;
+  background: #38bdf8;
 }
 
 /* Flashcard 3D flip */
@@ -158,9 +159,9 @@
   background: linear-gradient(
     105deg,
     transparent 0%,
-    rgba(15, 23, 42, 0.06) 42%,
-    rgba(15, 23, 42, 0.12) 50%,
-    rgba(15, 23, 42, 0.06) 58%,
+    rgba(255, 255, 255, 0.06) 42%,
+    rgba(255, 255, 255, 0.14) 50%,
+    rgba(255, 255, 255, 0.06) 58%,
     transparent 100%
   );
   transform: translateX(-100%) skewX(-12deg);
@@ -176,8 +177,8 @@
 
 .btn-shine:hover {
   box-shadow:
-    0 4px 20px rgba(37, 99, 235, 0.22),
-    0 0 0 1px rgba(37, 99, 235, 0.2);
+    0 4px 24px rgba(56, 189, 248, 0.25),
+    0 0 0 1px rgba(56, 189, 248, 0.35);
 }
 
 .btn-shine:active {
@@ -200,13 +201,13 @@
   background: linear-gradient(
     105deg,
     transparent 0%,
-    rgba(37, 99, 235, 0.05) 42%,
-    rgba(37, 99, 235, 0.12) 50%,
-    rgba(37, 99, 235, 0.05) 58%,
+    rgba(56, 189, 248, 0.06) 42%,
+    rgba(56, 189, 248, 0.14) 50%,
+    rgba(56, 189, 248, 0.06) 58%,
     transparent 100%
   );
 }
 
 .btn-shine-outline:hover {
-  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.28);
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.35);
 }

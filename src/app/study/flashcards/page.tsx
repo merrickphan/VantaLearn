@@ -119,7 +119,7 @@ function FlashcardGame({ cards, title }: { cards: FlashcardItem[]; title: string
           </Button>
           <Button
             size="lg"
-            className="flex-1 !bg-emerald-200 hover:!bg-emerald-300 !text-slate-950 border border-emerald-400/50"
+            className="flex-1 !bg-emerald-500/20 hover:!bg-emerald-500/30 !text-emerald-200 border border-emerald-500/40"
             onClick={() => markCard(card.id, "got_it")}
           >
             ✓ Got It

@@ -10,29 +10,32 @@ const config: Config = {
     extend: {
       colors: {
         vanta: {
-          bg: "#f1f5f9",
-          surface: "#ffffff",
-          "surface-hover": "#f8fafc",
-          border: "#e2e8f0",
-          blue: "#2563eb",
-          "blue-hover": "#1d4ed8",
-          "blue-muted": "rgba(37, 99, 235, 0.12)",
-          text: "#0f172a",
-          muted: "#64748b",
-          success: "#15803d",
-          error: "#dc2626",
+          bg: "#05070a",
+          surface: "#0b0f14",
+          "surface-elevated": "#111822",
+          "surface-hover": "#141b27",
+          border: "#1e293b",
+          blue: "#38bdf8",
+          "blue-hover": "#7dd3fc",
+          "blue-muted": "rgba(56, 189, 248, 0.12)",
+          text: "#f1f5f9",
+          muted: "#94a3b8",
+          success: "#4ade80",
+          error: "#f87171",
         },
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-geist-mono)", "monospace"],
+        display: ["var(--font-orbitron)", "var(--font-geist-sans)", "sans-serif"],
       },
       borderRadius: {
         card: "12px",
       },
       boxShadow: {
-        card: "0 4px 14px rgba(15, 23, 42, 0.08)",
-        "card-hover": "0 10px 28px rgba(15, 23, 42, 0.12)",
+        card: "0 4px 24px rgba(0, 0, 0, 0.45)",
+        "card-hover": "0 8px 32px rgba(56, 189, 248, 0.08)",
+        glow: "0 0 40px rgba(56, 189, 248, 0.15)",
       },
       animation: {
         "pulse-blue": "pulseBlue 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
@@ -42,7 +45,7 @@ const config: Config = {
       keyframes: {
         pulseBlue: {
           "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.5", backgroundColor: "#2563eb" },
+          "50%": { opacity: "0.5", backgroundColor: "#38bdf8" },
         },
         flipIn: {
           "0%": { transform: "rotateY(90deg)", opacity: "0" },

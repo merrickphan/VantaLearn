@@ -21,7 +21,7 @@ export function Button({
 
   const variants = {
     primary:
-      "btn-shine bg-sky-200 hover:bg-sky-300 text-slate-950 border border-sky-400/50 shadow-sm shadow-slate-900/10 hover:shadow-md hover:shadow-slate-900/15",
+      "btn-shine bg-sky-500/20 hover:bg-sky-400/30 text-sky-50 border border-sky-400/50 shadow-sm shadow-black/40 hover:shadow-glow",
     secondary:
       "btn-shine btn-shine-outline bg-transparent border border-vanta-border hover:border-vanta-blue/60 text-vanta-text hover:text-vanta-blue hover:bg-vanta-blue-muted/40",
     ghost:
@@ -133,7 +133,7 @@ export function Input({ label, error, className = "", id, ...props }: InputProps
       )}
       <input
         id={id}
-        className={`w-full bg-white text-vanta-text placeholder-vanta-muted/70 rounded-lg px-4 py-2.5 text-sm
+        className={`w-full bg-vanta-surface-elevated text-vanta-text placeholder-vanta-muted/60 rounded-lg px-4 py-2.5 text-sm
           border border-vanta-border focus:border-vanta-blue focus:outline-none transition-colors
           ${error ? "border-vanta-error" : ""}
           ${className}`}
@@ -168,7 +168,7 @@ export function Textarea({ label, error, className = "", id, ...props }: Textare
       )}
       <textarea
         id={id}
-        className={`w-full bg-white text-vanta-text placeholder-vanta-muted/70 rounded-lg px-4 py-2.5 text-sm
+        className={`w-full bg-vanta-surface-elevated text-vanta-text placeholder-vanta-muted/60 rounded-lg px-4 py-2.5 text-sm
           border border-vanta-border focus:border-vanta-blue focus:outline-none transition-colors resize-none
           ${error ? "border-vanta-error" : ""}
           ${className}`}

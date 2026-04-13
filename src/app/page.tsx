@@ -10,10 +10,10 @@ export default function HomePage() {
           href="/"
           className="flex items-center gap-2.5 group rounded-lg -m-1 p-1 transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
-          <span className="rounded-lg p-1 ring-1 ring-vanta-border bg-white shadow-inner shadow-slate-900/5 transition-[box-shadow,ring-color] duration-300 group-hover:ring-vanta-blue/35 group-hover:shadow-[0_0_24px_rgba(37,99,235,0.12)]">
-            <VantaLogo size={30} />
+          <span className="rounded-lg p-1 ring-1 ring-sky-500/30 bg-vanta-surface-elevated shadow-glow transition-[box-shadow] duration-300 group-hover:ring-sky-400/50">
+            <VantaLogo size={30} variant="command" />
           </span>
-          <span className="font-semibold text-lg tracking-tight text-slate-950 group-hover:text-slate-800 transition-colors">
+          <span className="font-display font-semibold text-lg tracking-wide text-vanta-text group-hover:text-sky-200 transition-colors">
             VantaLearn
           </span>
         </Link>
@@ -26,7 +26,7 @@ export default function HomePage() {
           </Link>
           <Link
             href="/auth/signup"
-            className="text-sm btn-shine bg-sky-200 hover:bg-sky-300 text-slate-950 border border-sky-400/50 px-4 py-2 rounded-lg font-medium shadow-sm shadow-slate-900/10"
+            className="text-sm btn-shine bg-sky-500/20 hover:bg-sky-400/30 text-sky-50 border border-sky-400/50 px-4 py-2 rounded-lg font-medium"
           >
             Get Started
           </Link>
@@ -40,9 +40,9 @@ export default function HomePage() {
           Free for all students
         </div>
 
-        <h1 className="fade-up text-4xl sm:text-5xl md:text-6xl font-bold text-vanta-text leading-tight max-w-3xl mb-6">
+        <h1 className="fade-up font-display text-4xl sm:text-5xl md:text-6xl font-bold text-vanta-text tracking-wide leading-tight max-w-3xl mb-6">
           Ace your{" "}
-          <span className="text-vanta-blue">AP & SAT</span>{" "}
+          <span className="text-sky-400">AP & SAT</span>{" "}
           exams with AI
         </h1>
 
@@ -53,7 +53,7 @@ export default function HomePage() {
         <div className="fade-up flex flex-col sm:flex-row gap-3">
           <Link
             href="/auth/signup"
-            className="bg-sky-200 hover:bg-sky-300 text-slate-950 border border-sky-400/50 px-8 py-3.5 rounded-lg font-semibold text-base btn-shine shadow-md shadow-slate-900/10 hover:shadow-slate-900/15"
+            className="bg-sky-500/20 hover:bg-sky-400/30 text-sky-50 border border-sky-400/50 px-8 py-3.5 rounded-lg font-semibold text-base btn-shine"
           >
             Start Studying Free →
           </Link>

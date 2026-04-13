@@ -66,54 +66,13 @@ export function calculateRetentionRate(
   return Math.round((gotIt / total) * 100);
 }
 
-// Available exam subjects
-export const AP_SUBJECTS = [
-  "AP Calculus AB",
-  "AP Calculus BC",
-  "AP Statistics",
-  "AP Biology",
-  "AP Chemistry",
-  "AP Physics 1",
-  "AP Physics 2",
-  "AP Physics C",
-  "AP English Language",
-  "AP English Literature",
-  "AP US History",
-  "AP World History",
-  "AP European History",
-  "AP US Government",
-  "AP Psychology",
-  "AP Computer Science A",
-  "AP Computer Science Principles",
-  "AP Spanish",
-  "AP French",
-  "AP Environmental Science",
-  "AP Economics (Macro)",
-  "AP Economics (Micro)",
-  "AP Art History",
-] as const;
+import { AP_COURSE_NAMES, buildCommonExamDates } from "@/lib/apCatalog";
 
-export const SAT_SUBJECTS = [
-  "SAT Math",
-  "SAT Reading & Writing",
-] as const;
+// All AP courses from catalog (+ SAT below)
+export const AP_SUBJECTS = AP_COURSE_NAMES;
 
-export const ALL_EXAMS = [...AP_SUBJECTS, ...SAT_SUBJECTS] as const;
+export const SAT_SUBJECTS = ["SAT Math", "SAT Reading & Writing"] as const;
 
-// Common AP exam dates (2025)
-export const COMMON_EXAM_DATES: Record<string, string> = {
-  "AP Calculus AB": "2025-05-13",
-  "AP Calculus BC": "2025-05-13",
-  "AP Statistics": "2025-05-16",
-  "AP Biology": "2025-05-12",
-  "AP Chemistry": "2025-05-06",
-  "AP Physics 1": "2025-05-07",
-  "AP English Language": "2025-05-14",
-  "AP English Literature": "2025-05-07",
-  "AP US History": "2025-05-09",
-  "AP World History": "2025-05-15",
-  "AP Psychology": "2025-05-20",
-  "AP Computer Science A": "2025-05-14",
-  "SAT Math": "2025-05-03",
-  "SAT Reading & Writing": "2025-05-03",
-};
+export const ALL_EXAMS = [...AP_COURSE_NAMES, ...SAT_SUBJECTS] as const;
+
+export const COMMON_EXAM_DATES: Record<string, string> = buildCommonExamDates();
