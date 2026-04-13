@@ -271,15 +271,57 @@ export const AP_UNITS_BY_COURSE_ID: Record<string, ApUnit[]> = {
     "Clinical Psychology",
     "Social Psychology",
   ]),
-  "hum-geo": U("hum-geo", [
-    "Thinking Geographically",
-    "Population and Migration Patterns and Processes",
-    "Cultural Patterns and Processes",
-    "Political Patterns and Processes",
-    "Agriculture and Rural Land-Use Patterns",
-    "Cities and Urban Land-Use Patterns",
-    "Industrial and Economic Development Patterns",
-  ]),
+  "hum-geo": [
+    {
+      id: "hum-geo-u1",
+      index: 1,
+      title: "Thinking Geographically",
+      summary:
+        "Space, place, and scale; absolute and relative location; site and situation; distance decay and space–time compression; formal, functional, and perceptual regions; patterns and density; diffusion types; map types, projections, GIS/GPS, and models as geographic abstractions.",
+    },
+    {
+      id: "hum-geo-u2",
+      index: 2,
+      title: "Population and Migration Patterns and Processes",
+      summary:
+        "Population structure and change: birth and death rates, natural increase, fertility, migration, and population pyramids; demographic and epidemiological transition ideas; Malthusian and sustainability debates; migration types, push and pull factors, and policy contexts.",
+    },
+    {
+      id: "hum-geo-u3",
+      index: 3,
+      title: "Cultural Patterns and Processes",
+      summary:
+        "Culture regions and diffusion; language families and lingua francas; religion and sacred space; ethnicity and identity; folk and popular culture; architecture and the cultural landscape; acculturation, assimilation, syncretism, and globalization of culture.",
+    },
+    {
+      id: "hum-geo-u4",
+      index: 4,
+      title: "Political Patterns and Processes",
+      summary:
+        "Territorial states, nations, and nationalism; boundaries and border disputes; enclaves and exclaves; maritime zones under UNCLOS; federal and unitary systems; devolution and supranational organizations; electoral geography and gerrymandering; geopolitics and conflict.",
+    },
+    {
+      id: "hum-geo-u5",
+      index: 5,
+      title: "Agriculture and Rural Land-Use Patterns",
+      summary:
+        "Subsistence and commercial systems; intensive and extensive land use; agricultural revolutions and the Columbian Exchange; Von Thünen and land rent; environmental impacts (irrigation, salinization, desertification); global commodity chains, alternatives, and development debates.",
+    },
+    {
+      id: "hum-geo-u6",
+      index: 6,
+      title: "Cities and Urban Land-Use Patterns",
+      summary:
+        "Urban hierarchy and central place concepts; North American models (concentric, sector, multiple nuclei, galactic/peripheral); world regional city models; suburbanization, sprawl, and new urbanist responses; segregation, gentrification, sustainability, and transportation.",
+    },
+    {
+      id: "hum-geo-u7",
+      index: 7,
+      title: "Industrial and Economic Development Patterns",
+      summary:
+        "Economic sectors and globalization; measures of development (GNI, HDI, inequality); industrial location and supply chains; development theories; foreign investment and trade; regional industrial cores and shifting geographies of production and services.",
+    },
+  ],
   lang: U("lang", [
     "Rhetorical Situation",
     "Claims and Evidence",

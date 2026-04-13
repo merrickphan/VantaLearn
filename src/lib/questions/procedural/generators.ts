@@ -1,5 +1,6 @@
 import type { ExamQuestion } from "@/types";
 import { hashString, randInt, roundN, shuffleInPlace } from "./utils";
+import { getHumanGeographyGeneratorsForUnit } from "./humanGeographyUnitPools";
 import { getWorldHistoryGeneratorsForUnit } from "./worldHistoryUnitPools";
 
 export interface ProcCtx {
@@ -1013,18 +1014,6 @@ const GOV: QuestionGen[] = [
 
 const COMP_GOV: QuestionGen[] = [genRegimeType, genChecksBalances, genNationState];
 
-const GEO: QuestionGen[] = [
-  genMapScale,
-  genGeoDistanceDecay,
-  genGeoRelocationDiffusion,
-  genGeoPushPull,
-  genGeoPrimateCity,
-  genGeoBidRent,
-  genGeoPopulationBarFig,
-  genGeoUrbanGrowthLineFig,
-  genGeoCropsTableFig,
-];
-
 const ECON: QuestionGen[] = [genOppCost, genGDPdeflator, genEconUnemploymentLineFig];
 
 const PSYCH: QuestionGen[] = [genNeuronPart, genOperant, genVariableControl];
@@ -1055,7 +1044,6 @@ const COURSE_POOL: Record<string, QuestionGen[]> = {
   euro: [...HIST_SHARED, ...HIST_GLOBAL],
   gov: [...GOV],
   "comp-gov": [...COMP_GOV],
-  "hum-geo": GEO,
   macro: [...ECON],
   micro: [...ECON],
   psych: PSYCH,
@@ -1077,6 +1065,9 @@ const COURSE_POOL: Record<string, QuestionGen[]> = {
 export function getGeneratorsForCourse(courseId: string, unitIndex: number = 1): QuestionGen[] {
   if (courseId === "wh" && unitIndex >= 1 && unitIndex <= 9) {
     return getWorldHistoryGeneratorsForUnit(unitIndex) as QuestionGen[];
+  }
+  if (courseId === "hum-geo" && unitIndex >= 1 && unitIndex <= 7) {
+    return getHumanGeographyGeneratorsForUnit(unitIndex) as QuestionGen[];
   }
   return COURSE_POOL[courseId] ?? DEFAULT_POOL;
 }
