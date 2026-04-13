@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
@@ -9,7 +10,11 @@ import { getUnitOrFirst } from "@/lib/apUnits";
 import { ExamContent, ExamQuestion } from "@/types";
 import { Button, Spinner } from "@/components/ui";
 import { ExamGame } from "@/components/study/ExamGame";
-import { AiExamSession } from "@/components/study/AiExamSession";
+
+const AiExamSession = dynamic(
+ () => import("@/components/study/AiExamSession").then((m) => m.AiExamSession),
+ { ssr: false, loading: () => <Spinner size="lg" /> },
+);
 
 function ProceduralExamSession({ courseId, unitId }: { courseId: string; unitId?: string }) {
  const [questions, setQuestions] = useState<ExamQuestion[] | null>(null);

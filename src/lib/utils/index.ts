@@ -1,3 +1,5 @@
+import { AP_COURSE_NAMES, buildCommonExamDates } from "@/lib/apCatalog";
+
 // Date/time utilities
 export function getDaysUntil(targetDate: string): number {
  const today = new Date();
@@ -25,37 +27,12 @@ export function formatTimeSpent(seconds: number): string {
  return `${hours}h ${remainingMinutes}m`;
 }
 
-// Score calculation utilities
-export interface ScoreScaleConfig {
- totalQuestions: number;
- rawScore: number;
-}
-
-export function calculateAPScore(config: ScoreScaleConfig): {
- apScore: 1 | 2 | 3 | 4 | 5;
- percentage: number;
-} {
- const percentage = (config.rawScore / config.totalQuestions) * 100;
-
- let apScore: 1 | 2 | 3 | 4 | 5;
- if (percentage >= 75) apScore = 5;
- else if (percentage >= 60) apScore = 4;
- else if (percentage >= 45) apScore = 3;
- else if (percentage >= 30) apScore = 2;
- else apScore = 1;
-
- return { apScore, percentage };
-}
-
-export function calculateSATScore(config: ScoreScaleConfig): {
- scaledScore: number;
- percentage: number;
-} {
- const percentage = (config.rawScore / config.totalQuestions) * 100;
- // Simplified SAT scaling: 400-1600 range
- const scaledScore = Math.round(400 + (percentage / 100) * 1200);
- return { scaledScore, percentage };
-}
+// Score calculation utilities (implementation in dedicated module — see `calculateAPScore.ts`)
+export {
+ calculateAPScore,
+ calculateSATScore,
+ type ScoreScaleConfig,
+} from "@/lib/calculateAPScore";
 
 // Progress utilities
 export function calculateRetentionRate(
@@ -65,8 +42,6 @@ export function calculateRetentionRate(
  if (total === 0) return 0;
  return Math.round((gotIt / total) * 100);
 }
-
-import { AP_COURSE_NAMES, buildCommonExamDates } from "@/lib/apCatalog";
 
 // All AP courses from catalog (+ SAT below)
 export const AP_SUBJECTS = AP_COURSE_NAMES;

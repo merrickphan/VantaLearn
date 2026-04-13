@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { ExamQuestion } from "@/types";
 import { useExamProgress } from "@/hooks/useProgress";
 import { Button, Card, Badge, ProgressBar, Textarea, Spinner } from "@/components/ui";
-import { calculateAPScore } from "@/lib/utils";
+import { calculateAPScore } from "@/lib/calculateAPScore";
 import { ExamFigure } from "@/components/exam/ExamFigure";
 import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 import { recordExamComplete } from "@/lib/cmdStats";

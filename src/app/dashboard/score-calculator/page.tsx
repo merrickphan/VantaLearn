@@ -3,8 +3,8 @@
 import { useMemo, useState } from "react";
 import { Button, Card } from "@/components/ui";
 import { AP_COURSES } from "@/lib/apCatalog";
+import { calculateAPScore } from "@/lib/calculateAPScore";
 import {
- calculateAPScore,
  computeApSubjectScore,
  listApSubjectModels,
  type ApSubjectScoreResult,
