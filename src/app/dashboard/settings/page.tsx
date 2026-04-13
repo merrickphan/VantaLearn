@@ -94,7 +94,7 @@ export default function SettingsPage() {
                   type="date"
                   value={examDates[exam] || ""}
                   onChange={(e) => setExamDates((p) => ({ ...p, [exam]: e.target.value }))}
-                  className="bg-vanta-border/60 text-vanta-text text-xs border border-transparent focus:border-vanta-blue rounded-lg px-3 py-1.5 focus:outline-none"
+                  className="bg-white text-vanta-text text-xs border border-vanta-border focus:border-vanta-blue rounded-lg px-3 py-1.5 focus:outline-none"
                 />
               </div>
             ))}

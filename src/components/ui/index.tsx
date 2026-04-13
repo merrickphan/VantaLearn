@@ -17,13 +17,17 @@ export function Button({
   ...props
 }: ButtonProps) {
   const base =
-    "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 focus-blue disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center font-medium rounded-lg focus-blue disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100";
 
   const variants = {
-    primary: "bg-vanta-blue hover:bg-vanta-blue-hover text-white",
-    secondary: "bg-transparent border border-vanta-border hover:border-vanta-blue text-vanta-text hover:text-vanta-blue",
-    ghost: "bg-transparent hover:bg-vanta-blue-muted text-vanta-muted hover:text-vanta-blue",
-    danger: "bg-vanta-error/10 hover:bg-vanta-error/20 text-vanta-error border border-vanta-error/30",
+    primary:
+      "btn-shine bg-sky-200 hover:bg-sky-300 text-slate-950 border border-sky-400/50 shadow-sm shadow-slate-900/10 hover:shadow-md hover:shadow-slate-900/15",
+    secondary:
+      "btn-shine btn-shine-outline bg-transparent border border-vanta-border hover:border-vanta-blue/60 text-vanta-text hover:text-vanta-blue hover:bg-vanta-blue-muted/40",
+    ghost:
+      "btn-shine btn-shine-outline bg-transparent hover:bg-vanta-blue-muted/50 text-vanta-muted hover:text-vanta-blue",
+    danger:
+      "bg-vanta-error/10 hover:bg-vanta-error/20 text-vanta-error border border-vanta-error/30 transition-all duration-200 hover:shadow-md hover:shadow-red-950/20 active:scale-[0.98]",
   };
 
   const sizes = {
@@ -59,7 +63,7 @@ export function Card({ children, className = "", hover, onClick }: CardProps) {
     <div
       onClick={onClick}
       className={`bg-vanta-surface border border-vanta-border rounded-card shadow-card
-        ${hover ? "hover:shadow-card-hover hover:border-vanta-blue/30 transition-all duration-200 cursor-pointer" : ""}
+        ${hover ? "hover:shadow-card-hover hover:border-vanta-blue/35 transition-all duration-300 cursor-pointer hover:-translate-y-0.5 active:translate-y-0" : ""}
         ${className}`}
     >
       {children}
@@ -129,8 +133,8 @@ export function Input({ label, error, className = "", id, ...props }: InputProps
       )}
       <input
         id={id}
-        className={`w-full bg-vanta-border/60 text-vanta-text placeholder-vanta-muted/60 rounded-lg px-4 py-2.5 text-sm
-          border border-transparent focus:border-vanta-blue focus:outline-none transition-colors
+        className={`w-full bg-white text-vanta-text placeholder-vanta-muted/70 rounded-lg px-4 py-2.5 text-sm
+          border border-vanta-border focus:border-vanta-blue focus:outline-none transition-colors
           ${error ? "border-vanta-error" : ""}
           ${className}`}
         {...props}
@@ -164,8 +168,8 @@ export function Textarea({ label, error, className = "", id, ...props }: Textare
       )}
       <textarea
         id={id}
-        className={`w-full bg-vanta-border/60 text-vanta-text placeholder-vanta-muted/60 rounded-lg px-4 py-2.5 text-sm
-          border border-transparent focus:border-vanta-blue focus:outline-none transition-colors resize-none
+        className={`w-full bg-white text-vanta-text placeholder-vanta-muted/70 rounded-lg px-4 py-2.5 text-sm
+          border border-vanta-border focus:border-vanta-blue focus:outline-none transition-colors resize-none
           ${error ? "border-vanta-error" : ""}
           ${className}`}
         {...props}

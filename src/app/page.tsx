@@ -1,16 +1,22 @@
 import Link from "next/link";
+import { VantaLogo } from "@/components/branding/VantaLogo";
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-vanta-bg flex flex-col">
       {/* Header */}
       <header className="border-b border-vanta-border px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-vanta-blue rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">V</span>
-          </div>
-          <span className="text-vanta-text font-semibold text-lg tracking-tight">VantaLearn</span>
-        </div>
+        <Link
+          href="/"
+          className="flex items-center gap-2.5 group rounded-lg -m-1 p-1 transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
+        >
+          <span className="rounded-lg p-1 ring-1 ring-vanta-border bg-white shadow-inner shadow-slate-900/5 transition-[box-shadow,ring-color] duration-300 group-hover:ring-vanta-blue/35 group-hover:shadow-[0_0_24px_rgba(37,99,235,0.12)]">
+            <VantaLogo size={30} />
+          </span>
+          <span className="font-semibold text-lg tracking-tight text-slate-950 group-hover:text-slate-800 transition-colors">
+            VantaLearn
+          </span>
+        </Link>
         <div className="flex items-center gap-3">
           <Link
             href="/auth/login"
@@ -20,7 +26,7 @@ export default function HomePage() {
           </Link>
           <Link
             href="/auth/signup"
-            className="text-sm bg-vanta-blue hover:bg-vanta-blue-hover text-white px-4 py-2 rounded-lg transition-colors font-medium"
+            className="text-sm btn-shine bg-sky-200 hover:bg-sky-300 text-slate-950 border border-sky-400/50 px-4 py-2 rounded-lg font-medium shadow-sm shadow-slate-900/10"
           >
             Get Started
           </Link>
@@ -47,13 +53,13 @@ export default function HomePage() {
         <div className="fade-up flex flex-col sm:flex-row gap-3">
           <Link
             href="/auth/signup"
-            className="bg-vanta-blue hover:bg-vanta-blue-hover text-white px-8 py-3.5 rounded-lg font-semibold text-base transition-colors"
+            className="bg-sky-200 hover:bg-sky-300 text-slate-950 border border-sky-400/50 px-8 py-3.5 rounded-lg font-semibold text-base btn-shine shadow-md shadow-slate-900/10 hover:shadow-slate-900/15"
           >
             Start Studying Free →
           </Link>
           <Link
             href="/auth/login"
-            className="bg-transparent border border-vanta-border hover:border-vanta-blue text-vanta-text hover:text-vanta-blue px-8 py-3.5 rounded-lg font-semibold text-base transition-colors"
+            className="bg-transparent border border-vanta-border hover:border-vanta-blue/60 text-vanta-text hover:text-vanta-blue px-8 py-3.5 rounded-lg font-semibold text-base btn-shine btn-shine-outline transition-colors hover:bg-vanta-blue-muted/30"
           >
             Sign in
           </Link>
@@ -69,7 +75,10 @@ export default function HomePage() {
             { icon: "🤖", title: "AI Feedback", desc: "GPT-4o-mini explains every answer and gives study tips" },
             { icon: "⏱️", title: "Exam Countdown", desc: "Track days remaining to your exams at a glance" },
           ].map((f) => (
-            <div key={f.title} className="fade-up bg-vanta-surface border border-vanta-border rounded-card p-5 hover:border-vanta-blue/30 transition-colors">
+            <div
+              key={f.title}
+              className="fade-up bg-vanta-surface border border-vanta-border rounded-card p-5 hover:border-vanta-blue/35 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover"
+            >
               <div className="text-2xl mb-3">{f.icon}</div>
               <h3 className="text-vanta-text font-semibold mb-1">{f.title}</h3>
               <p className="text-vanta-muted text-sm leading-relaxed">{f.desc}</p>

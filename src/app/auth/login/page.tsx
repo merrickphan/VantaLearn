@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button, Input } from "@/components/ui";
+import { VantaLogo } from "@/components/branding/VantaLogo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -47,9 +48,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-vanta-bg flex flex-col items-center justify-center px-4">
       <Link href="/" className="flex items-center gap-2 mb-10">
-        <div className="w-8 h-8 bg-vanta-blue rounded-lg flex items-center justify-center">
-          <span className="text-white font-bold text-sm">V</span>
-        </div>
+        <span className="rounded-lg p-1 ring-1 ring-vanta-border bg-white shadow-sm">
+          <VantaLogo size={28} />
+        </span>
         <span className="text-vanta-text font-semibold text-lg tracking-tight">VantaLearn</span>
       </Link>
 
@@ -66,7 +67,7 @@ export default function LoginPage() {
         <button
           onClick={handleGoogleLogin}
           disabled={googleLoading}
-          className="w-full flex items-center justify-center gap-3 bg-vanta-border/60 hover:bg-vanta-border border border-vanta-border hover:border-vanta-blue/30 text-vanta-text rounded-lg py-2.5 text-sm font-medium transition-all mb-6 disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 bg-slate-100 hover:bg-slate-200 border border-vanta-border hover:border-vanta-blue/35 text-vanta-text rounded-lg py-2.5 text-sm font-medium transition-all mb-6 disabled:opacity-50"
         >
           {googleLoading ? (
             <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />

@@ -74,7 +74,7 @@ export default function StudyTipsPage() {
             placeholder="e.g. integration by parts, essay structure..."
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            className="w-full bg-vanta-border/60 text-vanta-text placeholder-vanta-muted/60 rounded-lg px-4 py-2.5 text-sm border border-transparent focus:border-vanta-blue focus:outline-none"
+            className="w-full bg-white text-vanta-text placeholder-vanta-muted/70 rounded-lg px-4 py-2.5 text-sm border border-vanta-border focus:border-vanta-blue focus:outline-none"
           />
         </div>
 

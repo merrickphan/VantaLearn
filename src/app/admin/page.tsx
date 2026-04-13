@@ -73,7 +73,7 @@ export default function AdminPage() {
               key={t.id}
               onClick={() => setTab(t.id)}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-all
-                ${tab === t.id ? "bg-vanta-blue text-white" : "text-vanta-muted hover:text-vanta-text"}`}
+                ${tab === t.id ? "bg-sky-200 text-slate-950 border border-sky-400/50" : "text-vanta-muted hover:text-vanta-text"}`}
             >
               {t.label}
             </button>
@@ -167,7 +167,7 @@ export default function AdminPage() {
                       placeholder={`Option ${String.fromCharCode(65 + i)}`}
                       value={opt}
                       onChange={(e) => setOptions((prev) => prev.map((o, j) => j === i ? e.target.value : o))}
-                      className="w-full bg-vanta-border/60 text-vanta-text placeholder-vanta-muted/60 rounded-lg px-4 py-2 text-sm border border-transparent focus:border-vanta-blue focus:outline-none mb-2"
+                      className="w-full bg-white text-vanta-text placeholder-vanta-muted/70 rounded-lg px-4 py-2 text-sm border border-vanta-border focus:border-vanta-blue focus:outline-none mb-2"
                     />
                   ))}
                 </div>

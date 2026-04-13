@@ -78,7 +78,7 @@ export default function ScoreCalculatorPage() {
               value={rawScore}
               onChange={(e) => setRawScore(e.target.value)}
               placeholder="e.g. 38"
-              className="w-full bg-vanta-border/60 text-vanta-text placeholder-vanta-muted/60 rounded-lg px-4 py-2.5 text-sm border border-transparent focus:border-vanta-blue focus:outline-none"
+              className="w-full bg-white text-vanta-text placeholder-vanta-muted/70 rounded-lg px-4 py-2.5 text-sm border border-vanta-border focus:border-vanta-blue focus:outline-none"
             />
           </div>
           <div>
@@ -89,7 +89,7 @@ export default function ScoreCalculatorPage() {
               value={totalQuestions}
               onChange={(e) => setTotalQuestions(e.target.value)}
               placeholder="e.g. 45"
-              className="w-full bg-vanta-border/60 text-vanta-text placeholder-vanta-muted/60 rounded-lg px-4 py-2.5 text-sm border border-transparent focus:border-vanta-blue focus:outline-none"
+              className="w-full bg-white text-vanta-text placeholder-vanta-muted/70 rounded-lg px-4 py-2.5 text-sm border border-vanta-border focus:border-vanta-blue focus:outline-none"
             />
           </div>
         </div>
@@ -129,7 +129,7 @@ export default function ScoreCalculatorPage() {
                   key={score}
                   className={`text-center py-2 rounded-lg text-sm font-bold ${
                     score === result.apScore
-                      ? "bg-vanta-blue text-white"
+                      ? "bg-sky-200 text-slate-950 border border-sky-400/50"
                       : score < (result.apScore ?? 0)
                       ? "bg-vanta-blue/20 text-vanta-blue"
                       : "bg-vanta-border/50 text-vanta-muted"

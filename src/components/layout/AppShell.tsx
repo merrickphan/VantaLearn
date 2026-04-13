@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { VantaLogo } from "@/components/branding/VantaLogo";
 
 interface NavItem {
   href: string;
@@ -68,11 +69,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-vanta-surface border-r border-vanta-border fixed h-full z-30">
         <div className="p-6 border-b border-vanta-border">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-vanta-blue rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">V</span>
-            </div>
-            <span className="text-vanta-text font-semibold text-lg tracking-tight">VantaLearn</span>
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2.5 group rounded-lg -m-1 p-1 transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <span className="rounded-lg p-1 ring-1 ring-vanta-border bg-white shadow-inner shadow-slate-900/5 transition-[box-shadow,ring-color] duration-300 group-hover:ring-vanta-blue/35 group-hover:shadow-[0_0_20px_rgba(37,99,235,0.12)]">
+              <VantaLogo size={30} className="shrink-0" />
+            </span>
+            <span className="font-semibold text-lg tracking-tight text-slate-950 group-hover:text-slate-800 transition-colors">
+              VantaLearn
+            </span>
           </Link>
         </div>
 
@@ -83,10 +89,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                   ${isActive
-                    ? "bg-vanta-blue/15 text-vanta-blue"
-                    : "text-vanta-muted hover:bg-vanta-border/50 hover:text-vanta-text"
+                    ? "bg-vanta-blue/15 text-vanta-blue shadow-sm shadow-blue-950/20"
+                    : "text-vanta-muted hover:bg-vanta-surface-hover hover:text-vanta-text hover:translate-x-0.5"
                   }`}
               >
                 {item.icon}

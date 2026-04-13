@@ -10,16 +10,17 @@ const config: Config = {
     extend: {
       colors: {
         vanta: {
-          bg: "#121212",
-          surface: "#1E1E24",
-          border: "#2D2D36",
-          blue: "#4A90E2",
-          "blue-hover": "#3A7BD5",
-          "blue-muted": "rgba(74,144,226,0.15)",
-          text: "#E0E0E0",
-          muted: "#A0A0A0",
-          success: "#4CAF50",
-          error: "#FF5252",
+          bg: "#f1f5f9",
+          surface: "#ffffff",
+          "surface-hover": "#f8fafc",
+          border: "#e2e8f0",
+          blue: "#2563eb",
+          "blue-hover": "#1d4ed8",
+          "blue-muted": "rgba(37, 99, 235, 0.12)",
+          text: "#0f172a",
+          muted: "#64748b",
+          success: "#15803d",
+          error: "#dc2626",
         },
       },
       fontFamily: {
@@ -30,8 +31,8 @@ const config: Config = {
         card: "12px",
       },
       boxShadow: {
-        card: "0 4px 6px rgba(0,0,0,0.3)",
-        "card-hover": "0 8px 20px rgba(0,0,0,0.5)",
+        card: "0 4px 14px rgba(15, 23, 42, 0.08)",
+        "card-hover": "0 10px 28px rgba(15, 23, 42, 0.12)",
       },
       animation: {
         "pulse-blue": "pulseBlue 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
@@ -41,7 +42,7 @@ const config: Config = {
       keyframes: {
         pulseBlue: {
           "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.5", backgroundColor: "#4A90E2" },
+          "50%": { opacity: "0.5", backgroundColor: "#2563eb" },
         },
         flipIn: {
           "0%": { transform: "rotateY(90deg)", opacity: "0" },
