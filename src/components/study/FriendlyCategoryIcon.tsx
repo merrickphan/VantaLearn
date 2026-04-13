@@ -14,7 +14,7 @@ export function FriendlyCategoryIcon({
  const inner = Math.round(size * 0.62);
  return (
  <span
- className={`inline-flex items-center justify-center rounded-2xl bg-slate-100 shadow-sm ring-1 ring-slate-200/90 ${className}`}
+ className={`inline-flex items-center justify-center rounded-2xl bg-vanta-surface-elevated shadow-sm ring-1 ring-vanta-border ${className}`}
  style={{ width: s, height: s }}
  aria-hidden
  >

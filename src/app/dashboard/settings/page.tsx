@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { Card, Button } from "@/components/ui";
+import { useTheme } from "@/context/ThemeContext";
 import { createClient } from "@/lib/supabase/client";
 import { ALL_EXAMS, COMMON_EXAM_DATES } from "@/lib/utils";
 
 interface ExamTimer { exam_name: string; target_date: string; }
 
 export default function SettingsPage() {
+ const { theme, setTheme } = useTheme();
  const [user, setUser] = useState<{ email?: string; name?: string } | null>(null);
  const [selectedExams, setSelectedExams] = useState<string[]>([]);
  const [examDates, setExamDates] = useState<Record<string, string>>(COMMON_EXAM_DATES);
@@ -61,6 +63,36 @@ export default function SettingsPage() {
  <span className="text-sm text-vanta-muted">Email</span>
  <span className="text-sm text-vanta-text">{user?.email || " - "}</span>
  </div>
+ </div>
+ </Card>
+
+ {/* Appearance */}
+ <Card className="p-6 mb-6 fade-up">
+ <h2 className="text-sm font-semibold text-vanta-muted uppercase tracking-wider mb-2">Appearance</h2>
+ <p className="text-vanta-muted text-xs mb-4">Choose light or dark interface.</p>
+ <div className="flex flex-wrap gap-2">
+ <button
+ type="button"
+ onClick={() => setTheme("light")}
+ className={`px-4 py-2 rounded-xl text-sm font-medium border transition-colors ${
+ theme === "light"
+ ? "bg-sky-500/15 border-sky-500/50 text-sky-400"
+ : "border-vanta-border text-vanta-muted hover:border-sky-500/40 hover:text-vanta-text"
+ }`}
+ >
+ Light
+ </button>
+ <button
+ type="button"
+ onClick={() => setTheme("dark")}
+ className={`px-4 py-2 rounded-xl text-sm font-medium border transition-colors ${
+ theme === "dark"
+ ? "bg-sky-500/15 border-sky-500/50 text-sky-400"
+ : "border-vanta-border text-vanta-muted hover:border-sky-500/40 hover:text-vanta-text"
+ }`}
+ >
+ Dark
+ </button>
  </div>
  </Card>
 

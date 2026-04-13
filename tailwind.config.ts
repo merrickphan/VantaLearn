@@ -10,18 +10,18 @@ const config: Config = {
     extend: {
       colors: {
         vanta: {
-          bg: "#05070a",
-          surface: "#0b0f14",
-          "surface-elevated": "#111822",
-          "surface-hover": "#141b27",
-          border: "#1e293b",
-          blue: "#38bdf8",
-          "blue-hover": "#7dd3fc",
-          "blue-muted": "rgba(56, 189, 248, 0.12)",
-          text: "#f1f5f9",
-          muted: "#94a3b8",
-          success: "#4ade80",
-          error: "#f87171",
+          bg: "var(--vanta-bg)",
+          surface: "var(--vanta-surface)",
+          "surface-elevated": "var(--vanta-surface-elevated)",
+          "surface-hover": "var(--vanta-surface-hover)",
+          border: "var(--vanta-border)",
+          blue: "var(--vanta-blue)",
+          "blue-hover": "var(--vanta-blue-hover)",
+          "blue-muted": "var(--vanta-blue-muted)",
+          text: "var(--vanta-text)",
+          muted: "var(--vanta-muted)",
+          success: "var(--vanta-success)",
+          error: "var(--vanta-error)",
         },
       },
       fontFamily: {
@@ -33,9 +33,9 @@ const config: Config = {
         card: "12px",
       },
       boxShadow: {
-        card: "0 4px 24px rgba(0, 0, 0, 0.45)",
-        "card-hover": "0 8px 32px rgba(56, 189, 248, 0.08)",
-        glow: "0 0 40px rgba(56, 189, 248, 0.15)",
+        card: "var(--vanta-shadow-card)",
+        "card-hover": "var(--vanta-shadow-card-hover)",
+        glow: "var(--vanta-shadow-glow)",
       },
       animation: {
         "pulse-blue": "pulseBlue 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",

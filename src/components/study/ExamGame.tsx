@@ -124,15 +124,15 @@ function QuestionCard({
  ${tapOptionIdx === optIdx ? "exam-mcq-option-tap" : ""}
  ${isCorrectOpt ? "exam-mcq-correct" : ""}
  ${isWrongOpt ? "exam-mcq-wrong" : ""}
- ${!submitted && isSelected ? "bg-sky-200 border-sky-600 border-2 text-neutral-950 shadow-sm" : ""}
- ${!submitted && !isSelected ? "bg-slate-100 border-slate-300 text-neutral-950 hover:bg-slate-200 hover:border-slate-400" : ""}
- ${isDimmed ? "opacity-45 border-slate-300 bg-slate-100 text-neutral-950" : ""}
+ ${!submitted && isSelected ? "bg-sky-500/25 border-sky-500 border-2 text-vanta-text shadow-sm" : ""}
+ ${!submitted && !isSelected ? "bg-vanta-surface-elevated border-vanta-border text-vanta-text hover:bg-vanta-surface-hover hover:border-sky-500/35" : ""}
+ ${isDimmed ? "opacity-45 border-vanta-border bg-vanta-surface-elevated text-vanta-muted" : ""}
  disabled:cursor-default`}
  >
  <span className="flex items-start justify-between gap-3 w-full">
  <span className="flex flex-1 items-start gap-3 min-w-0">
  <span className="shrink-0 w-8 tabular-nums font-medium text-vanta-text pt-0.5">{letter}.</span>
- <span className="leading-relaxed text-neutral-950 flex-1 min-w-0">{formatNiceMath(opt)}</span>
+ <span className="leading-relaxed text-vanta-text flex-1 min-w-0">{formatNiceMath(opt)}</span>
  </span>
  {submitted && isCorrectOpt ? (
  <span className="shrink-0 text-lg font-bold text-green-800" aria-hidden>

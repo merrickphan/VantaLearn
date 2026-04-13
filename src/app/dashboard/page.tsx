@@ -254,7 +254,7 @@ function CourseExamCard({
  <span aria-hidden>
  <SimpleIconBox name={icon} size={40} />
  </span>
- <span className="text-xs font-mono tabular-nums shrink-0 rounded-md px-2 py-1 bg-slate-200 text-slate-900">
+ <span className="text-xs font-mono tabular-nums shrink-0 rounded-md px-2 py-1 bg-sky-500/15 text-vanta-text border border-vanta-border/80">
  {timerLabel}
  </span>
  </div>

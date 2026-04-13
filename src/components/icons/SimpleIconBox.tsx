@@ -230,7 +230,7 @@ export function SimpleIconBox({
  <span
  role={label ? "img" : undefined}
  aria-label={label}
- className={`inline-flex shrink-0 items-center justify-center rounded-md bg-slate-950/90 text-sky-400/95 ring-1 ring-sky-500/35 ${className}`}
+ className={`inline-flex shrink-0 items-center justify-center rounded-md bg-vanta-surface-elevated text-sky-400/95 ring-1 ring-sky-500/35 ${className}`}
  style={{ width: size, height: size }}
  >
  <svg width={inner} height={inner} viewBox="0 0 24 24" aria-hidden={label ? true : undefined}>

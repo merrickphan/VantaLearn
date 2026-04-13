@@ -37,10 +37,15 @@ export default function RootLayout({
  children: React.ReactNode;
 }>) {
  return (
- <html lang="en" className="dark">
+ <html lang="en" suppressHydrationWarning>
  <body
  className={`${geistSans.variable} ${geistMono.variable} ${orbitron.variable} antialiased bg-vanta-bg text-vanta-text min-h-screen text-lg leading-relaxed`}
  >
+ <script
+ dangerouslySetInnerHTML={{
+ __html: `(function(){try{var t=localStorage.getItem("vanta_theme");document.documentElement.dataset.theme=t==="dark"?"dark":"light";}catch(e){document.documentElement.dataset.theme="light";}})();`,
+ }}
+ />
  <Providers>{children}</Providers>
  </body>
  </html>

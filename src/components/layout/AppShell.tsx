@@ -8,13 +8,14 @@ import { VantaLogo } from "@/components/branding/VantaLogo";
 import { AP_COURSES } from "@/lib/apCatalog";
 import { useCountdown } from "@/hooks/useTimer";
 import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
+import { SubjectSearchBar } from "@/components/layout/SubjectSearchBar";
 
 function SidebarCountdown({ examDate }: { examDate: string }) {
  const { days, hours, minutes } = useCountdown(examDate);
  const done = days <= 0 && hours <= 0 && minutes <= 0;
  if (done) return <span className="text-xs text-vanta-muted"> - </span>;
  return (
- <span className="text-xs font-mono tabular-nums rounded-md px-1.5 py-0.5 bg-slate-200 text-slate-900">
+ <span className="text-xs font-mono tabular-nums rounded-md px-1.5 py-0.5 bg-sky-500/15 text-vanta-text border border-vanta-border/80">
  {days}d {hours}h {minutes}m
  </span>
  );
@@ -176,23 +177,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
  })}
  </div>
  <div className="flex-1 md:flex-none md:w-64 lg:w-72">
- <div className="relative">
- <input
- type="search"
- readOnly
- placeholder="Search subjects..."
- className="w-full bg-vanta-surface-elevated border border-vanta-border rounded-xl py-2.5 pl-10 pr-4 text-sm text-vanta-muted placeholder:text-vanta-muted/50 cursor-default"
- aria-label="Search (coming soon)"
- />
- <svg
- className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-vanta-muted"
- fill="none"
- viewBox="0 0 24 24"
- stroke="currentColor"
- >
- <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
- </svg>
- </div>
+ <SubjectSearchBar />
  </div>
  </div>
  </header>

@@ -111,7 +111,7 @@ function ApScoreShowcase({ score, animationKey }: { score: number; animationKey:
 
 	return (
 		<div
-			className={`mx-auto mt-2 max-w-[248px] rounded-xl border bg-slate-900 p-6 shadow-black/20 ring-1 ring-inset ring-white/[0.04] md:max-w-[272px] md:p-7 ${shellClass[s]}`}
+			className={`mx-auto mt-2 max-w-[248px] rounded-xl border border-white/10 bg-[color:var(--ap-showcase-bg)] p-6 shadow-[0_8px_28px_var(--ap-showcase-shadow)] ring-1 ring-inset ring-white/[0.04] md:max-w-[272px] md:p-7 ${shellClass[s]}`}
 		>
 			<div className="flex flex-col items-center">
 				<p
@@ -327,17 +327,17 @@ export default function ScoreCalculatorPage() {
 														style={{ animationDelay: `${Math.min(staggerIdx, 14) * 42}ms` }}
 													>
 														{frq ? (
-															<div className="rounded-2xl border border-slate-500/40 bg-slate-950/45 px-4 py-4 shadow-inner">
+															<div className="rounded-2xl border border-vanta-border bg-vanta-surface-elevated/95 px-4 py-4 shadow-inner">
 																<div className="flex flex-wrap justify-between gap-2 items-start mb-3">
 																	<label
 																		htmlFor={`sec-${s.id}`}
-																		className="text-sm font-semibold text-slate-100 leading-snug pr-2"
+																		className="text-sm font-semibold text-vanta-text leading-snug pr-2"
 																	>
 																		{formatNiceMath(s.label)}
 																	</label>
 																	<p className="tabular-nums shrink-0 text-base">
-																		<span className="font-bold text-white">{e}</span>
-																		<span className="text-slate-400 font-medium"> / {s.maxPoints}</span>
+																		<span className="font-bold text-vanta-text">{e}</span>
+																		<span className="text-vanta-muted font-medium"> / {s.maxPoints}</span>
 																	</p>
 																</div>
 																{w != null && w !== s.maxPoints ? (
@@ -346,7 +346,7 @@ export default function ScoreCalculatorPage() {
 																		(rubric max {s.maxPoints}).
 																	</p>
 																) : s.hint ? (
-																	<p className="text-[11px] text-slate-400 mb-3 leading-relaxed">
+																	<p className="text-[11px] text-vanta-muted mb-3 leading-relaxed">
 																		{formatNiceMath(s.hint)}
 																	</p>
 																) : null}
@@ -354,7 +354,7 @@ export default function ScoreCalculatorPage() {
 																	<button
 																		type="button"
 																		aria-label="Decrease score"
-																		className="shrink-0 h-10 w-10 rounded-full border border-slate-500/60 bg-slate-900/80 text-slate-200 text-lg font-medium leading-none hover:bg-slate-800 hover:border-sky-400/50 transition-colors disabled:opacity-40"
+																		className="shrink-0 h-10 w-10 rounded-full border border-vanta-border bg-vanta-surface text-vanta-text text-lg font-medium leading-none hover:bg-vanta-surface-hover hover:border-sky-400/50 transition-colors disabled:opacity-40"
 																		disabled={e <= 0}
 																		onClick={() => setClamped(e - step)}
 																	>
@@ -362,7 +362,7 @@ export default function ScoreCalculatorPage() {
 																	</button>
 																	<div className="relative flex-1 min-w-0 h-9 flex items-center px-1">
 																		<div
-																			className="pointer-events-none absolute left-2 right-2 top-1/2 -translate-y-1/2 h-2 rounded-full bg-slate-600/45"
+																			className="pointer-events-none absolute left-2 right-2 top-1/2 -translate-y-1/2 h-2 rounded-full bg-vanta-border/80"
 																			aria-hidden
 																		/>
 																		<div
@@ -387,7 +387,7 @@ export default function ScoreCalculatorPage() {
 																	<button
 																		type="button"
 																		aria-label="Increase score"
-																		className="shrink-0 h-10 w-10 rounded-full border border-slate-500/60 bg-slate-900/80 text-slate-200 text-lg font-medium leading-none hover:bg-slate-800 hover:border-sky-400/50 transition-colors disabled:opacity-40"
+																		className="shrink-0 h-10 w-10 rounded-full border border-vanta-border bg-vanta-surface text-vanta-text text-lg font-medium leading-none hover:bg-vanta-surface-hover hover:border-sky-400/50 transition-colors disabled:opacity-40"
 																		disabled={e >= s.maxPoints}
 																		onClick={() => setClamped(e + step)}
 																	>
@@ -426,7 +426,7 @@ export default function ScoreCalculatorPage() {
 																			setSectionValues((prev) => ({ ...prev, [s.id]: ev.target.value }))
 																		}
 																		placeholder="0"
-																		className="w-full sm:w-28 shrink-0 bg-vanta-bg text-vanta-text text-center text-base font-semibold tabular-nums rounded-xl px-3 py-2.5 border border-vanta-border focus:border-sky-500/60 focus:ring-2 focus:ring-sky-500/15 focus:outline-none transition-all duration-200"
+																		className="w-full sm:w-28 shrink-0 bg-vanta-surface-elevated text-vanta-text text-center text-base font-semibold tabular-nums rounded-xl px-3 py-2.5 border border-vanta-border focus:border-sky-500/60 focus:ring-2 focus:ring-sky-500/15 focus:outline-none transition-all duration-200"
 																	/>
 																	<input
 																		type="range"
@@ -572,7 +572,7 @@ export default function ScoreCalculatorPage() {
 								</div>
 							)}
 
-							<div className="rounded-xl border border-vanta-border/60 bg-vanta-bg/90 p-4 mb-6">
+							<div className="rounded-xl border border-vanta-border/60 bg-vanta-surface-elevated p-4 mb-6">
 								<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.2em] mb-4">
 									Raw breakdown by item
 								</p>
@@ -651,7 +651,7 @@ export default function ScoreCalculatorPage() {
 									{apScoreDescriptions[quickResult.apScore as keyof typeof apScoreDescriptions]}
 								</p>
 							</div>
-							<div className="rounded-xl border border-vanta-border/60 bg-vanta-bg/90 p-4">
+							<div className="rounded-xl border border-vanta-border/60 bg-vanta-surface-elevated p-4">
 								<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.22em] mb-4">
 									Section scores
 								</p>
@@ -690,7 +690,7 @@ export default function ScoreCalculatorPage() {
 							</div>
 						</Card>
 					) : (
-						<Card className="p-6 md:p-8 rounded-2xl border border-dashed border-vanta-border/80 bg-vanta-bg/40 ap-cal-empty-pulse">
+						<Card className="p-6 md:p-8 rounded-2xl border border-dashed border-vanta-border/80 bg-vanta-surface-elevated/60 ap-cal-empty-pulse">
 							<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.2em] mb-3">
 								Your result
 							</p>

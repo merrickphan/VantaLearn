@@ -27,7 +27,7 @@ export default function HomePage() {
  </Link>
  <Link
  href="/auth/signup"
- className="text-sm btn-shine bg-sky-500/20 hover:bg-sky-400/30 text-slate-900 border border-sky-400/50 px-4 py-2 rounded-lg font-medium"
+ className="text-sm btn-shine bg-sky-500/20 hover:bg-sky-400/30 text-vanta-text border border-sky-400/50 px-4 py-2 rounded-lg font-medium"
  >
  Get Started
  </Link>
@@ -54,7 +54,7 @@ export default function HomePage() {
  <div className="fade-up flex flex-col sm:flex-row gap-3">
  <Link
  href="/auth/signup"
- className="inline-flex items-center justify-center gap-2 bg-sky-500/20 hover:bg-sky-400/30 text-slate-900 border border-sky-400/50 px-8 py-3.5 rounded-lg font-semibold text-base btn-shine"
+ className="inline-flex items-center justify-center gap-2 bg-sky-500/20 hover:bg-sky-400/30 text-vanta-text border border-sky-400/50 px-8 py-3.5 rounded-lg font-semibold text-base btn-shine"
  >
  <span>Start Studying Free</span>
  <span aria-hidden className="font-normal opacity-90">

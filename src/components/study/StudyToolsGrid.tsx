@@ -94,7 +94,7 @@ export function StudyToolsGrid() {
  {t.emoji}
  </span>
  {t.badge ? (
- <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-white/10 text-sky-200/90 border border-white/10">
+ <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-vanta-text/10 text-sky-300/90 border border-vanta-border">
  {t.badge}
  </span>
  ) : null}
