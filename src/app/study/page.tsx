@@ -5,12 +5,13 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { Card, Badge } from "@/components/ui";
 import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
-import { AP_COURSES } from "@/lib/apCatalog";
+import { AP_CATEGORY_ORDER, getCoursesGroupedByCategory } from "@/lib/apCategories";
 import { SAMPLE_RESOURCES } from "@/lib/utils/sampleData";
 
 function StudyLibrary() {
   const searchParams = useSearchParams();
   const subjectFilter = searchParams.get("subject")?.trim() || "";
+  const coursesByCategory = getCoursesGroupedByCategory();
 
   const flashcardSets = SAMPLE_RESOURCES.filter((r) => r.type === "flashcard_set");
   const practiceExams = SAMPLE_RESOURCES.filter((r) => r.type === "practice_exam");
@@ -33,21 +34,33 @@ function StudyLibrary() {
               <code className="text-[11px] bg-vanta-bg px-1 rounded">OPENAI_API_KEY</code>.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {AP_COURSES.slice(0, 4).map((c) => (
-              <Link
-                key={c.id}
-                href={`/study/exam?ai=1&subject=${encodeURIComponent(c.name)}`}
-                className="text-xs px-3 py-1.5 rounded-lg border border-emerald-500/35 text-emerald-300 hover:bg-emerald-500/10 transition-colors"
-              >
-                {c.short.split(",")[0].trim()}
-              </Link>
-            ))}
+          <div className="space-y-4">
+            {AP_CATEGORY_ORDER.map((cat) => {
+              const courses = coursesByCategory[cat.id];
+              if (!courses.length) return null;
+              return (
+                <div key={cat.id}>
+                  <p className="text-[11px] font-semibold text-emerald-400/95 uppercase tracking-wide mb-1.5">{cat.label}</p>
+                  <p className="text-[10px] text-vanta-muted mb-2">{cat.short}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {courses.map((c) => (
+                      <Link
+                        key={c.id}
+                        href={`/study/exam?ai=1&subject=${encodeURIComponent(c.name)}`}
+                        className="text-xs px-3 py-1.5 rounded-lg border border-emerald-500/35 text-emerald-200 hover:bg-emerald-500/10 transition-colors"
+                      >
+                        {c.name.replace(/^AP\s+/, "")}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
             <Link
               href="/study/ai-units"
-              className="text-xs px-3 py-1.5 rounded-lg border border-sky-500/40 text-sky-300 hover:bg-sky-500/10 transition-colors font-medium"
+              className="inline-flex text-xs px-3 py-1.5 rounded-lg border border-sky-500/40 text-sky-300 hover:bg-sky-500/10 transition-colors font-medium"
             >
-              All courses & units →
+              Browse by unit (all courses) →
             </Link>
           </div>
         </div>

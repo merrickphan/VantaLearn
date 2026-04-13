@@ -23,6 +23,7 @@ function QuestionCard({
 }) {
   const isCorrect = submitted && answer === question.correct_answer;
   const isWrong = submitted && answer && answer !== question.correct_answer;
+  const [tapOptionIdx, setTapOptionIdx] = useState<number | null>(null);
   const [aiFeedback, setAiFeedback] = useState("");
   const [loadingFeedback, setLoadingFeedback] = useState(false);
   const [feedbackRequested, setFeedbackRequested] = useState(false);
@@ -51,7 +52,7 @@ function QuestionCard({
 
   return (
     <Card
-      className={`p-6 mb-4 transition-all duration-300 exam-card-enter ${isCorrect ? "border-vanta-success/40" : isWrong ? "border-vanta-error/40" : ""}`}
+      className={`p-6 mb-4 transition-all duration-300 exam-card-enter ${isCorrect ? "border-vanta-success/70 shadow-[inset_0_0_0_1px_rgba(74,222,128,0.25)]" : isWrong ? "border-vanta-error/70 shadow-[inset_0_0_0_1px_rgba(248,113,113,0.25)]" : ""}`}
     >
       {question.figure ? (
         <div className="figure-reveal mb-2">
@@ -62,24 +63,44 @@ function QuestionCard({
 
       {question.type === "multiple_choice" && question.options ? (
         <div className="space-y-2">
-          {question.options.map((opt) => {
+          {question.options.map((opt, optIdx) => {
             const isSelected = answer === opt;
             const isCorrectOpt = submitted && opt === question.correct_answer;
             const isWrongOpt = submitted && isSelected && !isCorrectOpt;
+            const isDimmed = submitted && !isCorrectOpt && !isWrongOpt;
             return (
               <button
-                key={opt}
+                key={`${question.id}-opt-${optIdx}`}
                 type="button"
-                onClick={() => !submitted && onAnswer(opt)}
+                onClick={() => {
+                  if (submitted) return;
+                  setTapOptionIdx(optIdx);
+                  window.setTimeout(() => setTapOptionIdx(null), 420);
+                  onAnswer(opt);
+                }}
                 disabled={submitted}
-                className={`w-full text-left px-4 py-3 rounded-lg text-sm border transition-all duration-200
-                  ${isCorrectOpt ? "bg-vanta-success/15 border-vanta-success text-vanta-success" :
-                    isWrongOpt ? "bg-vanta-error/15 border-vanta-error text-vanta-error" :
-                    isSelected ? "bg-vanta-blue/15 border-vanta-blue text-vanta-blue" :
-                    "border-vanta-border text-vanta-text hover:border-vanta-blue/40 hover:bg-vanta-blue/5"
-                  } disabled:cursor-default`}
+                className={`exam-mcq-idle w-full text-left px-4 py-3 rounded-lg text-sm border
+                  ${tapOptionIdx === optIdx ? "exam-mcq-option-tap" : ""}
+                  ${isCorrectOpt ? "exam-mcq-correct" : ""}
+                  ${isWrongOpt ? "exam-mcq-wrong" : ""}
+                  ${!submitted && isSelected ? "bg-sky-200 border-sky-600 border-2 text-neutral-950 shadow-sm" : ""}
+                  ${!submitted && !isSelected ? "bg-slate-100 border-slate-300 text-neutral-950 hover:bg-slate-200 hover:border-slate-400" : ""}
+                  ${isDimmed ? "opacity-45 border-slate-300 bg-slate-100 text-neutral-950" : ""}
+                  disabled:cursor-default`}
               >
-                {opt}
+                <span className="flex items-center justify-between gap-3 w-full">
+                  <span className="leading-relaxed text-neutral-950">{opt}</span>
+                  {submitted && isCorrectOpt ? (
+                    <span className="shrink-0 text-lg font-bold text-green-800" aria-hidden>
+                      ✓
+                    </span>
+                  ) : null}
+                  {submitted && isWrongOpt ? (
+                    <span className="shrink-0 text-lg font-bold text-red-800" aria-hidden>
+                      ✗
+                    </span>
+                  ) : null}
+                </span>
               </button>
             );
           })}

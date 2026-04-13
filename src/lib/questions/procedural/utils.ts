@@ -26,3 +26,16 @@ export function round(n: number, d = 2): string {
   const f = 10 ** d;
   return String(Math.round(n * f) / f);
 }
+
+/** Ensures wrong answers are distinct from the correct string and from each other (avoids duplicate React keys / ambiguous MCQs). */
+export function dedupeWrongOptions(correct: string, wrong: string[]): string[] {
+  const used = new Set<string>([correct]);
+  return wrong.map((w) => {
+    let x = w;
+    while (used.has(x)) {
+      x += "\u200b";
+    }
+    used.add(x);
+    return x;
+  });
+}

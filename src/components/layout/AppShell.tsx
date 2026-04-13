@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { VantaLogo } from "@/components/branding/VantaLogo";
-import { AP_COURSES } from "@/lib/apCatalog";
+import { AP_CATEGORY_ORDER, getCoursesGroupedByCategory } from "@/lib/apCategories";
 import { useCountdown } from "@/hooks/useTimer";
 import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 
@@ -78,6 +79,7 @@ const mainNav = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const coursesByArea = useMemo(() => getCoursesGroupedByCategory(), []);
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -97,25 +99,36 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               VantaLearn
             </span>
           </Link>
-          <p className="text-[10px] text-vanta-muted uppercase tracking-widest mt-2">AP subjects</p>
+          <p className="text-[10px] text-vanta-muted uppercase tracking-widest mt-2">Browse by area</p>
         </div>
-        <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-0.5">
-          {AP_COURSES.map((c) => {
-            const href = `/study?subject=${encodeURIComponent(c.name)}`;
+        <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-3">
+          {AP_CATEGORY_ORDER.map((cat) => {
+            const courses = coursesByArea[cat.id];
+            if (!courses.length) return null;
             return (
-              <Link
-                key={c.id}
-                href={href}
-                className="flex items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-vanta-surface-hover transition-colors"
-              >
-                <span className="shrink-0 mt-0.5" aria-hidden>
-                  <SimpleIconBox name={c.icon} size={22} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[11px] font-medium text-vanta-text leading-tight truncate">{c.name}</p>
-                  <SidebarCountdown examDate={c.examDate} />
+              <div key={cat.id}>
+                <p className="px-2 mb-1 text-[9px] font-semibold text-vanta-muted uppercase tracking-wider">{cat.label}</p>
+                <div className="space-y-0.5">
+                  {courses.map((c) => {
+                    const href = `/study?subject=${encodeURIComponent(c.name)}`;
+                    return (
+                      <Link
+                        key={c.id}
+                        href={href}
+                        className="flex items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-vanta-surface-hover transition-colors"
+                      >
+                        <span className="shrink-0 mt-0.5" aria-hidden>
+                          <SimpleIconBox name={c.icon} size={22} />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[11px] font-medium text-vanta-text leading-tight truncate">{c.name}</p>
+                          <SidebarCountdown examDate={c.examDate} />
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </div>
-              </Link>
+              </div>
             );
           })}
         </nav>

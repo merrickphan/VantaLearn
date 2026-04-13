@@ -272,6 +272,87 @@
   animation: motion-float 3.2s ease-in-out infinite;
 }
 
+/* Exam MCQ: tap feedback + strong correct / wrong */
+@keyframes exam-mcq-tap {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(0.96);
+  }
+  75% {
+    transform: scale(1.015);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.exam-mcq-option-tap {
+  animation: exam-mcq-tap 0.42s cubic-bezier(0.34, 1.45, 0.64, 1) both;
+}
+
+@keyframes exam-mcq-reveal-correct {
+  from {
+    box-shadow:
+      0 0 0 0 rgba(74, 222, 128, 0.55),
+      inset 0 0 0 rgba(74, 222, 128, 0);
+  }
+  to {
+    box-shadow:
+      0 0 0 3px rgba(74, 222, 128, 0.2),
+      inset 0 0 28px rgba(74, 222, 128, 0.1);
+  }
+}
+
+@keyframes exam-mcq-reveal-wrong {
+  from {
+    box-shadow:
+      0 0 0 0 rgba(248, 113, 113, 0.55),
+      inset 0 0 0 rgba(248, 113, 113, 0);
+  }
+  to {
+    box-shadow:
+      0 0 0 3px rgba(248, 113, 113, 0.22),
+      inset 0 0 28px rgba(248, 113, 113, 0.1);
+  }
+}
+
+/* Light surfaces + near-black text for readability */
+.exam-mcq-correct {
+  background: linear-gradient(135deg, #bbf7d0, #86efac);
+  border-color: #16a34a;
+  color: #0f172a;
+  border-width: 2px;
+  animation: exam-mcq-reveal-correct 0.55s ease-out both;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 0 0 1px rgba(22, 163, 74, 0.35);
+}
+
+.exam-mcq-wrong {
+  background: linear-gradient(135deg, #fecaca, #fca5a5);
+  border-color: #dc2626;
+  color: #0f172a;
+  border-width: 2px;
+  animation: exam-mcq-reveal-wrong 0.55s ease-out both;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 0 0 1px rgba(220, 38, 38, 0.35);
+}
+
+.exam-mcq-idle {
+  transition:
+    transform 0.18s cubic-bezier(0.34, 1.4, 0.64, 1),
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.exam-mcq-idle:not(:disabled):active {
+  transform: scale(0.97);
+}
+
 /* Range sliders (score calculator) */
 input[type="range"].score-slider {
   -webkit-appearance: none;

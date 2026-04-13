@@ -1,13 +1,26 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AP_COURSES } from "@/lib/apCatalog";
+import type { ApCategoryId } from "@/lib/apCategories";
+import { AP_CATEGORY_ORDER, getCoursesGroupedByCategory } from "@/lib/apCategories";
 import { getUnitsForCourseId } from "@/lib/apUnits";
 import { Card } from "@/components/ui";
 
 export default function AiUnitsPage() {
-  const [courseId, setCourseId] = useState(AP_COURSES[0].id);
+  const grouped = useMemo(() => getCoursesGroupedByCategory(), []);
+  const [categoryId, setCategoryId] = useState<ApCategoryId>("math");
+  const coursesInCategory = grouped[categoryId];
+  const [courseId, setCourseId] = useState(coursesInCategory[0]?.id ?? AP_COURSES[0].id);
+
+  useEffect(() => {
+    setCourseId((prev) => {
+      const stillInCat = coursesInCategory.some((c) => c.id === prev);
+      if (stillInCat) return prev;
+      return coursesInCategory[0]?.id ?? AP_COURSES[0].id;
+    });
+  }, [categoryId, coursesInCategory]);
 
   const units = useMemo(() => getUnitsForCourseId(courseId), [courseId]);
   const course = useMemo(() => AP_COURSES.find((c) => c.id === courseId)!, [courseId]);
@@ -25,20 +38,51 @@ export default function AiUnitsPage() {
         </p>
       </div>
 
-      <div className="mb-6">
-        <label className="text-xs font-semibold text-vanta-muted uppercase tracking-wider block mb-2">Course</label>
-        <select
-          value={courseId}
-          onChange={(e) => setCourseId(e.target.value)}
-          className="w-full max-w-md bg-vanta-surface-elevated text-vanta-text rounded-lg px-3 py-2.5 text-sm border border-vanta-border focus:border-sky-400 focus:outline-none"
-        >
-          {AP_COURSES.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-        <p className="text-[11px] text-vanta-muted mt-2">{course.short}</p>
+      <div className="mb-6 space-y-4">
+        <div>
+          <label className="text-xs font-semibold text-vanta-muted uppercase tracking-wider block mb-2">Category</label>
+          <div className="flex flex-wrap gap-2">
+            {AP_CATEGORY_ORDER.map((cat) => {
+              const count = grouped[cat.id].length;
+              if (!count) return null;
+              const active = categoryId === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setCategoryId(cat.id)}
+                  className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+                    active
+                      ? "border-sky-500/60 bg-sky-500/15 text-sky-200"
+                      : "border-vanta-border text-vanta-muted hover:border-vanta-border hover:text-vanta-text"
+                  }`}
+                >
+                  {cat.label}
+                  <span className="text-vanta-muted/80 ml-1">({count})</span>
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-[11px] text-vanta-muted mt-2 max-w-xl">
+            {AP_CATEGORY_ORDER.find((c) => c.id === categoryId)?.short}
+          </p>
+        </div>
+
+        <div>
+          <label className="text-xs font-semibold text-vanta-muted uppercase tracking-wider block mb-2">Course</label>
+          <select
+            value={courseId}
+            onChange={(e) => setCourseId(e.target.value)}
+            className="w-full max-w-md bg-vanta-surface-elevated text-vanta-text rounded-lg px-3 py-2.5 text-sm border border-vanta-border focus:border-sky-400 focus:outline-none"
+          >
+            {coursesInCategory.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          <p className="text-[11px] text-vanta-muted mt-2">{course.short}</p>
+        </div>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-3 stagger">

@@ -1,5 +1,5 @@
 import type { ExamQuestion, ExamFigure } from "@/types";
-import { makeQuestionId, pick, randInt, round, shuffle } from "./utils";
+import { dedupeWrongOptions, makeQuestionId, pick, randInt, round, shuffle } from "./utils";
 
 function mc(
   subject: string,
@@ -10,7 +10,7 @@ function mc(
   explanation: string,
   figure?: ExamFigure
 ): ExamQuestion {
-  const opts = shuffle([correct, ...wrong], salt);
+  const opts = shuffle([correct, ...dedupeWrongOptions(correct, wrong)], salt);
   return {
     id: makeQuestionId("mc", salt),
     subject,

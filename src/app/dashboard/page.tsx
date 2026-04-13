@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui";
 import { SAMPLE_RESOURCES } from "@/lib/utils/sampleData";
 import { AP_COURSES } from "@/lib/apCatalog";
+import { AP_CATEGORY_ORDER, getCoursesGroupedByCategory } from "@/lib/apCategories";
 import { useCountdown } from "@/hooks/useTimer";
 import { loadCmdStats, type CommandCenterStats } from "@/lib/cmdStats";
 import { SimpleIconBox, type SimpleIconId } from "@/components/icons/SimpleIconBox";
@@ -72,6 +73,7 @@ export default function DashboardPage() {
   const accuracy = attempts > 0 ? Math.round((correct / attempts) * 100) : 0;
   const subjectsPracticed = cmdStats?.subjectsPracticed?.length ?? 0;
   const streak = cmdStats?.streak ?? 0;
+  const coursesByArea = useMemo(() => getCoursesGroupedByCategory(), []);
 
   return (
     <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-8">
@@ -135,15 +137,27 @@ export default function DashboardPage() {
 
       <section className="mb-10">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xs font-semibold text-vanta-muted uppercase tracking-widest">All AP exams</h2>
+          <h2 className="text-xs font-semibold text-vanta-muted uppercase tracking-widest">AP exams by area</h2>
           <Link href="/study" className="text-xs text-sky-400 hover:underline">
             Open practice library →
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-          {AP_COURSES.map((c) => (
-            <SubjectCard key={c.id} icon={c.icon} name={c.name} short={c.short} examDate={c.examDate} />
-          ))}
+        <div className="space-y-8">
+          {AP_CATEGORY_ORDER.map((cat) => {
+            const courses = coursesByArea[cat.id];
+            if (!courses.length) return null;
+            return (
+              <div key={cat.id}>
+                <h3 className="text-[11px] font-semibold text-sky-400/90 uppercase tracking-wider mb-1">{cat.label}</h3>
+                <p className="text-[10px] text-vanta-muted mb-3">{cat.short}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                  {courses.map((c) => (
+                    <SubjectCard key={c.id} icon={c.icon} name={c.name} short={c.short} examDate={c.examDate} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
