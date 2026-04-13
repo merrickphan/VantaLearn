@@ -1,4 +1,5 @@
 import type { ExamQuestion } from "@/types";
+import { TEXT_ITEM_STIMULUS_PROBABILITY, thematicStimulusHg } from "./stimulusPools";
 import { hashString, shuffleInPlace } from "./utils";
 
 /** Call-site compatible with ProcCtx in generators.ts */
@@ -36,7 +37,11 @@ export function geoMc(
  explanation,
  subject: ctx.courseName,
  };
- return figure ? { ...base, figure } : base;
+ let fig = figure;
+ if (!fig && rng() < TEXT_ITEM_STIMULUS_PROBABILITY["hum-geo"]) {
+ fig = thematicStimulusHg(rng, ctx.unitIndex);
+ }
+ return fig ? { ...base, figure: fig } : base;
 }
 
 export function geoItem(

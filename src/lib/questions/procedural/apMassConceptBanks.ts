@@ -4,8 +4,26 @@
  */
 
 import type { ExamQuestion } from "@/types";
-import { stimulusFigureForMassRow } from "./stimulusPools";
+import { MASS_BANK_STIMULUS_PROBABILITY, stimulusFigureForMassRow } from "./stimulusPools";
 import { hashString, pick, shuffleInPlace } from "./utils";
+
+const DEFAULT_MASS_STIMULUS_P = 0.42;
+
+/** AP-style lead-in when an exhibit is shown (avoids redundant standalone stems). */
+function massStemWithOptionalLeadIn(rng: () => number, stem: string, useStimulus: boolean): string {
+ if (!useStimulus) {
+ return stem;
+ }
+ const prefixes = [
+ "Based on the stimulus, ",
+ "According to the scenario described above, ",
+ "With reference to the information above, ",
+ "Using only the stimulus, ",
+ ] as const;
+ const p = pick(rng, prefixes);
+ const t = stem.trim();
+ return p + t.charAt(0).toLowerCase() + t.slice(1);
+}
 
 /** Minimal context for IDs (avoids circular import with generators). */
 export type MassProcCtx = {
@@ -585,15 +603,24 @@ export function examFromMassRow(
  row: MassConceptRow,
 ): ExamQuestion {
  const options = shuffleInPlace(rng, [row.correct, row.w[0], row.w[1], row.w[2]]);
- return {
+ const stimP = MASS_BANK_STIMULUS_PROBABILITY[ctx.courseId] ?? DEFAULT_MASS_STIMULUS_P;
+ const useStimulus = rng() < stimP;
+ const question = massStemWithOptionalLeadIn(rng, row.stem, useStimulus);
+ const base: ExamQuestion = {
  id: idForMass(ctx, i, tag),
- question: row.stem,
+ question,
  type: "multiple_choice",
  options,
  correct_answer: row.correct,
  explanation: row.explanation,
  subject: ctx.courseName,
  procedural_structure_id: row.id,
+ };
+ if (!useStimulus) {
+ return base;
+ }
+ return {
+ ...base,
  figure: stimulusFigureForMassRow(rng, row.id),
  };
 }

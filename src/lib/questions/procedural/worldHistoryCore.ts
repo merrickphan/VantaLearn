@@ -1,4 +1,5 @@
 import type { ExamQuestion } from "@/types";
+import { TEXT_ITEM_STIMULUS_PROBABILITY, thematicStimulusWh } from "./stimulusPools";
 import { hashString, shuffleInPlace } from "./utils";
 
 /** Call-site compatible with ProcCtx in generators.ts */
@@ -36,7 +37,11 @@ export function whMc(
  explanation,
  subject: ctx.courseName,
  };
- return figure ? { ...base, figure } : base;
+ let fig = figure;
+ if (!fig && rng() < TEXT_ITEM_STIMULUS_PROBABILITY.wh) {
+ fig = thematicStimulusWh(rng, ctx.unitIndex);
+ }
+ return fig ? { ...base, figure: fig } : base;
 }
 
 export function item(
