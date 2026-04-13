@@ -25,6 +25,12 @@ function StudyLibrary() {
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-10 md:py-12">
       <div className="mb-10 fade-up">
         <h1 className="font-display text-3xl md:text-4xl font-bold text-vanta-text tracking-wide">Practice library</h1>
+        <p className="text-vanta-muted text-lg mt-3">
+          <Link href="/study/ap-practice" className="text-sky-400 hover:underline font-medium">
+            AP practice by section & unit
+          </Link>
+          <span className="text-vanta-muted"> — unlimited generated MCQ per College Board unit.</span>
+        </p>
         <p className="text-vanta-muted text-lg mt-2">
           {subjectFilter ? (
             <>

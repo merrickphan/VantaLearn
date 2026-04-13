@@ -3,6 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState, useEffect, useRef } from "react";
 import { SAMPLE_RESOURCES } from "@/lib/utils/sampleData";
+import { AP_COURSES } from "@/lib/apCatalog";
+import { getUnitOrFirst } from "@/lib/apUnits";
 import { ExamContent, ExamQuestion } from "@/types";
 import { useExamProgress } from "@/hooks/useProgress";
 import { Button, Card, Badge, ProgressBar, Textarea, Spinner } from "@/components/ui";
@@ -12,8 +14,77 @@ import { ExamFigure } from "@/components/exam/ExamFigure";
 import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 import { recordExamComplete } from "@/lib/cmdStats";
 
+function ProceduralExamSession({ courseId, unitId }: { courseId: string; unitId?: string }) {
+  const [questions, setQuestions] = useState<ExamQuestion[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const course = AP_COURSES.find((c) => c.id === courseId);
+  const unit = getUnitOrFirst(courseId, unitId);
+
+  useEffect(() => {
+    let cancelled = false;
+    setQuestions(null);
+    setError(null);
+    (async () => {
+      try {
+        const res = await fetch("/api/questions/procedural", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ courseId, unitId: unit?.id, count: 10 }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Could not generate questions.");
+        if (!cancelled) setQuestions(data.questions as ExamQuestion[]);
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : "Something went wrong.");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [courseId, unit?.id, unitId]);
+
+  if (!course || !unit) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+        <p className="text-vanta-muted mb-4">Unknown course or unit.</p>
+        <Link href="/study/ap-practice"><Button variant="secondary">AP practice</Button></Link>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 max-w-md mx-auto">
+        <p className="text-vanta-error mb-4">{error}</p>
+        <Link href="/study/ap-practice"><Button variant="secondary">Back</Button></Link>
+      </div>
+    );
+  }
+
+  if (!questions) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Spinner size="lg" />
+        <p className="text-vanta-muted text-lg">Building a fresh practice set…</p>
+      </div>
+    );
+  }
+
+  const title = `${course.name} · Unit ${unit.index}: ${unit.title}`;
+  return <ExamGame questions={questions} title={title} />;
+}
+
 function ExamPlayer() {
   const searchParams = useSearchParams();
+  const proc = searchParams.get("proc") === "1";
+  const courseId = searchParams.get("course")?.trim() ?? "";
+  const unitParam = searchParams.get("unit")?.trim() ?? "";
+
+  if (proc && courseId) {
+    return <ProceduralExamSession courseId={courseId} unitId={unitParam || undefined} />;
+  }
+
   const id = searchParams.get("id");
   const resource = SAMPLE_RESOURCES.find((r) => r.id === id && r.type === "practice_exam");
 
@@ -21,7 +92,10 @@ function ExamPlayer() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
         <p className="text-vanta-muted mb-4">Exam not found.</p>
-        <Link href="/study"><Button variant="secondary">Back to Library</Button></Link>
+        <div className="flex flex-wrap gap-3 justify-center">
+          <Link href="/study"><Button variant="secondary">Back to Library</Button></Link>
+          <Link href="/study/ap-practice"><Button variant="secondary">AP practice by unit</Button></Link>
+        </div>
       </div>
     );
   }
