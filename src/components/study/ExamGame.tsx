@@ -14,11 +14,14 @@ function isStimulusFigure(f: ExamQuestion["figure"]): f is Extract<ExamFigureDat
  return f?.kind === "stimulus";
 }
 
-/** Stems that reference information "above" need the exhibit before the numbered stem. */
-function stimulusBeforeStem(question: ExamQuestion): boolean {
+/**
+ * Stems that say the exhibit appears *below* the stem (AP Lang-style revision).
+ * In those cases the numbered stem comes first, then the italic line, then choices.
+ */
+function stemSignalsExhibitBelow(question: ExamQuestion): boolean {
  if (!isStimulusFigure(question.figure)) return false;
- const q = question.question.trim();
- return /^(Based on the stimulus|According to the scenario described above|With reference to the information above|Using only the stimulus)/i.test(
+ const q = question.question;
+ return /reproduced below|shown below|in the (?:passage|excerpt|paragraph|text|following)(?:\s+\w+)?\s+below|\(below\)|below\s*,\s*which|following\s+sentence/i.test(
  q,
  );
 }
@@ -69,8 +72,8 @@ function QuestionCard({
  const fig = question.figure;
  const stim = isStimulusFigure(fig) ? fig : null;
  const dataFig = fig && !isStimulusFigure(fig) ? fig : null;
- const stimFirst = stim && stimulusBeforeStem(question);
- const stimAfter = stim && !stimFirst;
+ const exhibitBelow = stim && stemSignalsExhibitBelow(question);
+ const exhibitAboveStem = stim && !exhibitBelow;
 
  return (
  <Card
@@ -81,7 +84,7 @@ function QuestionCard({
  <ExamFigure figure={dataFig} />
  </div>
  ) : null}
- {stimFirst ? (
+ {exhibitAboveStem ? (
  <p className="mb-3 font-serif text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
  {stim.body}
  </p>
@@ -90,7 +93,7 @@ function QuestionCard({
  <span className="tabular-nums">{questionNumber}. </span>
  {question.question}
  </p>
- {stimAfter ? (
+ {exhibitBelow ? (
  <p className="mb-4 font-serif text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
  {stim.body}
  </p>
