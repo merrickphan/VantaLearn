@@ -1,52 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui";
 import { SAMPLE_RESOURCES } from "@/lib/utils/sampleData";
-import { AP_COURSES } from "@/lib/apCatalog";
+import { AP_COURSES, getCourseByName } from "@/lib/apCatalog";
+import { AP_SECTION_ORDER, AP_SECTIONS, getCoursesInSection, type ApSectionId } from "@/lib/apCategories";
+import { getUnitsForCourseId } from "@/lib/apUnits";
 import { useCountdown } from "@/hooks/useTimer";
 import { loadCmdStats, type CommandCenterStats } from "@/lib/cmdStats";
 import { SimpleIconBox, type SimpleIconId } from "@/components/icons/SimpleIconBox";
+import { ApCourseUnitList } from "@/components/ap/ApCourseUnitList";
 
-function SubjectCard({
-  icon,
-  name,
-  short,
-  examDate,
-}: {
-  icon: SimpleIconId;
-  name: string;
-  short: string;
-  examDate: string;
-}) {
-  const { days, hours, minutes } = useCountdown(examDate);
-  const done = days <= 0 && hours <= 0 && minutes <= 0;
-  const timerLabel = done ? "Exam window" : `${days}d ${hours}h ${minutes}m`;
+function DashboardContent() {
+  const searchParams = useSearchParams();
+  const selectedCourseId = searchParams.get("course")?.trim() || "";
+  const selectedCourse = selectedCourseId ? AP_COURSES.find((c) => c.id === selectedCourseId) : undefined;
 
-  return (
-    <Link href={`/study?subject=${encodeURIComponent(name)}`}>
-      <Card
-        hover
-        className="p-6 h-full border-vanta-border/80 bg-vanta-surface/60 hover:border-sky-500/30 hover:bg-vanta-surface-hover transition-all"
-      >
-        <div className="flex items-start justify-between gap-2 mb-4">
-          <span aria-hidden>
-            <SimpleIconBox name={icon} size={40} />
-          </span>
-          <span className="text-xs font-mono tabular-nums shrink-0 rounded-md px-2 py-1 bg-slate-200 text-slate-900">
-            {timerLabel}
-          </span>
-        </div>
-        <h3 className="text-base font-semibold text-vanta-text leading-snug mb-2">{name}</h3>
-        <p className="text-sm text-vanta-muted leading-relaxed line-clamp-3">{short}</p>
-      </Card>
-    </Link>
-  );
-}
-
-export default function DashboardPage() {
   const [userName, setUserName] = useState("");
   const [cmdStats, setCmdStats] = useState<CommandCenterStats | null>(null);
 
@@ -127,37 +99,172 @@ export default function DashboardPage() {
         </Card>
       </section>
 
-      <section className="mb-12">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-sm font-semibold text-vanta-muted uppercase tracking-widest">All AP exams</h2>
-          <Link href="/study" className="text-sm text-sky-400 hover:underline">
-            Open practice library →
+      {selectedCourse && (
+        <ApCourseUnitList
+          courseId={selectedCourse.id}
+          backHref="/dashboard"
+          backLabel="← All AP exams"
+        />
+      )}
+
+      {selectedCourseId && !selectedCourse && (
+        <Card className="p-6 mb-10 border-vanta-border border-amber-500/30 bg-amber-500/5">
+          <p className="text-vanta-text font-medium mb-2">Unknown course</p>
+          <p className="text-vanta-muted text-sm mb-4">That exam id is not in the catalog.</p>
+          <Link href="/dashboard" className="text-sm text-sky-400 hover:underline">
+            Clear and return to dashboard
           </Link>
+        </Card>
+      )}
+
+      <section className="mb-12">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div>
+            <h2 className="text-sm font-semibold text-vanta-muted uppercase tracking-widest">
+              {selectedCourse ? "All AP exams" : "All AP exams by section"}
+            </h2>
+            {!selectedCourse ? (
+              <p className="text-vanta-muted text-sm mt-2 max-w-2xl">
+                Choose a subject area, then an exam. You’ll see every College Board unit and can start infinite generated practice for any unit.
+              </p>
+            ) : (
+              <p className="text-vanta-muted text-sm mt-2 max-w-2xl">
+                Open another course to browse its units, or use the library for static decks and sample exams.
+              </p>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-3 justify-end">
+            <Link href="/study/ap-practice" className="text-sm text-sky-400 hover:underline whitespace-nowrap">
+              AP practice (full page) →
+            </Link>
+            <Link href="/study" className="text-sm text-vanta-muted hover:text-sky-400 whitespace-nowrap">
+              Practice library →
+            </Link>
+          </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-          {AP_COURSES.map((c) => (
-            <SubjectCard key={c.id} icon={c.icon} name={c.name} short={c.short} examDate={c.examDate} />
-          ))}
+
+        <div className="space-y-12">
+          {AP_SECTION_ORDER.map((sectionId: ApSectionId) => {
+            const meta = AP_SECTIONS.find((s) => s.id === sectionId);
+            const courses = getCoursesInSection(sectionId, AP_COURSES);
+            if (courses.length === 0) return null;
+            return (
+              <section key={sectionId} className="fade-up">
+                <h3 className="text-lg font-semibold text-vanta-text mb-1">{meta?.label ?? sectionId}</h3>
+                <p className="text-vanta-muted text-sm mb-5 max-w-3xl">{meta?.description}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 stagger">
+                  {courses.map((c) => (
+                    <CourseExamCard
+                      key={c.id}
+                      icon={c.icon}
+                      name={c.name}
+                      short={c.short}
+                      examDate={c.examDate}
+                      courseId={c.id}
+                      unitCount={getUnitsForCourseId(c.id).length}
+                      isActive={selectedCourseId === c.id}
+                    />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
         </div>
       </section>
 
       <section>
-        <h2 className="text-sm font-semibold text-vanta-muted uppercase tracking-widest mb-4">Featured practice sets</h2>
+        <div className="flex flex-wrap items-baseline justify-between gap-4 mb-4">
+          <h2 className="text-sm font-semibold text-vanta-muted uppercase tracking-widest">Featured practice sets</h2>
+          <p className="text-xs text-vanta-muted">Static exams · Link to unit drills when the subject matches an AP course</p>
+        </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {practiceExams.slice(0, 6).map((exam) => {
             const n = (exam.content_data as { questions: unknown[] }).questions.length;
+            const matched = getCourseByName(exam.subject);
             return (
-              <Link key={exam.id} href={`/study/exam?id=${exam.id}`}>
-                <Card hover className="p-6 h-full border-vanta-border/80">
-                  <p className="text-sm text-sky-400 font-medium mb-2">{exam.subject}</p>
-                  <p className="text-lg font-semibold text-vanta-text">{exam.title}</p>
-                  <p className="text-sm text-vanta-muted mt-3">{n} questions · MC & figures where noted</p>
-                </Card>
-              </Link>
+              <Card key={exam.id} className="p-6 h-full border-vanta-border/80 flex flex-col">
+                <p className="text-sm text-sky-400 font-medium mb-2">{exam.subject}</p>
+                <Link href={`/study/exam?id=${exam.id}`} className="group">
+                  <p className="text-lg font-semibold text-vanta-text group-hover:text-sky-300 transition-colors">{exam.title}</p>
+                </Link>
+                <p className="text-sm text-vanta-muted mt-3 flex-1">{n} questions · MC & figures where noted</p>
+                {matched ? (
+                  <Link
+                    href={`/dashboard?course=${encodeURIComponent(matched.id)}`}
+                    className="text-sm text-sky-400 hover:underline mt-4 inline-flex items-center gap-1"
+                  >
+                    <span aria-hidden>
+                      <SimpleIconBox name="lineTrend" size={18} />
+                    </span>
+                    Practice by unit ({getUnitsForCourseId(matched.id).length} units)
+                  </Link>
+                ) : null}
+              </Card>
             );
           })}
         </div>
       </section>
     </div>
+  );
+}
+
+function CourseExamCard({
+  icon,
+  name,
+  short,
+  examDate,
+  courseId,
+  unitCount,
+  isActive,
+}: {
+  icon: SimpleIconId;
+  name: string;
+  short: string;
+  examDate: string;
+  courseId: string;
+  unitCount: number;
+  isActive: boolean;
+}) {
+  const { days, hours, minutes } = useCountdown(examDate);
+  const done = days <= 0 && hours <= 0 && minutes <= 0;
+  const timerLabel = done ? "Exam window" : `${days}d ${hours}h ${minutes}m`;
+
+  return (
+    <Link href={`/dashboard?course=${encodeURIComponent(courseId)}`}>
+      <Card
+        hover
+        className={`p-6 h-full border transition-all ${
+          isActive
+            ? "border-sky-500/50 bg-sky-500/10 ring-1 ring-sky-500/20"
+            : "border-vanta-border/80 bg-vanta-surface/60 hover:border-sky-500/30 hover:bg-vanta-surface-hover"
+        }`}
+      >
+        <div className="flex items-start justify-between gap-2 mb-4">
+          <span aria-hidden>
+            <SimpleIconBox name={icon} size={40} />
+          </span>
+          <span className="text-xs font-mono tabular-nums shrink-0 rounded-md px-2 py-1 bg-slate-200 text-slate-900">
+            {timerLabel}
+          </span>
+        </div>
+        <h3 className="text-base font-semibold text-vanta-text leading-snug mb-2">{name}</h3>
+        <p className="text-sm text-vanta-muted leading-relaxed line-clamp-3 mb-3">{short}</p>
+        <p className="text-xs font-medium text-sky-400/90 uppercase tracking-wider">{unitCount} units · tap for drills</p>
+      </Card>
+    </Link>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-8 py-16 flex items-center justify-center text-vanta-muted text-lg">
+          Loading dashboard…
+        </div>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
   );
 }

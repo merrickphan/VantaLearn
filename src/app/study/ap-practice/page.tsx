@@ -5,8 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useMemo } from "react";
 import { AP_COURSES } from "@/lib/apCatalog";
 import { AP_SECTION_ORDER, AP_SECTIONS, getCoursesInSection, type ApSectionId } from "@/lib/apCategories";
-import { getUnitsForCourseId } from "@/lib/apUnits";
-import { Card, Badge, Button } from "@/components/ui";
+import { ApCourseUnitList } from "@/components/ap/ApCourseUnitList";
+import { Card, Button } from "@/components/ui";
 import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 
 function ApPracticeInner() {
@@ -16,45 +16,13 @@ function ApPracticeInner() {
   const course = useMemo(() => AP_COURSES.find((c) => c.id === courseId), [courseId]);
 
   if (courseId && course) {
-    const units = getUnitsForCourseId(course.id);
     return (
       <div className="max-w-5xl mx-auto px-4 sm:px-8 py-10 md:py-12">
-        <div className="mb-8 fade-up">
-          <Link href="/study/ap-practice" className="text-sm text-vanta-muted hover:text-vanta-blue">
-            ← All sections
-          </Link>
-          <div className="flex flex-wrap items-start gap-4 mt-3">
-            <span aria-hidden>
-              <SimpleIconBox name={course.icon} size={48} />
-            </span>
-            <div>
-              <h1 className="font-display text-3xl md:text-4xl font-bold text-vanta-text tracking-wide">{course.name}</h1>
-              <p className="text-vanta-muted text-lg mt-1">{course.short}</p>
-            </div>
-          </div>
-        </div>
-
-        <p className="text-vanta-muted text-base mb-6 max-w-2xl">
-          Each link starts a new 10-question multiple-choice set. Problems are generated on demand with randomized parameters so you can practice the same unit many times.
-        </p>
-
-        <div className="space-y-3 stagger">
-          {units.map((u) => (
-            <Link
-              key={u.id}
-              href={`/study/exam?proc=1&course=${encodeURIComponent(course.id)}&unit=${encodeURIComponent(u.id)}`}
-            >
-              <Card hover className="p-6 flex flex-wrap items-center justify-between gap-4 border-vanta-border/80">
-                <div>
-                  <p className="text-sm font-medium text-vanta-blue mb-1">Unit {u.index}</p>
-                  <h3 className="text-vanta-text font-semibold text-lg">{u.title}</h3>
-                  <p className="text-vanta-muted text-sm mt-1">{u.summary}</p>
-                </div>
-                <Badge variant="blue">Practice</Badge>
-              </Card>
-            </Link>
-          ))}
-        </div>
+        <ApCourseUnitList
+          courseId={course.id}
+          backHref="/study/ap-practice"
+          backLabel="← All sections"
+        />
       </div>
     );
   }
