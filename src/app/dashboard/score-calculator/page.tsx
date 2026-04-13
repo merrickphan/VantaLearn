@@ -1,6 +1,8 @@
 ﻿"use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
+import { VantaLogo } from "@/components/branding/VantaLogo";
 import { Button, Card } from "@/components/ui";
 import { AP_COURSES } from "@/lib/apCatalog";
 import { calculateAPScore } from "@/lib/calculateAPScore";
@@ -325,7 +327,22 @@ export default function ScoreCalculatorPage() {
  </div>
  ))}
  </div>
- <p className="text-[11px] text-vanta-muted mt-4 leading-relaxed">{subjectPreview.model.courseName}</p>
+ <div className="mt-6 pt-6 border-t border-vanta-border flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+ <div>
+ <p className="text-xs font-semibold text-vanta-muted uppercase tracking-wider mb-1">Course model</p>
+ <p className="text-sm text-vanta-text font-medium leading-snug">{subjectPreview.model.courseName}</p>
+ </div>
+ <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0 group">
+ <VantaLogo size={28} variant="command" className="shrink-0" />
+ <span className="font-display font-semibold text-sm tracking-wide text-vanta-text group-hover:text-sky-300 transition-colors">
+ VantaLearn
+ </span>
+ </Link>
+ </div>
+ <p className="text-[11px] text-vanta-muted mt-3 leading-relaxed">
+ AP® is a trademark registered by the College Board. VantaLearn is not affiliated with the College Board; estimates are
+ for practice only.
+ </p>
  </Card>
  ) : mode === "ap_quick" && quickResult ? (
  <Card className="p-6 md:p-8 fade-up rounded-2xl">
@@ -360,6 +377,19 @@ export default function ScoreCalculatorPage() {
  )}
  </div>
  </div>
+
+ <footer className="mt-14 pt-8 border-t border-vanta-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 fade-up">
+ <Link href="/dashboard" className="flex items-center gap-3 group w-fit">
+ <VantaLogo size={32} variant="command" className="shrink-0" />
+ <span className="font-display font-semibold text-base tracking-wide text-vanta-text group-hover:text-sky-300 transition-colors">
+ VantaLearn
+ </span>
+ </Link>
+ <p className="text-sm text-vanta-muted max-w-xl leading-relaxed">
+ AP score calculators use the same visual language as the rest of the dashboard. Curves are heuristic study aids, not
+ official score projections.
+ </p>
+ </footer>
  </div>
  );
 }
