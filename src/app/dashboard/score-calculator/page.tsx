@@ -68,6 +68,74 @@ function snapEarnedToStep(rawEarned: number, maxPts: number, step: number): numb
 	return Math.round(clamped * 2) / 2;
 }
 
+type ApScoreBand = 1 | 2 | 3 | 4 | 5;
+
+function clampApBand(n: number): ApScoreBand {
+	const r = Math.round(n);
+	if (r <= 1) return 1;
+	if (r >= 5) return 5;
+	return r as ApScoreBand;
+}
+
+/** Predicted score: one calm card; border + digit + meter brighten from 1 → 5. */
+function ApScoreShowcase({ score, animationKey }: { score: number; animationKey: string }) {
+	const s = clampApBand(score);
+
+	const shellClass: Record<ApScoreBand, string> = {
+		1: "border-white/10 shadow-sm shadow-black/40",
+		2: "border-white/15 shadow-sm shadow-black/35",
+		3: "border-sky-500/30 shadow-md shadow-black/30",
+		4: "border-sky-400/40 shadow-md shadow-sky-500/15",
+		5: "border-emerald-400/35 shadow-md shadow-emerald-500/15",
+	};
+
+	const barFilled =
+		s <= 2
+			? "bg-white/55"
+			: s === 3
+				? "bg-sky-400"
+				: s === 4
+					? "bg-sky-300"
+					: "bg-gradient-to-r from-emerald-300 via-sky-300 to-cyan-200";
+
+	const barEmpty = "bg-black/40 ring-1 ring-inset ring-white/[0.07]";
+
+	const digitTierClass: Record<ApScoreBand, string> = {
+		1: "ap-score-digit-tier-1",
+		2: "ap-score-digit-tier-2",
+		3: "ap-score-digit-tier-3",
+		4: "ap-score-digit-tier-4",
+		5: "ap-score-digit-tier-5",
+	};
+
+	return (
+		<div
+			className={`mx-auto mt-2 max-w-[248px] rounded-xl border bg-slate-900 p-6 shadow-black/20 ring-1 ring-inset ring-white/[0.04] md:max-w-[272px] md:p-7 ${shellClass[s]}`}
+		>
+			<div className="flex flex-col items-center">
+				<p
+					key={animationKey}
+					className={`ap-cal-score-reveal font-display text-6xl font-bold leading-none tracking-tight tabular-nums md:text-7xl ${digitTierClass[s]}`}
+				>
+					{s}
+				</p>
+
+				<div className="mt-5 flex w-full max-w-[176px] gap-1">
+					{([1, 2, 3, 4, 5] as const).map((n) => (
+						<div
+							key={n}
+							className={`h-1.5 flex-1 rounded-full transition-all duration-500 ease-out ${
+								n <= s ? barFilled : barEmpty
+							}`}
+							style={{ transitionDelay: `${(n - 1) * 40}ms` }}
+						/>
+					))}
+				</div>
+			</div>
+		</div>
+	);
+}
+
 export default function ScoreCalculatorPage() {
 	const examYear = new Date().getFullYear();
 	const models = useMemo(() => listApSubjectModels(), []);
@@ -88,7 +156,6 @@ export default function ScoreCalculatorPage() {
 	const [quickResult, setQuickResult] = useState<{
 		percentage: number;
 		apScore: number;
-		color: string;
 	} | null>(null);
 
 	const activeModel = useMemo(() => models.find((m) => m.courseId === courseId), [models, courseId]);
@@ -124,17 +191,9 @@ export default function ScoreCalculatorPage() {
 		if (Number.isNaN(raw) || Number.isNaN(total) || total <= 0 || raw < 0 || raw > total) return;
 
 		const { apScore, percentage } = calculateAPScore({ rawScore: raw, totalQuestions: total });
-		const colors = {
-			5: "text-vanta-success",
-			4: "text-vanta-blue",
-			3: "text-vanta-blue",
-			2: "text-vanta-muted",
-			1: "text-vanta-error",
-		} as const;
 		setQuickResult({
 			percentage,
 			apScore,
-			color: colors[apScore as keyof typeof colors],
 		});
 	};
 
@@ -145,9 +204,6 @@ export default function ScoreCalculatorPage() {
 		2: "Possibly qualified",
 		1: "No recommendation",
 	} as const;
-
-	const scoreColor = (n: number) =>
-		n >= 4 ? "text-vanta-success" : n === 3 ? "text-vanta-blue" : n === 2 ? "text-vanta-muted" : "text-vanta-error";
 
 	return (
 		<div className="max-w-5xl mx-auto px-4 sm:px-8 py-10 md:py-12">
@@ -447,17 +503,15 @@ export default function ScoreCalculatorPage() {
 				{/* Results */}
 				<div className="space-y-6">
 					{mode === "ap_subject" && subjectPreview ? (
-						<Card className="p-6 md:p-8 fade-up rounded-2xl border border-sky-500/25 bg-gradient-to-b from-sky-500/[0.07] to-transparent shadow-lg shadow-black/25 overflow-hidden">
-							<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.22em] mb-2">
+						<Card className="p-6 md:p-8 fade-up overflow-hidden border-vanta-border bg-vanta-surface bg-gradient-to-b from-sky-500/[0.05] to-transparent shadow-card">
+							<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.22em] mb-1 text-center">
 								Predicted AP® score
 							</p>
+							<ApScoreShowcase
+								score={subjectPreview.apScore}
+								animationKey={`${courseId}-${subjectPreview.apScore}-${Math.round(subjectPreview.compositePercent)}`}
+							/>
 							<div className="text-center mb-8 pb-8 border-b border-vanta-border/70">
-								<p
-									key={`${courseId}-${subjectPreview.apScore}`}
-									className={`text-6xl md:text-7xl font-bold mb-2 tabular-nums ${scoreColor(subjectPreview.apScore)} ap-cal-score-reveal inline-block`}
-								>
-									{subjectPreview.apScore}
-								</p>
 								<p className="text-vanta-muted text-sm tracking-wide">Score range: 1 – 5</p>
 								<p className="text-vanta-muted text-base mt-4 leading-relaxed">
 									{apScoreDescriptions[subjectPreview.apScore]}
@@ -573,17 +627,15 @@ export default function ScoreCalculatorPage() {
 							</p>
 						</Card>
 					) : mode === "ap_quick" && quickResult ? (
-						<Card className="p-6 md:p-8 fade-up rounded-2xl border border-sky-500/25 bg-gradient-to-b from-sky-500/[0.07] to-transparent shadow-lg shadow-black/25 overflow-hidden">
-							<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.22em] mb-2">
+						<Card className="p-6 md:p-8 fade-up overflow-hidden border-vanta-border bg-vanta-surface bg-gradient-to-b from-sky-500/[0.05] to-transparent shadow-card">
+							<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.22em] mb-1 text-center">
 								Predicted AP® score (generic)
 							</p>
+							<ApScoreShowcase
+								score={quickResult.apScore}
+								animationKey={`quick-${quickResult.apScore}-${quickResult.percentage.toFixed(0)}`}
+							/>
 							<div className="text-center mb-8">
-								<p
-									key={`quick-${quickResult.apScore}-${quickResult.percentage.toFixed(0)}`}
-									className={`text-6xl font-bold mb-3 tabular-nums ${quickResult.color} ap-cal-score-reveal inline-block`}
-								>
-									{quickResult.apScore}
-								</p>
 								<p className="text-vanta-muted text-base leading-relaxed">
 									{apScoreDescriptions[quickResult.apScore as keyof typeof apScoreDescriptions]}
 								</p>

@@ -433,6 +433,36 @@ input[type="range"].score-slider::-moz-range-thumb {
  animation: ap-cal-score-reveal 0.55s cubic-bezier(0.34, 1.35, 0.64, 1) both;
 }
 
+/* Predicted AP® digit — clean ramp 1 → 5 (neutral → sky → soft gradient) */
+.ap-score-digit-tier-1 {
+ color: #f8fafc;
+}
+
+.ap-score-digit-tier-2 {
+ color: #e2e8f0;
+}
+
+.ap-score-digit-tier-3 {
+ color: #7dd3fc;
+}
+
+.ap-score-digit-tier-4 {
+ color: #f0f9ff;
+ text-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
+}
+
+.ap-score-digit-tier-5 {
+ background: linear-gradient(118deg, #a7f3d0 0%, #5eead4 35%, #38bdf8 70%, #bae6fd 100%);
+ -webkit-background-clip: text;
+ background-clip: text;
+ color: transparent;
+ filter: drop-shadow(0 0 14px rgba(45, 212, 191, 0.35));
+}
+
+.ap-score-digit-tier-5.ap-cal-score-reveal {
+ animation-duration: 0.62s;
+}
+
 @keyframes ap-cal-row-in {
  from {
  opacity: 0;
