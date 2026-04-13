@@ -1,16 +1,22 @@
 import OpenAI from "openai";
 import type { ExamFigure, ExamQuestion } from "@/types";
+import { findUnitById } from "@/lib/apUnits";
+import { buildUnitCurriculumBlock, buildUnitVarietyDirective } from "@/lib/ai/unitQuestionProcedure";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export interface GenerateQuestionsInput {
   subject: string;
-  /** Short topic focus, e.g. "derivatives" */
+  /** Short topic focus, e.g. "derivatives" (optional extra focus on top of unit) */
   topic?: string;
   /** Number of MC questions (max 12 per request for latency) */
   count: number;
   /** Encourage figures: charts, tables, graphs where appropriate */
   includeFigures: boolean;
+  /** e.g. calc-ab-u3 — locks questions to one curriculum unit */
+  unitId?: string;
+  /** Changes hook rotation / scenario emphasis each request (timestamp ok) */
+  varietySeed?: number;
 }
 
 interface RawAiQuestion {
@@ -97,7 +103,20 @@ export async function generateExamQuestions(input: GenerateQuestionsInput): Prom
   }
 
   const count = clampCount(input.count);
-  const topicLine = input.topic ? ` Focus on: ${input.topic}.` : "";
+  const topicLine = input.topic ? ` Additional focus: ${input.topic}.` : "";
+
+  const unitCtx = input.unitId ? findUnitById(input.unitId) : null;
+  const seed =
+    typeof input.varietySeed === "number" && Number.isFinite(input.varietySeed)
+      ? Math.floor(input.varietySeed)
+      : Date.now() % 1_000_000_000;
+
+  const unitBlock =
+    unitCtx && unitCtx.unit
+      ? `${buildUnitCurriculumBlock(unitCtx.courseName, unitCtx.unit)}
+
+${buildUnitVarietyDirective(unitCtx.unit, seed)}`
+      : "";
 
   const figureInstructions = input.includeFigures
     ? `For about half of the questions, include a "figure" object with realistic exam-style data:
@@ -132,9 +151,10 @@ Rules:
 - Use varied stems: NOT only word problems — include data interpretation, models, graphs, experimental design, and qualitative reasoning.
 - Distractors must be plausible.
 - Options must be exactly 4 strings.
-- correct_answer must be character-for-character equal to one option.`;
+- correct_answer must be character-for-character equal to one option.
+${unitBlock ? "- When a UNIT SCOPE is given, never assess outcomes from other units." : ""}`;
 
-  const user = `Subject: ${input.subject}.${topicLine}
+  const user = `${unitBlock ? `${unitBlock}\n\n` : ""}Subject line for metadata: ${input.subject}.${topicLine}
 Generate ${count} distinct multiple-choice questions.
 
 ${figureInstructions}`;
@@ -164,12 +184,14 @@ ${figureInstructions}`;
     throw new Error("No questions in response");
   }
 
+  const subjectLabel = unitCtx?.courseName ?? input.subject;
+
   const out: ExamQuestion[] = [];
   let i = 0;
   for (const q of parsed.questions) {
     if (out.length >= count) break;
     try {
-      out.push(toExamQuestion(input.subject, q as RawAiQuestion, i));
+      out.push(toExamQuestion(subjectLabel, q as RawAiQuestion, i));
       i++;
     } catch {
       continue;

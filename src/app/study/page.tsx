@@ -33,7 +33,7 @@ function StudyLibrary() {
               <code className="text-[11px] bg-vanta-bg px-1 rounded">OPENAI_API_KEY</code>.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {AP_COURSES.slice(0, 4).map((c) => (
               <Link
                 key={c.id}
@@ -43,6 +43,12 @@ function StudyLibrary() {
                 {c.short.split(",")[0].trim()}
               </Link>
             ))}
+            <Link
+              href="/study/ai-units"
+              className="text-xs px-3 py-1.5 rounded-lg border border-sky-500/40 text-sky-300 hover:bg-sky-500/10 transition-colors font-medium"
+            >
+              All courses & units →
+            </Link>
           </div>
         </div>
       </section>

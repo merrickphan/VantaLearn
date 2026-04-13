@@ -15,15 +15,21 @@ function ExamPlayer() {
   const ai = searchParams.get("ai") === "1";
   const subject = searchParams.get("subject")?.trim() || "";
   const topic = searchParams.get("topic")?.trim() || "";
+  const unitId = searchParams.get("unit")?.trim() || "";
 
   if (ai) {
     if (!subject) {
       return (
         <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
-          <p className="text-vanta-muted mb-4">Pick a subject for AI practice from the study library.</p>
-          <Link href="/study">
-            <Button variant="secondary">Open study library</Button>
-          </Link>
+          <p className="text-vanta-muted mb-4">Pick a subject (and optional unit) for AI practice.</p>
+          <div className="flex flex-wrap gap-3 justify-center">
+            <Link href="/study">
+              <Button variant="secondary">Open study library</Button>
+            </Link>
+            <Link href="/study/ai-units">
+              <Button variant="secondary">Browse all units</Button>
+            </Link>
+          </div>
         </div>
       );
     }
@@ -35,7 +41,7 @@ function ExamPlayer() {
     } catch {
       /* use raw */
     }
-    return <AiExamSession subject={subj} topic={top} />;
+    return <AiExamSession subject={subj} topic={top || undefined} unitId={unitId || undefined} />;
   }
 
   const resource = SAMPLE_RESOURCES.find((r) => r.id === id && r.type === "practice_exam");

@@ -12,12 +12,19 @@ export async function POST(request: NextRequest) {
     const count = typeof body.count === "number" ? body.count : 6;
     const topic = typeof body.topic === "string" ? body.topic.trim() : undefined;
     const includeFigures = body.includeFigures !== false;
+    const unitId = typeof body.unitId === "string" ? body.unitId.trim() : undefined;
+    const varietySeed =
+      typeof body.varietySeed === "number" && Number.isFinite(body.varietySeed)
+        ? body.varietySeed
+        : Date.now();
 
     const questions = await generateExamQuestions({
       subject,
       topic,
       count,
       includeFigures,
+      unitId: unitId || undefined,
+      varietySeed,
     });
 
     return NextResponse.json({ questions });
