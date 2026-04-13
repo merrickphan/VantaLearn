@@ -17,7 +17,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const base =
-    "inline-flex items-center justify-center font-medium rounded-lg focus-blue disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100";
+    "inline-flex items-center justify-center font-medium rounded-xl focus-blue disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100";
 
   const variants = {
     primary:
@@ -62,7 +62,7 @@ export function Card({ children, className = "", hover, onClick }: CardProps) {
   return (
     <div
       onClick={onClick}
-      className={`bg-vanta-surface border border-vanta-border rounded-card shadow-card
+      className={`bg-vanta-surface border border-vanta-border rounded-2xl shadow-card
         ${hover ? "hover:shadow-card-hover hover:border-vanta-blue/35 transition-all duration-300 cursor-pointer hover:-translate-y-0.5 active:translate-y-0" : ""}
         ${className}`}
     >

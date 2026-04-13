@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { VantaLogo } from "@/components/branding/VantaLogo";
 import { AP_CATEGORY_ORDER, getCoursesGroupedByCategory } from "@/lib/apCategories";
 import { useCountdown } from "@/hooks/useTimer";
-import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
+import { FriendlyCourseIcon } from "@/components/study/FriendlyCourseIcon";
 
 function SidebarCountdown({ examDate }: { examDate: string }) {
   const { days, hours, minutes } = useCountdown(examDate);
@@ -70,7 +70,7 @@ const LogOutIcon = () => (
 
 const mainNav = [
   { href: "/dashboard", label: "Dashboard", icon: <LayoutGridIcon /> },
-  { href: "/study", label: "Practice", icon: <BookIcon /> },
+  { href: "/study", label: "Study", icon: <BookIcon /> },
   { href: "/dashboard/predictor", label: "Predictor", icon: <TrendIcon /> },
   { href: "/dashboard/progress", label: "Progress", icon: <BarChartIcon /> },
   { href: "/dashboard/settings", label: "Settings", icon: <SettingsIcon /> },
@@ -118,7 +118,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         className="flex items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-vanta-surface-hover transition-colors"
                       >
                         <span className="shrink-0 mt-0.5" aria-hidden>
-                          <SimpleIconBox name={c.icon} size={22} />
+                          <FriendlyCourseIcon courseId={c.id} size={30} />
                         </span>
                         <div className="min-w-0 flex-1">
                           <p className="text-[11px] font-medium text-vanta-text leading-tight truncate">{c.name}</p>

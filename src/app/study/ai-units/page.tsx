@@ -7,6 +7,8 @@ import type { ApCategoryId } from "@/lib/apCategories";
 import { AP_CATEGORY_ORDER, getCoursesGroupedByCategory } from "@/lib/apCategories";
 import { getUnitsForCourseId } from "@/lib/apUnits";
 import { Card } from "@/components/ui";
+import { FriendlyCategoryIcon } from "@/components/study/FriendlyCategoryIcon";
+import { FriendlyCourseIcon } from "@/components/study/FriendlyCourseIcon";
 
 export default function AiUnitsPage() {
   const grouped = useMemo(() => getCoursesGroupedByCategory(), []);
@@ -51,14 +53,17 @@ export default function AiUnitsPage() {
                   key={cat.id}
                   type="button"
                   onClick={() => setCategoryId(cat.id)}
-                  className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+                  className={`inline-flex items-center gap-2 text-xs pl-2 pr-3 py-1.5 rounded-2xl border transition-colors ${
                     active
                       ? "border-sky-500/60 bg-sky-500/15 text-sky-200"
                       : "border-vanta-border text-vanta-muted hover:border-vanta-border hover:text-vanta-text"
                   }`}
                 >
-                  {cat.label}
-                  <span className="text-vanta-muted/80 ml-1">({count})</span>
+                  <FriendlyCategoryIcon categoryId={cat.id} size={36} />
+                  <span>
+                    {cat.label}
+                    <span className="text-vanta-muted/80 ml-1">({count})</span>
+                  </span>
                 </button>
               );
             })}
@@ -70,17 +75,20 @@ export default function AiUnitsPage() {
 
         <div>
           <label className="text-xs font-semibold text-vanta-muted uppercase tracking-wider block mb-2">Course</label>
-          <select
-            value={courseId}
-            onChange={(e) => setCourseId(e.target.value)}
-            className="w-full max-w-md bg-vanta-surface-elevated text-vanta-text rounded-lg px-3 py-2.5 text-sm border border-vanta-border focus:border-sky-400 focus:outline-none"
-          >
+          <div className="flex flex-wrap items-center gap-3 max-w-md">
+            <FriendlyCourseIcon courseId={courseId} size={52} className="shadow-md shrink-0" />
+            <select
+              value={courseId}
+              onChange={(e) => setCourseId(e.target.value)}
+              className="flex-1 min-w-[200px] bg-vanta-surface-elevated text-vanta-text rounded-xl px-3 py-2.5 text-sm border border-vanta-border focus:border-sky-400 focus:outline-none"
+            >
             {coursesInCategory.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>
             ))}
-          </select>
+            </select>
+          </div>
           <p className="text-[11px] text-vanta-muted mt-2">{course.short}</p>
         </div>
       </div>
@@ -90,7 +98,7 @@ export default function AiUnitsPage() {
           <Link key={u.id} href={`/study/exam?ai=1&subject=${encodeURIComponent(course.name)}&unit=${encodeURIComponent(u.id)}`}>
             <Card
               hover
-              className="p-4 h-full border-vanta-border/80 bg-vanta-surface/60 hover:border-sky-500/30 transition-all exam-card-enter"
+              className="p-4 h-full border-vanta-border/80 bg-vanta-surface/60 hover:border-sky-500/30 transition-all exam-card-enter rounded-3xl"
             >
               <p className="text-[10px] font-mono text-sky-400/90 mb-1">Unit {u.index}</p>
               <h2 className="text-sm font-semibold text-vanta-text leading-snug mb-2">{u.title}</h2>

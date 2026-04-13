@@ -7,20 +7,21 @@ import { Card } from "@/components/ui";
 import { SAMPLE_RESOURCES } from "@/lib/utils/sampleData";
 import { AP_COURSES } from "@/lib/apCatalog";
 import { AP_CATEGORY_ORDER, getCoursesGroupedByCategory } from "@/lib/apCategories";
+import { FriendlyCourseIcon } from "@/components/study/FriendlyCourseIcon";
 import { useCountdown } from "@/hooks/useTimer";
 import { loadCmdStats, type CommandCenterStats } from "@/lib/cmdStats";
-import { SimpleIconBox, type SimpleIconId } from "@/components/icons/SimpleIconBox";
+import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 
 function SubjectCard({
-  icon,
   name,
   short,
   examDate,
+  courseId,
 }: {
-  icon: SimpleIconId;
   name: string;
   short: string;
   examDate: string;
+  courseId: string;
 }) {
   const { days, hours, minutes } = useCountdown(examDate);
   const done = days <= 0 && hours <= 0 && minutes <= 0;
@@ -29,12 +30,12 @@ function SubjectCard({
   return (
     <Card
       hover
-      className="p-4 h-full border-vanta-border/80 bg-vanta-surface/60 hover:border-sky-500/30 hover:bg-vanta-surface-hover transition-all flex flex-col"
+      className="p-4 h-full border-vanta-border/80 bg-vanta-surface/60 hover:border-sky-500/30 hover:bg-vanta-surface-hover transition-all flex flex-col rounded-3xl"
     >
       <Link href={`/study?subject=${encodeURIComponent(name)}`} className="block flex-1 min-h-0">
         <div className="flex items-start justify-between gap-2 mb-3">
           <span aria-hidden>
-            <SimpleIconBox name={icon} size={32} />
+            <FriendlyCourseIcon courseId={courseId} size={40} />
           </span>
           <span className="text-[10px] font-mono tabular-nums shrink-0 rounded px-1.5 py-0.5 bg-slate-200 text-slate-900">
             {timerLabel}
@@ -152,7 +153,7 @@ export default function DashboardPage() {
                 <p className="text-[10px] text-vanta-muted mb-3">{cat.short}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                   {courses.map((c) => (
-                    <SubjectCard key={c.id} icon={c.icon} name={c.name} short={c.short} examDate={c.examDate} />
+                    <SubjectCard key={c.id} courseId={c.id} name={c.name} short={c.short} examDate={c.examDate} />
                   ))}
                 </div>
               </div>
