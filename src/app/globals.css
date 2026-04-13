@@ -4,7 +4,6 @@
 :root {
  --font-geist-sans: "Geist", system-ui, sans-serif;
  --font-geist-mono: "Geist Mono", monospace;
- --font-orbitron: "Orbitron", system-ui, sans-serif;
  --vanta-accent: #38bdf8;
  --vanta-accent-glow: rgba(56, 189, 248, 0.4);
  /* shared accent (light + dark) */
