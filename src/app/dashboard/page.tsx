@@ -104,6 +104,11 @@ function DashboardContent() {
           courseId={selectedCourse.id}
           backHref="/dashboard"
           backLabel="← All AP exams"
+          intro={
+            selectedCourse.id === "wh"
+              ? "Multiple-choice practice is built for each College Board unit (nine units, 1200 CE to present). Pick a unit to drill themes and terms for that era—items are not drawn from unrelated periods."
+              : undefined
+          }
         />
       )}
 

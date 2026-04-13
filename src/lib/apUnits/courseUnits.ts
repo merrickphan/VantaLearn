@@ -153,17 +153,71 @@ export const AP_UNITS_BY_COURSE_ID: Record<string, ApUnit[]> = {
     "Period 8: 1945–1980",
     "Period 9: 1980–Present",
   ]),
-  wh: U("wh", [
-    "The Global Tapestry",
-    "Networks of Exchange",
-    "Land-Based Empires",
-    "Transoceanic Interconnections",
-    "Revolutions",
-    "Consequences of Industrialization",
-    "Global Conflict",
-    "Cold War and Decolonization",
-    "Globalization",
-  ]),
+  wh: [
+    {
+      id: "wh-u1",
+      index: 1,
+      title: "The Global Tapestry",
+      summary:
+        "States and belief systems c. 1200: post-classical developments, major world religions (Buddhism, Christianity, Confucianism, Hinduism, Islam, Judaism), regional powers (Abbasid, Song, feudal Europe, Japan, Delhi Sultanate, Khmer, Mesoamerican empires), trade and social structures.",
+    },
+    {
+      id: "wh-u2",
+      index: 2,
+      title: "Networks of Exchange",
+      summary:
+        "Hanseatic League, Crusades, scholasticism and universities, Mongol expansion, Mali and Songhai, Indian Ocean and Silk Road trade, Black Death, travelers (Ibn Battuta, Marco Polo), urbanization and cultural diffusion 1200–1450.",
+    },
+    {
+      id: "wh-u3",
+      index: 3,
+      title: "Land-Based Empires",
+      summary:
+        "Renaissance humanism, Reformation and Catholic Reformation, Scientific Revolution, gunpowder empires (Ottoman, Safavid, Mughal), European state-building, Qing and Tokugawa, Atlantic slavery and resistance in Africa and the Americas.",
+    },
+    {
+      id: "wh-u4",
+      index: 4,
+      title: "Transoceanic Interconnections",
+      summary:
+        "Iberian exploration, Treaty of Tordesillas, Columbian Exchange, encomienda, African slave trade and Middle Passage, mercantilism and joint-stock companies, silver and global trade, colonial societies 1450–1750.",
+    },
+    {
+      id: "wh-u5",
+      index: 5,
+      title: "Revolutions",
+      summary:
+        "Enlightenment and Atlantic revolutions (US, France, Haiti, Latin America), industrial beginnings, nationalism, socialism/Marxism, women’s rights debates, resistance to early industrialization.",
+    },
+    {
+      id: "wh-u6",
+      index: 6,
+      title: "Consequences of Industrialization",
+      summary:
+        "Imperialism and ideologies of rule, British India, unequal treaties and Meiji Japan, scramble for Africa and Berlin Conference, labor and reform, economic dependency and environmental extraction.",
+    },
+    {
+      id: "wh-u7",
+      index: 7,
+      title: "Global Conflict",
+      summary:
+        "World War I and Versailles, Russian Revolution, interwar crises and fascism, World War II and Holocaust, UN and new international order.",
+    },
+    {
+      id: "wh-u8",
+      index: 8,
+      title: "Cold War and Decolonization",
+      summary:
+        "Containment, NATO/Warsaw Pact, decolonization (South Asia, Africa, Middle East), China’s civil war, Korea and Vietnam, Cuban Missile Crisis, Non-Aligned Movement, end of the USSR.",
+    },
+    {
+      id: "wh-u9",
+      index: 9,
+      title: "Globalization",
+      summary:
+        "Institutions (WTO, UN, ICC), regional trade, terrorism and conflict after 9/11, China and India in the world economy, migration, global health, environment, internet and culture.",
+    },
+  ],
   euro: U("euro", [
     "Renaissance and Exploration",
     "Age of Reformation",

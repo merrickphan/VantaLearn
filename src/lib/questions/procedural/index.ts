@@ -36,7 +36,7 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
     seedBase,
   };
 
-  const pool = getGeneratorsForCourse(course.id);
+  const pool = getGeneratorsForCourse(course.id, unit.index);
   const out: ExamQuestion[] = [];
   const n = Math.min(100, Math.max(1, Math.floor(params.count)));
 

@@ -1,5 +1,6 @@
 import type { ExamQuestion } from "@/types";
 import { hashString, randInt, roundN, shuffleInPlace } from "./utils";
+import { getWorldHistoryGeneratorsForUnit } from "./worldHistoryUnitPools";
 
 export interface ProcCtx {
   courseId: string;
@@ -1051,7 +1052,6 @@ const COURSE_POOL: Record<string, QuestionGen[]> = {
   bio: [...BIO, genVariableControl],
   env: [...ENV, genVariableControl],
   ush: [...HIST_SHARED, ...GOV],
-  wh: [...HIST_SHARED, ...HIST_GLOBAL],
   euro: [...HIST_SHARED, ...HIST_GLOBAL],
   gov: [...GOV],
   "comp-gov": [...COMP_GOV],
@@ -1074,6 +1074,9 @@ const COURSE_POOL: Record<string, QuestionGen[]> = {
   research: CAP,
 };
 
-export function getGeneratorsForCourse(courseId: string): QuestionGen[] {
+export function getGeneratorsForCourse(courseId: string, unitIndex: number = 1): QuestionGen[] {
+  if (courseId === "wh" && unitIndex >= 1 && unitIndex <= 9) {
+    return getWorldHistoryGeneratorsForUnit(unitIndex) as QuestionGen[];
+  }
   return COURSE_POOL[courseId] ?? DEFAULT_POOL;
 }
