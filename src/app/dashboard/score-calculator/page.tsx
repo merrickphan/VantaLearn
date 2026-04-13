@@ -116,7 +116,7 @@ function ApScoreShowcase({ score, animationKey }: { score: number; animationKey:
 			<div className="flex flex-col items-center">
 				<p
 					key={animationKey}
-					className={`ap-cal-score-reveal font-display text-6xl font-bold leading-none tracking-tight tabular-nums md:text-7xl ${digitTierClass[s]}`}
+					className={`ap-cal-score-reveal text-6xl font-extrabold leading-none tracking-tight tabular-nums md:text-7xl ${digitTierClass[s]}`}
 				>
 					{s}
 				</p>

@@ -82,7 +82,7 @@ export default function PredictorPage() {
  <div className="grid sm:grid-cols-2 gap-4">
  <Card className="p-5">
  <p className="text-xs text-vanta-muted uppercase tracking-wider mb-1">Est. AP score band</p>
- <p className="text-3xl font-display font-bold text-sky-400">3 - 4</p>
+ <p className="text-3xl font-extrabold text-sky-400">3 - 4</p>
  <p className="text-xs text-vanta-muted mt-2">If you hold ~65%+ on mixed MC + FRQ-style sets.</p>
  </Card>
  <Card className="p-5">
