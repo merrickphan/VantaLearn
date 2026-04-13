@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { Card, Badge } from "@/components/ui";
 import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
+import { AP_COURSES } from "@/lib/apCatalog";
 import { SAMPLE_RESOURCES } from "@/lib/utils/sampleData";
 
 function StudyLibrary() {
@@ -23,6 +24,29 @@ function StudyLibrary() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+      <section className="mb-8 fade-up rounded-xl border border-emerald-500/25 bg-emerald-500/5 px-4 py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">AI-generated practice</p>
+            <p className="text-sm text-vanta-text mt-1">
+              Unlimited AP-style MCQ with charts & tables — new questions every session. Requires{" "}
+              <code className="text-[11px] bg-vanta-bg px-1 rounded">OPENAI_API_KEY</code>.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {AP_COURSES.slice(0, 4).map((c) => (
+              <Link
+                key={c.id}
+                href={`/study/exam?ai=1&subject=${encodeURIComponent(c.name)}`}
+                className="text-xs px-3 py-1.5 rounded-lg border border-emerald-500/35 text-emerald-300 hover:bg-emerald-500/10 transition-colors"
+              >
+                {c.short.split(",")[0].trim()}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <div className="mb-8 fade-up">
         <h1 className="font-display text-2xl font-bold text-vanta-text tracking-wide">Practice library</h1>
         <p className="text-vanta-muted text-sm mt-1">

@@ -26,11 +26,11 @@ function SubjectCard({
   const timerLabel = done ? "Exam window" : `${days}d ${hours}h ${minutes}m`;
 
   return (
-    <Link href={`/study?subject=${encodeURIComponent(name)}`}>
-      <Card
-        hover
-        className="p-4 h-full border-vanta-border/80 bg-vanta-surface/60 hover:border-sky-500/30 hover:bg-vanta-surface-hover transition-all"
-      >
+    <Card
+      hover
+      className="p-4 h-full border-vanta-border/80 bg-vanta-surface/60 hover:border-sky-500/30 hover:bg-vanta-surface-hover transition-all flex flex-col"
+    >
+      <Link href={`/study?subject=${encodeURIComponent(name)}`} className="block flex-1 min-h-0">
         <div className="flex items-start justify-between gap-2 mb-3">
           <span aria-hidden>
             <SimpleIconBox name={icon} size={32} />
@@ -41,8 +41,14 @@ function SubjectCard({
         </div>
         <h3 className="text-sm font-semibold text-vanta-text leading-snug mb-1">{name}</h3>
         <p className="text-[11px] text-vanta-muted leading-relaxed line-clamp-2">{short}</p>
-      </Card>
-    </Link>
+      </Link>
+      <Link
+        href={`/study/exam?ai=1&subject=${encodeURIComponent(name)}`}
+        className="mt-3 text-[10px] font-medium text-emerald-400/90 hover:text-emerald-300 hover:underline w-fit"
+      >
+        AI exam →
+      </Link>
+    </Card>
   );
 }
 
