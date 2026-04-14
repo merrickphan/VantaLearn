@@ -1965,6 +1965,148 @@ export function pickEuroMassRow(rng: () => number): MassConceptRow {
  return pickMassRowFromTemplates(rng, TEMPLATES);
 }
 
+/** AP Seminar — Big Ideas (questioning, analysis, perspectives, synthesis, communication, integrity). */
+const SEM_B1_STEMS = [
+ "Which research question best supports broad investigation rather than a simple yes/no answer?",
+ "An effective research question in AP Seminar is most likely to be",
+ "Which option is most likely to help a student explore a complex issue?",
+ "A student wants to begin investigating a new topic. The best first step is to",
+ "Which question most directly invites further inquiry and exploration?",
+] as const;
+
+const SEM_B2_STEMS = [
+ "When analyzing an argument, the strongest evidence that supports the author's claim is",
+ "A useful strategy for comprehending a difficult text is to",
+ "Identifying an author's reasoning primarily involves",
+ "Which detail would be most relevant for evaluating the trustworthiness of a source?",
+ "When considering bias, a student should focus most on",
+] as const;
+
+const SEM_B3_STEMS = [
+ "Evaluating multiple perspectives is most important because it",
+ "Which approach best helps explain contradictions between two arguments?",
+ "A pattern across sources is most strongly suggested when",
+ "From whose perspective information is presented matters because it",
+ "Which action best connects perspectives into a broader conversation?",
+] as const;
+
+const SEM_B4_STEMS = [
+ "Synthesis in an argument is best described as",
+ "Which choice best represents a logical line of reasoning?",
+ "The best use of evidence in support of a conclusion is to",
+ "Acknowledging assumptions in a conclusion is important because it",
+ "Which practice best helps avoid plagiarism while using others' ideas?",
+] as const;
+
+const SEM_B5_STEMS = [
+ "When adapting an argument for a specific audience, a communicator should primarily consider",
+ "Choosing an effective medium or genre depends most on",
+ "A common misconception can undermine communication because it",
+ "Revision improves a product primarily by",
+ "In teamwork, an effective contribution is to",
+] as const;
+
+const SEM_WRONG_POOL = [
+ // Big Idea 1: inquiry
+ "a focused, open-ended question that invites multiple lines of investigation",
+ "a narrow question that can be answered with a single fact and no further research",
+ "a question that is too broad to be researched effectively",
+ "considering context and stakeholder perspectives before defining the problem",
+ "identifying what information is needed and generating search keywords",
+ "listing only personal opinions as a starting point",
+ // Big Idea 2: analysis & credibility
+ "the claim, reasons, and evidence, and how they connect (warrants/logic)",
+ "the author's purpose, audience, and possible biases or limitations",
+ "source credibility indicators such as author expertise, publication context, and evidence quality",
+ "ignoring counterarguments to keep the analysis simple",
+ "summarizing without evaluating evidence or reasoning",
+ // Big Idea 3: perspectives
+ "reveals complexity and helps avoid oversimplified conclusions",
+ "identifies trends, agreements, and tensions across sources",
+ "compares claims while accounting for context and standpoint",
+ "treating all perspectives as equally valid regardless of evidence",
+ "selecting only sources that confirm an initial viewpoint",
+ // Big Idea 4: synthesis & integrity
+ "integrating ideas from multiple sources to form a new, coherent understanding",
+ "copying a sentence but changing a few words without attribution",
+ "using quotations or paraphrases with clear attribution",
+ "building a conclusion that follows from evidence and reasoning",
+ "acknowledging assumptions and considering alternative conclusions",
+ "adding sources without explaining how they support the argument",
+ // Big Idea 5: communication & collaboration
+ "tailoring claims, evidence, and tone to audience needs and context",
+ "choosing a genre/medium that fits the purpose and constraints of the task",
+ "clarifying key terms and addressing likely misconceptions",
+ "using feedback to improve clarity, structure, and evidence use",
+ "coordinating roles and leveraging team strengths to reach a shared goal",
+ "refusing to revise because the first draft reflects 'authentic voice'",
+] as const;
+
+export function pickSeminarMassRow(rng: () => number): MassConceptRow {
+ const TEMPLATES: readonly MassConceptTemplate[] = [
+  {
+   idPrefix: "sem-b1",
+   stems: SEM_B1_STEMS,
+   correct: "a focused, open-ended question that invites multiple lines of investigation",
+   wrongPool: SEM_WRONG_POOL,
+   explanation:
+    "Strong inquiry questions are focused yet open-ended, encouraging sustained investigation rather than simple yes/no answers.",
+  },
+  {
+   idPrefix: "sem-b2",
+   stems: SEM_B2_STEMS,
+   correct: "the claim, reasons, and evidence, and how they connect (warrants/logic)",
+   wrongPool: SEM_WRONG_POOL,
+   explanation:
+    "Understanding and analyzing an argument involves identifying the claim, the reasoning, and the evidence, and evaluating how well they connect.",
+  },
+  {
+   idPrefix: "sem-b2-cred",
+   stems: SEM_B2_STEMS,
+   correct: "source credibility indicators such as author expertise, publication context, and evidence quality",
+   wrongPool: SEM_WRONG_POOL,
+   explanation:
+    "Trustworthiness is supported by credibility signals like expertise, transparent methods, and strong evidence in an appropriate publication context.",
+  },
+  {
+   idPrefix: "sem-b3",
+   stems: SEM_B3_STEMS,
+   correct: "reveals complexity and helps avoid oversimplified conclusions",
+   wrongPool: SEM_WRONG_POOL,
+   explanation: "Evaluating multiple perspectives helps capture complexity, identify tensions, and avoid simplistic conclusions.",
+  },
+  {
+   idPrefix: "sem-b4",
+   stems: SEM_B4_STEMS,
+   correct: "integrating ideas from multiple sources to form a new, coherent understanding",
+   wrongPool: SEM_WRONG_POOL,
+   explanation: "Synthesis combines evidence and perspectives across sources into a coherent, original line of reasoning.",
+  },
+  {
+   idPrefix: "sem-b4-integrity",
+   stems: SEM_B4_STEMS,
+   correct: "using quotations or paraphrases with clear attribution",
+   wrongPool: SEM_WRONG_POOL,
+   explanation: "Academic integrity requires attributing ideas and language to their sources through citations and references.",
+  },
+  {
+   idPrefix: "sem-b5",
+   stems: SEM_B5_STEMS,
+   correct: "tailoring claims, evidence, and tone to audience needs and context",
+   wrongPool: SEM_WRONG_POOL,
+   explanation: "Effective communication adapts content and choices (tone, evidence, structure) to a particular audience and situation.",
+  },
+  {
+   idPrefix: "sem-b5-revise",
+   stems: SEM_B5_STEMS,
+   correct: "using feedback to improve clarity, structure, and evidence use",
+   wrongPool: SEM_WRONG_POOL,
+   explanation: "Revision leverages reflection and feedback to strengthen clarity, organization, and how evidence supports claims.",
+  },
+ ];
+ return pickMassRowFromTemplates(rng, TEMPLATES);
+}
+
 /** Row counts for mass banks (distinct template × foil-set structures). */
 export const PROCEDURAL_MASS_BANK_SIZES = {
  // These are lower bounds on distinct "structures" available (stem × choose(3, wrongPool)).
@@ -1979,6 +2121,7 @@ export const PROCEDURAL_MASS_BANK_SIZES = {
  chem: 10000,
  bio: 10000,
  euro: 10000,
+ seminar: 10000,
 } as const;
 
 function idForMass(ctx: MassProcCtx, i: number, tag: string): string {

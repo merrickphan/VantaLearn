@@ -25,6 +25,7 @@ import {
  pickPhysMassRow,
  pickPsychMassRow,
  pickEuroMassRow,
+ pickSeminarMassRow,
 } from "./apMassConceptBanks";
 import { getHumanGeographyGeneratorsForUnit } from "./humanGeographyUnitPools";
 import { getUsHistoryGeneratorsForUnit } from "./usHistoryUnitPools";
@@ -1708,6 +1709,10 @@ export function genEuroMass(rng: () => number, ctx: ProcCtx, i: number): ExamQue
  return examFromMassRow(rng, ctx, i, "euro-mass", pickEuroMassRow(rng));
 }
 
+export function genSeminarMass(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ return examFromMassRow(rng, ctx, i, "seminar-mass", pickSeminarMassRow(rng));
+}
+
 /* - - - Pools - - - */
 
 const CALC: QuestionGen[] = [
@@ -1787,7 +1792,9 @@ const COURSE_POOL: Record<string, QuestionGen[]> = {
  latin: [...ENG, genCitationEthics],
  chinese: LANG,
  japanese: LANG,
- seminar: [...CAP, ...ENG],
+ // Avoid fixed, always-identical prompts (e.g. `genCitationEthics` has a fixed stimulus).
+ // Seminar uses a template-driven mass bank aligned to Big Ideas for high variety.
+ seminar: [genSeminarMass],
  research: CAP,
 };
 
