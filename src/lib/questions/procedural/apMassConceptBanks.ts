@@ -1786,6 +1786,185 @@ export function pickBioMassRow(rng: () => number): MassConceptRow {
  return pickMassRowFromTemplates(rng, TEMPLATES);
 }
 
+/** AP European History — conceptual bank aligned to the user outline (Renaissance → Reformation focus). */
+const EURO_REN_STEMS = [
+ "The Renaissance in Europe is commonly described as",
+ "A key characteristic of the Renaissance was",
+ "Renaissance humanism emphasized",
+ "Humanists most strongly valued",
+ "A central feature of Renaissance culture was renewed interest in",
+] as const;
+
+const EURO_HUM_STEMS = [
+ "Humanism in the Renaissance is best defined as",
+ "Renaissance humanists emphasized the study of",
+ "Compared with medieval scholasticism, humanism placed greater emphasis on",
+ "Humanists often promoted education in order to",
+ "Humanism contributed to Renaissance culture primarily by",
+] as const;
+
+const EURO_ART_TECH_STEMS = [
+ "In Renaissance painting, linear perspective was used mainly to",
+ "Chiaroscuro in Renaissance/Baroque art refers to",
+ "Sfumato is a technique used to",
+ "Renaissance artists sought realism in part by",
+ "Patronage during the Renaissance most directly supported",
+] as const;
+
+const EURO_PRINT_STEMS = [
+ "Gutenberg's printing press most directly contributed to",
+ "Compared with manuscript copying, the printing press enabled",
+ "The spread of printed materials in Europe tended to",
+ "One major consequence of print culture was",
+ "Printing technology mattered politically and religiously because it",
+] as const;
+
+const EURO_EXPL_CAUSES_STEMS = [
+ "A major motivation for European overseas exploration in the 15th-17th centuries was",
+ "European states pursued exploration partly in order to",
+ "Technological change aided exploration primarily through",
+ "Competition among European states helped drive exploration because",
+ "The search for routes to Asia intensified when",
+] as const;
+
+const EURO_COLX_STEMS = [
+ "The Columbian Exchange refers to",
+ "A major demographic effect of the Columbian Exchange in the Americas was",
+ "A major effect of the Columbian Exchange in Europe was",
+ "The exchange across the Atlantic is best characterized as",
+ "The spread of Old World diseases after 1492 primarily",
+] as const;
+
+const EURO_SLAVE_TRI_STEMS = [
+ "The triangular trade is best described as",
+ "A key economic driver of the transatlantic slave trade was",
+ "The Middle Passage refers to",
+ "European participation in Atlantic slavery expanded largely because",
+ "A major legacy of the transatlantic slave trade has been",
+] as const;
+
+const EURO_COMMREV_STEMS = [
+ "The Commercial Revolution in Europe (16th-18th centuries) is associated with",
+ "Joint-stock companies were important because they",
+ "A major social effect of expanded trade and industry was",
+ "European mercantilist policies typically aimed to",
+ "The rise of capitalism in early modern Europe was supported by",
+] as const;
+
+const EURO_REFORM_PRELUTHER_STEMS = [
+ "A major critique made by pre-Reformation reformers such as Wycliffe and Hus was that the Church",
+ "John Wycliffe is best known for advocating",
+ "Jan Hus criticized the Church in part by emphasizing",
+ "Erasmus most directly contributed to reform by",
+ "Savonarola is associated with",
+] as const;
+
+const EURO_LUTHER_STEMS = [
+ "Martin Luther's 95 Theses (1517) primarily criticized",
+ "A core idea of Luther's theology was that salvation comes through",
+ "Luther's translation of the Bible into German was significant because it",
+ "A major political effect of the Reformation was that rulers",
+ "A common Protestant principle listed in Reformation theology is",
+] as const;
+
+const EURO_CALVIN_STEMS = [
+ "John Calvin is most closely associated with the doctrine of",
+ "Calvinist religious practice emphasized",
+ "A key feature of Calvin's reforms in Geneva was",
+ "Calvin's influence on Protestantism included",
+ "Predestination is best defined as the belief that",
+] as const;
+
+const EURO_WARSREL_STEMS = [
+ "The principle of 'cuius regio, eius religio' is most closely associated with",
+ "The Peace of Augsburg (1555) is significant because it",
+ "The French Wars of Religion ended with the",
+ "The Thirty Years' War ended with the",
+ "The Peace of Westphalia (1648) is often associated with",
+] as const;
+
+const EURO_CATHREF_STEMS = [
+ "The Counter-Reformation (Catholic Reformation) sought primarily to",
+ "The Council of Trent is significant because it",
+ "The Jesuits are best known for emphasizing",
+ "A major outcome of the Catholic Reformation was",
+ "Catholic reform efforts included",
+] as const;
+
+const EURO_WRONG_POOL = [
+ // Renaissance / humanism / culture
+ "a cultural and intellectual rebirth emphasizing classical learning and humanism",
+ "a return to strict medieval scholasticism as the dominant approach",
+ "renewed interest in Greco-Roman texts, art, and history",
+ "exclusive focus on theology as the only legitimate field of study",
+ "education, reason, and critical reading of texts",
+ "blind reliance on tradition and authority over evidence",
+ // Art/techniques
+ "create depth and realism in pictorial space",
+ "use strong contrasts of light and shadow",
+ "blend tones subtly to soften edges",
+ "flatten space to reject realism",
+ "patronage by wealthy families and institutions",
+ // Printing
+ "wider dissemination of ideas through cheaper books and pamphlets",
+ "lower literacy and fewer readers",
+ "faster spread of religious and scientific arguments",
+ "concentration of knowledge only in monasteries",
+ // Exploration / exchange
+ "search for new trade routes to Asia and access to spices",
+ "spread of Christianity as a motivation for expansion",
+ "navigation and shipbuilding advances enabling long-distance travel",
+ "complete end of European interstate rivalry",
+ "Columbian Exchange: transfer of plants, animals, and diseases across the Atlantic",
+ "devastation of Indigenous populations by Old World diseases",
+ "introduction of New World crops to Europe contributing to population growth",
+ // Slave trade / commerce
+ "triangular trade linking Europe, Africa, and the Americas",
+ "the Middle Passage as the Atlantic crossing for enslaved Africans",
+ "growth of plantation economies and demand for coerced labor",
+ "abolition of slavery immediately after 1492",
+ "Commercial Revolution: expansion of trade, banking, and joint-stock companies",
+ "joint-stock companies spreading risk among investors",
+ "mercantilism promoting exports and limiting imports",
+ // Pre-Reformation critiques
+ "criticized Church corruption and practices such as indulgences",
+ "advocated vernacular Bible translation so laypeople could read scripture",
+ "called for moral reform and criticized clerical abuses",
+ "defended the sale of offices as essential reform",
+ // Luther/Calvin beliefs
+ "salvation by faith (per Reformation theology summaries)",
+ "the Bible as central authority in Protestant belief summaries",
+ "predestination as a Calvinist doctrine",
+ "discipline and reform of church practice",
+ // Wars of religion / settlements
+ "Peace of Augsburg allowing rulers to choose Catholicism or Lutheranism",
+ "Edict of Nantes granting toleration to Huguenots (as described)",
+ "Peace of Westphalia ending the Thirty Years' War and reinforcing state sovereignty",
+ // Catholic Reformation
+ "Council of Trent reaffirming Catholic teachings and reforming abuses",
+ "Jesuits emphasizing education and missionary work",
+ "Baroque cultural renewal as part of Catholic revival",
+] as const;
+
+export function pickEuroMassRow(rng: () => number): MassConceptRow {
+ const TEMPLATES: readonly MassConceptTemplate[] = [
+  { idPrefix: "euro-ren", stems: EURO_REN_STEMS, correct: "a cultural and intellectual rebirth emphasizing classical learning and humanism", wrongPool: EURO_WRONG_POOL, explanation: "The Renaissance emphasized classical learning, humanism, and cultural/artistic renewal." },
+  { idPrefix: "euro-hum", stems: EURO_HUM_STEMS, correct: "education, reason, and critical reading of texts", wrongPool: EURO_WRONG_POOL, explanation: "Humanism emphasized education, reason, and engagement with classical texts." },
+  { idPrefix: "euro-art", stems: EURO_ART_TECH_STEMS, correct: "create depth and realism in pictorial space", wrongPool: EURO_WRONG_POOL, explanation: "Techniques like perspective, chiaroscuro, and sfumato supported realism and depth." },
+  { idPrefix: "euro-print", stems: EURO_PRINT_STEMS, correct: "wider dissemination of ideas through cheaper books and pamphlets", wrongPool: EURO_WRONG_POOL, explanation: "Printing reduced cost and increased speed of distributing texts, spreading ideas widely." },
+  { idPrefix: "euro-expl", stems: EURO_EXPL_CAUSES_STEMS, correct: "search for new trade routes to Asia and access to spices", wrongPool: EURO_WRONG_POOL, explanation: "States sought trade routes, wealth, and influence; navigation tech supported exploration." },
+  { idPrefix: "euro-colx", stems: EURO_COLX_STEMS, correct: "Columbian Exchange: transfer of plants, animals, and diseases across the Atlantic", wrongPool: EURO_WRONG_POOL, explanation: "The Columbian Exchange involved biological transfers between Old and New Worlds after 1492." },
+  { idPrefix: "euro-slave", stems: EURO_SLAVE_TRI_STEMS, correct: "triangular trade linking Europe, Africa, and the Americas", wrongPool: EURO_WRONG_POOL, explanation: "Triangular trade linked manufactured goods, enslaved labor, and colonial commodities." },
+  { idPrefix: "euro-comm", stems: EURO_COMMREV_STEMS, correct: "Commercial Revolution: expansion of trade, banking, and joint-stock companies", wrongPool: EURO_WRONG_POOL, explanation: "Commercial expansion and finance innovations supported early modern capitalism and global trade." },
+  { idPrefix: "euro-pre", stems: EURO_REFORM_PRELUTHER_STEMS, correct: "criticized Church corruption and practices such as indulgences", wrongPool: EURO_WRONG_POOL, explanation: "Pre-Reformation reformers criticized corruption and pushed changes like vernacular scripture access." },
+  { idPrefix: "euro-luth", stems: EURO_LUTHER_STEMS, correct: "salvation by faith (per Reformation theology summaries)", wrongPool: EURO_WRONG_POOL, explanation: "Lutheran reform emphasized faith and challenged practices like indulgences; vernacular Bible aided spread." },
+  { idPrefix: "euro-calv", stems: EURO_CALVIN_STEMS, correct: "predestination as a Calvinist doctrine", wrongPool: EURO_WRONG_POOL, explanation: "Calvin emphasized predestination and disciplined religious practice; Geneva became a reform center." },
+  { idPrefix: "euro-war", stems: EURO_WARSREL_STEMS, correct: "Peace of Westphalia ending the Thirty Years' War and reinforcing state sovereignty", wrongPool: EURO_WRONG_POOL, explanation: "Settlements like Augsburg and Westphalia reshaped religious/political authority and sovereignty." },
+  { idPrefix: "euro-cath", stems: EURO_CATHREF_STEMS, correct: "Council of Trent reaffirming Catholic teachings and reforming abuses", wrongPool: EURO_WRONG_POOL, explanation: "Catholic Reformation addressed abuses, clarified doctrine, and expanded orders like the Jesuits." },
+ ];
+ return pickMassRowFromTemplates(rng, TEMPLATES);
+}
+
 /** Row counts for mass banks (distinct template × foil-set structures). */
 export const PROCEDURAL_MASS_BANK_SIZES = {
  // These are lower bounds on distinct "structures" available (stem × choose(3, wrongPool)).
@@ -1799,6 +1978,7 @@ export const PROCEDURAL_MASS_BANK_SIZES = {
  phys: 10000,
  chem: 10000,
  bio: 10000,
+ euro: 10000,
 } as const;
 
 function idForMass(ctx: MassProcCtx, i: number, tag: string): string {

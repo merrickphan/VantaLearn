@@ -24,6 +24,7 @@ import {
  pickGovUsMassRow,
  pickPhysMassRow,
  pickPsychMassRow,
+ pickEuroMassRow,
 } from "./apMassConceptBanks";
 import { getHumanGeographyGeneratorsForUnit } from "./humanGeographyUnitPools";
 import { getUsHistoryGeneratorsForUnit } from "./usHistoryUnitPools";
@@ -1703,6 +1704,10 @@ export function genBioMass(rng: () => number, ctx: ProcCtx, i: number): ExamQues
  return examFromMassRow(rng, ctx, i, "bio-mass", pickBioMassRow(rng));
 }
 
+export function genEuroMass(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ return examFromMassRow(rng, ctx, i, "euro-mass", pickEuroMassRow(rng));
+}
+
 /* - - - Pools - - - */
 
 const CALC: QuestionGen[] = [
@@ -1728,7 +1733,9 @@ const BIO: QuestionGen[] = [genBioSpeciesTableFig, genBioMass];
 const ENV: QuestionGen[] = [genChemMass, genBioMass];
 
 // History: avoid single fixed prompts; keep these but they will be randomized in-function.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const HIST_SHARED: QuestionGen[] = [genWW2Turning];
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const HIST_GLOBAL: QuestionGen[] = [genPrintingPressSpread, genScrambleAfrica];
 
 const GOV: QuestionGen[] = [
@@ -1763,7 +1770,7 @@ const COURSE_POOL: Record<string, QuestionGen[]> = {
  chem: [...CHEM, genVariableControl],
  bio: [...BIO, genVariableControl],
  env: [...ENV, genVariableControl],
- euro: [...HIST_SHARED, ...HIST_GLOBAL],
+ euro: [genEuroMass],
  gov: [...GOV],
  "comp-gov": [...COMP_GOV],
  macro: [...ECON],
