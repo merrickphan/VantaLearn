@@ -15,12 +15,19 @@
 html[data-theme="light"],
 html:not([data-theme]) {
  color-scheme: light;
+ /* Darker sky / accent on light pages so links & hints read more clearly */
+ --color-sky-300: #0ea5e9;
+ --color-sky-400: #0284c7;
+ --vanta-blue: #0284c7;
+ --vanta-blue-hover: #0369a1;
+ --vanta-accent: #0284c7;
+ --vanta-accent-glow: rgba(2, 132, 199, 0.38);
  --vanta-bg: #f0f4fa;
  --vanta-surface: #ffffff;
  --vanta-surface-elevated: #eef2f9;
  --vanta-surface-hover: #e2e8f0;
  --vanta-border: #cbd5e1;
- --vanta-blue-muted: rgba(56, 189, 248, 0.14);
+ --vanta-blue-muted: rgba(2, 132, 199, 0.14);
  --vanta-text: #0f172a;
  --vanta-muted: #64748b;
  --vanta-success: #15803d;
@@ -36,7 +43,7 @@ html:not([data-theme]) {
 /* Dark theme: former “white” areas → dark gray, former dark text → light */
 html[data-theme="dark"] {
  color-scheme: dark;
- --vanta-bg: #2a3038;
+ --vanta-bg: #1f2329;
  --vanta-surface: #343b47;
  --vanta-surface-elevated: #3d4554;
  --vanta-surface-hover: #4a5365;
