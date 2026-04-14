@@ -75,10 +75,9 @@ export function ApCourseUnitList({
             ) : null}
           </div>
         </div>
-        <p className="text-vanta-muted text-sm sm:text-base mt-4 max-w-2xl">
-          {intro ??
-            "Pick a unit to open the practice setup (timer, difficulty, question count). For AP Calculus AB/BC you can choose calculator-style or no-calculator-style items. Each run uses new parameters."}
-        </p>
+        {intro ? (
+          <p className="text-vanta-muted text-sm sm:text-base mt-4 max-w-2xl">{intro}</p>
+        ) : null}
       </div>
 
       {showOverview && overviewDoc ? (
