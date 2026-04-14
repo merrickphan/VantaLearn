@@ -603,35 +603,118 @@ const COMP_GOV_CONCEPT_BANK: MassConceptRow[] = [
 ];
 
 export function pickCompGovMassRow(rng: () => number): MassConceptRow {
+ const CGOV_METHODS_STEMS = [
+  "Empirical data in political science refers to information that is",
+  "Quantitative analysis is best defined as",
+  "Qualitative analysis is best defined as",
+  "A correlation describes",
+  "Causation means that",
+ ] as const;
+
+ const CGOV_CONCEPTS_STEMS = [
+  "A state is best defined as a political entity that has",
+  "A regime refers to",
+  "A government is best described as",
+  "A nation is best described as",
+  "A political system refers to",
+ ] as const;
+
+ const CGOV_DEMO_AUTO_STEMS = [
+  "A defining feature of democracy is",
+  "A defining feature of authoritarianism is",
+  "Which regime type is characterized by rule by a single dominant party?",
+  "A theocracy is best described as a system in which",
+  "Democratization refers to the process of",
+ ] as const;
+
+ const CGOV_METRICS_STEMS = [
+  "The Human Development Index (HDI) is a composite measure of",
+  "The Gini index is used to measure",
+  "Gross Domestic Product (GDP) is best described as",
+  "Freedom House is known for assessing",
+  "Transparency International is known for monitoring",
+ ] as const;
+
+ const CGOV_INSTITUTIONS_STEMS = [
+  "In a parliamentary system, executive power is typically held by",
+  "A presidential system is characterized by",
+  "A semi-presidential system includes",
+  "In a federal system, power is",
+  "In a unitary system, power is",
+ ] as const;
+
+ const CGOV_LEGIT_STEMS = [
+  "Political legitimacy is best defined as",
+  "Traditional legitimacy is based on",
+  "Charismatic legitimacy is based on",
+  "Rational-legal legitimacy is based on",
+  "A government may lose legitimacy when",
+ ] as const;
+
+ const CGOV_WRONG_POOL = [
+  // Methods/analysis
+  "gathered through observation, measurement, or evidence-based collection",
+  "based on value judgments about what should be",
+  "the use of statistical methods to analyze numerical data",
+  "the use of interviews, case studies, and non-numerical evidence to interpret patterns",
+  "a relationship between variables that does not, by itself, prove one causes the other",
+  "one variable directly produces a change in another variable",
+  // Institutions/definitions
+  "defined territory, permanent population, a government, and capacity to interact with other states",
+  "the rules, institutions, and practices that organize political life and power",
+  "the individuals and institutions responsible for making and enforcing policy",
+  "a shared identity based on culture, language, or history",
+  "the set of institutions, laws, and procedures through which a society is governed",
+  // Democracy vs authoritarian
+  "free and fair elections and protection of civil liberties",
+  "power concentrated in a single leader or small group with limited accountability",
+  "a single-party state",
+  "religious leaders or institutions hold ultimate authority",
+  "a transition from authoritarian rule toward democratic institutions",
+  // Metrics/organizations
+  "life expectancy, education, and income indicators",
+  "income inequality within a population",
+  "the total value of goods and services produced within a country's borders",
+  "democracy, political freedom, and human rights",
+  "corporate and political corruption",
+  "a ranking of vulnerability to conflict and state capacity failures",
+  // Institutions: systems
+  "a prime minister accountable to the legislature",
+  "a directly elected executive separate from the legislature",
+  "a president and a prime minister sharing executive authority",
+  "divided between central and regional governments",
+  "centralized in the national government with delegated local authority",
+  // Legitimacy
+  "public acceptance that a government has the right to rule",
+  "longstanding customs and inherited authority",
+  "the personal appeal and perceived qualities of a leader",
+  "legal procedures such as constitutions and elections",
+  "widespread corruption, rights violations, or election fraud",
+  // Plausible distractors (extra variety)
+  "perfect equality of income across society",
+  "a system where the military is the only source of authority",
+  "a government where courts are always controlled by the legislature",
+  "a political entity without defined borders or sovereignty",
+ ] as const;
+
  const TEMPLATES: readonly MassConceptTemplate[] = [
-  {
-   idPrefix: "gov-fed",
-   stems: FED_STEMS,
-   correct: "federalism",
-   wrongPool: uniqStrings([...FED_WRONGS.flat(), "unitary government", "confederation", "direct democracy", "separation of powers", "checks and balances"]),
-   explanation: "Federalism divides sovereignty across levels.",
-  },
-  {
-   idPrefix: "gov-sep",
-   stems: SEP_STEMS,
-   correct: "separation of powers",
-   wrongPool: uniqStrings([...SEP_WRONGS.flat(), "federalism", "popular sovereignty", "judicial review", "bicameralism", "checks and balances"]),
-   explanation: "Different branches hold distinct core functions.",
-  },
-  {
-   idPrefix: "gov-chk",
-   stems: CHK_STEMS,
-   correct: "checks and balances",
-   wrongPool: uniqStrings([...CHK_WRONGS.flat(), "federalism", "popular sovereignty", "separation of powers", "enumerated powers", "reserved powers"]),
-   explanation: "Branches limit one another through checks and balances.",
-  },
-  {
-   idPrefix: "gov-marv",
-   stems: MARSHALL_STEMS,
-   correct: "Marbury v. Madison",
-   wrongPool: uniqStrings([...MARSHALL_WRONGS.flat(), "McCulloch v. Maryland", "United States v. Lopez", "Brown v. Board", "Gideon v. Wainwright"]),
-   explanation: "Marshall's opinion established judicial review.",
-  },
+  { idPrefix: "cg-methods", stems: CGOV_METHODS_STEMS, correct: "gathered through observation, measurement, or evidence-based collection", wrongPool: CGOV_WRONG_POOL, explanation: "Empirical analysis relies on observation and evidence rather than purely value-based claims." },
+  { idPrefix: "cg-corr", stems: CGOV_METHODS_STEMS, correct: "a relationship between variables that does not, by itself, prove one causes the other", wrongPool: CGOV_WRONG_POOL, explanation: "Correlation can be positive or negative, but it does not automatically establish causation." },
+  { idPrefix: "cg-state", stems: CGOV_CONCEPTS_STEMS, correct: "defined territory, permanent population, a government, and capacity to interact with other states", wrongPool: CGOV_WRONG_POOL, explanation: "A state has territory, population, government, and sovereignty in international relations." },
+  { idPrefix: "cg-regime", stems: CGOV_CONCEPTS_STEMS, correct: "the rules, institutions, and practices that organize political life and power", wrongPool: CGOV_WRONG_POOL, explanation: "Regimes describe the rules and norms that structure political authority and participation." },
+  { idPrefix: "cg-demo", stems: CGOV_DEMO_AUTO_STEMS, correct: "free and fair elections and protection of civil liberties", wrongPool: CGOV_WRONG_POOL, explanation: "Democracies feature competitive elections and protection of rights under rule of law." },
+  { idPrefix: "cg-auth", stems: CGOV_DEMO_AUTO_STEMS, correct: "power concentrated in a single leader or small group with limited accountability", wrongPool: CGOV_WRONG_POOL, explanation: "Authoritarian systems limit competition and accountability and concentrate decision-making." },
+  { idPrefix: "cg-demz", stems: CGOV_DEMO_AUTO_STEMS, correct: "a transition from authoritarian rule toward democratic institutions", wrongPool: CGOV_WRONG_POOL, explanation: "Democratization involves building institutions like elections, rule of law, and civil liberties." },
+  { idPrefix: "cg-hdi", stems: CGOV_METRICS_STEMS, correct: "life expectancy, education, and income indicators", wrongPool: CGOV_WRONG_POOL, explanation: "HDI combines health, education, and income to compare development levels." },
+  { idPrefix: "cg-gini", stems: CGOV_METRICS_STEMS, correct: "income inequality within a population", wrongPool: CGOV_WRONG_POOL, explanation: "The Gini index summarizes how evenly income is distributed in a society." },
+  { idPrefix: "cg-gdp", stems: CGOV_METRICS_STEMS, correct: "the total value of goods and services produced within a country's borders", wrongPool: CGOV_WRONG_POOL, explanation: "GDP measures economic output produced domestically within a time period." },
+  { idPrefix: "cg-parl", stems: CGOV_INSTITUTIONS_STEMS, correct: "a prime minister accountable to the legislature", wrongPool: CGOV_WRONG_POOL, explanation: "In parliamentary systems, the executive depends on legislative confidence." },
+  { idPrefix: "cg-pres", stems: CGOV_INSTITUTIONS_STEMS, correct: "a directly elected executive separate from the legislature", wrongPool: CGOV_WRONG_POOL, explanation: "Presidential systems separate executive and legislative mandates and powers." },
+  { idPrefix: "cg-semi", stems: CGOV_INSTITUTIONS_STEMS, correct: "a president and a prime minister sharing executive authority", wrongPool: CGOV_WRONG_POOL, explanation: "Semi-presidential systems divide executive authority between president and prime minister." },
+  { idPrefix: "cg-fed", stems: CGOV_INSTITUTIONS_STEMS, correct: "divided between central and regional governments", wrongPool: CGOV_WRONG_POOL, explanation: "Federalism divides authority across levels of government." },
+  { idPrefix: "cg-unit", stems: CGOV_INSTITUTIONS_STEMS, correct: "centralized in the national government with delegated local authority", wrongPool: CGOV_WRONG_POOL, explanation: "Unitary systems centralize authority, delegating powers to subnational units as needed." },
+  { idPrefix: "cg-legit", stems: CGOV_LEGIT_STEMS, correct: "public acceptance that a government has the right to rule", wrongPool: CGOV_WRONG_POOL, explanation: "Legitimacy depends on public acceptance and can be undermined by corruption or fraud." },
+  { idPrefix: "cg-legit-types", stems: CGOV_LEGIT_STEMS, correct: "legal procedures such as constitutions and elections", wrongPool: CGOV_WRONG_POOL, explanation: "Rational-legal legitimacy comes from lawful rules and procedures rather than tradition or personality." },
  ];
  return pickMassRowFromTemplates(rng, TEMPLATES);
 }

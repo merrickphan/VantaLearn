@@ -1747,7 +1747,8 @@ const GOV: QuestionGen[] = [
  genGovMass,
 ];
 
-const COMP_GOV: QuestionGen[] = [genRegimeType, genChecksBalances, genNationState, genCompGovMass];
+// Comp Gov: avoid fixed, always-identical prompts; use template-driven mass bank instead.
+const COMP_GOV: QuestionGen[] = [genCompGovMass];
 
 const ECON: QuestionGen[] = [genOppCost, genGDPdeflator, genEconUnemploymentLineFig, genEconMass];
 
