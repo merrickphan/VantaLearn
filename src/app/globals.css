@@ -26,7 +26,7 @@ html:not([data-theme]) {
  --vanta-surface: #ffffff;
  --vanta-surface-elevated: #eef2f9;
  --vanta-surface-hover: #e2e8f0;
- --vanta-border: #cbd5e1;
+ --vanta-border: #94a3b8;
  --vanta-blue-muted: rgba(2, 132, 199, 0.14);
  --vanta-text: #0f172a;
  --vanta-muted: #64748b;
@@ -47,7 +47,7 @@ html[data-theme="dark"] {
  --vanta-surface: #343b47;
  --vanta-surface-elevated: #3d4554;
  --vanta-surface-hover: #4a5365;
- --vanta-border: #5c677a;
+ --vanta-border: #76839a;
  --vanta-blue-muted: rgba(56, 189, 248, 0.14);
  --vanta-text: #f8fafc;
  --vanta-muted: #b8c2d0;
