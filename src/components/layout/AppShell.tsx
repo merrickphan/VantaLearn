@@ -119,7 +119,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
  </div>
  <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-1">
  {AP_COURSES.map((c) => {
- const href = `/study?subject=${encodeURIComponent(c.name)}`;
+  const href = `/dashboard?course=${encodeURIComponent(c.id)}`;
  return (
  <Link
  key={c.id}
