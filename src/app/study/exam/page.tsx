@@ -7,7 +7,9 @@ import Link from "next/link";
 import { SAMPLE_RESOURCES } from "@/lib/utils/sampleData";
 import { AP_COURSES } from "@/lib/apCatalog";
 import { proceduralPracticeMcqCountForCourse } from "@/lib/apPracticeExamFormat";
-import { getUnitOrFirst } from "@/lib/apUnits";
+import type { PracticeSessionQuery } from "@/lib/examPracticeSessionQuery";
+import { parsePracticeSessionQuery } from "@/lib/examPracticeSessionQuery";
+import { getUnitOrFirst, getUnitsForCourseId } from "@/lib/apUnits";
 import type { CalculatorSectionPolicy } from "@/lib/questions/procedural";
 import { ExamContent, ExamQuestion } from "@/types";
 import { Button, Spinner } from "@/components/ui";
@@ -20,23 +22,31 @@ const AiExamSession = dynamic(
 
 function ProceduralExamSession({
  courseId,
- unitId,
+ unitParam,
  calculatorSection,
+ practice,
 }: {
  courseId: string;
- unitId?: string;
+ unitParam?: string;
  calculatorSection?: CalculatorSectionPolicy;
+ practice: PracticeSessionQuery;
 }) {
  const [questions, setQuestions] = useState<ExamQuestion[] | null>(null);
  const [error, setError] = useState<string | null>(null);
 
  const course = AP_COURSES.find((c) => c.id === courseId);
- const unit = getUnitOrFirst(courseId, unitId);
+ const isAllUnits = unitParam === "all";
+ const units = courseId ? getUnitsForCourseId(courseId) : [];
+ const unitForTitle = isAllUnits ? undefined : getUnitOrFirst(courseId, unitParam || undefined);
+ const resolvedUnitId = isAllUnits ? "all" : unitForTitle?.id;
+
+ const effectiveCount = practice.count ?? proceduralPracticeMcqCountForCourse(courseId);
 
  useEffect(() => {
  let cancelled = false;
  setQuestions(null);
  setError(null);
+ if (!courseId || !resolvedUnitId) return;
  (async () => {
  try {
  const res = await fetch("/api/questions/procedural", {
@@ -44,9 +54,10 @@ function ProceduralExamSession({
  headers: { "Content-Type": "application/json" },
  body: JSON.stringify({
  courseId,
- unitId: unit?.id,
- count: proceduralPracticeMcqCountForCourse(courseId),
+ unitId: resolvedUnitId,
+ count: effectiveCount,
  ...(calculatorSection ? { calculatorSection } : {}),
+ difficulty: practice.difficulty,
  }),
  });
  const data = await res.json();
@@ -59,9 +70,9 @@ function ProceduralExamSession({
  return () => {
  cancelled = true;
  };
- }, [courseId, unit?.id, unitId, calculatorSection]);
+ }, [courseId, resolvedUnitId, calculatorSection, effectiveCount, practice.difficulty]);
 
- if (!course || !unit) {
+ if (!course || units.length === 0) {
  return (
  <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
  <p className="text-vanta-muted mb-4">Unknown course or unit.</p>
@@ -92,8 +103,18 @@ function ProceduralExamSession({
  );
  }
 
- const title = `${course.name} | Unit ${unit.index}: ${unit.title}`;
- return <ExamGame questions={questions} title={title} />;
+ const title = isAllUnits
+ ? `${course.name} | All units`
+ : `${course.name} | Unit ${unitForTitle!.index}: ${unitForTitle!.title}`;
+
+ return (
+ <ExamGame
+ questions={questions}
+ title={title}
+ timeLimitSeconds={practice.timeLimitSeconds}
+ showDesmosCalculator={practice.showDesmos}
+ />
+ );
 }
 
 function ExamPlayer() {
@@ -106,11 +127,13 @@ function ExamPlayer() {
  const unitParam = searchParams.get("unit")?.trim() ?? "";
 
  if (proc && courseId) {
+ const practice = parsePracticeSessionQuery(searchParams, { courseId });
  return (
  <ProceduralExamSession
  courseId={courseId}
- unitId={unitParam || undefined}
+ unitParam={unitParam || undefined}
  calculatorSection={calculatorSection}
+ practice={practice}
  />
  );
  }
@@ -146,6 +169,7 @@ function ExamPlayer() {
  } catch {
  /* use raw */
  }
+ const practice = parsePracticeSessionQuery(searchParams, { subjectName: subj });
  return (
  <AiExamSession
  subject={subj}
@@ -153,6 +177,7 @@ function ExamPlayer() {
  unitId={unitId || undefined}
  proceduralOnly={proceduralOnly}
  calculatorSection={calculatorSection}
+ practice={practice}
  />
  );
  }

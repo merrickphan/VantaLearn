@@ -7,9 +7,16 @@ import { Button, Card } from "@/components/ui";
 import { ExamGame } from "@/components/study/ExamGame";
 import { proceduralPracticeMcqCountForCourse } from "@/lib/apPracticeExamFormat";
 import { findUnitById, getCourseIdFromSubjectName } from "@/lib/apUnits";
+import type { PracticeSessionQuery } from "@/lib/examPracticeSessionQuery";
 import type { CalculatorSectionPolicy } from "@/lib/questions/procedural";
 
 type Phase = "loading" | "ready" | "error";
+
+const DEFAULT_PRACTICE: PracticeSessionQuery = {
+ difficulty: "medium",
+ timeLimitSeconds: 0,
+ showDesmos: false,
+};
 
 export function AiExamSession({
  subject,
@@ -17,6 +24,7 @@ export function AiExamSession({
  unitId,
  proceduralOnly = false,
  calculatorSection,
+ practice = DEFAULT_PRACTICE,
 }: {
  subject: string;
  topic?: string;
@@ -26,6 +34,8 @@ export function AiExamSession({
  proceduralOnly?: boolean;
  /** Calc AB/BC offline fallback: match AP calculator vs no-calculator MCQ pools. */
  calculatorSection?: CalculatorSectionPolicy;
+ /** URL-driven timer, difficulty, and Desmos visibility for procedural / fallback sessions. */
+ practice?: PracticeSessionQuery;
 }) {
  const [phase, setPhase] = useState<Phase>("loading");
  const [error, setError] = useState("");
@@ -44,14 +54,15 @@ export function AiExamSession({
  if (!courseId) {
  throw new Error("That subject is not linked to a catalog course for offline practice.");
  }
- const count = proceduralPracticeMcqCountForCourse(courseId);
+ const count = practice.count ?? proceduralPracticeMcqCountForCourse(courseId);
  const res = await fetch("/api/questions/procedural", {
  method: "POST",
  headers: { "Content-Type": "application/json" },
  body: JSON.stringify({
  courseId,
- unitId: unitId || undefined,
+ unitId: unitId === "all" ? "all" : unitId || undefined,
  count,
+ difficulty: practice.difficulty,
  ...(calculatorSection ? { calculatorSection } : {}),
  }),
  });
@@ -60,7 +71,7 @@ export function AiExamSession({
  const qs = data.questions as ExamQuestion[];
  if (!Array.isArray(qs) || qs.length === 0) throw new Error("No questions returned");
  return qs;
- }, [subject, unitId, calculatorSection]);
+ }, [subject, unitId, calculatorSection, practice.count, practice.difficulty]);
 
  const load = useCallback(async () => {
  setPhase("loading");
@@ -187,6 +198,8 @@ export function AiExamSession({
  </Button>
  }
  onRetry={load}
+ timeLimitSeconds={practice.timeLimitSeconds}
+ showDesmosCalculator={practice.showDesmos}
  />
  );
 }

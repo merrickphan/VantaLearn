@@ -1,6 +1,10 @@
 ﻿import { NextResponse } from "next/server";
 import { proceduralPracticeMcqCountForCourse } from "@/lib/apPracticeExamFormat";
-import { generateProceduralQuestions, type CalculatorSectionPolicy } from "@/lib/questions/procedural";
+import {
+ generateProceduralQuestions,
+ type CalculatorSectionPolicy,
+ type ProceduralDifficulty,
+} from "@/lib/questions/procedural";
 import { createClient } from "@/lib/supabase/server";
 import { proceduralUniqKey, randomSeedEntropy } from "@/lib/questions/procedural/utils";
 
@@ -16,6 +20,9 @@ export async function POST(req: Request) {
  const rawCalcSection = body.calculatorSection;
  const calculatorSection: CalculatorSectionPolicy | undefined =
   rawCalcSection === "no_calculator" || rawCalcSection === "calculator" ? rawCalcSection : undefined;
+ const rawDiff = body.difficulty;
+ const difficulty: ProceduralDifficulty | undefined =
+  rawDiff === "random" || rawDiff === "easy" || rawDiff === "medium" || rawDiff === "hard" ? rawDiff : undefined;
 
  if (!courseId) {
  return NextResponse.json({ error: "courseId is required" }, { status: 400 });
@@ -51,6 +58,7 @@ export async function POST(req: Request) {
    seed,
    avoidKeys: avoid,
    calculatorSection,
+   difficulty,
   });
 
   // If we couldn't get enough unseen variants, keep trying with new entropy seeds.
@@ -70,6 +78,7 @@ export async function POST(req: Request) {
      seed: nextSeed,
      avoidKeys: avoid,
      calculatorSection,
+     difficulty,
     });
     for (const q of more) {
      const key = proceduralUniqKey(q);
@@ -104,6 +113,7 @@ export async function POST(req: Request) {
       seed,
       avoidKeys: avoid,
       calculatorSection,
+      difficulty,
      });
     } catch {
      // ignore

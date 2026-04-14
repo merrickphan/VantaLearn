@@ -40,6 +40,18 @@ export interface ProcCtx {
  seedBase: string;
  /** When set for Calc AB/BC, tightens numeric parameters (no-calculator) or keeps full ranges (calculator). */
  calculatorAllowed?: boolean;
+ /** Per-question difficulty for procedural numeric spread (easy / medium / hard). */
+ difficulty?: "easy" | "medium" | "hard";
+}
+
+type NumericSpread = "tight" | "medium" | "wide";
+
+function numericSpreadForCtx(ctx: ProcCtx): NumericSpread {
+ if (ctx.calculatorAllowed === false) return "tight";
+ const d = ctx.difficulty ?? "medium";
+ if (d === "easy") return "tight";
+ if (d === "hard") return "wide";
+ return "medium";
 }
 
 export type QuestionGen = (rng: () => number, ctx: ProcCtx, i: number) => ExamQuestion;
@@ -92,9 +104,9 @@ function mc(
 /* - - - Calculus / precalc / stats - - - */
 
 export function genDerivativePower(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
- const tight = ctx.calculatorAllowed === false;
- const n = randInt(rng, 2, tight ? 9 : 48);
- const coefMag = randInt(rng, 1, tight ? 12 : 72);
+ const spread = numericSpreadForCtx(ctx);
+ const n = randInt(rng, 2, spread === "tight" ? 9 : spread === "wide" ? 56 : 48);
+ const coefMag = randInt(rng, 1, spread === "tight" ? 12 : spread === "wide" ? 90 : 72);
  const sign = pick(rng, [-1, 1] as const);
  const coef = coefMag * sign;
  const d = coef * n;
@@ -126,10 +138,10 @@ export function genDerivativePower(rng: () => number, ctx: ProcCtx, i: number): 
 }
 
 export function genLimitLinear(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
- const tight = ctx.calculatorAllowed === false;
- const a = randInt(rng, 1, tight ? 14 : 42);
- const b = randInt(rng, tight ? -18 : -60, tight ? 18 : 60);
- const c = randInt(rng, 1, tight ? 18 : 55);
+ const spread = numericSpreadForCtx(ctx);
+ const a = randInt(rng, 1, spread === "tight" ? 14 : spread === "wide" ? 48 : 42);
+ const b = randInt(rng, spread === "tight" ? -18 : -60, spread === "tight" ? 18 : spread === "wide" ? 72 : 60);
+ const c = randInt(rng, 1, spread === "tight" ? 18 : spread === "wide" ? 62 : 55);
  const lim = a * c + b;
  const stemIdx = randInt(rng, 0, LIMIT_AFTER_TABLE_STEMS.length - 1);
  const stem = LIMIT_AFTER_TABLE_STEMS[stemIdx];
@@ -159,9 +171,9 @@ export function genLimitLinear(rng: () => number, ctx: ProcCtx, i: number): Exam
 }
 
 export function genIntegralPower(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
- const tight = ctx.calculatorAllowed === false;
- const n = randInt(rng, 2, tight ? 7 : 14);
- const coef = randInt(rng, 1, tight ? 12 : 28);
+ const spread = numericSpreadForCtx(ctx);
+ const n = randInt(rng, 2, spread === "tight" ? 7 : spread === "wide" ? 16 : 14);
+ const coef = randInt(rng, 1, spread === "tight" ? 12 : spread === "wide" ? 34 : 28);
  const exp = n + 1;
  const num = coef;
  const correct = `(${num}/${exp})x^${exp} + C`;
@@ -190,12 +202,12 @@ export function genIntegralPower(rng: () => number, ctx: ProcCtx, i: number): Ex
 }
 
 export function genCompositionValue(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
- const tight = ctx.calculatorAllowed === false;
- const a = randInt(rng, 1, tight ? 9 : 18);
- const b = randInt(rng, 1, tight ? 14 : 35);
- const x0 = randInt(rng, 1, tight ? 8 : 22);
+ const spread = numericSpreadForCtx(ctx);
+ const a = randInt(rng, 1, spread === "tight" ? 9 : spread === "wide" ? 22 : 18);
+ const b = randInt(rng, 1, spread === "tight" ? 14 : spread === "wide" ? 42 : 35);
+ const x0 = randInt(rng, 1, spread === "tight" ? 8 : spread === "wide" ? 28 : 22);
  const inner = a * x0 + b;
- const outerCoef = randInt(rng, 2, tight ? 12 : 24);
+ const outerCoef = randInt(rng, 2, spread === "tight" ? 12 : spread === "wide" ? 28 : 24);
  const val = outerCoef * inner;
  const stemIdx = randInt(rng, 0, COMPOSITION_TABLE_STEMS.length - 1);
  const stem = fillStem(COMPOSITION_TABLE_STEMS[stemIdx], { x0 });
@@ -268,9 +280,12 @@ export function genTrigSpecial(rng: () => number, ctx: ProcCtx, i: number): Exam
 }
 
 export function genMeanSimple(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
- const a = randInt(rng, 12, 998);
- const b = randInt(rng, 12, 998);
- const c = randInt(rng, 12, 998);
+ const spread = numericSpreadForCtx(ctx);
+ const lo = spread === "tight" ? 4 : spread === "wide" ? 20 : 12;
+ const hi = spread === "tight" ? 48 : spread === "wide" ? 998 : 998;
+ const a = randInt(rng, lo, hi);
+ const b = randInt(rng, lo, hi);
+ const c = randInt(rng, lo, hi);
  const mean = roundN((a + b + c) / 3, 2);
  const stemIdx = randInt(rng, 0, MEAN_AFTER_TABLE_STEMS.length - 1);
  const stem = MEAN_AFTER_TABLE_STEMS[stemIdx];

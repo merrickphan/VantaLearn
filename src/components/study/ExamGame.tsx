@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef, type ReactNode } from "react";
+import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
 import Link from "next/link";
 import type { ExamFigure as ExamFigureData, ExamQuestion } from "@/types";
 import { useExamProgress } from "@/hooks/useProgress";
+import { useTimer } from "@/hooks/useTimer";
+import { DesmosCalculatorDock } from "@/components/study/DesmosCalculatorDock";
 import { Button, Card, Badge, ProgressBar, Textarea, Spinner } from "@/components/ui";
 import { calculateAPScore } from "@/lib/calculateAPScore";
 import { ExamFigure } from "@/components/exam/ExamFigure";
@@ -202,15 +204,34 @@ export function ExamGame({
  title,
  topSlot,
  onRetry,
+ timeLimitSeconds = 0,
+ showDesmosCalculator = false,
 }: {
  questions: ExamQuestion[];
  title: string;
  topSlot?: ReactNode;
  /** When set, "Try again" / new session uses this instead of full page reload */
  onRetry?: () => void;
+ /** Counts down while the exam is in progress; at 0 the exam submits automatically. */
+ timeLimitSeconds?: number;
+ /** Shows a Desmos graphing calculator dock (e.g. AP Calc calculator section). */
+ showDesmosCalculator?: boolean;
 }) {
  const { answers, submitted, answerQuestion, submit, stats } = useExamProgress(questions.length);
  const statsRecorded = useRef(false);
+ const submitRef = useRef(submit);
+ submitRef.current = submit;
+
+ const onTimerExpire = useCallback(() => {
+ submitRef.current();
+ }, []);
+
+ const timerEnabled = timeLimitSeconds > 0;
+ const { seconds: timerRemaining, stop: stopTimer } = useTimer({
+ initialSeconds: timerEnabled ? timeLimitSeconds : 0,
+ onExpire: timerEnabled ? onTimerExpire : undefined,
+ autoStart: timerEnabled,
+ });
 
  useEffect(() => {
  if (!submitted || statsRecorded.current) return;
@@ -220,6 +241,10 @@ export function ExamGame({
  recordExamComplete(subject, correctCount, questions.length);
  // eslint-disable-next-line react-hooks/exhaustive-deps
  }, [submitted, questions]);
+
+ useEffect(() => {
+ if (submitted) stopTimer();
+ }, [submitted, stopTimer]);
 
  const handleRetry = () => {
  if (onRetry) onRetry();
@@ -286,8 +311,11 @@ export function ExamGame({
  );
  }
 
+ const timerClock = `${String(Math.floor(timerRemaining / 60)).padStart(2, "0")}:${String(timerRemaining % 60).padStart(2, "0")}`;
+
  return (
  <div className="max-w-3xl mx-auto px-4 py-8">
+ {showDesmosCalculator && !submitted ? <DesmosCalculatorDock /> : null}
  <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
  <div>
  <Link href="/study" className="text-xs text-vanta-muted hover:text-vanta-blue">
@@ -295,7 +323,12 @@ export function ExamGame({
  </Link>
  <h1 className="text-vanta-text font-semibold mt-0.5">{title}</h1>
  </div>
- <div className="flex items-center gap-2">
+ <div className="flex items-center gap-2 flex-wrap justify-end">
+ {timerEnabled && !submitted ? (
+ <Badge variant="blue" className="tabular-nums font-mono text-sm">
+ Time left {timerClock}
+ </Badge>
+ ) : null}
  {topSlot}
  <Badge variant="gray">
  {stats.answeredCount}/{questions.length} answered

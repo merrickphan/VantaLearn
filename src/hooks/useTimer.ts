@@ -10,7 +10,7 @@ interface UseTimerOptions {
 
 export function useTimer({ initialSeconds, onExpire, autoStart = false }: UseTimerOptions) {
  const [seconds, setSeconds] = useState(initialSeconds);
- const [isRunning, setIsRunning] = useState(autoStart);
+ const [isRunning, setIsRunning] = useState(Boolean(autoStart && initialSeconds > 0));
  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
  const stop = useCallback(() => {
@@ -25,7 +25,7 @@ export function useTimer({ initialSeconds, onExpire, autoStart = false }: UseTim
  }, [stop, initialSeconds]);
 
  useEffect(() => {
- if (!isRunning) return;
+ if (!isRunning || initialSeconds <= 0) return;
  intervalRef.current = setInterval(() => {
  setSeconds((prev) => {
  if (prev <= 1) {
@@ -37,7 +37,7 @@ export function useTimer({ initialSeconds, onExpire, autoStart = false }: UseTim
  });
  }, 1000);
  return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
- }, [isRunning, stop, onExpire]);
+ }, [isRunning, stop, onExpire, initialSeconds]);
 
  const formatted = {
  hours: Math.floor(seconds / 3600),
