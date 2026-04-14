@@ -129,6 +129,26 @@ ALTER TABLE public.ai_feedback ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.study_resources ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.flashcards ENABLE ROW LEVEL SECURITY;
 
+-- ============================================================
+-- PROCEDURAL QUESTION "SEEN" TABLE
+-- Tracks which procedural question variants each user has already received,
+-- so we can avoid repeats until the variant space is exhausted.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.procedural_seen_questions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  course_id TEXT NOT NULL,
+  unit_id TEXT NOT NULL,
+  fingerprint TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (user_id, fingerprint)
+);
+
+CREATE INDEX IF NOT EXISTS idx_proc_seen_user_course_unit ON public.procedural_seen_questions(user_id, course_id, unit_id);
+CREATE INDEX IF NOT EXISTS idx_proc_seen_user_created_at ON public.procedural_seen_questions(user_id, created_at);
+
+ALTER TABLE public.procedural_seen_questions ENABLE ROW LEVEL SECURITY;
+
 -- Users can only read/update their own profile
 CREATE POLICY "Users can view own profile" ON public.users FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "Users can update own profile" ON public.users FOR UPDATE USING (auth.uid() = id);
@@ -151,6 +171,14 @@ CREATE POLICY "Authenticated users can view published resources" ON public.study
 -- Flashcards: all authenticated users can read
 CREATE POLICY "Authenticated users can view flashcards" ON public.flashcards
   FOR SELECT USING (auth.role() = 'authenticated');
+
+-- Procedural seen: users only see/insert/delete their own
+CREATE POLICY "Users can view own procedural seen" ON public.procedural_seen_questions
+  FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own procedural seen" ON public.procedural_seen_questions
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own procedural seen" ON public.procedural_seen_questions
+  FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================
 -- UPDATED_AT TRIGGER
