@@ -86,16 +86,16 @@ function QuestionCard({
  </div>
  ) : null}
  {exhibitAboveStem ? (
- <p className="mb-3 font-serif text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
+ <p className="mb-3 text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
  {formatNiceMath(stim.body)}
  </p>
  ) : null}
- <p className="text-vanta-text font-medium mb-3 leading-relaxed font-serif text-[15px]">
+ <p className="text-vanta-text font-medium mb-3 leading-relaxed text-[15px]">
  <span className="tabular-nums">{questionNumber}. </span>
  {formatNiceMath(question.question)}
  </p>
  {exhibitBelow ? (
- <p className="mb-4 font-serif text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
+ <p className="mb-4 text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
  {formatNiceMath(stim.body)}
  </p>
  ) : null}
@@ -120,7 +120,7 @@ function QuestionCard({
  onAnswer(opt);
  }}
  disabled={submitted}
- className={`exam-mcq-idle w-full text-left px-4 py-3 rounded-lg text-[15px] border font-serif
+  className={`exam-mcq-idle w-full text-left px-4 py-3 rounded-lg text-[15px] border
  ${tapOptionIdx === optIdx ? "exam-mcq-option-tap" : ""}
  ${isCorrectOpt ? "exam-mcq-correct" : ""}
  ${isWrongOpt ? "exam-mcq-wrong" : ""}
