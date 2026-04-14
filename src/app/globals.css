@@ -43,7 +43,7 @@ html:not([data-theme]) {
 /* Dark theme: former “white” areas → dark gray, former dark text → light */
 html[data-theme="dark"] {
  color-scheme: dark;
- --vanta-bg: #1f2329;
+ --vanta-bg: #14181d;
  --vanta-surface: #343b47;
  --vanta-surface-elevated: #3d4554;
  --vanta-surface-hover: #4a5365;
