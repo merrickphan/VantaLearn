@@ -36,7 +36,7 @@ export function estimateMinStructuresForCourse(courseId: string): number {
  case "psych":
  return mass.psych + 150;
  case "gov":
- return mass.gov + 200;
+  return mass.gov + 200;
  case "lang":
  case "lit":
  return mass.eng + 120;
@@ -60,7 +60,7 @@ export function estimateMinStructuresForCourse(courseId: string): number {
  case "chem":
  return MOLARITY_STEMS.length * 5 * 4 * 400 + 800;
  case "comp-gov":
- return mass.gov + 150;
+  return mass["comp-gov"] + 150;
  case "hum-geo":
  case "ush":
  case "wh":

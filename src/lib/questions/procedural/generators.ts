@@ -17,7 +17,8 @@ import {
  examFromMassRow,
  pickEconMassRow,
  pickEngMassRow,
- pickGovMassRow,
+ pickCompGovMassRow,
+ pickGovUsMassRow,
  pickPsychMassRow,
 } from "./apMassConceptBanks";
 import { getHumanGeographyGeneratorsForUnit } from "./humanGeographyUnitPools";
@@ -1649,7 +1650,11 @@ export function genPsychMass(rng: () => number, ctx: ProcCtx, i: number): ExamQu
 }
 
 export function genGovMass(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
- return examFromMassRow(rng, ctx, i, "gov-mass", pickGovMassRow(rng));
+ return examFromMassRow(rng, ctx, i, "gov-mass", pickGovUsMassRow(rng));
+}
+
+export function genCompGovMass(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ return examFromMassRow(rng, ctx, i, "comp-gov-mass", pickCompGovMassRow(rng));
 }
 
 export function genEngMass(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
@@ -1694,7 +1699,7 @@ const GOV: QuestionGen[] = [
  genGovMass,
 ];
 
-const COMP_GOV: QuestionGen[] = [genRegimeType, genChecksBalances, genNationState, genGovMass];
+const COMP_GOV: QuestionGen[] = [genRegimeType, genChecksBalances, genNationState, genCompGovMass];
 
 const ECON: QuestionGen[] = [genOppCost, genGDPdeflator, genEconUnemploymentLineFig, genEconMass];
 
