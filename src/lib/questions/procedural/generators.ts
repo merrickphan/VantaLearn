@@ -1318,12 +1318,18 @@ export function genGeoCropsTableFig(rng: () => number, ctx: ProcCtx, i: number):
 }
 
 export function genWW2Turning(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = pick(rng, [
+  "Which battle is commonly cited as a major turning point on the Eastern Front in World War II?",
+  "On the Eastern Front, which battle is most often identified as a turning point in World War II?",
+  "Which engagement is frequently described as a decisive turning point against Germany on the Eastern Front?",
+  "Many historians cite which battle as a key turning point on the Eastern Front during World War II?",
+ ]);
  return mc(
  rng,
  ctx,
  i,
  "ww2",
- "Which battle is commonly cited as a major turning point on the Eastern Front in World War II?",
+  stem,
  "Stalingrad",
  "Verdun",
  "Somme",
@@ -1333,12 +1339,18 @@ export function genWW2Turning(rng: () => number, ctx: ProcCtx, i: number): ExamQ
 }
 
 export function genPrintingPressSpread(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = pick(rng, [
+  "The rapid spread of printed books in 15th-16th century Europe most strongly helped",
+  "The diffusion of print technology in early modern Europe most directly contributed to",
+  "Wider access to printed materials in 15th-16th century Europe most strongly promoted",
+  "The printing press is historically linked to which outcome in early modern Europe?",
+ ]);
  return mc(
  rng,
  ctx,
  i,
  "print",
- "The rapid spread of printed books in 15th-16th century Europe most strongly helped",
+  stem,
  "diffuse religious and scientific ideas",
  "end all regional wars",
  "abolish feudalism overnight",
@@ -1348,12 +1360,18 @@ export function genPrintingPressSpread(rng: () => number, ctx: ProcCtx, i: numbe
 }
 
 export function genScrambleAfrica(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = pick(rng, [
+  "The late 19th-century European partitioning of African territory is most associated with",
+  "European rules for colonizing and partitioning Africa in the late 1800s are most closely linked to",
+  "The meeting that set guidelines for European claims in Africa is known as",
+  "The event most closely tied to formalizing the 'Scramble for Africa' was",
+ ]);
  return mc(
  rng,
  ctx,
  i,
  "berlin",
- "The late 19th-century European partitioning of African territory is most associated with",
+  stem,
  "the Berlin Conference (1884-85)",
  "the Congress of Vienna",
  "the Treaty of Versailles",
@@ -1704,18 +1722,16 @@ const CS_A: QuestionGen[] = [genBigO, genLoopCount, genBooleanExpr, genCsMass];
 const CSP: QuestionGen[] = [genBigO, genLoopCount, genBooleanExpr, genCspListIndex, genCsMass];
 const PHYS_ALG: QuestionGen[] = [genKinematicsV, genEnergyKE, genPhysMass];
 const PHYS_C: QuestionGen[] = [genKinematicsV, genEnergyKE, genCoulombConcept, genPhysMass];
-const CHEM: QuestionGen[] = [genMolarity, genPHScale, genChemConcentrationBarFig, genChemMass];
-const BIO: QuestionGen[] = [genDNAbase, genCarryingCapacity, genBioSpeciesTableFig, genBioMass];
-const ENV: QuestionGen[] = [genCarryingCapacity, genPHScale];
+const CHEM: QuestionGen[] = [genMolarity, genChemConcentrationBarFig, genChemMass];
+const BIO: QuestionGen[] = [genBioSpeciesTableFig, genBioMass];
+// ENV previously relied on fixed concept items; use the (varied) mass bank instead.
+const ENV: QuestionGen[] = [genChemMass, genBioMass];
 
+// History: avoid single fixed prompts; keep these but they will be randomized in-function.
 const HIST_SHARED: QuestionGen[] = [genWW2Turning];
 const HIST_GLOBAL: QuestionGen[] = [genPrintingPressSpread, genScrambleAfrica];
 
 const GOV: QuestionGen[] = [
- genAmendmentFreeSpeech,
- genChecksBalances,
- genSeparationOfPowers,
- genFederalismConcept,
  genGovMass,
 ];
 
