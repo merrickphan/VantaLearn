@@ -126,7 +126,7 @@ function QuestionCard({
  ${isWrongOpt ? "exam-mcq-wrong" : ""}
  ${!submitted && isSelected ? "bg-sky-500/25 border-sky-500 border-2 text-vanta-text shadow-sm" : ""}
  ${!submitted && !isSelected ? "bg-vanta-surface-elevated border-vanta-border text-vanta-text hover:bg-vanta-surface-hover hover:border-sky-500/35" : ""}
- ${isDimmed ? "opacity-45 border-vanta-border bg-vanta-surface-elevated text-vanta-muted" : ""}
+ ${isDimmed ? "opacity-60 border-vanta-border bg-vanta-surface-elevated text-vanta-muted" : ""}
  disabled:cursor-default`}
  >
  <span className="flex items-start justify-between gap-3 w-full">
