@@ -43,8 +43,8 @@ export default function HomePage() {
 
  <h1 className="fade-up font-display text-4xl sm:text-5xl md:text-6xl font-bold text-vanta-text tracking-wide leading-tight max-w-3xl mb-6">
  Ace your{" "}
- <span className="text-sky-400">AP & SAT</span>{" "}
- exams with AI
+ <span className="text-sky-400">AP Exams</span>
+ {" "}with VantaLearn
  </h1>
 
  <p className="fade-up text-lg text-vanta-muted max-w-xl mb-10 leading-relaxed">
