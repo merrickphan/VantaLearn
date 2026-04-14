@@ -53,6 +53,22 @@ const BarChartIcon = () => (
  </svg>
 );
 
+const CalculatorIcon = () => (
+ <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <rect x="5" y="3" width="14" height="18" rx="2" />
+  <line x1="8" y1="7" x2="16" y2="7" />
+  <line x1="9" y1="11" x2="9" y2="11" />
+  <line x1="12" y1="11" x2="12" y2="11" />
+  <line x1="15" y1="11" x2="15" y2="11" />
+  <line x1="9" y1="14" x2="9" y2="14" />
+  <line x1="12" y1="14" x2="12" y2="14" />
+  <line x1="15" y1="14" x2="15" y2="14" />
+  <line x1="9" y1="17" x2="9" y2="17" />
+  <line x1="12" y1="17" x2="12" y2="17" />
+  <line x1="15" y1="17" x2="15" y2="17" />
+ </svg>
+);
+
 const SettingsIcon = () => (
  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
  <circle cx="12" cy="12" r="3" />
@@ -72,7 +88,7 @@ const mainNav = [
  { href: "/dashboard", label: "Dashboard", icon: <LayoutGridIcon /> },
  { href: "/study", label: "Practice", icon: <BookIcon /> },
  { href: "/dashboard/predictor", label: "Predictor", icon: <TrendIcon /> },
- { href: "/dashboard/score-calculator", label: "AP® scores", icon: <SimpleIconBox name="calculator" size={22} /> },
+ { href: "/dashboard/score-calculator", label: "AP® scores", icon: <CalculatorIcon /> },
  { href: "/dashboard/progress", label: "Progress", icon: <BarChartIcon /> },
  { href: "/dashboard/settings", label: "Settings", icon: <SettingsIcon /> },
 ];
