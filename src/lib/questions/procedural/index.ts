@@ -1,7 +1,7 @@
 ﻿import { AP_COURSES } from "@/lib/apCatalog";
 import { getUnitOrFirst } from "@/lib/apUnits";
 import type { ExamQuestion } from "@/types";
-import { createRng, hashString, proceduralQuestionFingerprint, randomSeedEntropy, shuffleInPlace } from "./utils";
+import { createRng, hashString, proceduralUniqKey, randomSeedEntropy, shuffleInPlace } from "./utils";
 import { getGeneratorsForCourse, type ProcCtx } from "./generators";
 
 export interface GenerateProceduralParams {
@@ -10,8 +10,8 @@ export interface GenerateProceduralParams {
  count: number;
  /** Optional seed for reproducible sets (defaults to random per request). */
  seed?: string;
- /** Fingerprints to avoid returning (e.g., already seen by the user). */
- avoidFingerprints?: ReadonlySet<string>;
+ /** Uniqueness keys to avoid returning (e.g., already seen by the user). */
+ avoidKeys?: ReadonlySet<string>;
 }
 
 export function generateProceduralQuestions(params: GenerateProceduralParams): ExamQuestion[] {
@@ -44,7 +44,7 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
  const order = shuffleInPlace(createRng(seedBase, `strat|${course.id}|${unit.id}`), [...Array(pool.length).keys()]);
  const seen = new Set<string>();
  const seenStructure = new Set<string>();
- const avoid = params.avoidFingerprints ?? new Set<string>();
+ const avoid = params.avoidKeys ?? new Set<string>();
 
  const MAX_ATTEMPTS = 512;
 
@@ -58,26 +58,26 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
  `slot${i}|g${genIndex}|t${attempt}|${hashString(unit.id)}|${hashString(String(attempt * 9301 + genIndex * 104729))}`,
  );
  const cand = pool[genIndex](rng, ctx, i);
- const fp = proceduralQuestionFingerprint(cand);
+   const key = proceduralUniqKey(cand);
    const struct = cand.procedural_structure_id ?? "";
    const isStructRepeated = struct ? seenStructure.has(struct) : false;
-   const acceptable = !avoid.has(fp) && !seen.has(fp) && !isStructRepeated;
+   const acceptable = !avoid.has(key) && !seen.has(key) && !isStructRepeated;
    if (acceptable) {
- seen.add(fp);
+    seen.add(key);
     if (struct) seenStructure.add(struct);
  q = cand;
  break;
  }
    // Keep a fallback that at least avoids exact repeats, even if structure repeats.
-   if (!bestFallback && !avoid.has(fp) && !seen.has(fp)) bestFallback = cand;
+   if (!bestFallback && !avoid.has(key) && !seen.has(key)) bestFallback = cand;
  }
  if (!q) {
    // Prefer any candidate that avoids repeats even if sentence structure repeats.
    if (bestFallback) {
     q = bestFallback;
-    const fp = proceduralQuestionFingerprint(q);
+    const key = proceduralUniqKey(q);
     const struct = q.procedural_structure_id ?? "";
-    seen.add(fp);
+    seen.add(key);
     if (struct) seenStructure.add(struct);
    } else {
     const genIndex = order[i % order.length];

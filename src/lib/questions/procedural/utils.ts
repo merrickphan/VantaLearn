@@ -106,6 +106,17 @@ export function proceduralQuestionFingerprint(q: ExamQuestion): string {
  return `${q.question.trim()}\n${String(q.correct_answer).trim()}\n${fig}`;
 }
 
+/**
+ * Stable uniqueness key for "never show same question twice" tracking.
+ * Prefer `procedural_structure_id` when present because it remains stable even if
+ * optional stimulus text or lead-in phrasing changes.
+ */
+export function proceduralUniqKey(q: ExamQuestion): string {
+ const s = q.procedural_structure_id?.trim();
+ if (s) return `sid:${s}`;
+ return `fp:${proceduralQuestionFingerprint(q)}`;
+}
+
 export function uniqueOptions(correct: string, wrong: string[], rng: () => number): string[] {
  const set = new Set<string>([correct, ...wrong]);
  const opts = shuffleInPlace(rng, [...set]);

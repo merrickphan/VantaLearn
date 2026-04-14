@@ -2,7 +2,7 @@
 import { proceduralPracticeMcqCountForCourse } from "@/lib/apPracticeExamFormat";
 import { generateProceduralQuestions } from "@/lib/questions/procedural";
 import { createClient } from "@/lib/supabase/server";
-import { proceduralQuestionFingerprint, randomSeedEntropy } from "@/lib/questions/procedural/utils";
+import { proceduralUniqKey, randomSeedEntropy } from "@/lib/questions/procedural/utils";
 
 export async function POST(req: Request) {
  try {
@@ -31,8 +31,7 @@ export async function POST(req: Request) {
      .from("procedural_seen_questions")
      .select("fingerprint")
      .eq("user_id", userId)
-     .eq("course_id", courseId)
-     .eq("unit_id", unitId ?? "");
+     .eq("course_id", courseId);
     if (rows) {
      avoid = new Set(rows.map((r: { fingerprint: string }) => r.fingerprint));
     }
@@ -42,13 +41,13 @@ export async function POST(req: Request) {
   }
 
   const MAX_ROUNDS = 12;
-  let questions = generateProceduralQuestions({ courseId, unitId, count, seed, avoidFingerprints: avoid });
+  let questions = generateProceduralQuestions({ courseId, unitId, count, seed, avoidKeys: avoid });
 
   // If we couldn't get enough unseen variants, keep trying with new entropy seeds.
   // If still stuck, treat it as "exhausted" and reset the seen set for this course/unit.
   if (userId) {
    for (let round = 0; round < MAX_ROUNDS; round++) {
-    const unseen = questions.filter((q) => !avoid.has(proceduralQuestionFingerprint(q)));
+    const unseen = questions.filter((q) => !avoid.has(proceduralUniqKey(q)));
     if (unseen.length >= count) {
      questions = unseen.slice(0, count);
      break;
@@ -59,19 +58,19 @@ export async function POST(req: Request) {
      unitId,
      count,
      seed: nextSeed,
-     avoidFingerprints: avoid,
+     avoidKeys: avoid,
     });
     for (const q of more) {
-     const fp = proceduralQuestionFingerprint(q);
-     if (!avoid.has(fp)) questions.push(q);
+     const key = proceduralUniqKey(q);
+     if (!avoid.has(key)) questions.push(q);
     }
    }
 
    const final: typeof questions = [];
    for (const q of questions) {
-    const fp = proceduralQuestionFingerprint(q);
-    if (avoid.has(fp)) continue;
-    avoid.add(fp);
+    const key = proceduralUniqKey(q);
+    if (avoid.has(key)) continue;
+    avoid.add(key);
     final.push(q);
     if (final.length >= count) break;
    }
@@ -85,10 +84,9 @@ export async function POST(req: Request) {
       .from("procedural_seen_questions")
       .delete()
       .eq("user_id", userId)
-      .eq("course_id", courseId)
-      .eq("unit_id", unitId ?? "");
+      .eq("course_id", courseId);
      avoid.clear();
-     questions = generateProceduralQuestions({ courseId, unitId, count, seed, avoidFingerprints: avoid });
+     questions = generateProceduralQuestions({ courseId, unitId, count, seed, avoidKeys: avoid });
     } catch {
      // ignore
     }
@@ -101,7 +99,7 @@ export async function POST(req: Request) {
      user_id: userId,
      course_id: courseId,
      unit_id: unitId ?? "",
-     fingerprint: proceduralQuestionFingerprint(q),
+     fingerprint: proceduralUniqKey(q),
     }));
     if (inserts.length) {
      await supabase.from("procedural_seen_questions").upsert(inserts, { onConflict: "user_id,fingerprint" });
