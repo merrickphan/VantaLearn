@@ -15,10 +15,14 @@ import {
 import { distinctRandInts, hashString, pick, pickThreeDistinct, randInt, roundN, shuffleInPlace } from "./utils";
 import {
  examFromMassRow,
+ pickBioMassRow,
+ pickChemMassRow,
+ pickCsMassRow,
  pickEconMassRow,
  pickEngMassRow,
  pickCompGovMassRow,
  pickGovUsMassRow,
+ pickPhysMassRow,
  pickPsychMassRow,
 } from "./apMassConceptBanks";
 import { getHumanGeographyGeneratorsForUnit } from "./humanGeographyUnitPools";
@@ -1665,6 +1669,22 @@ export function genEconMass(rng: () => number, ctx: ProcCtx, i: number): ExamQue
  return examFromMassRow(rng, ctx, i, "econ-mass", pickEconMassRow(rng));
 }
 
+export function genCsMass(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ return examFromMassRow(rng, ctx, i, "cs-mass", pickCsMassRow(rng));
+}
+
+export function genPhysMass(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ return examFromMassRow(rng, ctx, i, "phys-mass", pickPhysMassRow(rng));
+}
+
+export function genChemMass(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ return examFromMassRow(rng, ctx, i, "chem-mass", pickChemMassRow(rng));
+}
+
+export function genBioMass(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ return examFromMassRow(rng, ctx, i, "bio-mass", pickBioMassRow(rng));
+}
+
 /* - - - Pools - - - */
 
 const CALC: QuestionGen[] = [
@@ -1680,12 +1700,12 @@ const STATS_TEXT: QuestionGen[] = [genMeanSimple, genZScoreConcept];
 const STATS_FIG: QuestionGen[] = [genStatsBarChartMode, genStatsExamLineTrend];
 const STATS_FULL: QuestionGen[] = [...STATS_TEXT, ...STATS_FIG];
 
-const CS_A: QuestionGen[] = [genBigO, genLoopCount, genBooleanExpr];
-const CSP: QuestionGen[] = [genBigO, genLoopCount, genBooleanExpr, genCspListIndex];
-const PHYS_ALG: QuestionGen[] = [genKinematicsV, genEnergyKE];
-const PHYS_C: QuestionGen[] = [genKinematicsV, genEnergyKE, genCoulombConcept];
-const CHEM: QuestionGen[] = [genMolarity, genPHScale, genChemConcentrationBarFig];
-const BIO: QuestionGen[] = [genDNAbase, genCarryingCapacity, genBioSpeciesTableFig];
+const CS_A: QuestionGen[] = [genBigO, genLoopCount, genBooleanExpr, genCsMass];
+const CSP: QuestionGen[] = [genBigO, genLoopCount, genBooleanExpr, genCspListIndex, genCsMass];
+const PHYS_ALG: QuestionGen[] = [genKinematicsV, genEnergyKE, genPhysMass];
+const PHYS_C: QuestionGen[] = [genKinematicsV, genEnergyKE, genCoulombConcept, genPhysMass];
+const CHEM: QuestionGen[] = [genMolarity, genPHScale, genChemConcentrationBarFig, genChemMass];
+const BIO: QuestionGen[] = [genDNAbase, genCarryingCapacity, genBioSpeciesTableFig, genBioMass];
 const ENV: QuestionGen[] = [genCarryingCapacity, genPHScale];
 
 const HIST_SHARED: QuestionGen[] = [genWW2Turning];

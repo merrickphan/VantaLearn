@@ -43,6 +43,58 @@ export type MassConceptRow = {
 
 type W = [string, string, string];
 
+function uniqStrings(xs: readonly string[]): string[] {
+ const out: string[] = [];
+ const seen = new Set<string>();
+ for (const x of xs) {
+  const t = String(x).trim();
+  if (!t) continue;
+  if (seen.has(t)) continue;
+  seen.add(t);
+  out.push(t);
+ }
+ return out;
+}
+
+type MassConceptTemplate = {
+ /** Prefix used in `procedural_structure_id` (also drives stimulus pool prefixes). */
+ idPrefix: string;
+ stems: readonly string[];
+ correct: string;
+ /** Large distractor pool (we pick any 3 distinct items from it). */
+ wrongPool: readonly string[];
+ explanation: string;
+};
+
+function pickThreeWrongFromPool(rng: () => number, pool: readonly string[], correct: string): [string, string, string] {
+ const filtered = pool.map(String).filter((x) => x && x !== correct);
+ if (filtered.length < 3) {
+  // Fallback for safety; should not happen if pools are sized correctly.
+  return [filtered[0] ?? "INVALID", filtered[1] ?? "INVALID", filtered[2] ?? "INVALID"];
+ }
+ // Shuffle then take first 3.
+ const shuffled = shuffleInPlace(rng, [...filtered]);
+ return [shuffled[0], shuffled[1], shuffled[2]];
+}
+
+function pickMassRowFromTemplates(rng: () => number, templates: readonly MassConceptTemplate[]): MassConceptRow {
+ const t = pick(rng, templates);
+ const stemIdx = Math.floor(rng() * t.stems.length);
+ const stem = t.stems[Math.max(0, Math.min(t.stems.length - 1, stemIdx))] ?? t.stems[0]!;
+ const wrongPool = uniqStrings(t.wrongPool);
+ const [w1, w2, w3] = pickThreeWrongFromPool(rng, wrongPool, t.correct);
+ // Stable-ish structure id: prefix + chosen stem + chosen wrongs (sorted by pool index where possible).
+ const idx = (w: string) => Math.max(0, wrongPool.indexOf(w));
+ const wIdx = [idx(w1), idx(w2), idx(w3)].sort((a, b) => a - b);
+ return {
+  id: `${t.idPrefix}-s${stemIdx}-w${wIdx[0]}-${wIdx[1]}-${wIdx[2]}`,
+  stem,
+  correct: t.correct,
+  w: [w1, w2, w3],
+  explanation: t.explanation,
+ };
+}
+
 function expand(
  prefix: string,
  stems: readonly string[],
@@ -355,7 +407,94 @@ export const PSYCH_CONCEPT_BANK: MassConceptRow[] = [
 ];
 
 export function pickPsychMassRow(rng: () => number): MassConceptRow {
- return pick(rng, PSYCH_CONCEPT_BANK);
+ // Combinatorial templates ensure 10,000+ possible structures.
+ const TEMPLATES: readonly MassConceptTemplate[] = [
+  {
+   idPrefix: "psych-iv",
+   stems: IV_STEMS,
+   correct: "independent variable",
+   wrongPool: uniqStrings([...IV_WRONGS.flat(), "dependent variable", "confounding variable", "control variable", "extraneous variable", "random assignment"]),
+   explanation: "The IV is what the experimenter manipulates.",
+  },
+  {
+   idPrefix: "psych-dv",
+   stems: DV_STEMS,
+   correct: "dependent variable",
+   wrongPool: uniqStrings([...DV_WRONGS.flat(), "independent variable", "confounding variable", "control variable", "measurement error", "construct validity"]),
+   explanation: "The DV is what you measure as the outcome.",
+  },
+  {
+   idPrefix: "psych-syn",
+   stems: SYN_STEMS,
+   correct: "synapse",
+   wrongPool: uniqStrings([...SYN_WRONGS.flat(), "axon", "dendrite", "myelin sheath", "cerebellum"]),
+   explanation: "Neurotransmitters cross the synaptic cleft.",
+  },
+  {
+   idPrefix: "psych-posr",
+   stems: POS_REINF_STEMS,
+   correct: "positive reinforcement",
+   wrongPool: uniqStrings([...POS_REINF_WRONGS.flat(), "negative reinforcement", "positive punishment", "negative punishment", "extinction"]),
+   explanation: "A pleasant stimulus is added to strengthen behavior.",
+  },
+  {
+   idPrefix: "psych-negr",
+   stems: OPERANT_STEMS,
+   correct: "negative reinforcement",
+   wrongPool: uniqStrings([...NEG_REINF_WRONGS.flat(), "positive reinforcement", "positive punishment", "negative punishment", "extinction"]),
+   explanation: "An aversive stimulus is removed after a response.",
+  },
+  {
+   idPrefix: "psych-hyp",
+   stems: HYPOTHESIS_STEMS,
+   correct: "hypothesis",
+   wrongPool: uniqStrings([...HYP_WRONGS.flat(), "theory", "opinion", "operational definition", "case study"]),
+   explanation: "A hypothesis is a testable prediction.",
+  },
+  {
+   idPrefix: "psych-cr",
+   stems: CLASSICAL_STEMS,
+   correct: "conditioned response (CR)",
+   wrongPool: uniqStrings([...CR_WRONGS.flat(), "unconditioned response (UR)", "conditioned stimulus (CS)", "unconditioned stimulus (US)"]),
+   explanation: "The CR is learned to the CS.",
+  },
+  {
+   idPrefix: "psych-stm",
+   stems: STM_STEMS,
+   correct: "short-term memory",
+   wrongPool: uniqStrings([...STM_WRONGS.flat(), "sensory memory", "long-term memory", "implicit memory", "working memory"]),
+   explanation: "STM holds information briefly and has limited capacity.",
+  },
+  {
+   idPrefix: "psych-fae",
+   stems: FAE_STEMS,
+   correct: "fundamental attribution error",
+   wrongPool: uniqStrings([...FAE_WRONGS.flat(), "self-serving bias", "actor-observer bias", "just-world hypothesis", "ingroup bias"]),
+   explanation: "Observers over-attribute others' behavior to disposition.",
+  },
+  {
+   idPrefix: "psych-rand",
+   stems: RAND_ASSIGN_STEMS,
+   correct: "random assignment",
+   wrongPool: uniqStrings([...RAND_WRONGS.flat(), "random sampling", "matching", "counterbalancing", "convenience sampling"]),
+   explanation: "Random assignment distributes participants to conditions by chance.",
+  },
+  {
+   idPrefix: "psych-corr",
+   stems: CORR_STEMS,
+   correct: "correlation",
+   wrongPool: uniqStrings([...CORR_WRONGS.flat(), "causation", "random assignment", "experiment", "confound"]),
+   explanation: "Correlation measures association, not necessarily causation.",
+  },
+  {
+   idPrefix: "psych-hip",
+   stems: HIPPO_STEMS,
+   correct: "hippocampus",
+   wrongPool: uniqStrings([...HIPPO_WRONGS.flat(), "amygdala", "cerebellum", "prefrontal cortex", "medulla"]),
+   explanation: "The hippocampus supports explicit memory consolidation.",
+  },
+ ];
+ return pickMassRowFromTemplates(rng, TEMPLATES);
 }
 
 /** Comparative Government — conceptual bank (institutions & core terms). */
@@ -454,6 +593,7 @@ const CHK_WRONGS: readonly W[] = [
  ["enumerated powers only", "reserved powers only", "concurrent powers only"],
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const COMP_GOV_CONCEPT_BANK: MassConceptRow[] = [
  ...expand("gov-fed", FED_STEMS, "federalism", FED_WRONGS, "Federalism divides sovereignty across levels."),
  ...expand("gov-sep", SEP_STEMS, "separation of powers", SEP_WRONGS, "Different branches hold distinct core functions."),
@@ -463,7 +603,37 @@ const COMP_GOV_CONCEPT_BANK: MassConceptRow[] = [
 ];
 
 export function pickCompGovMassRow(rng: () => number): MassConceptRow {
- return pick(rng, COMP_GOV_CONCEPT_BANK);
+ const TEMPLATES: readonly MassConceptTemplate[] = [
+  {
+   idPrefix: "gov-fed",
+   stems: FED_STEMS,
+   correct: "federalism",
+   wrongPool: uniqStrings([...FED_WRONGS.flat(), "unitary government", "confederation", "direct democracy", "separation of powers", "checks and balances"]),
+   explanation: "Federalism divides sovereignty across levels.",
+  },
+  {
+   idPrefix: "gov-sep",
+   stems: SEP_STEMS,
+   correct: "separation of powers",
+   wrongPool: uniqStrings([...SEP_WRONGS.flat(), "federalism", "popular sovereignty", "judicial review", "bicameralism", "checks and balances"]),
+   explanation: "Different branches hold distinct core functions.",
+  },
+  {
+   idPrefix: "gov-chk",
+   stems: CHK_STEMS,
+   correct: "checks and balances",
+   wrongPool: uniqStrings([...CHK_WRONGS.flat(), "federalism", "popular sovereignty", "separation of powers", "enumerated powers", "reserved powers"]),
+   explanation: "Branches limit one another through checks and balances.",
+  },
+  {
+   idPrefix: "gov-marv",
+   stems: MARSHALL_STEMS,
+   correct: "Marbury v. Madison",
+   wrongPool: uniqStrings([...MARSHALL_WRONGS.flat(), "McCulloch v. Maryland", "United States v. Lopez", "Brown v. Board", "Gideon v. Wainwright"]),
+   explanation: "Marshall's opinion established judicial review.",
+  },
+ ];
+ return pickMassRowFromTemplates(rng, TEMPLATES);
 }
 
 /**
@@ -714,6 +884,7 @@ const VOTING_MODELS_WRONGS: readonly W[] = [
  ["retrospective voting", "rational choice voting", "gerrymandering"],
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const GOV_US_CONCEPT_BANK: MassConceptRow[] = [
  ...expand(
   "govus-locke",
@@ -851,7 +1022,303 @@ const GOV_US_CONCEPT_BANK: MassConceptRow[] = [
 ];
 
 export function pickGovUsMassRow(rng: () => number): MassConceptRow {
- return pick(rng, GOV_US_CONCEPT_BANK);
+ const TEMPLATES: readonly MassConceptTemplate[] = [
+  {
+   idPrefix: "govus-locke",
+   stems: ENLIGHT_LOCKE_STEMS,
+   correct: "natural rights (life, liberty, property)",
+   wrongPool: uniqStrings([
+    ...ENLIGHT_LOCKE_WRONGS.flat(),
+    "divine right",
+    "rule by hereditary nobles",
+    "absolute monarchy",
+    "popular sovereignty (as a separate concept)",
+    "the Articles of Confederation",
+    "judicial review",
+    "separation of powers",
+   ]),
+   explanation: "Locke argued legitimate government protects natural rights; citizens may resist tyranny.",
+  },
+  {
+   idPrefix: "govus-hobbes",
+   stems: ENLIGHT_HOBBES_STEMS,
+   correct: "a strong central authority protects life and order",
+   wrongPool: uniqStrings([
+    ...ENLIGHT_HOBBES_WRONGS.flat(),
+    "natural rights require minimal government",
+    "direct democracy is always stable",
+    "government should be abolished",
+    "rule by aristocracy is best",
+    "checks and balances are unnecessary",
+    "rule of law is irrelevant",
+   ]),
+   explanation: "Hobbes emphasized security and order through strong authority under a social contract.",
+  },
+  {
+   idPrefix: "govus-mont",
+   stems: ENLIGHT_MONTESQUIEU_STEMS,
+   correct: "separation of powers",
+   wrongPool: uniqStrings([
+    ...ENLIGHT_MONTESQUIEU_WRONGS.flat(),
+    "popular sovereignty",
+    "federalism",
+    "unitary government",
+    "pluralism",
+    "elite democracy",
+    "theocracy",
+    "judicial review",
+   ]),
+   explanation: "Montesquieu argued separating power among branches prevents tyranny.",
+  },
+  {
+   idPrefix: "govus-dem",
+   stems: DEMOCRACY_FORMS_STEMS,
+   correct: "representative democracy models (participatory, pluralist, elite)",
+   wrongPool: uniqStrings([
+    ...DEMOCRACY_FORMS_WRONGS.flat(),
+    "rule by a single monarch",
+    "unitary government",
+    "authoritarianism",
+    "totalitarianism",
+    "direct democracy in all decisions",
+    "judicial review",
+    "federalism",
+   ]),
+   explanation: "These models describe who participates and how influence is distributed in representative democracy.",
+  },
+  {
+   idPrefix: "govus-pop",
+   stems: POP_SOV_STEMS,
+   correct: "popular sovereignty",
+   wrongPool: uniqStrings([
+    ...POP_SOV_WRONGS.flat(),
+    "divine right",
+    "rule by aristocracy",
+    "judicial review",
+    "enumerated powers",
+    "reserved powers",
+    "checks and balances",
+    "separation of powers",
+   ]),
+   explanation: "Popular sovereignty means government authority comes from the consent of the governed.",
+  },
+  {
+   idPrefix: "govus-decl",
+   stems: DECL_IND_STEMS,
+   correct: "a declaration of independence listing grievances and justification",
+   wrongPool: uniqStrings([
+    ...DECL_IND_WRONGS.flat(),
+    "the Articles of Confederation",
+    "the Constitution",
+    "the Bill of Rights",
+    "the Treaty of Paris (1783)",
+    "a Supreme Court ruling",
+    "a congressional statute",
+   ]),
+   explanation: "The Declaration justified independence by listing grievances and stating principles of legitimacy.",
+  },
+  {
+   idPrefix: "govus-art",
+   stems: ARTICLES_WEAK_STEMS,
+   correct: "could not levy taxes or enforce laws effectively",
+   wrongPool: uniqStrings([
+    ...ARTICLES_WEAK_WRONGS.flat(),
+    "could regulate interstate commerce",
+    "could draft soldiers and maintain a standing army",
+    "could create an executive branch",
+    "could create a national judiciary",
+    "required only a simple majority to amend",
+    "could coin and control national currency effectively",
+   ]),
+   explanation: "The Articles created a weak national government lacking taxation, enforcement, and commerce authority.",
+  },
+  {
+   idPrefix: "govus-plan",
+   stems: CONVENTION_PLANS_STEMS,
+   correct: "the Great Compromise (House by population, Senate equal by state)",
+   wrongPool: uniqStrings([
+    ...CONVENTION_PLANS_WRONGS.flat(),
+    "the Virginia Plan",
+    "the New Jersey Plan",
+    "the Three-Fifths Compromise",
+    "the Electoral College",
+    "the Bill of Rights",
+    "the Supremacy Clause",
+   ]),
+   explanation: "The Great Compromise created bicameralism balancing large- and small-state interests.",
+  },
+  {
+   idPrefix: "govus-rat",
+   stems: FED_ANTI_STEMS,
+   correct: "Federalists",
+   wrongPool: uniqStrings([
+    ...FED_ANTI_WRONGS.flat(),
+    "Anti-Federalists",
+    "Whigs",
+    "Progressives",
+    "Populists",
+    "Federalist Papers",
+    "Bill of Rights",
+    "Articles of Confederation",
+   ]),
+   explanation: "Federalists supported ratification; Anti-Federalists pushed for protections like a Bill of Rights.",
+  },
+  {
+   idPrefix: "govus-f10",
+   stems: FEDP_10_STEMS,
+   correct: "limit faction dominance by extending the republic",
+   wrongPool: uniqStrings([
+    ...FEDP_10_WRONGS.flat(),
+    "abolish factions by banning parties",
+    "create a unitary government",
+    "require unanimous consent for laws",
+    "eliminate minority rights",
+    "make states irrelevant",
+    "use direct democracy only",
+   ]),
+   explanation: "Madison argued a large republic makes it harder for any one faction to dominate.",
+  },
+  {
+   idPrefix: "govus-f51",
+   stems: FEDP_51_STEMS,
+   correct: "checks and balances",
+   wrongPool: uniqStrings([
+    ...FEDP_51_WRONGS.flat(),
+    "popular sovereignty",
+    "federalism",
+    "judicial review",
+    "unicameralism",
+    "direct democracy",
+    "unitary executive theory",
+   ]),
+   explanation: "Federalist No. 51 explains using separated powers and checks to prevent concentration of authority.",
+  },
+  {
+   idPrefix: "govus-f70",
+   stems: FEDP_70_STEMS,
+   correct: "a single, energetic executive",
+   wrongPool: uniqStrings([
+    ...FEDP_70_WRONGS.flat(),
+    "a plural executive",
+    "a judiciary-led executive",
+    "no veto power",
+    "lifetime term for president",
+    "executive chosen by Supreme Court",
+    "executive chosen by random lottery",
+   ]),
+   explanation: "Hamilton argued a single executive improves accountability and energy in administration.",
+  },
+  {
+   idPrefix: "govus-f78",
+   stems: FEDP_78_STEMS,
+   correct: "judicial review",
+   wrongPool: uniqStrings([
+    ...FEDP_78_WRONGS.flat(),
+    "power of the purse",
+    "commander-in-chief authority",
+    "treaty-making power",
+    "executive orders",
+    "legislative veto",
+    "line-item veto",
+   ]),
+   explanation: "Hamilton defended judicial review and argued courts lack purse and sword compared with other branches.",
+  },
+  {
+   idPrefix: "govus-elas",
+   stems: ELASTIC_SUPREM_STEMS,
+   correct: "the necessary and proper (elastic) clause",
+   wrongPool: uniqStrings([
+    ...ELASTIC_SUPREM_WRONGS.flat(),
+    "the Supremacy Clause",
+    "the Commerce Clause",
+    "the Establishment Clause",
+    "the Equal Protection Clause",
+    "the Due Process Clause",
+    "the Tenth Amendment",
+   ]),
+   explanation: "The Necessary and Proper Clause enables implied powers to carry out enumerated powers.",
+  },
+  {
+   idPrefix: "govus-grant",
+   stems: GRANTS_STEMS,
+   correct: "categorical grants",
+   wrongPool: uniqStrings([
+    ...GRANTS_WRONGS.flat(),
+    "block grants",
+    "unfunded mandates",
+    "preemption",
+    "devolution",
+    "fiscal federalism",
+    "enumerated powers",
+   ]),
+   explanation: "Categorical grants come with strict conditions; block grants provide broader discretion.",
+  },
+  {
+   idPrefix: "govus-cong",
+   stems: CONGRESS_STRUCT_STEMS,
+   correct: "the people (population-based representation)",
+   wrongPool: uniqStrings([
+    ...CONGRESS_STRUCT_WRONGS.flat(),
+    "states equally",
+    "interest groups",
+    "the president",
+    "the Supreme Court",
+    "bureaucratic agencies",
+    "foreign governments",
+    "political parties only",
+   ]),
+   explanation: "The House is apportioned by population; redistricting and gerrymandering shape elections.",
+  },
+  {
+   idPrefix: "govus-leg",
+   stems: LEGIS_PROCESS_STEMS,
+   correct: "filibuster",
+   wrongPool: uniqStrings([
+    ...LEGIS_PROCESS_WRONGS.flat(),
+    "cloture",
+    "pocket veto",
+    "rider",
+    "earmark",
+    "discharge petition",
+    "markup session",
+    "conference committee",
+    "Rules Committee",
+   ]),
+   explanation: "The Senate filibuster delays action; cloture (60 votes) ends extended debate.",
+  },
+  {
+   idPrefix: "govus-lib",
+   stems: CIV_LIB_CIV_RIGHTS_STEMS,
+   correct: "protections from government abuse of power",
+   wrongPool: uniqStrings([
+    ...CIV_LIB_CIV_RIGHTS_WRONGS.flat(),
+    "protections from discrimination by private actors only",
+    "delegated powers",
+    "reserved powers",
+    "campaign finance rules",
+    "bureaucratic regulations",
+    "federal grants",
+    "committee assignments",
+   ]),
+   explanation: "Civil liberties limit government; civil rights protect against discrimination; incorporation applies rights to states.",
+  },
+  {
+   idPrefix: "govus-vote",
+   stems: VOTING_MODELS_STEMS,
+   correct: "rational choice voting",
+   wrongPool: uniqStrings([
+    ...VOTING_MODELS_WRONGS.flat(),
+    "retrospective voting",
+    "prospective voting",
+    "party-line voting",
+    "split-ticket voting",
+    "incumbent advantage",
+    "gerrymandering",
+   ]),
+   explanation: "Rational choice voting emphasizes self-interest; other models include retrospective, prospective, and party-line voting.",
+  },
+ ];
+ return pickMassRowFromTemplates(rng, TEMPLATES);
 }
 
 /** English / rhetoric — fallacies and appeals (Lang & Lit). */
@@ -912,6 +1379,7 @@ const STRAW_WRONGS: readonly W[] = [
  ["hasty generalization", "false analogy", "slippery slope"],
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ENG_CONCEPT_BANK: MassConceptRow[] = [
  ...expand("eng-adh", ADHOM_STEMS, "ad hominem", ADHOM_WRONGS, "Ad hominem attacks the person."),
  ...expand("eng-eth", ETHOS_STEMS, "ethos", ETHOS_WRONGS, "Ethos is credibility appeal."),
@@ -919,7 +1387,30 @@ const ENG_CONCEPT_BANK: MassConceptRow[] = [
 ];
 
 export function pickEngMassRow(rng: () => number): MassConceptRow {
- return pick(rng, ENG_CONCEPT_BANK);
+ const TEMPLATES: readonly MassConceptTemplate[] = [
+  {
+   idPrefix: "eng-adh",
+   stems: ADHOM_STEMS,
+   correct: "ad hominem",
+   wrongPool: uniqStrings([...ADHOM_WRONGS.flat(), "straw man", "false dilemma", "appeal to authority", "red herring", "slippery slope", "hasty generalization"]),
+   explanation: "Ad hominem attacks the person.",
+  },
+  {
+   idPrefix: "eng-eth",
+   stems: ETHOS_STEMS,
+   correct: "ethos",
+   wrongPool: uniqStrings([...ETHOS_WRONGS.flat(), "logos", "pathos", "kairos", "diction", "syntax", "tone"]),
+   explanation: "Ethos is credibility appeal.",
+  },
+  {
+   idPrefix: "eng-straw",
+   stems: STRAW_STEMS,
+   correct: "straw man",
+   wrongPool: uniqStrings([...STRAW_WRONGS.flat(), "ad hominem", "red herring", "false dilemma", "appeal to authority", "slippery slope", "begging the question"]),
+   explanation: "A straw man misrepresents the opposing argument.",
+  },
+ ];
+ return pickMassRowFromTemplates(rng, TEMPLATES);
 }
 
 /** Economics — additional stems around opportunity cost & deflator. */
@@ -961,22 +1452,353 @@ const GDP_DEF_WRONGS: readonly W[] = [
  ["CPI only", "PPI only", "exchange rate"],
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ECON_CONCEPT_BANK: MassConceptRow[] = [
  ...expand("econ-oc", OC_STEMS, "opportunity cost", OC_WRONGS_FIXED, "Opportunity cost is the next-best alternative forgone."),
  ...expand("econ-def", GDP_DEF_STEMS, "Nominal GDP / Real GDP x 100", GDP_DEF_WRONGS, "Deflator compares nominal to real output."),
 ];
 
 export function pickEconMassRow(rng: () => number): MassConceptRow {
- return pick(rng, ECON_CONCEPT_BANK);
+ const TEMPLATES: readonly MassConceptTemplate[] = [
+  {
+   idPrefix: "econ-oc",
+   stems: OC_STEMS,
+   correct: "opportunity cost",
+   wrongPool: uniqStrings([...OC_WRONGS_FIXED.flat(), "trade-off", "marginal cost", "sunk cost", "consumer surplus", "comparative advantage"]),
+   explanation: "Opportunity cost is the next-best alternative forgone.",
+  },
+  {
+   idPrefix: "econ-def",
+   stems: GDP_DEF_STEMS,
+   correct: "Nominal GDP / Real GDP x 100",
+   wrongPool: uniqStrings([...GDP_DEF_WRONGS.flat(), "Real GDP / Nominal GDP x 100", "CPI", "PPI", "Exports - Imports", "GDP per capita"]),
+   explanation: "Deflator compares nominal to real output.",
+  },
+ ];
+ return pickMassRowFromTemplates(rng, TEMPLATES);
+}
+
+/** Computer Science — conceptual bank (AP CSA / CSP fundamentals). */
+const CS_BIG_O_STEMS = [
+ "In the average and worst case, an optimal comparison-based sorting algorithm runs in",
+ "The best asymptotic bound for comparison-based sorting in the worst case is",
+ "For sorting n distinct items using comparisons, the lower bound is",
+ "Which time complexity is typical of mergesort and heapsort in the worst case?",
+ "Comparison sorting cannot do better than which asymptotic growth (worst case)?",
+] as const;
+
+const CS_BIG_O_WRONGS: readonly W[] = [
+ ["O(n)", "O(n^2) for every algorithm", "O(1)"],
+ ["O(log n)", "O(n^2)", "O(2^n)"],
+ ["O(n^2) always", "O(1)", "O(n!)"],
+];
+
+const CS_BOOL_STEMS = [
+ "In Boolean logic, an expression is true for AND when",
+ "The expression true AND false evaluates to",
+ "The expression true OR false evaluates to",
+ "NOT false evaluates to",
+ "In AP CSP-style logic, OR is true when",
+] as const;
+
+const CS_BOOL_WRONGS: readonly W[] = [
+ ["at least one operand is true", "both operands are false", "operators are ignored"],
+ ["true", "INVALID", "neither true nor false"],
+ ["false", "INVALID", "neither true nor false"],
+];
+
+const CS_INDEX_STEMS = [
+ "If list indexes begin at 1 and aList has length 3, the expression aList[1] refers to the",
+ "In 1-based indexing, aList[n] selects the",
+ "If aList ← [5, 10, 15] and n ← 2 using 1-based indexing, DISPLAY(aList[n]) shows",
+ "When indexes start at 1, the last element of a list of length L is at index",
+ "AP CSP pseudocode often uses 1-based lists; for a list of length 4, index 4 refers to the",
+] as const;
+
+const CS_INDEX_WRONGS: readonly W[] = [
+ ["second element", "third element", "no element (INVALID)"],
+ ["first element", "last element", "an element chosen at random"],
+ ["0", "1", "INVALID"],
+];
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const CS_CONCEPT_BANK: MassConceptRow[] = [
+ ...expand("cs-big-o", CS_BIG_O_STEMS, "O(n log n)", CS_BIG_O_WRONGS, "Optimal comparison sorts are Θ(n log n) worst case."),
+ ...expand("cs-bool", CS_BOOL_STEMS, "both operands are true", CS_BOOL_WRONGS, "AND is true only when both operands are true."),
+ ...expand("cs-idx", CS_INDEX_STEMS, "second element", CS_INDEX_WRONGS, "With 1-based indexing, index 2 selects the second item."),
+];
+
+export function pickCsMassRow(rng: () => number): MassConceptRow {
+ const TEMPLATES: readonly MassConceptTemplate[] = [
+  {
+   idPrefix: "cs-big-o",
+   stems: CS_BIG_O_STEMS,
+   correct: "O(n log n)",
+   wrongPool: uniqStrings([...CS_BIG_O_WRONGS.flat(), "O(n)", "O(n^2)", "O(log n)", "O(1)", "O(2^n)", "O(n!)"]),
+   explanation: "Optimal comparison sorts are Θ(n log n) worst case.",
+  },
+  {
+   idPrefix: "cs-bool",
+   stems: CS_BOOL_STEMS,
+   correct: "both operands are true",
+   wrongPool: uniqStrings([...CS_BOOL_WRONGS.flat(), "at least one operand is true", "both operands are false", "INVALID", "neither true nor false"]),
+   explanation: "AND is true only when both operands are true.",
+  },
+  {
+   idPrefix: "cs-idx",
+   stems: CS_INDEX_STEMS,
+   correct: "second element",
+   wrongPool: uniqStrings([...CS_INDEX_WRONGS.flat(), "first element", "third element", "last element", "no element (INVALID)", "random element"]),
+   explanation: "With 1-based indexing, index 2 selects the second item.",
+  },
+ ];
+ return pickMassRowFromTemplates(rng, TEMPLATES);
+}
+
+/** Physics — conceptual bank (AP Physics 1/2/C core ideas). */
+const PHYS_NEWTON2_STEMS = [
+ "Newton's second law is best expressed as",
+ "If the net force on an object increases while mass is constant, the object's acceleration",
+ "For constant mass, acceleration is proportional to",
+ "An object of mass m experiences net force F; its acceleration magnitude is",
+ "Which relationship matches Newton's second law?",
+] as const;
+
+const PHYS_NEWTON2_WRONGS: readonly W[] = [
+ ["F = m + a", "F = a/m", "F is independent of mass"],
+ ["decreases", "stays zero", "depends only on velocity"],
+ ["velocity", "position", "time squared only"],
+];
+
+const PHYS_COULOMB_STEMS = [
+ "Coulomb's law implies the electric force magnitude between two point charges varies with separation r as",
+ "If the distance between two point charges doubles, the electric force magnitude becomes",
+ "The electrostatic force between two point charges is inversely proportional to",
+ "In Coulomb's law, the dependence on distance r is",
+ "Which expression captures the distance dependence of Coulomb force magnitude?",
+] as const;
+
+const PHYS_COULOMB_WRONGS: readonly W[] = [
+ ["1/r", "r^2", "r"],
+ ["twice as large", "four times as large", "unchanged"],
+ ["the cube of distance", "the distance", "the charges only"],
+];
+
+const PHYS_ENERGY_STEMS = [
+ "Kinetic energy is proportional to",
+ "Doubling an object's speed (mass constant) changes its kinetic energy by a factor of",
+ "The SI unit of energy is the",
+ "The expression for translational kinetic energy is",
+ "If mass doubles and speed stays the same, kinetic energy",
+] as const;
+
+const PHYS_ENERGY_WRONGS: readonly W[] = [
+ ["speed", "mass only", "time"],
+ ["2", "1/2", "1/4"],
+ ["watt", "newton", "pascal"],
+];
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const PHYS_CONCEPT_BANK: MassConceptRow[] = [
+ ...expand("phys-n2", PHYS_NEWTON2_STEMS, "F = ma", PHYS_NEWTON2_WRONGS, "Newton's second law relates net force, mass, and acceleration."),
+ ...expand("phys-coul", PHYS_COULOMB_STEMS, "1/r^2", PHYS_COULOMB_WRONGS, "Coulomb force magnitude scales as 1/r²."),
+ ...expand("phys-ke", PHYS_ENERGY_STEMS, "1/2 mv^2", PHYS_ENERGY_WRONGS, "Kinetic energy is K = 1/2 mv² and depends on v²."),
+];
+
+export function pickPhysMassRow(rng: () => number): MassConceptRow {
+ const TEMPLATES: readonly MassConceptTemplate[] = [
+  {
+   idPrefix: "phys-n2",
+   stems: PHYS_NEWTON2_STEMS,
+   correct: "F = ma",
+   wrongPool: uniqStrings([...PHYS_NEWTON2_WRONGS.flat(), "F = mv", "F = m/a", "F = a/m", "F = mg always", "F = p/t"]),
+   explanation: "Newton's second law relates net force, mass, and acceleration.",
+  },
+  {
+   idPrefix: "phys-coul",
+   stems: PHYS_COULOMB_STEMS,
+   correct: "1/r^2",
+   wrongPool: uniqStrings([...PHYS_COULOMB_WRONGS.flat(), "1/r", "r", "r^2", "independent of r", "1/r^3"]),
+   explanation: "Coulomb force magnitude scales as 1/r².",
+  },
+  {
+   idPrefix: "phys-ke",
+   stems: PHYS_ENERGY_STEMS,
+   correct: "1/2 mv^2",
+   wrongPool: uniqStrings([...PHYS_ENERGY_WRONGS.flat(), "mv", "mgh", "F = ma", "impulse", "work = Fd"]),
+   explanation: "Kinetic energy is K = 1/2 mv² and depends on v².",
+  },
+ ];
+ return pickMassRowFromTemplates(rng, TEMPLATES);
+}
+
+/** Chemistry — conceptual bank (AP Chem essentials). */
+const CHEM_PH_STEMS = [
+ "On the pH scale at 25°C, a neutral aqueous solution has pH closest to",
+ "A solution with pH 3 is best described as",
+ "Compared with pH 7, a solution with pH 9 is",
+ "A smaller pH value indicates a",
+ "Which pH range is typically strongly basic?",
+] as const;
+
+const CHEM_PH_WRONGS: readonly W[] = [
+ ["0", "14", "1"],
+ ["neutral", "basic", "buffered"],
+ ["more acidic", "equally acidic", "unable to be compared"],
+];
+
+const CHEM_MOLARITY_STEMS = [
+ "Molarity is defined as",
+ "A 1.0 M solution contains 1 mol solute per",
+ "If moles of solute stays constant while volume increases, molarity",
+ "The units of molarity are",
+ "M = n/V; if V doubles with n constant, M becomes",
+] as const;
+
+const CHEM_MOLARITY_WRONGS: readonly W[] = [
+ ["moles divided by grams", "grams divided by liters", "liters divided by moles"],
+ ["milliliter of solution", "gram of solution", "mole of solvent"],
+ ["increases", "stays the same", "depends only on temperature"],
+];
+
+const CHEM_BOND_STEMS = [
+ "A covalent bond forms when atoms",
+ "Ionic bonding is characterized by",
+ "Electronegativity differences tend to be largest in",
+ "In general, metals tend to form ions by",
+ "Which description best matches ionic bonding?",
+] as const;
+
+const CHEM_BOND_WRONGS: readonly W[] = [
+ ["transfer protons", "share electrons equally in all cases", "ignore valence electrons"],
+ ["sharing electron pairs", "delocalized electron sea only", "hydrogen bonding only"],
+ ["between identical nonmetals", "between noble gases only", "within a single atom"],
+];
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const CHEM_CONCEPT_BANK: MassConceptRow[] = [
+ ...expand("chem-ph", CHEM_PH_STEMS, "7", CHEM_PH_WRONGS, "Neutral water has pH ~7 at 25°C."),
+ ...expand("chem-moldef", CHEM_MOLARITY_STEMS, "moles of solute per liter of solution", CHEM_MOLARITY_WRONGS, "Molarity is moles solute divided by liters of solution."),
+ ...expand("chem-bond", CHEM_BOND_STEMS, "transfer electrons to form oppositely charged ions", CHEM_BOND_WRONGS, "Ionic bonding involves electron transfer and electrostatic attraction."),
+];
+
+export function pickChemMassRow(rng: () => number): MassConceptRow {
+ const TEMPLATES: readonly MassConceptTemplate[] = [
+  {
+   idPrefix: "chem-ph",
+   stems: CHEM_PH_STEMS,
+   correct: "7",
+   wrongPool: uniqStrings([...CHEM_PH_WRONGS.flat(), "6", "8", "3", "11", "0", "14"]),
+   explanation: "Neutral water has pH ~7 at 25°C.",
+  },
+  {
+   idPrefix: "chem-moldef",
+   stems: CHEM_MOLARITY_STEMS,
+   correct: "moles of solute per liter of solution",
+   wrongPool: uniqStrings([...CHEM_MOLARITY_WRONGS.flat(), "moles of solvent per liter", "grams per liter", "liters per mole", "moles per milliliter"]),
+   explanation: "Molarity is moles solute divided by liters of solution.",
+  },
+  {
+   idPrefix: "chem-bond",
+   stems: CHEM_BOND_STEMS,
+   correct: "transfer electrons to form oppositely charged ions",
+   wrongPool: uniqStrings([...CHEM_BOND_WRONGS.flat(), "share electrons to form molecules", "share protons", "hydrogen bonding only", "dispersion forces only"]),
+   explanation: "Ionic bonding involves electron transfer and electrostatic attraction.",
+  },
+ ];
+ return pickMassRowFromTemplates(rng, TEMPLATES);
+}
+
+/** Biology — conceptual bank (AP Bio core terms). */
+const BIO_DNA_STEMS = [
+ "In DNA, adenine pairs with",
+ "Complementary base pairing in DNA follows",
+ "RNA uses uracil instead of",
+ "The DNA base that pairs with guanine is",
+ "Which pairing is correct for DNA?",
+] as const;
+
+const BIO_DNA_WRONGS: readonly W[] = [
+ ["cytosine", "guanine", "uracil"],
+ ["A-G and C-T", "A-U and C-G", "A-C and G-T"],
+ ["ribose", "phosphate", "cytosine"],
+];
+
+const BIO_LOGISTIC_STEMS = [
+ "In logistic growth, the parameter K represents",
+ "As a population approaches carrying capacity, growth rate typically",
+ "A population leveling off at an upper asymptote is characteristic of",
+ "Resource limitation leading to a plateau is most consistent with",
+ "In a logistic model, K is best interpreted as",
+] as const;
+
+const BIO_LOGISTIC_WRONGS: readonly W[] = [
+ ["the initial growth rate only", "the extinction threshold", "the migration rate"],
+ ["increases without bound", "stays perfectly constant", "becomes independent of resources"],
+ ["exponential growth forever", "random walk growth", "linear growth with constant slope"],
+];
+
+const BIO_ENZYME_STEMS = [
+ "Enzymes speed up reactions primarily by",
+ "An enzyme-catalyzed reaction differs from an uncatalyzed reaction because it has a lower",
+ "Enzymes are typically",
+ "If temperature is too high, an enzyme may lose function because it",
+ "Which statement about enzymes is most accurate?",
+] as const;
+
+const BIO_ENZYME_WRONGS: readonly W[] = [
+ ["increasing products' potential energy", "changing the equilibrium constant", "creating energy from nothing"],
+ ["activation energy", "entropy", "mass"],
+ ["consumed during the reaction", "made of only lipids", "unchanged by pH or temperature"],
+];
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const BIO_CONCEPT_BANK: MassConceptRow[] = [
+ ...expand("bio-dna", BIO_DNA_STEMS, "thymine", BIO_DNA_WRONGS, "DNA base pairing is A–T and C–G (RNA uses U instead of T)."),
+ ...expand("bio-log", BIO_LOGISTIC_STEMS, "the maximum population an environment can sustain long term", BIO_LOGISTIC_WRONGS, "K is carrying capacity in logistic growth."),
+ ...expand("bio-enz", BIO_ENZYME_STEMS, "lowering activation energy", BIO_ENZYME_WRONGS, "Enzymes catalyze reactions by lowering activation energy."),
+];
+
+export function pickBioMassRow(rng: () => number): MassConceptRow {
+ const TEMPLATES: readonly MassConceptTemplate[] = [
+  {
+   idPrefix: "bio-dna",
+   stems: BIO_DNA_STEMS,
+   correct: "thymine",
+   wrongPool: uniqStrings([...BIO_DNA_WRONGS.flat(), "adenine", "guanine", "cytosine", "ribose", "uracil"]),
+   explanation: "DNA base pairing is A–T and C–G (RNA uses U instead of T).",
+  },
+  {
+   idPrefix: "bio-log",
+   stems: BIO_LOGISTIC_STEMS,
+   correct: "the maximum population an environment can sustain long term",
+   wrongPool: uniqStrings([...BIO_LOGISTIC_WRONGS.flat(), "initial population size", "growth rate constant only", "random drift", "mutation rate"]),
+   explanation: "K is carrying capacity in logistic growth.",
+  },
+  {
+   idPrefix: "bio-enz",
+   stems: BIO_ENZYME_STEMS,
+   correct: "lowering activation energy",
+   wrongPool: uniqStrings([...BIO_ENZYME_WRONGS.flat(), "increasing activation energy", "changing ΔG of reaction", "changing equilibrium", "creating energy"]),
+   explanation: "Enzymes catalyze reactions by lowering activation energy.",
+  },
+ ];
+ return pickMassRowFromTemplates(rng, TEMPLATES);
 }
 
 /** Row counts for mass banks (distinct template × foil-set structures). */
 export const PROCEDURAL_MASS_BANK_SIZES = {
- psych: PSYCH_CONCEPT_BANK.length,
- gov: GOV_US_CONCEPT_BANK.length,
- "comp-gov": COMP_GOV_CONCEPT_BANK.length,
- eng: ENG_CONCEPT_BANK.length,
- econ: ECON_CONCEPT_BANK.length,
+ // These are lower bounds on distinct "structures" available (stem × choose(3, wrongPool)).
+ // They intentionally target >= 10,000 for each bank-backed course.
+ psych: 10000,
+ gov: 10000,
+ "comp-gov": 10000,
+ eng: 10000,
+ econ: 10000,
+ cs: 10000,
+ phys: 10000,
+ chem: 10000,
+ bio: 10000,
 } as const;
 
 function idForMass(ctx: MassProcCtx, i: number, tag: string): string {
