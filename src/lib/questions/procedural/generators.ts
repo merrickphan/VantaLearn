@@ -38,6 +38,8 @@ export interface ProcCtx {
  unitIndex: number;
  unitTitle: string;
  seedBase: string;
+ /** When set for Calc AB/BC, tightens numeric parameters (no-calculator) or keeps full ranges (calculator). */
+ calculatorAllowed?: boolean;
 }
 
 export type QuestionGen = (rng: () => number, ctx: ProcCtx, i: number) => ExamQuestion;
@@ -90,8 +92,9 @@ function mc(
 /* - - - Calculus / precalc / stats - - - */
 
 export function genDerivativePower(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
- const n = randInt(rng, 2, 48);
- const coefMag = randInt(rng, 1, 72);
+ const tight = ctx.calculatorAllowed === false;
+ const n = randInt(rng, 2, tight ? 9 : 48);
+ const coefMag = randInt(rng, 1, tight ? 12 : 72);
  const sign = pick(rng, [-1, 1] as const);
  const coef = coefMag * sign;
  const d = coef * n;
@@ -123,9 +126,10 @@ export function genDerivativePower(rng: () => number, ctx: ProcCtx, i: number): 
 }
 
 export function genLimitLinear(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
- const a = randInt(rng, 1, 42);
- const b = randInt(rng, -60, 60);
- const c = randInt(rng, 1, 55);
+ const tight = ctx.calculatorAllowed === false;
+ const a = randInt(rng, 1, tight ? 14 : 42);
+ const b = randInt(rng, tight ? -18 : -60, tight ? 18 : 60);
+ const c = randInt(rng, 1, tight ? 18 : 55);
  const lim = a * c + b;
  const stemIdx = randInt(rng, 0, LIMIT_AFTER_TABLE_STEMS.length - 1);
  const stem = LIMIT_AFTER_TABLE_STEMS[stemIdx];
@@ -155,8 +159,9 @@ export function genLimitLinear(rng: () => number, ctx: ProcCtx, i: number): Exam
 }
 
 export function genIntegralPower(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
- const n = randInt(rng, 2, 14);
- const coef = randInt(rng, 1, 28);
+ const tight = ctx.calculatorAllowed === false;
+ const n = randInt(rng, 2, tight ? 7 : 14);
+ const coef = randInt(rng, 1, tight ? 12 : 28);
  const exp = n + 1;
  const num = coef;
  const correct = `(${num}/${exp})x^${exp} + C`;
@@ -185,11 +190,12 @@ export function genIntegralPower(rng: () => number, ctx: ProcCtx, i: number): Ex
 }
 
 export function genCompositionValue(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
- const a = randInt(rng, 1, 18);
- const b = randInt(rng, 1, 35);
- const x0 = randInt(rng, 1, 22);
+ const tight = ctx.calculatorAllowed === false;
+ const a = randInt(rng, 1, tight ? 9 : 18);
+ const b = randInt(rng, 1, tight ? 14 : 35);
+ const x0 = randInt(rng, 1, tight ? 8 : 22);
  const inner = a * x0 + b;
- const outerCoef = randInt(rng, 2, 24);
+ const outerCoef = randInt(rng, 2, tight ? 12 : 24);
  const val = outerCoef * inner;
  const stemIdx = randInt(rng, 0, COMPOSITION_TABLE_STEMS.length - 1);
  const stem = fillStem(COMPOSITION_TABLE_STEMS[stemIdx], { x0 });
@@ -1723,6 +1729,19 @@ const CALC: QuestionGen[] = [
  genTrigSpecial,
 ];
 
+/**
+ * AP-style no-calculator MCQ mix for Calc AB/BC: symbolic calculus + light composition,
+ * exact trig, and conceptual stats (no multi-hundred arithmetic means).
+ */
+const CALC_NO_CALCULATOR_SECTION: QuestionGen[] = [
+ genDerivativePower,
+ genLimitLinear,
+ genIntegralPower,
+ genCompositionValue,
+ genTrigSpecial,
+ genZScoreConcept,
+];
+
 /** Text-only stats items (safe to mix with calculus for numeric literacy). */
 const STATS_TEXT: QuestionGen[] = [genMeanSimple, genZScoreConcept];
 const STATS_FIG: QuestionGen[] = [genStatsBarChartMode, genStatsExamLineTrend];
@@ -1799,7 +1818,13 @@ const COURSE_POOL: Record<string, QuestionGen[]> = {
  research: CAP,
 };
 
-export function getGeneratorsForCourse(courseId: string, unitIndex: number = 1): QuestionGen[] {
+export type CalculatorSectionPolicy = "no_calculator" | "calculator";
+
+export function getGeneratorsForCourse(
+ courseId: string,
+ unitIndex: number = 1,
+ calculatorSection?: CalculatorSectionPolicy,
+): QuestionGen[] {
  if (courseId === "wh" && unitIndex >= 1 && unitIndex <= 9) {
  return getWorldHistoryGeneratorsForUnit(unitIndex) as QuestionGen[];
  }
@@ -1808,6 +1833,12 @@ export function getGeneratorsForCourse(courseId: string, unitIndex: number = 1):
  }
  if (courseId === "ush" && unitIndex >= 1 && unitIndex <= 9) {
  return getUsHistoryGeneratorsForUnit(unitIndex) as QuestionGen[];
+ }
+ if ((courseId === "calc-ab" || courseId === "calc-bc") && calculatorSection === "no_calculator") {
+ return [...CALC_NO_CALCULATOR_SECTION];
+ }
+ if ((courseId === "calc-ab" || courseId === "calc-bc") && calculatorSection === "calculator") {
+ return [...CALC, ...STATS_TEXT];
  }
  return COURSE_POOL[courseId] ?? DEFAULT_POOL;
 }

@@ -8,6 +8,7 @@ import { SAMPLE_RESOURCES } from "@/lib/utils/sampleData";
 import { AP_COURSES } from "@/lib/apCatalog";
 import { proceduralPracticeMcqCountForCourse } from "@/lib/apPracticeExamFormat";
 import { getUnitOrFirst } from "@/lib/apUnits";
+import type { CalculatorSectionPolicy } from "@/lib/questions/procedural";
 import { ExamContent, ExamQuestion } from "@/types";
 import { Button, Spinner } from "@/components/ui";
 import { ExamGame } from "@/components/study/ExamGame";
@@ -17,7 +18,15 @@ const AiExamSession = dynamic(
  { ssr: false, loading: () => <Spinner size="lg" /> },
 );
 
-function ProceduralExamSession({ courseId, unitId }: { courseId: string; unitId?: string }) {
+function ProceduralExamSession({
+ courseId,
+ unitId,
+ calculatorSection,
+}: {
+ courseId: string;
+ unitId?: string;
+ calculatorSection?: CalculatorSectionPolicy;
+}) {
  const [questions, setQuestions] = useState<ExamQuestion[] | null>(null);
  const [error, setError] = useState<string | null>(null);
 
@@ -37,6 +46,7 @@ function ProceduralExamSession({ courseId, unitId }: { courseId: string; unitId?
  courseId,
  unitId: unit?.id,
  count: proceduralPracticeMcqCountForCourse(courseId),
+ ...(calculatorSection ? { calculatorSection } : {}),
  }),
  });
  const data = await res.json();
@@ -49,7 +59,7 @@ function ProceduralExamSession({ courseId, unitId }: { courseId: string; unitId?
  return () => {
  cancelled = true;
  };
- }, [courseId, unit?.id, unitId]);
+ }, [courseId, unit?.id, unitId, calculatorSection]);
 
  if (!course || !unit) {
  return (
@@ -88,12 +98,21 @@ function ProceduralExamSession({ courseId, unitId }: { courseId: string; unitId?
 
 function ExamPlayer() {
  const searchParams = useSearchParams();
+ const rawCalcSection = searchParams.get("calcSection")?.trim();
+ const calculatorSection: CalculatorSectionPolicy | undefined =
+ rawCalcSection === "no_calculator" || rawCalcSection === "calculator" ? rawCalcSection : undefined;
  const proc = searchParams.get("proc") === "1";
  const courseId = searchParams.get("course")?.trim() ?? "";
  const unitParam = searchParams.get("unit")?.trim() ?? "";
 
  if (proc && courseId) {
- return <ProceduralExamSession courseId={courseId} unitId={unitParam || undefined} />;
+ return (
+ <ProceduralExamSession
+ courseId={courseId}
+ unitId={unitParam || undefined}
+ calculatorSection={calculatorSection}
+ />
+ );
  }
 
  const id = searchParams.get("id");
@@ -133,6 +152,7 @@ function ExamPlayer() {
  topic={top || undefined}
  unitId={unitId || undefined}
  proceduralOnly={proceduralOnly}
+ calculatorSection={calculatorSection}
  />
  );
  }

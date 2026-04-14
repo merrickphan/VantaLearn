@@ -1,6 +1,6 @@
 ﻿import { NextResponse } from "next/server";
 import { proceduralPracticeMcqCountForCourse } from "@/lib/apPracticeExamFormat";
-import { generateProceduralQuestions } from "@/lib/questions/procedural";
+import { generateProceduralQuestions, type CalculatorSectionPolicy } from "@/lib/questions/procedural";
 import { createClient } from "@/lib/supabase/server";
 import { proceduralUniqKey, randomSeedEntropy } from "@/lib/questions/procedural/utils";
 
@@ -13,6 +13,9 @@ export async function POST(req: Request) {
  typeof body.count === "number" ? body.count : proceduralPracticeMcqCountForCourse(courseId);
  const count = Math.min(100, Math.max(1, Math.floor(rawCount)));
  const seed = typeof body.seed === "string" ? body.seed : undefined;
+ const rawCalcSection = body.calculatorSection;
+ const calculatorSection: CalculatorSectionPolicy | undefined =
+  rawCalcSection === "no_calculator" || rawCalcSection === "calculator" ? rawCalcSection : undefined;
 
  if (!courseId) {
  return NextResponse.json({ error: "courseId is required" }, { status: 400 });
@@ -41,7 +44,14 @@ export async function POST(req: Request) {
   }
 
   const MAX_ROUNDS = 12;
-  let questions = generateProceduralQuestions({ courseId, unitId, count, seed, avoidKeys: avoid });
+  let questions = generateProceduralQuestions({
+   courseId,
+   unitId,
+   count,
+   seed,
+   avoidKeys: avoid,
+   calculatorSection,
+  });
 
   // If we couldn't get enough unseen variants, keep trying with new entropy seeds.
   // If still stuck, treat it as "exhausted" and reset the seen set for this course/unit.
@@ -59,6 +69,7 @@ export async function POST(req: Request) {
      count,
      seed: nextSeed,
      avoidKeys: avoid,
+     calculatorSection,
     });
     for (const q of more) {
      const key = proceduralUniqKey(q);
@@ -86,7 +97,14 @@ export async function POST(req: Request) {
       .eq("user_id", userId)
       .eq("course_id", courseId);
      avoid.clear();
-     questions = generateProceduralQuestions({ courseId, unitId, count, seed, avoidKeys: avoid });
+     questions = generateProceduralQuestions({
+      courseId,
+      unitId,
+      count,
+      seed,
+      avoidKeys: avoid,
+      calculatorSection,
+     });
     } catch {
      // ignore
     }

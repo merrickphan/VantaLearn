@@ -7,6 +7,7 @@ import { Button, Card } from "@/components/ui";
 import { ExamGame } from "@/components/study/ExamGame";
 import { proceduralPracticeMcqCountForCourse } from "@/lib/apPracticeExamFormat";
 import { findUnitById, getCourseIdFromSubjectName } from "@/lib/apUnits";
+import type { CalculatorSectionPolicy } from "@/lib/questions/procedural";
 
 type Phase = "loading" | "ready" | "error";
 
@@ -15,6 +16,7 @@ export function AiExamSession({
  topic,
  unitId,
  proceduralOnly = false,
+ calculatorSection,
 }: {
  subject: string;
  topic?: string;
@@ -22,6 +24,8 @@ export function AiExamSession({
  unitId?: string;
  /** Skip OpenAI; unlimited locally generated MCQs (templates + random parameters). */
  proceduralOnly?: boolean;
+ /** Calc AB/BC offline fallback: match AP calculator vs no-calculator MCQ pools. */
+ calculatorSection?: CalculatorSectionPolicy;
 }) {
  const [phase, setPhase] = useState<Phase>("loading");
  const [error, setError] = useState("");
@@ -48,6 +52,7 @@ export function AiExamSession({
  courseId,
  unitId: unitId || undefined,
  count,
+ ...(calculatorSection ? { calculatorSection } : {}),
  }),
  });
  const data = await res.json();
@@ -55,7 +60,7 @@ export function AiExamSession({
  const qs = data.questions as ExamQuestion[];
  if (!Array.isArray(qs) || qs.length === 0) throw new Error("No questions returned");
  return qs;
- }, [subject, unitId]);
+ }, [subject, unitId, calculatorSection]);
 
  const load = useCallback(async () => {
  setPhase("loading");

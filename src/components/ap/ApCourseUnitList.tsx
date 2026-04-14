@@ -38,6 +38,7 @@ export function ApCourseUnitList({
   const units = getUnitsForCourseId(courseId);
   const sectionId = getSectionIdForCourseId(courseId);
   const sectionMeta = sectionId ? AP_SECTIONS.find((s) => s.id === sectionId) : undefined;
+  const calcSectionCourses = course.id === "calc-ab" || course.id === "calc-bc";
 
   return (
     <div className="rounded-2xl border border-vanta-border bg-vanta-surface/60 p-6 sm:p-8 mb-10 fade-up">
@@ -71,7 +72,9 @@ export function ApCourseUnitList({
         </div>
         <p className="text-vanta-muted text-sm sm:text-base mt-4 max-w-2xl">
           {intro ??
-            "Pick a unit for a fresh 10-question multiple-choice set. Each run uses new numbers and mixes so you can repeat the same unit as often as you like."}
+            (calcSectionCourses
+              ? "Pick a unit, then choose no-calculator or calculator-allowed practice (like the two MCQ sections on the AP exam). Each run uses new parameters."
+              : "Pick a unit for a fresh 10-question multiple-choice set. Each run uses new numbers and mixes so you can repeat the same unit as often as you like.")}
         </p>
       </div>
 
@@ -91,21 +94,48 @@ export function ApCourseUnitList({
       ) : null}
 
       <div className="space-y-3">
-        {units.map((u) => (
-          <Link
-            key={u.id}
-            href={`/study/exam?proc=1&course=${encodeURIComponent(course.id)}&unit=${encodeURIComponent(u.id)}`}
-          >
-            <Card hover className="p-5 sm:p-6 flex flex-wrap items-center justify-between gap-4 border-vanta-border/80">
-              <div>
-                <p className="text-sm font-medium text-vanta-blue mb-1">Unit {u.index}</p>
-                <h3 className="text-vanta-text font-semibold text-base sm:text-lg">{u.title}</h3>
-                <p className="text-vanta-muted text-sm mt-1 line-clamp-2">{u.summary}</p>
-              </div>
-              <Badge variant="blue">Practice</Badge>
-            </Card>
-          </Link>
-        ))}
+        {units.map((u) => {
+          const examBase = `/study/exam?proc=1&course=${encodeURIComponent(course.id)}&unit=${encodeURIComponent(u.id)}`;
+          const unitBlock = (
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-vanta-blue mb-1">Unit {u.index}</p>
+              <h3 className="text-vanta-text font-semibold text-base sm:text-lg">{u.title}</h3>
+              <p className="text-vanta-muted text-sm mt-1 line-clamp-2">{u.summary}</p>
+            </div>
+          );
+          if (calcSectionCourses) {
+            return (
+              <Card
+                key={u.id}
+                className="p-5 sm:p-6 flex flex-col gap-4 border-vanta-border/80 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between"
+              >
+                {unitBlock}
+                <div className="flex flex-wrap gap-2 shrink-0">
+                  <Link
+                    href={`${examBase}&calcSection=no_calculator`}
+                    className="inline-flex items-center justify-center font-semibold rounded-xl btn-shine btn-shine-outline bg-transparent border border-vanta-border hover:border-vanta-blue/60 text-vanta-text hover:text-vanta-blue hover:bg-vanta-blue-muted/40 text-sm px-4 py-2.5 min-h-[2.75rem]"
+                  >
+                    No calculator
+                  </Link>
+                  <Link
+                    href={`${examBase}&calcSection=calculator`}
+                    className="inline-flex items-center justify-center font-semibold rounded-xl btn-shine bg-sky-500/20 hover:bg-sky-400/30 text-vanta-text border border-sky-400/50 text-sm px-4 py-2.5 min-h-[2.75rem]"
+                  >
+                    Calculator OK
+                  </Link>
+                </div>
+              </Card>
+            );
+          }
+          return (
+            <Link key={u.id} href={examBase}>
+              <Card hover className="p-5 sm:p-6 flex flex-wrap items-center justify-between gap-4 border-vanta-border/80">
+                {unitBlock}
+                <Badge variant="blue">Practice</Badge>
+              </Card>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

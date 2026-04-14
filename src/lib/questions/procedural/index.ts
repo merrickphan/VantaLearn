@@ -2,7 +2,9 @@
 import { getUnitOrFirst } from "@/lib/apUnits";
 import type { ExamQuestion } from "@/types";
 import { createRng, hashString, proceduralUniqKey, randomSeedEntropy, shuffleInPlace } from "./utils";
-import { getGeneratorsForCourse, type ProcCtx } from "./generators";
+import { getGeneratorsForCourse, type CalculatorSectionPolicy, type ProcCtx } from "./generators";
+
+export type { CalculatorSectionPolicy };
 
 export interface GenerateProceduralParams {
  courseId: string;
@@ -12,6 +14,8 @@ export interface GenerateProceduralParams {
  seed?: string;
  /** Uniqueness keys to avoid returning (e.g., already seen by the user). */
  avoidKeys?: ReadonlySet<string>;
+ /** Calc AB/BC only: AP-style no-calculator vs calculator-allowed MCQ pools and numerics. */
+ calculatorSection?: CalculatorSectionPolicy;
 }
 
 export function generateProceduralQuestions(params: GenerateProceduralParams): ExamQuestion[] {
@@ -25,7 +29,15 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
  throw new Error(`No units defined for course: ${params.courseId}`);
  }
 
- const seedBase = params.seed ?? randomSeedEntropy();
+ const seedBase = `${params.seed ?? randomSeedEntropy()}|calc:${params.calculatorSection ?? "default"}`;
+
+ const isCalcCourse = course.id === "calc-ab" || course.id === "calc-bc";
+ const calculatorAllowed =
+  isCalcCourse && params.calculatorSection === "no_calculator"
+   ? false
+   : isCalcCourse && params.calculatorSection === "calculator"
+    ? true
+    : undefined;
 
  const ctx: ProcCtx = {
  courseId: course.id,
@@ -34,9 +46,14 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
  unitIndex: unit.index,
  unitTitle: unit.title,
  seedBase,
+ ...(calculatorAllowed !== undefined ? { calculatorAllowed } : {}),
  };
 
- const pool = getGeneratorsForCourse(course.id, unit.index);
+ const pool = getGeneratorsForCourse(
+ course.id,
+ unit.index,
+ isCalcCourse ? params.calculatorSection : undefined,
+ );
  const out: ExamQuestion[] = [];
  const n = Math.min(100, Math.max(1, Math.floor(params.count)));
 
