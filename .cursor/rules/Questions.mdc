@@ -1,5 +1,6 @@
 ---
+description: 
 alwaysApply: true
 ---
 
-Never create a question creating procedure that often duplicates or repeats questions.
+Never create a question creating procedure that often duplicates or repeats questions. Also never implement any specific fixed questions into any question generating procedure.
