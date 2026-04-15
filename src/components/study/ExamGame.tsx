@@ -15,6 +15,7 @@ import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 import { recordExamComplete } from "@/lib/cmdStats";
 import { formatNiceMath } from "@/lib/typography/niceMath";
 import { stripMarkdownBoldMarkers } from "@/lib/typography/plainExamText";
+import { MathText } from "@/components/typography/MathText";
 
 function isStimulusFigure(f: ExamQuestion["figure"]): f is Extract<ExamFigureData, { kind: "stimulus" }> {
  return f?.kind === "stimulus";
@@ -59,7 +60,9 @@ function FrqRubricPanel({ doc, omitPartPrompts = false }: { doc: FrqRubricDoc; o
 								</p>
 								<ul className="list-disc pl-5 space-y-1.5 text-sm text-vanta-text leading-relaxed marker:text-sky-400/80">
 									{c.acceptableExamples.map((ex, j) => (
-										<li key={j}>{formatNiceMath(ex)}</li>
+										<li key={j}>
+											<MathText text={ex} />
+										</li>
 									))}
 								</ul>
 							</div>
@@ -171,18 +174,18 @@ function QuestionCard({
 			) : null}
 			{!hideFrqPromptReplay && exhibitAboveStem ? (
 				<p className="mb-3 text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
-					{formatNiceMath(stripMarkdownBoldMarkers(stim.body))}
+					<MathText text={stripMarkdownBoldMarkers(stim.body)} />
 				</p>
 			) : null}
 			{!steppedFrq ? (
 				<p className="text-vanta-text font-medium mb-3 leading-relaxed text-[15px]">
 					<span className="tabular-nums">{questionNumber}. </span>
-					{formatNiceMath(rubricQ ? stripMarkdownBoldMarkers(question.question) : question.question)}
+					<MathText text={rubricQ ? stripMarkdownBoldMarkers(question.question) : question.question} />
 				</p>
 			) : null}
 			{!hideFrqPromptReplay && exhibitBelow ? (
 				<p className="mb-4 text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
-					{formatNiceMath(stripMarkdownBoldMarkers(stim.body))}
+					<MathText text={stripMarkdownBoldMarkers(stim.body)} />
 				</p>
 			) : null}
 
@@ -240,7 +243,7 @@ function QuestionCard({
 					<div className="space-y-3">
 						<p className="whitespace-pre-wrap">
 							<span className="tabular-nums font-semibold text-vanta-text">{questionNumber}. </span>
-							{formatNiceMath(question.frq_stem ?? "")}
+							<MathText text={question.frq_stem ?? ""} />
 						</p>
 						<p className="font-medium text-vanta-text">{frqRespondToDirectoryLine(parts.map((p) => p.letter))}</p>
 					</div>
@@ -255,7 +258,9 @@ function QuestionCard({
 											{p.letter}.
 										</span>
 										<div className="flex-1 min-w-0">
-											<p className="leading-relaxed">{formatNiceMath(p.promptText)}</p>
+											<p className="leading-relaxed">
+												<MathText text={p.promptText} />
+											</p>
 										</div>
 									</div>
 									<Textarea
@@ -286,13 +291,17 @@ function QuestionCard({
 		{submitted && question.explanation && !question.frq_rubric ? (
 			<div className="mt-4 p-4 bg-vanta-bg rounded-lg border border-vanta-border">
 				<p className="text-xs text-vanta-muted font-semibold uppercase tracking-wider mb-1">Explanation</p>
-				<p className="text-vanta-text text-sm leading-relaxed">{formatNiceMath(question.explanation)}</p>
+				<p className="text-vanta-text text-sm leading-relaxed">
+					<MathText text={question.explanation} />
+				</p>
 			</div>
 		) : null}
 		{submitted && question.explanation && question.frq_rubric ? (
 			<div className="mt-4 p-4 rounded-lg border border-vanta-border/80 bg-vanta-surface-elevated/60">
 				<p className="text-xs text-vanta-muted font-semibold uppercase tracking-wider mb-1">Coach note</p>
-				<p className="text-vanta-text text-sm leading-relaxed">{formatNiceMath(question.explanation)}</p>
+				<p className="text-vanta-text text-sm leading-relaxed">
+					<MathText text={question.explanation} />
+				</p>
 			</div>
 		) : null}
 

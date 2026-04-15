@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @config "../../tailwind.config.ts";
+@import "katex/dist/katex.min.css";
 
 :root {
  --font-geist-sans: "Geist", system-ui, sans-serif;
