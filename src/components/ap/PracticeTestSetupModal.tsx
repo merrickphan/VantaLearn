@@ -129,7 +129,7 @@ export function PracticeTestSetupModal({
  <Button
  type="button"
  onClick={start}
- className="rounded-full px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white border-0 shadow-sm shadow-sky-900/20"
+ className="rounded-full px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white border border-sky-700/25 shadow-md shadow-sky-600/20"
  >
  Start practice
  </Button>
@@ -243,7 +243,7 @@ export function PracticeTestSetupModal({
  <Button
  type="button"
  onClick={start}
- className="rounded-full px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white border-0 shadow-sm shadow-sky-900/20"
+ className="rounded-full px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white border border-sky-700/25 shadow-md shadow-sky-600/20"
  >
  Start practice
  </Button>
