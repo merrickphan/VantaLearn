@@ -162,14 +162,6 @@ const SCI_PHENOM = [
 	"natural selection in a changing environment",
 ];
 
-function frqBulletBlock(title: string, lines: string[]): string {
-	return `${title}\n${lines.map((l) => `• ${l}`).join("\n")}`;
-}
-
-function frqNumberedBlock(title: string, lines: string[]): string {
-	return `${title}\n${lines.map((l, i) => `${i + 1}. ${l}`).join("\n")}`;
-}
-
 /** Single-point AP Human Geography–style rubric part (7 parts per FRQ is typical). */
 function hgOnePointPart(letter: string, promptText: string, descriptor: string, examples: string[]): FrqRubricPart {
 	return {
@@ -192,24 +184,7 @@ function buildHumanGeoSet(
 		c1 = pick(rng, HG_CONCEPTS);
 	}
 
-	const q0Stem = [
-		frqBulletBlock("Directions", [
-			"You must answer all parts (A)–(G) in order.",
-			"Use geographic vocabulary appropriate to AP Human Geography.",
-			"Write complete sentences; labels alone do not earn credit.",
-			"Budget your time across all seven parts.",
-		]),
-		"",
-		frqBulletBlock("Geographic focus", [
-			`Place of reference: ${place}.`,
-			`Content emphasis: ${ctx.unitTitle}.`,
-		]),
-		"",
-		frqNumberedBlock("Background for your answers", [
-			"Political geographers study how states, identities, and networks interact across scales.",
-			"You may draw on devolution, centripetal and centrifugal forces, uneven development, and communication technologies where relevant.",
-		]),
-	].join("\n");
+	const q0Stem = `Political geography connects states, identities, and networks across scales. Focus your answers on ${place} and on ${ctx.unitTitle}, drawing on ideas such as devolution, centripetal and centrifugal forces, uneven development, and communication technologies where they help your argument.`;
 
 	const q0Parts: FrqRubricPart[] = [
 		hgOnePointPart(
@@ -301,20 +276,7 @@ function buildHumanGeoSet(
 		],
 	};
 
-	const q1Stem = [
-		frqBulletBlock("Directions", [
-			"You must answer all parts (A)–(G) in order.",
-			"Refer to Table 1 (reproduced above) where a part asks for evidence from the table.",
-			"Integrate knowledge from the course, especially " + ctx.unitTitle + ".",
-		]),
-		"",
-		frqBulletBlock("Geographic focus", [`Place of reference: ${place}.`, `Content emphasis: ${ctx.unitTitle}.`]),
-		"",
-		frqNumberedBlock("How to use Table 1", [
-			"Compare rows to identify contrasts or trends.",
-			"Use numbers explicitly when you make a claim tied to the table.",
-		]),
-	].join("\n");
+	const q1Stem = `Table 1 reports selected development indicators for a setting comparable to ${place}. Use the table together with ${ctx.unitTitle} to support your reasoning in the parts that follow.`;
 
 	const q1Parts: FrqRubricPart[] = [
 		hgOnePointPart(
@@ -399,20 +361,7 @@ function buildHumanGeoSet(
 		].join("\n"),
 	};
 
-	const q2Stem = [
-		frqBulletBlock("Directions", [
-			"You must answer all parts (A)–(G) in order.",
-			"Refer to Stimulus A and Stimulus B (reproduced above).",
-			"Integrate geographic reasoning; avoid inventing real-world treaties or organizations by name unless you are certain.",
-		]),
-		"",
-		frqBulletBlock("Geographic focus", [`Place of reference: ${place}.`, `Content emphasis: ${ctx.unitTitle}.`]),
-		"",
-		frqNumberedBlock("Reading strategy", [
-			"Treat each stimulus as a distinct scale or actor (state-led policy vs regional integration outcomes).",
-			"Use parts (A)–(D) to establish goals and tensions before proposing responses in (E)–(G).",
-		]),
-	].join("\n");
+	const q2Stem = `Read Stimulus A and Stimulus B. Use geographic reasoning tied to ${place} and ${ctx.unitTitle}. Do not invent real treaties or organizations by name unless you are certain they exist.`;
 
 	const q2Parts: FrqRubricPart[] = [
 		hgOnePointPart(
@@ -483,18 +432,7 @@ function buildSocialSet(
 ): ExamQuestion[] {
 	const concept = pick(rng, SOCIAL_CONCEPTS);
 	const place = pick(rng, PLACES);
-	const soc0Stem = [
-		frqBulletBlock("Directions", [
-			"Answer each labeled part (A) and (B).",
-			"Write complete sentences with political science / economics / psychology vocabulary as appropriate to the course.",
-		]),
-		"",
-		frqBulletBlock("Context", [
-			`Course unit: ${ctx.unitTitle}.`,
-			`Course: ${ctx.courseName}.`,
-			`Illustrative setting: ${place}.`,
-		]),
-	].join("\n");
+	const soc0Stem = `Use concepts from ${ctx.unitTitle} in ${ctx.courseName}. Where it strengthens your answer, ground claims in a setting like ${place}.`;
 
 	const q0 = frqQ(
 		{
@@ -539,14 +477,7 @@ function buildSocialSet(
 		],
 	};
 
-	const soc1Stem = [
-		frqBulletBlock("Directions", [
-			"Answer each labeled part (A) and (B).",
-			"Use Figure 1 (above) wherever the part asks you to reference the chart.",
-		]),
-		"",
-		frqBulletBlock("Context", [`Course unit: ${ctx.unitTitle}.`, `Illustrative setting: ${place}.`]),
-	].join("\n");
+	const soc1Stem = `Figure 1 summarizes survey support for three policy options in a setting analogous to ${place}. Answer using the figure and ${ctx.unitTitle}.`;
 
 	const q1 = frqQ(
 		{
@@ -590,14 +521,7 @@ function buildSocialSet(
 		].join("\n"),
 	};
 
-	const soc2Stem = [
-		frqBulletBlock("Directions", [
-			"Answer each labeled part (A), (B), and (C).",
-			"Refer to Stimulus A and Stimulus B (above).",
-		]),
-		"",
-		frqBulletBlock("Context", [`Course unit: ${ctx.unitTitle}.`, `Illustrative setting: ${place}.`]),
-	].join("\n");
+	const soc2Stem = `Use Stimulus A, Stimulus B, and ${ctx.unitTitle}. Tie claims to ${place} where a part asks for application.`;
 
 	const q2 = frqQ(
 		{
@@ -769,18 +693,7 @@ function buildMathSet(
 	const b = randInt(rng, -12, 12);
 	const c = randInt(rng, 2, 11);
 	const fx = b >= 0 ? `${a}x^2 + ${b}x + ${c}` : `${a}x^2 - ${-b}x + ${c}`;
-	const q0Stem = [
-		frqBulletBlock("Directions (AP Calculus–style labeling)", [
-			"Answer each labeled part (a) and (b).",
-			"Unless otherwise specified, you may use a graphing calculator in calculator-allowed portions of your session.",
-			"Show the reasoning that leads to your answers.",
-		]),
-		"",
-		frqBulletBlock("Information", [
-			`This question aligns with ${ctx.unitTitle}.`,
-			`Let \\(f(x) = ${fx}\\) for all real numbers \\(x\\).`,
-		]),
-	].join("\n");
+	const q0Stem = `Let \\(f(x) = ${fx}\\) for all real numbers \\(x\\). This question aligns with ${ctx.unitTitle}.`;
 
 	const q0 = frqQ(
 		{
@@ -830,18 +743,7 @@ function buildMathSet(
 		],
 	};
 
-	const q1Stem = [
-		frqBulletBlock("Directions", [
-			"Answer each labeled part (a) and (b).",
-			"Use Table 1 (above) wherever the part references tabular values.",
-			"Show difference quotient work where applicable.",
-		]),
-		"",
-		frqBulletBlock("Information", [
-			`A differentiable function \\(g\\) is modeled by Table 1 near \\(x=${x0}\\).`,
-			`This item aligns with ${ctx.unitTitle}.`,
-		]),
-	].join("\n");
+	const q1Stem = `A differentiable function \\(g\\) is modeled by Table 1 near \\(x=${x0}\\). This item aligns with ${ctx.unitTitle}.`;
 
 	const q1 = frqQ(
 		{
@@ -890,13 +792,7 @@ function buildMathSet(
 		].join("\n"),
 	};
 
-	const q2Stem = [
-		frqBulletBlock("Directions", [
-			"Answer each labeled part (a), (b), and (c).",
-			"Refer to Stimulus A and Stimulus B (above).",
-			`Use language appropriate to ${ctx.unitTitle} where part (b) asks for a conceptual explanation.`,
-		]),
-	].join("\n");
+	const q2Stem = `Use Stimulus A and Stimulus B. In part (b), use language appropriate to ${ctx.unitTitle}.`;
 
 	const q2 = frqQ(
 		{

@@ -83,9 +83,6 @@ function frqRespondToDirectoryLine(letters: string[]): string {
 	return `Respond to ${ls.slice(0, -1).join(", ")}, and ${ls[ls.length - 1]}.`;
 }
 
-const FRQ_BOOKLET_SERIF =
-	"[font-family:ui-serif,Georgia,Cambria,'Times_New_Roman',Times,serif] text-[15px] leading-relaxed text-vanta-text";
-
 function QuestionCard({
  question,
  questionNumber,
@@ -232,7 +229,7 @@ function QuestionCard({
  })}
  </div>
 			) : steppedFrq ? (
-				<div className={`${FRQ_BOOKLET_SERIF} space-y-6 mt-1`}>
+				<div className="space-y-6 mt-1 text-[15px] leading-relaxed text-vanta-text font-sans">
 					<div className="space-y-3">
 						<p className="whitespace-pre-wrap">
 							<span className="tabular-nums font-semibold text-vanta-text">{questionNumber}. </span>
