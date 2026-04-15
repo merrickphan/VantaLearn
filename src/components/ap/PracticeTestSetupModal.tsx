@@ -105,7 +105,7 @@ export function PracticeTestSetupModal({
  <Button
  type="button"
  onClick={start}
- className="rounded-full px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-white border-0 shadow-sm"
+ className="rounded-full px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white border-0 shadow-sm shadow-sky-900/20"
  >
  Start practice
  </Button>
@@ -179,7 +179,7 @@ export function PracticeTestSetupModal({
  aria-checked={calculatorQuestions}
  onClick={() => setCalculatorQuestions((v) => !v)}
  className={`relative h-8 w-14 rounded-full transition-colors shrink-0 ${
- calculatorQuestions ? "bg-teal-600" : "bg-vanta-border"
+ calculatorQuestions ? "bg-sky-600" : "bg-vanta-border"
  }`}
  >
  <span
@@ -201,7 +201,7 @@ export function PracticeTestSetupModal({
  <Button
  type="button"
  onClick={start}
- className="rounded-full px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-white border-0"
+ className="rounded-full px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white border-0 shadow-sm shadow-sky-900/20"
  >
  Start practice
  </Button>
