@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import type { ApUnit } from "@/lib/apUnits";
 import { proceduralPracticeMcqCountForCourse } from "@/lib/apPracticeExamFormat";
 import type { ProceduralDifficulty } from "@/lib/questions/procedural";
@@ -49,6 +50,15 @@ export function PracticeTestSetupModal({
  setCalculatorQuestions(true);
  }, [open, defaultUnitId, courseId]);
 
+ useEffect(() => {
+ if (!open || typeof document === "undefined") return;
+ const prev = document.body.style.overflow;
+ document.body.style.overflow = "hidden";
+ return () => {
+ document.body.style.overflow = prev;
+ };
+ }, [open]);
+
  const unitOptions = useMemo(() => [{ id: "all", label: "All units" }, ...units.map((u) => ({ id: u.id, label: `Unit ${u.index}: ${u.title}` }))], [units]);
 
  const start = useCallback(() => {
@@ -80,11 +90,11 @@ export function PracticeTestSetupModal({
  unitChoice,
  ]);
 
- if (!open) return null;
+ if (!open || typeof document === "undefined") return null;
 
- return (
+ return createPortal(
  <div
- className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-[2px]"
+ className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-md"
  role="dialog"
  aria-modal="true"
  aria-labelledby="practice-setup-title"
@@ -221,6 +231,7 @@ export function PracticeTestSetupModal({
  </Button>
  </div>
  </div>
- </div>
+ </div>,
+ document.body,
  );
 }
