@@ -1,6 +1,8 @@
 import { AP_COURSES } from "@/lib/apCatalog";
+import { getApFrqReplicaSpec } from "@/lib/apFrqExamReplicaFormat";
 import { getUnitOrFirst, getUnitsForCourseId } from "@/lib/apUnits";
 import type { ExamFigure, ExamQuestion, FrqRubricCriterion, FrqRubricDoc, FrqRubricPart } from "@/types";
+import type { ProceduralDifficulty } from "@/lib/questions/procedural";
 import { createRng, hashString, pick, randInt } from "./utils";
 
 /** Number of distinct FRQ practice sets per course (deterministic by setIndex). */
@@ -1354,10 +1356,11 @@ function buildGenericSet(
 	return buildSocialSet(rng, ctx);
 }
 
-export function generateApFrqPracticeSet(params: {
+function generateApFrqPracticeTriple(params: {
 	courseId: string;
 	setIndex: number;
 	unitId: string;
+	difficulty?: ProceduralDifficulty;
 }): ExamQuestion[] {
 	const course = AP_COURSES.find((c) => c.id === params.courseId);
 	if (!course) throw new Error(`Unknown course: ${params.courseId}`);
@@ -1365,12 +1368,15 @@ export function generateApFrqPracticeSet(params: {
 	const units = getUnitsForCourseId(params.courseId);
 	if (units.length === 0) throw new Error(`No units for course: ${params.courseId}`);
 
+	const si = clampSetIndex(params.setIndex);
+	const diff = params.difficulty ?? "medium";
 	const unit =
-		params.unitId === "all" ? units[Math.floor(createRng(`frq|${params.courseId}|${params.setIndex}`, "unit")() * units.length)] : getUnitOrFirst(params.courseId, params.unitId);
+		params.unitId === "all"
+			? units[Math.floor(createRng(`frq|${params.courseId}|${si}|diff:${diff}`, "unit")() * units.length)]
+			: getUnitOrFirst(params.courseId, params.unitId);
 	if (!unit) throw new Error(`Bad unit for course: ${params.courseId}`);
 
-	const si = clampSetIndex(params.setIndex);
-	const seed = `frq|${params.courseId}|u:${unit.id}|set:${si}`;
+	const seed = `frq|${params.courseId}|u:${unit.id}|set:${si}|diff:${diff}`;
 	const track = frqTrackForCourse(params.courseId);
 
 	const ctx = {
@@ -1411,13 +1417,38 @@ export function generateApFrqPracticeSet(params: {
 	};
 
 	let qs = mk();
-	// Rotate micro-variation by set index using additional RNG passes (keeps structure, changes details).
 	const jitter = createRng(seed, `jitter|${si}`);
 	if (jitter() > 0.5) {
-		// Re-roll numeric-heavy questions for math/science tracks by rebuilding with sibling seed (cheap variety).
 		if (track === "math" || track === "science") {
 			qs = track === "math" ? buildMathSet(r1, ctx) : buildScienceSet(r1, ctx);
 		}
 	}
 	return qs;
+}
+
+export function generateApFrqPracticeSet(params: {
+	courseId: string;
+	setIndex: number;
+	unitId: string;
+	difficulty?: ProceduralDifficulty;
+}): ExamQuestion[] {
+	const spec = getApFrqReplicaSpec(params.courseId);
+	const n = Math.max(1, Math.min(24, spec.frqCount));
+	const out: ExamQuestion[] = [];
+	let round = 0;
+	while (out.length < n && round < 20) {
+		const chunk = generateApFrqPracticeTriple({
+			...params,
+			setIndex: clampSetIndex(params.setIndex + round),
+		});
+		for (const q of chunk) {
+			if (out.length >= n) break;
+			out.push({
+				...q,
+				id: idFor(params.courseId, params.setIndex, out.length, hashString(q.question.slice(0, 48)).toString(36)),
+			});
+		}
+		round++;
+	}
+	return out;
 }

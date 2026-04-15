@@ -1,10 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
-import { AP_FRQ_PRACTICE_SET_COUNT } from "@/lib/questions/procedural/apFrqSets";
-import { hashString } from "@/lib/questions/procedural/utils";
 import { AP_COURSES } from "@/lib/apCatalog";
 import { getCourseOverview } from "@/lib/apCourseOverviews";
 import { AP_SECTIONS, getSectionIdForCourseId } from "@/lib/apCategories";
@@ -14,6 +12,7 @@ import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 import { PracticeTestSetupModal } from "@/components/ap/PracticeTestSetupModal";
 import { ProceduralPracticeCtaBanner } from "@/components/ap/ProceduralPracticeCtaBanner";
 import { FrqPracticeCtaBanner } from "@/components/ap/FrqPracticeCtaBanner";
+import { FrqPracticeSetupModal } from "@/components/ap/FrqPracticeSetupModal";
 import type { ApUnit } from "@/lib/apUnits";
 
 export function ApCourseUnitList({
@@ -28,11 +27,11 @@ export function ApCourseUnitList({
   intro?: string;
 }) {
   const pathname = usePathname();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [setupOpen, setSetupOpen] = useState(false);
   const [setupUnit, setSetupUnit] = useState<ApUnit | null>(null);
   const [setupShowUnitPicker, setSetupShowUnitPicker] = useState(false);
+  const [frqSetupOpen, setFrqSetupOpen] = useState(false);
   const units = useMemo(() => getUnitsForCourseId(courseId), [courseId]);
   const course = AP_COURSES.find((c) => c.id === courseId);
   if (!course) return null;
@@ -111,18 +110,7 @@ export function ApCourseUnitList({
               setSetupOpen(true);
             }}
           />
-          <FrqPracticeCtaBanner
-            className="mb-0"
-            onStart={() => {
-              const frqSet = hashString(course.id) % AP_FRQ_PRACTICE_SET_COUNT;
-              const qs = new URLSearchParams();
-              qs.set("procFrq", "1");
-              qs.set("course", course.id);
-              qs.set("unit", "all");
-              qs.set("set", String(frqSet));
-              router.push(`/study/exam?${qs.toString()}`);
-            }}
-          />
+          <FrqPracticeCtaBanner className="mb-0" onStart={() => setFrqSetupOpen(true)} />
         </div>
       ) : null}
 
@@ -164,6 +152,14 @@ export function ApCourseUnitList({
         isCalcCourse={calcSectionCourses}
         showUnitPicker={setupShowUnitPicker}
         units={setupShowUnitPicker ? units : undefined}
+      />
+    ) : null}
+    {frqSetupOpen && units.length > 0 ? (
+      <FrqPracticeSetupModal
+        open={frqSetupOpen}
+        onClose={() => setFrqSetupOpen(false)}
+        courseId={course.id}
+        units={units}
       />
     ) : null}
     </>

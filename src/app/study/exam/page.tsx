@@ -151,6 +151,7 @@ function ProceduralFrqExamSession({
  courseId,
  unitId: resolvedUnitId,
  setIndex,
+ difficulty: practice.difficulty,
  }),
  });
  const data = await res.json();
@@ -165,7 +166,7 @@ function ProceduralFrqExamSession({
  return () => {
  cancelled = true;
  };
- }, [courseId, resolvedUnitId, setIndex]);
+ }, [courseId, resolvedUnitId, setIndex, practice.difficulty]);
 
  if (!course || units.length === 0) {
  return (
@@ -205,7 +206,7 @@ function ProceduralFrqExamSession({
  questions={questions}
  title={title}
  timeLimitSeconds={practice.timeLimitSeconds}
- showDesmosCalculator={false}
+ showDesmosCalculator={practice.showDesmos}
  onRetry={() => {
  const next = Math.floor(Math.random() * AP_FRQ_PRACTICE_SET_COUNT);
  const u = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
@@ -213,8 +214,12 @@ function ProceduralFrqExamSession({
  u.set("course", courseId);
  u.set("unit", resolvedUnitId ?? "all");
  u.set("set", String(next));
+ u.set("difficulty", practice.difficulty);
  u.set("timerM", String(Math.floor(practice.timeLimitSeconds / 60)));
  u.set("timerS", String(practice.timeLimitSeconds % 60));
+ if (practice.showDesmos) {
+ u.set("calcSection", "calculator");
+ }
  router.push(`/study/exam?${u.toString()}`);
  }}
  />
