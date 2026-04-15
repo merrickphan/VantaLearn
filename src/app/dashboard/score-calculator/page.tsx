@@ -210,8 +210,10 @@ export default function ScoreCalculatorPage() {
 								</p>
 							</div>
 
-							<div className="rounded-xl border border-sky-500/20 bg-sky-500/[0.06] p-4 mb-6">
-								<p className="text-xs font-bold text-sky-200/90 uppercase tracking-wider mb-2">Instructions</p>
+							<div className="rounded-xl border border-sky-500/30 bg-sky-500/[0.06] dark:bg-sky-500/10 p-4 mb-6">
+								<p className="text-xs font-bold text-sky-950 dark:text-sky-100 uppercase tracking-wider mb-2">
+									Instructions
+								</p>
 								<p className="text-sm text-vanta-muted leading-relaxed">
 									Section I is one multiple-choice total. Section II uses each question&apos;s{" "}
 									<strong className="text-vanta-text">College Board rubric max</strong> on the slider; when a
