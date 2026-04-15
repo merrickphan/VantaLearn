@@ -48,7 +48,7 @@ function DashboardContent() {
  Your AP command center
  </h1>
  <p className="text-vanta-muted text-lg mt-3 max-w-xl">
- Exam-style practice - Live countdowns - Score predictor - Analytics - {userName ? `${userName}, ` : ""}
+ Exam-style practice - Live countdowns - AP® scores - Analytics - {userName ? `${userName}, ` : ""}
  stay exam-ready.
  </p>
  </div>
