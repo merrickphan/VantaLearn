@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { computeApSubjectScore } from "@/lib/utils";
+import { computeApSubjectScore } from "@/lib/apScoreBySubject";
 
 export async function POST(request: NextRequest) {
  try {

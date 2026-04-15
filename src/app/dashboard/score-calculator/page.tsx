@@ -5,14 +5,14 @@ import { useMemo, useState } from "react";
 import { VantaLogo } from "@/components/branding/VantaLogo";
 import { Card } from "@/components/ui";
 import { AP_COURSES } from "@/lib/apCatalog";
-import { formatNiceMath } from "@/lib/typography/niceMath";
 import {
 	computeApSubjectScore,
 	listApSubjectModels,
 	type ApScoreSectionDef,
 	type ApSubjectScoreModel,
 	type ApSubjectScoreResult,
-} from "@/lib/utils";
+} from "@/lib/apScoreBySubject";
+import { formatNiceMath } from "@/lib/typography/niceMath";
 
 function earnedForSection(maxPoints: number, raw: string | undefined): number {
 	const v = parseFloat(raw ?? "");
