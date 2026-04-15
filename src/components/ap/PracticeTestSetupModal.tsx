@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { ApUnit } from "@/lib/apUnits";
 import { proceduralPracticeMcqCountForCourse } from "@/lib/apPracticeExamFormat";
 import type { ProceduralDifficulty } from "@/lib/questions/procedural";
 import { Button } from "@/components/ui";
@@ -19,16 +20,23 @@ export function PracticeTestSetupModal({
  courseId,
  defaultUnitId,
  isCalcCourse,
+ showUnitPicker = false,
+ units,
 }: {
  open: boolean;
  onClose: () => void;
  courseId: string;
+ /** Used when `showUnitPicker` is false (unit chosen before opening the modal). */
  defaultUnitId: string;
  isCalcCourse: boolean;
+ /** When true, shows unit / “All units” row; `units` must be provided. */
+ showUnitPicker?: boolean;
+ units?: ApUnit[];
 }) {
  const router = useRouter();
  const defaultCount = proceduralPracticeMcqCountForCourse(courseId);
 
+ const [unitChoice, setUnitChoice] = useState<string>("all");
  const [difficulty, setDifficulty] = useState<ProceduralDifficulty>("random");
  const [questionCount, setQuestionCount] = useState(String(defaultCount));
  const [timerMinutes, setTimerMinutes] = useState(0);
@@ -37,12 +45,17 @@ export function PracticeTestSetupModal({
 
  useEffect(() => {
  if (!open) return;
+ if (showUnitPicker && units && units.length > 0) {
+ setUnitChoice("all");
+ } else if (!showUnitPicker) {
+ setUnitChoice(defaultUnitId);
+ }
  setDifficulty("random");
  setQuestionCount(String(proceduralPracticeMcqCountForCourse(courseId)));
  setTimerMinutes(0);
  setTimerSeconds(0);
  setCalculatorQuestions(true);
- }, [open, courseId]);
+ }, [open, courseId, showUnitPicker, defaultUnitId]);
 
  useEffect(() => {
  if (!open || typeof document === "undefined") return;
@@ -53,12 +66,23 @@ export function PracticeTestSetupModal({
  };
  }, [open]);
 
+ const unitOptions = useMemo(
+ () =>
+ showUnitPicker && units?.length
+ ? [{ id: "all", label: "All units" }, ...units.map((u) => ({ id: u.id, label: `Unit ${u.index}: ${u.title}` }))]
+ : [],
+ [showUnitPicker, units],
+ );
+
+ const resolvedUnit =
+ showUnitPicker && units?.length ? (unitChoice === "all" ? "all" : unitChoice) : defaultUnitId;
+
  const start = useCallback(() => {
  const n = Math.min(100, Math.max(1, Math.floor(Number(questionCount) || defaultCount)));
  const qs = new URLSearchParams();
  qs.set("proc", "1");
  qs.set("course", courseId);
- qs.set("unit", defaultUnitId);
+ qs.set("unit", resolvedUnit);
  qs.set("count", String(n));
  qs.set("difficulty", difficulty);
  qs.set("timerM", String(Math.min(180, Math.max(0, timerMinutes))));
@@ -79,7 +103,7 @@ export function PracticeTestSetupModal({
  router,
  timerMinutes,
  timerSeconds,
- defaultUnitId,
+ resolvedUnit,
  ]);
 
  if (!open) return null;
@@ -112,6 +136,24 @@ export function PracticeTestSetupModal({
  </div>
 
  <div className="px-5 py-1">
+ {showUnitPicker && unitOptions.length > 0 ? (
+ <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-vanta-border/80">
+ <span className="text-sm font-medium text-vanta-text">Unit</span>
+ <select
+ className={selectClassName()}
+ value={unitChoice}
+ onChange={(e) => setUnitChoice(e.target.value)}
+ aria-label="Unit"
+ >
+ {unitOptions.map((o) => (
+ <option key={o.id} value={o.id}>
+ {o.label}
+ </option>
+ ))}
+ </select>
+ </div>
+ ) : null}
+
  <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-vanta-border/80">
  <span className="text-sm font-medium text-vanta-text">Difficulty level</span>
  <select

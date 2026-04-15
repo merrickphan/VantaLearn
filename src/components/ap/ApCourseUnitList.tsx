@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { AP_COURSES } from "@/lib/apCatalog";
 import { getCourseOverview } from "@/lib/apCourseOverviews";
 import { AP_SECTIONS, getSectionIdForCourseId } from "@/lib/apCategories";
@@ -10,6 +10,7 @@ import { getUnitsForCourseId } from "@/lib/apUnits";
 import { Card, Badge } from "@/components/ui";
 import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 import { PracticeTestSetupModal } from "@/components/ap/PracticeTestSetupModal";
+import { ProceduralPracticeCtaBanner } from "@/components/ap/ProceduralPracticeCtaBanner";
 import type { ApUnit } from "@/lib/apUnits";
 
 export function ApCourseUnitList({
@@ -27,6 +28,7 @@ export function ApCourseUnitList({
   const searchParams = useSearchParams();
   const [setupOpen, setSetupOpen] = useState(false);
   const [setupUnit, setSetupUnit] = useState<ApUnit | null>(null);
+  const [setupShowUnitPicker, setSetupShowUnitPicker] = useState(false);
   const course = AP_COURSES.find((c) => c.id === courseId);
   if (!course) return null;
 
@@ -40,7 +42,7 @@ export function ApCourseUnitList({
     return `${pathname}?${q.toString()}`;
   };
 
-  const units = getUnitsForCourseId(courseId);
+  const units = useMemo(() => getUnitsForCourseId(courseId), [courseId]);
   const sectionId = getSectionIdForCourseId(courseId);
   const sectionMeta = sectionId ? AP_SECTIONS.find((s) => s.id === sectionId) : undefined;
   const calcSectionCourses = course.id === "calc-ab" || course.id === "calc-bc";
@@ -96,6 +98,16 @@ export function ApCourseUnitList({
         </Card>
       ) : null}
 
+      {units.length > 0 ? (
+        <ProceduralPracticeCtaBanner
+          onStart={() => {
+            setSetupShowUnitPicker(true);
+            setSetupUnit(null);
+            setSetupOpen(true);
+          }}
+        />
+      ) : null}
+
       <div className="space-y-3 stagger">
         {units.map((u) => (
           <button
@@ -103,6 +115,7 @@ export function ApCourseUnitList({
             type="button"
             className="fade-up block w-full text-left rounded-card focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-vanta-bg transition-shadow duration-200 hover:shadow-md hover:shadow-sky-500/10"
             onClick={() => {
+              setSetupShowUnitPicker(false);
               setSetupUnit(u);
               setSetupOpen(true);
             }}
@@ -120,13 +133,19 @@ export function ApCourseUnitList({
       </div>
 
     </div>
-    {setupUnit ? (
+    {setupOpen && (setupUnit || setupShowUnitPicker) ? (
       <PracticeTestSetupModal
         open={setupOpen}
-        onClose={() => setSetupOpen(false)}
+        onClose={() => {
+          setSetupOpen(false);
+          setSetupShowUnitPicker(false);
+          setSetupUnit(null);
+        }}
         courseId={course.id}
-        defaultUnitId={setupUnit.id}
+        defaultUnitId={setupUnit?.id ?? units[0]?.id ?? ""}
         isCalcCourse={calcSectionCourses}
+        showUnitPicker={setupShowUnitPicker}
+        units={setupShowUnitPicker ? units : undefined}
       />
     ) : null}
     </>
