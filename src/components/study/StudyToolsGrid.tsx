@@ -82,9 +82,9 @@ export function StudyToolsGrid() {
  Inspired by modern study apps: practice tests, cards, games, and AI help - pick a tool and dive in.
  </p>
  </div>
- <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+ <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 stagger">
  {TOOLS.map((t) => (
- <Link key={t.href} href={t.href} className="group block h-full">
+ <Link key={t.href} href={t.href} className="group block h-full fade-up">
  <Card
  hover
  className={`h-full p-5 border-white/10 bg-gradient-to-br ${t.accent} rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.25)]`}

@@ -124,7 +124,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
  <Link
  key={c.id}
  href={href}
- className="flex items-start gap-3 rounded-xl px-2 py-2.5 hover:bg-vanta-surface-hover transition-colors"
+ className="flex items-start gap-3 rounded-xl px-2 py-2.5 hover:bg-vanta-surface-hover transition-all duration-200 hover:translate-x-0.5"
  >
  <span className="shrink-0 mt-0.5" aria-hidden>
  <SimpleIconBox name={c.icon} size={30} />
@@ -147,7 +147,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
  <Link
  key={item.href}
  href={item.href}
- className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors
+ className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200
  ${active ? "bg-sky-500/15 text-sky-400" : "text-vanta-muted hover:text-vanta-text hover:bg-vanta-surface-hover"}`}
  >
  {item.icon}
@@ -184,8 +184,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
  <Link
  key={item.href}
  href={item.href}
- className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors
- ${active ? "text-sky-400 bg-sky-500/10" : "text-vanta-muted hover:text-vanta-text"}`}
+ className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
+ ${active ? "text-sky-400 bg-sky-500/10 shadow-sm shadow-sky-500/10" : "text-vanta-muted hover:text-vanta-text hover:bg-vanta-surface-hover/80"}`}
  >
  {item.label}
  </Link>
@@ -211,10 +211,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
  <Link
  key={item.href}
  href={item.href}
- className={`flex flex-col items-center gap-1 py-2.5 px-2 text-xs font-medium min-w-0 flex-1
+ className={`flex flex-col items-center gap-1 py-2.5 px-2 text-xs font-medium min-w-0 flex-1 transition-transform duration-200 active:scale-95
  ${active ? "text-sky-400" : "text-vanta-muted"}`}
  >
- <span className="scale-100">{item.icon}</span>
+ <span className={`transition-transform duration-200 ${active ? "scale-110" : "scale-100"}`}>{item.icon}</span>
  <span className="truncate w-full text-center">{item.label}</span>
  </Link>
  );

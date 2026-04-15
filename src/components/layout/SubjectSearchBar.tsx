@@ -101,7 +101,7 @@ export function SubjectSearchBar() {
 				<div
 					id="subject-search-results"
 					role="listbox"
-					className="absolute z-50 mt-1.5 w-full min-w-[240px] max-h-72 overflow-auto rounded-xl border border-vanta-border bg-vanta-surface shadow-card py-1"
+					className="absolute z-50 mt-1.5 w-full min-w-[240px] max-h-72 overflow-auto rounded-xl border border-vanta-border bg-vanta-surface shadow-card py-1 vl-modal-surface-in origin-top"
 				>
 					{results.length === 0 ? (
 						<p className="px-4 py-3 text-sm text-vanta-muted">No matching subjects.</p>

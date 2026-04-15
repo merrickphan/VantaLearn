@@ -96,12 +96,12 @@ export function ApCourseUnitList({
         </Card>
       ) : null}
 
-      <div className="space-y-3">
+      <div className="space-y-3 stagger">
         {units.map((u) => (
           <button
             key={u.id}
             type="button"
-            className="block w-full text-left rounded-card focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-vanta-bg"
+            className="fade-up block w-full text-left rounded-card focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-vanta-bg transition-shadow duration-200 hover:shadow-md hover:shadow-sky-500/10"
             onClick={() => {
               setSetupUnit(u);
               setSetupOpen(true);

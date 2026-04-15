@@ -69,28 +69,28 @@ function DashboardContent() {
  </section>
 
  <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-12 stagger">
- <Card className="p-6 border-vanta-border bg-vanta-surface/50">
+ <Card className="p-6 border-vanta-border bg-vanta-surface/50 fade-up">
  <span className="mb-3 inline-block" aria-hidden>
  <SimpleIconBox name="clipboard" size={36} />
  </span>
  <p className="text-3xl font-display font-bold text-vanta-text">{attempts}</p>
  <p className="text-sm text-vanta-muted uppercase tracking-wider">Total attempts</p>
  </Card>
- <Card className="p-6 border-vanta-border bg-vanta-surface/50">
+ <Card className="p-6 border-vanta-border bg-vanta-surface/50 fade-up">
  <span className="mb-3 inline-block" aria-hidden>
  <SimpleIconBox name="check" size={36} />
  </span>
  <p className="text-3xl font-display font-bold text-emerald-400">{correct}</p>
  <p className="text-sm text-vanta-muted uppercase tracking-wider">Correct answers</p>
  </Card>
- <Card className="p-6 border-vanta-border bg-vanta-surface/50">
+ <Card className="p-6 border-vanta-border bg-vanta-surface/50 fade-up">
  <span className="mb-3 inline-block" aria-hidden>
  <SimpleIconBox name="book" size={36} />
  </span>
  <p className="text-3xl font-display font-bold text-sky-400">{subjectsPracticed}</p>
  <p className="text-sm text-vanta-muted uppercase tracking-wider">Subjects practiced</p>
  </Card>
- <Card className="p-6 border-vanta-border bg-vanta-surface/50">
+ <Card className="p-6 border-vanta-border bg-vanta-surface/50 fade-up">
  <span className="mb-3 inline-block" aria-hidden>
  <SimpleIconBox name="flame" size={36} />
  </span>
@@ -188,12 +188,12 @@ function DashboardContent() {
  <h2 className="text-sm font-semibold text-vanta-muted uppercase tracking-widest">Featured practice sets</h2>
  <p className="text-xs text-vanta-muted">Static exams | Link to unit drills when the subject matches an AP course</p>
  </div>
- <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+ <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 stagger">
  {practiceExams.slice(0, 6).map((exam) => {
  const n = (exam.content_data as { questions: unknown[] }).questions.length;
  const matched = getCourseByName(exam.subject);
  return (
- <Card key={exam.id} className="p-6 h-full border-vanta-border/80 flex flex-col">
+ <Card key={exam.id} className="p-6 h-full border-vanta-border/80 flex flex-col fade-up">
  <p className="text-sm text-sky-400 font-medium mb-2">{exam.subject}</p>
  <Link href={`/study/exam?id=${exam.id}`} className="group">
  <p className="text-lg font-semibold text-vanta-text group-hover:text-sky-300 transition-colors">{exam.title}</p>
@@ -241,7 +241,7 @@ function CourseExamCard({
  const timerLabel = done ? "Exam window" : `${days}d ${hours}h ${minutes}m`;
 
  return (
- <Link href={`/dashboard?course=${encodeURIComponent(courseId)}`}>
+ <Link href={`/dashboard?course=${encodeURIComponent(courseId)}`} className="fade-up block">
  <Card
  hover
  className={`p-6 h-full border transition-all ${

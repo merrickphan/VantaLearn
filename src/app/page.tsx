@@ -6,7 +6,7 @@ export default function HomePage() {
  return (
  <div className="min-h-screen bg-vanta-bg flex flex-col">
  {/* Header */}
- <header className="border-b border-vanta-border px-6 py-4 flex items-center justify-between">
+ <header className="border-b border-vanta-border px-6 py-4 flex items-center justify-between vl-fade-in">
  <Link
  href="/"
  className="flex items-center gap-2.5 group rounded-lg -m-1 p-1 transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
@@ -83,9 +83,9 @@ export default function HomePage() {
  ).map((f) => (
  <div
  key={f.title}
- className="fade-up bg-vanta-surface border border-vanta-border rounded-card p-5 hover:border-vanta-blue/35 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover"
+ className="group fade-up bg-vanta-surface border border-vanta-border rounded-card p-5 hover:border-vanta-blue/35 transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover"
  >
- <div className="mb-3" aria-hidden>
+ <div className="mb-3 transition-transform duration-300 group-hover:scale-110" aria-hidden>
  <SimpleIconBox name={f.icon} size={40} />
  </div>
  <h3 className="text-vanta-text font-semibold mb-1">{f.title}</h3>
@@ -95,7 +95,7 @@ export default function HomePage() {
  </div>
  </section>
 
- <footer className="border-t border-vanta-border px-6 py-6 text-center text-vanta-muted text-sm">
+ <footer className="border-t border-vanta-border px-6 py-6 text-center text-vanta-muted text-sm fade-up">
  (c) {new Date().getFullYear()} VantaLearn. Made for students, by students.
  </footer>
  </div>

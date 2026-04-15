@@ -93,7 +93,7 @@ export function PracticeTestSetupModal({
 
  return (
  <div
- className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-md"
+ className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-md vl-backdrop-in"
  role="dialog"
  aria-modal="true"
  aria-labelledby="practice-setup-title"
@@ -102,7 +102,7 @@ export function PracticeTestSetupModal({
  }}
  >
  <div
- className="w-full max-w-lg rounded-2xl border border-vanta-border bg-vanta-surface shadow-xl shadow-black/20 overflow-hidden"
+ className="w-full max-w-lg rounded-2xl border border-vanta-border bg-vanta-surface shadow-xl shadow-black/20 overflow-hidden vl-modal-surface-in"
  onClick={(e) => e.stopPropagation()}
  >
  <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-vanta-border">

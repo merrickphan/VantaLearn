@@ -54,7 +54,7 @@ function StudyLibrary() {
  {flashFiltered.map((set) => {
  const cards = (set.content_data as { cards: unknown[] }).cards;
  return (
- <Link key={set.id} href={`/study/flashcards?id=${set.id}`}>
+ <Link key={set.id} href={`/study/flashcards?id=${set.id}`} className="fade-up block">
  <Card hover className="p-7 h-full border-vanta-border/80">
  <div className="flex items-start justify-between mb-4">
  <span aria-hidden>
@@ -86,7 +86,7 @@ function StudyLibrary() {
  time_limit_minutes?: number;
  };
  return (
- <Link key={exam.id} href={`/study/exam?id=${exam.id}`}>
+ <Link key={exam.id} href={`/study/exam?id=${exam.id}`} className="fade-up block">
  <Card hover className="p-7 h-full border-vanta-border/80">
  <div className="flex items-start justify-between mb-4">
  <span aria-hidden>
@@ -109,8 +109,8 @@ function StudyLibrary() {
 
  <section>
  <h2 className="text-base font-semibold text-vanta-muted uppercase tracking-wider mb-5">Quick tools</h2>
- <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
- <Link href="/study/tips">
+ <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 stagger">
+ <Link href="/study/tips" className="fade-up block">
  <Card hover className="p-7 border-vanta-border/80">
  <span className="mb-4 block" aria-hidden>
  <SimpleIconBox name="spark" size={44} />
@@ -119,7 +119,7 @@ function StudyLibrary() {
  <p className="text-vanta-muted text-base">Personalized advice by subject</p>
  </Card>
  </Link>
- <Link href="/dashboard/score-calculator">
+ <Link href="/dashboard/score-calculator" className="fade-up block">
  <Card hover className="p-7 border-vanta-border/80">
  <span className="mb-4 block" aria-hidden>
  <SimpleIconBox name="calculator" size={44} />
