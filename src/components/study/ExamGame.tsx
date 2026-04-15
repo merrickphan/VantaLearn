@@ -24,7 +24,7 @@ function isStimulusFigure(f: ExamQuestion["figure"]): f is Extract<ExamFigureDat
  * Stems that say the exhibit appears *below* the stem (AP Lang-style revision).
  * In those cases the numbered stem comes first, then the italic line, then choices.
  */
-function FrqRubricPanel({ doc }: { doc: FrqRubricDoc }) {
+function FrqRubricPanel({ doc, omitPartPrompts = false }: { doc: FrqRubricDoc; omitPartPrompts?: boolean }) {
 	return (
 		<div className="mt-4 rounded-xl border border-sky-500/25 bg-gradient-to-b from-sky-500/[0.08] to-transparent overflow-hidden shadow-[inset_0_1px_0_rgba(56,189,248,0.12)]">
 			<div className="px-4 py-3 border-b border-sky-500/20 bg-sky-500/10 flex flex-wrap items-center justify-between gap-2">
@@ -38,8 +38,13 @@ function FrqRubricPanel({ doc }: { doc: FrqRubricDoc }) {
 					<div key={part.letter} className="border-t border-vanta-border/50 first:border-0 first:pt-0 pt-5 first:mt-0 mt-1">
 						<div className="flex flex-wrap items-start justify-between gap-2 mb-2">
 							<p className="text-sm font-bold text-vanta-text">
-								<span className="tabular-nums">{part.letter}.</span>{" "}
-								<span className="font-medium text-vanta-muted">{part.promptText}</span>
+								<span className="tabular-nums">{part.letter}.</span>
+								{omitPartPrompts ? null : (
+									<>
+										{" "}
+										<span className="font-medium text-vanta-muted">{part.promptText}</span>
+									</>
+								)}
 							</p>
 							<span className="text-xs font-semibold text-sky-300/90 tabular-nums shrink-0">{part.maxPoints} pt</span>
 						</div>
@@ -142,8 +147,10 @@ function QuestionCard({
  const fig = question.figure;
  const stim = isStimulusFigure(fig) ? fig : null;
  const dataFig = fig && !isStimulusFigure(fig) ? fig : null;
- const exhibitBelow = stim && stemSignalsExhibitBelow(question);
- const exhibitAboveStem = stim && !exhibitBelow;
+	const exhibitBelow = stim && stemSignalsExhibitBelow(question);
+	const exhibitAboveStem = stim && !exhibitBelow;
+	/** During “Review answers,” show only the rubric for multi-part FRQs—no prompt replay. */
+	const hideFrqPromptReplay = submitted && steppedFrq;
 
 	return (
 		<Card
@@ -157,12 +164,12 @@ function QuestionCard({
 							: ""
 			}`}
 		>
- {dataFig ? (
- <div className="figure-reveal mb-3">
- <ExamFigure figure={dataFig} />
- </div>
- ) : null}
-			{exhibitAboveStem ? (
+			{!hideFrqPromptReplay && dataFig ? (
+				<div className="figure-reveal mb-3">
+					<ExamFigure figure={dataFig} />
+				</div>
+			) : null}
+			{!hideFrqPromptReplay && exhibitAboveStem ? (
 				<p className="mb-3 text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
 					{formatNiceMath(stripMarkdownBoldMarkers(stim.body))}
 				</p>
@@ -173,7 +180,7 @@ function QuestionCard({
 					{formatNiceMath(rubricQ ? stripMarkdownBoldMarkers(question.question) : question.question)}
 				</p>
 			) : null}
-			{exhibitBelow ? (
+			{!hideFrqPromptReplay && exhibitBelow ? (
 				<p className="mb-4 text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
 					{formatNiceMath(stripMarkdownBoldMarkers(stim.body))}
 				</p>
@@ -228,7 +235,7 @@ function QuestionCard({
  );
  })}
  </div>
-			) : steppedFrq ? (
+			) : steppedFrq && !submitted ? (
 				<div className="space-y-6 mt-1 text-[15px] leading-relaxed text-vanta-text font-sans">
 					<div className="space-y-3">
 						<p className="whitespace-pre-wrap">
@@ -247,13 +254,8 @@ function QuestionCard({
 										<span className="shrink-0 w-8 tabular-nums font-semibold text-vanta-text pt-0.5">
 											{p.letter}.
 										</span>
-										<div className="flex-1 min-w-0 space-y-1">
+										<div className="flex-1 min-w-0">
 											<p className="leading-relaxed">{formatNiceMath(p.promptText)}</p>
-											{submitted ? (
-												<p className="text-xs text-vanta-muted">
-													{p.maxPoints} point{p.maxPoints === 1 ? "" : "s"} (scoring guide below)
-												</p>
-											) : null}
 										</div>
 									</div>
 									<Textarea
@@ -261,8 +263,7 @@ function QuestionCard({
 										placeholder={`Write your response for part ${p.letter}…`}
 										value={raw}
 										onChange={(e) => onAnswer(mergeFrqPartAnswer(answer, p.letter, e.target.value))}
-										disabled={submitted}
-										rows={submitted ? Math.min(12, Math.max(4, Math.ceil(raw.length / 72) + 2)) : 4}
+										rows={4}
 										className="w-full pl-11 font-sans text-[15px] leading-relaxed"
 									/>
 								</div>
@@ -270,17 +271,18 @@ function QuestionCard({
 						})}
 					</div>
 				</div>
-			) : (
+			) : !submitted ? (
 				<Textarea
 					placeholder="Write your response here..."
 					value={answer}
 					onChange={(e) => onAnswer(e.target.value)}
-					disabled={submitted}
 					rows={5}
 				/>
-			)}
+			) : null}
 
-		{submitted && question.frq_rubric ? <FrqRubricPanel doc={question.frq_rubric} /> : null}
+		{submitted && question.frq_rubric ? (
+			<FrqRubricPanel doc={question.frq_rubric} omitPartPrompts={hideFrqPromptReplay} />
+		) : null}
 		{submitted && question.explanation && !question.frq_rubric ? (
 			<div className="mt-4 p-4 bg-vanta-bg rounded-lg border border-vanta-border">
 				<p className="text-xs text-vanta-muted font-semibold uppercase tracking-wider mb-1">Explanation</p>
@@ -521,7 +523,7 @@ export function ExamGame({
 
  <div className="mt-6 flex justify-end">
  <Button size="lg" onClick={submit} disabled={stats.answeredCount === 0}>
- Submit Exam (next)
+ Submit
  </Button>
  </div>
  </div>
