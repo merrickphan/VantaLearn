@@ -13,6 +13,9 @@ const geistMono = Geist_Mono({
  subsets: ["latin"],
 });
 
+/** Ensure `.env.local` is read when rendering this layout (avoids a stale empty Desmos key from static optimization). */
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
  title: "VantaLearn - Master AP & SAT Exams",
  description:
@@ -30,6 +33,12 @@ export default function RootLayout({
 }: Readonly<{
  children: React.ReactNode;
 }>) {
+ const desmosApiKey = (
+ process.env.NEXT_PUBLIC_DESMOS_API_KEY ||
+ process.env.DESMOS_API_KEY ||
+ ""
+ ).trim();
+
  return (
  <html lang="en" suppressHydrationWarning>
  <body
@@ -38,6 +47,11 @@ export default function RootLayout({
  <script
  dangerouslySetInnerHTML={{
  __html: `(function(){try{var t=localStorage.getItem("vanta_theme");document.documentElement.dataset.theme=t==="dark"?"dark":"light";}catch(e){document.documentElement.dataset.theme="light";}})();`,
+ }}
+ />
+ <script
+ dangerouslySetInnerHTML={{
+ __html: `try{window.__VL_DESMOS_API_KEY__=${JSON.stringify(desmosApiKey)};}catch(e){}`,
  }}
  />
  <Providers>{children}</Providers>

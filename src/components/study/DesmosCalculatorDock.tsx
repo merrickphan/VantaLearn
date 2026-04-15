@@ -11,6 +11,8 @@ type DesmosCalculatorInstance = {
 
 declare global {
  interface Window {
+ /** Set in root `layout.tsx` from server env so the key is always current (avoids stale client bundle inlining). */
+ __VL_DESMOS_API_KEY__?: string;
  Desmos?: {
  GraphingCalculator: (element: HTMLElement, options?: Record<string, unknown>) => DesmosCalculatorInstance;
  };
@@ -18,10 +20,13 @@ declare global {
 }
 
 function getDesmosApiKey(): string {
- return (typeof process !== "undefined" && process.env.NEXT_PUBLIC_DESMOS_API_KEY
- ? process.env.NEXT_PUBLIC_DESMOS_API_KEY
- : ""
- ).trim();
+ if (typeof window !== "undefined") {
+ const injected = window.__VL_DESMOS_API_KEY__;
+ if (typeof injected === "string" && injected.length > 0) {
+ return injected.trim();
+ }
+ }
+ return (process.env.NEXT_PUBLIC_DESMOS_API_KEY ?? "").trim();
 }
 
 function loadDesmosScript(apiKey: string): Promise<void> {
@@ -167,11 +172,13 @@ export function DesmosCalculatorDock() {
  {!apiKey ? (
  <div className="flex flex-1 flex-col min-h-0">
  <p className="text-[11px] text-vanta-muted px-3 py-2 border-b border-vanta-border/80 bg-vanta-bg leading-snug">
- For a fully interactive calculator inside the app, add a free key from{" "}
+ Add a free key from{" "}
  <a href="https://www.desmos.com/my-api" className="text-sky-600 hover:underline" target="_blank" rel="noopener noreferrer">
  desmos.com/my-api
  </a>{" "}
- as <code className="text-vanta-text">NEXT_PUBLIC_DESMOS_API_KEY</code> in <code className="text-vanta-text">.env.local</code> and restart the dev server. Embed below:
+ to <code className="text-vanta-text">.env.local</code> as{" "}
+ <code className="text-vanta-text">NEXT_PUBLIC_DESMOS_API_KEY</code> (or <code className="text-vanta-text">DESMOS_API_KEY</code>
+ ), then restart <code className="text-vanta-text">npm run dev</code>. Embed below:
  </p>
  <iframe
  title="Desmos Graphing Calculator"
