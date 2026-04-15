@@ -1,8 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import type { ApUnit } from "@/lib/apUnits";
+import { useCallback, useEffect, useState } from "react";
 import { proceduralPracticeMcqCountForCourse } from "@/lib/apPracticeExamFormat";
 import type { ProceduralDifficulty } from "@/lib/questions/procedural";
 import { Button } from "@/components/ui";
@@ -19,20 +18,17 @@ export function PracticeTestSetupModal({
  onClose,
  courseId,
  defaultUnitId,
- units,
  isCalcCourse,
 }: {
  open: boolean;
  onClose: () => void;
  courseId: string;
  defaultUnitId: string;
- units: ApUnit[];
  isCalcCourse: boolean;
 }) {
  const router = useRouter();
  const defaultCount = proceduralPracticeMcqCountForCourse(courseId);
 
- const [unitChoice, setUnitChoice] = useState<string>(defaultUnitId);
  const [difficulty, setDifficulty] = useState<ProceduralDifficulty>("random");
  const [questionCount, setQuestionCount] = useState(String(defaultCount));
  const [timerMinutes, setTimerMinutes] = useState(0);
@@ -41,13 +37,12 @@ export function PracticeTestSetupModal({
 
  useEffect(() => {
  if (!open) return;
- setUnitChoice(defaultUnitId);
  setDifficulty("random");
  setQuestionCount(String(proceduralPracticeMcqCountForCourse(courseId)));
  setTimerMinutes(0);
  setTimerSeconds(0);
  setCalculatorQuestions(true);
- }, [open, defaultUnitId, courseId]);
+ }, [open, courseId]);
 
  useEffect(() => {
  if (!open || typeof document === "undefined") return;
@@ -58,14 +53,12 @@ export function PracticeTestSetupModal({
  };
  }, [open]);
 
- const unitOptions = useMemo(() => [{ id: "all", label: "All units" }, ...units.map((u) => ({ id: u.id, label: `Unit ${u.index}: ${u.title}` }))], [units]);
-
  const start = useCallback(() => {
  const n = Math.min(100, Math.max(1, Math.floor(Number(questionCount) || defaultCount)));
  const qs = new URLSearchParams();
  qs.set("proc", "1");
  qs.set("course", courseId);
- qs.set("unit", unitChoice === "all" ? "all" : unitChoice);
+ qs.set("unit", defaultUnitId);
  qs.set("count", String(n));
  qs.set("difficulty", difficulty);
  qs.set("timerM", String(Math.min(180, Math.max(0, timerMinutes))));
@@ -86,7 +79,7 @@ export function PracticeTestSetupModal({
  router,
  timerMinutes,
  timerSeconds,
- unitChoice,
+ defaultUnitId,
  ]);
 
  if (!open) return null;
@@ -119,22 +112,6 @@ export function PracticeTestSetupModal({
  </div>
 
  <div className="px-5 py-1">
- <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-vanta-border/80">
- <span className="text-sm font-medium text-vanta-text">Unit</span>
- <select
- className={selectClassName()}
- value={unitChoice}
- onChange={(e) => setUnitChoice(e.target.value)}
- aria-label="Unit"
- >
- {unitOptions.map((o) => (
- <option key={o.id} value={o.id}>
- {o.label}
- </option>
- ))}
- </select>
- </div>
-
  <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-vanta-border/80">
  <span className="text-sm font-medium text-vanta-text">Difficulty level</span>
  <select

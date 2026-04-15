@@ -126,7 +126,6 @@ export function ApCourseUnitList({
         onClose={() => setSetupOpen(false)}
         courseId={course.id}
         defaultUnitId={setupUnit.id}
-        units={units}
         isCalcCourse={calcSectionCourses}
       />
     ) : null}
