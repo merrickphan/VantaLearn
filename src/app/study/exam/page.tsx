@@ -104,9 +104,7 @@ function ProceduralExamSession({
  );
  }
 
- const title = isAllUnits
- ? `${course.name} | All units`
- : `${course.name} | Unit ${unitForTitle!.index}: ${unitForTitle!.title}`;
+ const title = `${course.name} | AP Exam Replica`;
 
  return (
  <ExamGame
@@ -132,7 +130,6 @@ function ProceduralFrqExamSession({
  const router = useRouter();
  const [questions, setQuestions] = useState<ExamQuestion[] | null>(null);
  const [error, setError] = useState<string | null>(null);
- const [resolvedSetIndex, setResolvedSetIndex] = useState(setIndex);
 
  const course = AP_COURSES.find((c) => c.id === courseId);
  const isAllUnits = unitParam === "all";
@@ -144,7 +141,6 @@ function ProceduralFrqExamSession({
  let cancelled = false;
  setQuestions(null);
  setError(null);
- setResolvedSetIndex(setIndex);
  if (!courseId || !resolvedUnitId) return;
  (async () => {
  try {
@@ -161,7 +157,6 @@ function ProceduralFrqExamSession({
  if (!res.ok) throw new Error(data.error || "Could not generate FRQ set.");
  if (!cancelled) {
  setQuestions(data.questions as ExamQuestion[]);
- if (typeof data.setIndex === "number") setResolvedSetIndex(data.setIndex);
  }
  } catch (e) {
  if (!cancelled) setError(e instanceof Error ? e.message : "Something went wrong.");
@@ -203,9 +198,7 @@ function ProceduralFrqExamSession({
  );
  }
 
- const title = isAllUnits
- ? `${course.name} | All units | FRQ set ${resolvedSetIndex + 1} of ${AP_FRQ_PRACTICE_SET_COUNT}`
- : `${course.name} | Unit ${unitForTitle!.index}: ${unitForTitle!.title} | FRQ set ${resolvedSetIndex + 1} of ${AP_FRQ_PRACTICE_SET_COUNT}`;
+ const title = `${course.name} | AP Exam Replica`;
 
  return (
  <ExamGame

@@ -44,10 +44,7 @@ export function AiExamSession({
  const [usedProcedural, setUsedProcedural] = useState(false);
 
  const unitMeta = unitId ? findUnitById(unitId) : null;
- const examTitle =
- unitMeta != null
- ? `${subject} | Unit ${unitMeta.unit.index}: ${unitMeta.unit.title}${usedProcedural ? " (offline)" : ""}`
- : `${subject} | ${usedProcedural ? "Offline practice" : "AI practice"}`;
+ const examTitle = `${subject} | AP Exam Replica`;
 
  const loadProcedural = useCallback(async () => {
  const courseId = getCourseIdFromSubjectName(subject);
