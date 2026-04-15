@@ -46,6 +46,7 @@ export function ApCourseUnitList({
   const calcSectionCourses = course.id === "calc-ab" || course.id === "calc-bc";
 
   return (
+    <>
     <div className="rounded-2xl border border-vanta-border bg-vanta-surface/60 p-6 sm:p-8 mb-10 fade-up">
       <div className="mb-6">
         <Link href={backHref} className="text-sm text-vanta-muted hover:text-vanta-blue">
@@ -118,16 +119,17 @@ export function ApCourseUnitList({
         ))}
       </div>
 
-      {setupUnit ? (
-        <PracticeTestSetupModal
-          open={setupOpen}
-          onClose={() => setSetupOpen(false)}
-          courseId={course.id}
-          defaultUnitId={setupUnit.id}
-          units={units}
-          isCalcCourse={calcSectionCourses}
-        />
-      ) : null}
     </div>
+    {setupUnit ? (
+      <PracticeTestSetupModal
+        open={setupOpen}
+        onClose={() => setSetupOpen(false)}
+        courseId={course.id}
+        defaultUnitId={setupUnit.id}
+        units={units}
+        isCalcCourse={calcSectionCourses}
+      />
+    ) : null}
+    </>
   );
 }

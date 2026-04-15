@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createPortal } from "react-dom";
 import type { ApUnit } from "@/lib/apUnits";
 import { proceduralPracticeMcqCountForCourse } from "@/lib/apPracticeExamFormat";
 import type { ProceduralDifficulty } from "@/lib/questions/procedural";
@@ -90,9 +89,9 @@ export function PracticeTestSetupModal({
  unitChoice,
  ]);
 
- if (!open || typeof document === "undefined") return null;
+ if (!open) return null;
 
- return createPortal(
+ return (
  <div
  className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-md"
  role="dialog"
@@ -231,7 +230,6 @@ export function PracticeTestSetupModal({
  </Button>
  </div>
  </div>
- </div>,
- document.body,
+ </div>
  );
 }
