@@ -74,6 +74,18 @@ function stemSignalsExhibitBelow(question: ExamQuestion): boolean {
 	);
 }
 
+/** AP booklet-style “Respond to A, B, C, … and G.” */
+function frqRespondToDirectoryLine(letters: string[]): string {
+	const ls = letters.filter(Boolean);
+	if (ls.length === 0) return "";
+	if (ls.length === 1) return `Respond to ${ls[0]}.`;
+	if (ls.length === 2) return `Respond to ${ls[0]} and ${ls[1]}.`;
+	return `Respond to ${ls.slice(0, -1).join(", ")}, and ${ls[ls.length - 1]}.`;
+}
+
+const FRQ_BOOKLET_SERIF =
+	"[font-family:ui-serif,Georgia,Cambria,'Times_New_Roman',Times,serif] text-[15px] leading-relaxed text-vanta-text";
+
 function QuestionCard({
  question,
  questionNumber,
@@ -91,10 +103,6 @@ function QuestionCard({
 	const rubricQ = Boolean(question.frq_rubric);
 	const steppedFrq =
 		rubricQ && Boolean(question.frq_stem) && (question.frq_rubric?.parts?.length ?? 0) > 0;
-	const [frqPartIdx, setFrqPartIdx] = useState(0);
-	useEffect(() => {
-		setFrqPartIdx(0);
-	}, [question.id]);
 
 	const isCorrect =
 		submitted && !rubricQ && answer === question.correct_answer && question.correct_answer !== AP_FRQ_PLACEHOLDER_ANSWER;
@@ -110,20 +118,9 @@ function QuestionCard({
 	const [feedbackRequested, setFeedbackRequested] = useState(false);
 
 	const parts = question.frq_rubric?.parts ?? [];
-	const partIdx = steppedFrq ? Math.min(frqPartIdx, Math.max(0, parts.length - 1)) : 0;
-	const activePart = steppedFrq ? parts[partIdx] : undefined;
 	const partAnswers = parseFrqPartAnswers(answer);
-	const partTextareaValue =
-		activePart == null
-			? ""
-			: (() => {
-					const v = partAnswers[activePart.letter];
-					if (v != null && v !== "") return v;
-					if (partIdx === 0 && partAnswers._) return partAnswers._;
-					return "";
-				})();
 
- const getAIFeedback = async () => {
+	const getAIFeedback = async () => {
  setLoadingFeedback(true);
  setFeedbackRequested(true);
  try {
@@ -173,17 +170,12 @@ function QuestionCard({
 					{formatNiceMath(stripMarkdownBoldMarkers(stim.body))}
 				</p>
 			) : null}
-			{steppedFrq ? (
-				<p className="text-vanta-text font-medium mb-3 leading-relaxed text-[15px] whitespace-pre-wrap">
-					<span className="tabular-nums">{questionNumber}. </span>
-					{formatNiceMath(question.frq_stem ?? "")}
-				</p>
-			) : (
+			{!steppedFrq ? (
 				<p className="text-vanta-text font-medium mb-3 leading-relaxed text-[15px]">
 					<span className="tabular-nums">{questionNumber}. </span>
 					{formatNiceMath(rubricQ ? stripMarkdownBoldMarkers(question.question) : question.question)}
 				</p>
-			)}
+			) : null}
 			{exhibitBelow ? (
 				<p className="mb-4 text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
 					{formatNiceMath(stripMarkdownBoldMarkers(stim.body))}
@@ -239,71 +231,47 @@ function QuestionCard({
  );
  })}
  </div>
-			) : steppedFrq && activePart && !submitted ? (
-				<>
-					<div className="mb-4 flex gap-3 items-start">
-						<span className="shrink-0 tabular-nums font-semibold text-vanta-text pt-0.5">
-							({activePart.letter})
-						</span>
-						<div className="flex-1 min-w-0">
-							<p className="text-[15px] leading-relaxed text-vanta-text">{formatNiceMath(activePart.promptText)}</p>
-							<p className="text-xs text-vanta-muted mt-1.5">
-								{activePart.maxPoints} point{activePart.maxPoints === 1 ? "" : "s"}
-							</p>
-						</div>
+			) : steppedFrq ? (
+				<div className={`${FRQ_BOOKLET_SERIF} space-y-6 mt-1`}>
+					<div className="space-y-3">
+						<p className="whitespace-pre-wrap">
+							<span className="tabular-nums font-semibold text-vanta-text">{questionNumber}. </span>
+							{formatNiceMath(question.frq_stem ?? "")}
+						</p>
+						<p className="font-medium text-vanta-text">{frqRespondToDirectoryLine(parts.map((p) => p.letter))}</p>
 					</div>
-					<Textarea
-						placeholder={`Write your response for part (${activePart.letter})…`}
-						value={partTextareaValue}
-						onChange={(e) => onAnswer(mergeFrqPartAnswer(answer, activePart.letter, e.target.value))}
-						disabled={submitted}
-						rows={6}
-					/>
-					<div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-						<Button
-							type="button"
-							variant="secondary"
-							disabled={partIdx <= 0}
-							onClick={() => setFrqPartIdx((i) => Math.max(0, i - 1))}
-						>
-							Previous part
-						</Button>
-						<span className="text-xs text-vanta-muted tabular-nums order-last sm:order-none">
-							Part {partIdx + 1} of {parts.length}
-						</span>
-						<Button
-							type="button"
-							disabled={partIdx >= parts.length - 1}
-							onClick={() => setFrqPartIdx((i) => Math.min(parts.length - 1, i + 1))}
-						>
-							Next part
-						</Button>
-					</div>
-				</>
-			) : steppedFrq && submitted ? (
-				<div className="space-y-4 mb-2">
-					{parts.map((p) => {
-						const draft =
-							partAnswers[p.letter] ||
-							(parts[0]?.letter === p.letter ? partAnswers._ : "") ||
-							"";
-						return (
-							<div
-								key={p.letter}
-								className="rounded-lg border border-vanta-border/80 bg-vanta-surface-elevated/40 p-4"
-							>
-								<div className="flex gap-3 items-start mb-2">
-									<span className="shrink-0 font-semibold text-vanta-text tabular-nums">({p.letter})</span>
-									<p className="text-sm text-vanta-muted leading-relaxed flex-1 min-w-0">
-										{formatNiceMath(p.promptText)}
-									</p>
+					<div className="space-y-6">
+						{parts.map((p, idx) => {
+							const raw =
+								partAnswers[p.letter] ?? (idx === 0 && partAnswers._ ? partAnswers._ : "") ?? "";
+							return (
+								<div key={p.letter} className="space-y-2">
+									<div className="flex gap-3 items-start">
+										<span className="shrink-0 w-8 tabular-nums font-semibold text-vanta-text pt-0.5">
+											{p.letter}.
+										</span>
+										<div className="flex-1 min-w-0 space-y-1">
+											<p className="leading-relaxed">{formatNiceMath(p.promptText)}</p>
+											{submitted ? (
+												<p className="text-xs text-vanta-muted">
+													{p.maxPoints} point{p.maxPoints === 1 ? "" : "s"} (scoring guide below)
+												</p>
+											) : null}
+										</div>
+									</div>
+									<Textarea
+										aria-label={`Written response for part ${p.letter}`}
+										placeholder={`Write your response for part ${p.letter}…`}
+										value={raw}
+										onChange={(e) => onAnswer(mergeFrqPartAnswer(answer, p.letter, e.target.value))}
+										disabled={submitted}
+										rows={submitted ? Math.min(12, Math.max(4, Math.ceil(raw.length / 72) + 2)) : 4}
+										className="ml-0 sm:ml-11 font-sans text-[15px] leading-relaxed"
+									/>
 								</div>
-								<p className="text-sm text-vanta-text whitespace-pre-wrap leading-relaxed">
-									{draft.trim() ? draft : <span className="text-vanta-muted italic">No response</span>}
-								</p>
-							</div>
-						);
-					})}
+							);
+						})}
+					</div>
 				</div>
 			) : (
 				<Textarea
