@@ -55,7 +55,7 @@ export function PracticeTestSetupModal({
  setTimerMinutes(0);
  setTimerSeconds(0);
  setCalculatorQuestions(true);
- }, [open, courseId, showUnitPicker, defaultUnitId]);
+ }, [open, courseId, showUnitPicker, defaultUnitId, units]);
 
  useEffect(() => {
  if (!open || typeof document === "undefined") return;

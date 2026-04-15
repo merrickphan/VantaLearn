@@ -29,6 +29,7 @@ export function ApCourseUnitList({
   const [setupOpen, setSetupOpen] = useState(false);
   const [setupUnit, setSetupUnit] = useState<ApUnit | null>(null);
   const [setupShowUnitPicker, setSetupShowUnitPicker] = useState(false);
+  const units = useMemo(() => getUnitsForCourseId(courseId), [courseId]);
   const course = AP_COURSES.find((c) => c.id === courseId);
   if (!course) return null;
 
@@ -41,8 +42,6 @@ export function ApCourseUnitList({
     if (!showOverview) q.set("overview", "1");
     return `${pathname}?${q.toString()}`;
   };
-
-  const units = useMemo(() => getUnitsForCourseId(courseId), [courseId]);
   const sectionId = getSectionIdForCourseId(courseId);
   const sectionMeta = sectionId ? AP_SECTIONS.find((s) => s.id === sectionId) : undefined;
   const calcSectionCourses = course.id === "calc-ab" || course.id === "calc-bc";
