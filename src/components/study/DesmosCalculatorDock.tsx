@@ -9,6 +9,8 @@ type DesmosCalculatorInstance = {
  resize: () => void;
 };
 
+type DockSize = "compact" | "half" | "full";
+
 declare global {
  interface Window {
  /** Set in root `layout.tsx` from server env so the key is always current (avoids stale client bundle inlining). */
@@ -58,6 +60,30 @@ function loadDesmosScript(apiKey: string): Promise<void> {
  });
 }
 
+function SizeToggle({
+ active,
+ label,
+ onClick,
+}: {
+ active: boolean;
+ label: string;
+ onClick: () => void;
+}) {
+ return (
+ <button
+ type="button"
+ onClick={onClick}
+ className={`rounded-lg px-2 py-1 text-[11px] font-semibold transition-colors ${
+ active
+ ? "bg-teal-600 text-white shadow-sm"
+ : "bg-vanta-surface text-vanta-muted hover:text-vanta-text border border-vanta-border"
+ }`}
+ >
+ {label}
+ </button>
+ );
+}
+
 /**
  * In-app Desmos: uses the official Graphing Calculator API when `NEXT_PUBLIC_DESMOS_API_KEY`
  * is set (free key: https://www.desmos.com/my-api). Without a key, uses the public
@@ -65,6 +91,7 @@ function loadDesmosScript(apiKey: string): Promise<void> {
  */
 export function DesmosCalculatorDock() {
  const [open, setOpen] = useState(false);
+ const [dockSize, setDockSize] = useState<DockSize>("compact");
  const [mode, setMode] = useState<"idle" | "loading" | "ready" | "error">("idle");
  const [errorMsg, setErrorMsg] = useState<string | null>(null);
  const containerRef = useRef<HTMLDivElement>(null);
@@ -79,6 +106,11 @@ export function DesmosCalculatorDock() {
  }
  calculatorRef.current = null;
  if (containerRef.current) containerRef.current.innerHTML = "";
+ }, []);
+
+ const close = useCallback(() => {
+ setOpen(false);
+ setDockSize("compact");
  }, []);
 
  const toggle = useCallback(() => setOpen((o) => !o), []);
@@ -142,16 +174,62 @@ export function DesmosCalculatorDock() {
  });
  ro.observe(el);
  return () => ro.disconnect();
- }, [open, apiKey, mode]);
+ }, [open, apiKey, mode, dockSize]);
+
+ useEffect(() => {
+ if (!open || mode !== "ready" || !calculatorRef.current) return;
+ const id = requestAnimationFrame(() => {
+ try {
+ calculatorRef.current?.resize();
+ } catch {
+ /* ignore */
+ }
+ });
+ return () => cancelAnimationFrame(id);
+ }, [dockSize, open, mode]);
+
+ useEffect(() => {
+ if (!open || dockSize !== "full") return;
+ const onKey = (e: KeyboardEvent) => {
+ if (e.key === "Escape") {
+ e.preventDefault();
+ setDockSize("compact");
+ }
+ };
+ window.addEventListener("keydown", onKey);
+ return () => window.removeEventListener("keydown", onKey);
+ }, [open, dockSize]);
+
+ const shellClass =
+ dockSize === "full"
+ ? "fixed inset-0 z-[100] flex flex-col p-0 pointer-events-auto bg-vanta-bg/95 backdrop-blur-sm"
+ : dockSize === "half"
+ ? "fixed inset-x-0 bottom-0 left-0 right-0 z-[60] flex h-[50vh] max-h-[50dvh] flex-col pointer-events-auto px-0 pt-0 pb-[env(safe-area-inset-bottom,0px)]"
+ : "fixed bottom-0 right-0 z-[45] flex flex-col items-end gap-2 p-3 pointer-events-none";
+
+ const panelClass =
+ dockSize === "full"
+ ? "flex h-full min-h-0 w-full flex-col overflow-hidden rounded-none border-0 border-vanta-border bg-vanta-surface shadow-none"
+ : dockSize === "half"
+ ? "flex h-full min-h-0 w-full flex-col overflow-hidden rounded-t-2xl border border-b-0 border-vanta-border border-x-vanta-border bg-vanta-surface shadow-[0_-8px_30px_rgba(0,0,0,0.12)]"
+ : "flex h-[min(55vh,22rem)] w-full max-w-[min(100vw-1.5rem,28rem)] flex-col overflow-hidden rounded-xl border border-vanta-border bg-vanta-surface shadow-xl";
+
+ const innerWrapClass = dockSize === "compact" ? "pointer-events-auto flex w-full max-w-[min(100vw-1.5rem,28rem)] flex-col items-end gap-2" : "flex h-full min-h-0 w-full flex-col";
 
  return (
- <div className="fixed bottom-0 right-0 z-[45] flex flex-col items-end gap-2 p-3 pointer-events-none">
- <div className="pointer-events-auto flex flex-col items-end gap-2 max-w-[min(100vw-1.5rem,28rem)]">
+ <>
  {open ? (
- <div className="w-full h-[min(55vh,22rem)] rounded-xl border border-vanta-border bg-vanta-surface shadow-xl overflow-hidden flex flex-col">
- <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-vanta-border bg-vanta-surface-elevated shrink-0">
+ <div className={shellClass}>
+ <div className={innerWrapClass}>
+ <div className={panelClass}>
+ <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-vanta-border bg-vanta-surface-elevated px-3 py-2">
  <span className="text-xs font-semibold text-vanta-text">Desmos graphing calculator</span>
- <div className="flex items-center gap-2">
+ <div className="flex flex-wrap items-center gap-2">
+ <div className="flex items-center gap-1 rounded-lg bg-vanta-bg/80 p-0.5">
+ <SizeToggle active={dockSize === "compact"} label="Small" onClick={() => setDockSize("compact")} />
+ <SizeToggle active={dockSize === "half"} label="Half" onClick={() => setDockSize("half")} />
+ <SizeToggle active={dockSize === "full"} label="Full" onClick={() => setDockSize("full")} />
+ </div>
  <a
  href="https://www.desmos.com/calculator"
  target="_blank"
@@ -162,16 +240,21 @@ export function DesmosCalculatorDock() {
  </a>
  <button
  type="button"
- onClick={toggle}
+ onClick={close}
  className="text-xs font-medium text-vanta-muted hover:text-vanta-text px-2 py-1 rounded-lg border border-transparent hover:border-vanta-border"
  >
  Close
  </button>
  </div>
  </div>
+ {dockSize === "full" ? (
+ <p className="shrink-0 px-3 py-1 text-[10px] text-vanta-muted border-b border-vanta-border/60">
+ Press <kbd className="rounded bg-vanta-surface-elevated px-1 font-mono text-vanta-text">Esc</kbd> to leave full screen
+ </p>
+ ) : null}
  {!apiKey ? (
- <div className="flex flex-1 flex-col min-h-0">
- <p className="text-[11px] text-vanta-muted px-3 py-2 border-b border-vanta-border/80 bg-vanta-bg leading-snug">
+ <div className="flex min-h-0 flex-1 flex-col">
+ <p className="text-[11px] text-vanta-muted border-b border-vanta-border/80 bg-vanta-bg px-3 py-2 leading-snug">
  Add a free key from{" "}
  <a href="https://www.desmos.com/my-api" className="text-sky-600 hover:underline" target="_blank" rel="noopener noreferrer">
  desmos.com/my-api
@@ -183,44 +266,50 @@ export function DesmosCalculatorDock() {
  <iframe
  title="Desmos Graphing Calculator"
  src="https://www.desmos.com/calculator/embed"
- className="w-full flex-1 min-h-0 border-0 bg-white"
+ className="min-h-0 w-full flex-1 border-0 bg-white"
  allow="clipboard-write; fullscreen"
  referrerPolicy="origin-when-cross-origin"
  />
  </div>
  ) : (
- <div className="relative flex-1 min-h-0 w-full bg-white">
+ <div className="relative min-h-0 flex-1 w-full bg-white">
  {mode === "loading" ? (
- <div className="absolute inset-0 z-10 flex items-center justify-center text-sm text-vanta-muted bg-vanta-surface">
+ <div className="absolute inset-0 z-10 flex items-center justify-center bg-vanta-surface text-sm text-vanta-muted">
  Loading calculator…
  </div>
  ) : null}
  {mode === "error" && errorMsg ? (
- <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 p-4 text-center text-sm text-vanta-error bg-vanta-surface">
+ <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-vanta-surface p-4 text-center text-sm text-vanta-error">
  <p>{errorMsg}</p>
  <a
  href="https://www.desmos.com/my-api"
  target="_blank"
  rel="noopener noreferrer"
- className="text-sky-600 hover:underline text-xs"
+ className="text-xs text-sky-600 hover:underline"
  >
  Get an API key
  </a>
  </div>
  ) : null}
- <div ref={containerRef} className="absolute inset-0 w-full h-full" />
+ <div ref={containerRef} className="absolute inset-0 h-full w-full" />
  </div>
  )}
  </div>
+ </div>
+ </div>
  ) : null}
+
+ {!open ? (
+ <div className="fixed bottom-0 right-0 z-[45] p-3 pointer-events-none">
  <button
  type="button"
  onClick={toggle}
- className="rounded-full bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold px-4 py-2.5 shadow-lg shadow-black/25 border border-teal-700/30"
+ className="pointer-events-auto rounded-full border border-teal-700/30 bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-black/25 hover:bg-teal-500"
  >
- {open ? "Hide calculator" : "Calculator"}
+ Calculator
  </button>
  </div>
- </div>
+ ) : null}
+ </>
  );
 }
