@@ -73,33 +73,121 @@ export interface ExamContent {
 
 /** CB-style stimulus: charts, tables (rendered like exam booklets). */
 export type ExamFigure =
- | {
- kind: "bar_chart";
- title?: string;
- yLabel?: string;
- bars: { label: string; value: number }[];
- }
- | {
- kind: "line_chart";
- title?: string;
- yLabel?: string;
- /** Horizontal-axis caption below the plot (may include \\(…\\) LaTeX). */
- xLabel?: string;
- points: { x: string; y: number }[];
- }
- | {
- kind: "table";
- title?: string;
- headers: string[];
- rows: string[][];
- }
- | {
- /** Short scenario, experimental setup, or exhibit (College Board-style stimulus). */
- kind: "stimulus";
- /** Optional caption; omit for sentence-only stimuli shown inline like AP Lang. */
- title?: string;
- body: string;
- };
+	| {
+			kind: "bar_chart";
+			title?: string;
+			yLabel?: string;
+			bars: { label: string; value: number }[];
+	  }
+	| {
+			kind: "line_chart";
+			title?: string;
+			yLabel?: string;
+			/** Horizontal-axis caption below the plot (may include \\(…\\) LaTeX). */
+			xLabel?: string;
+			points: { x: string; y: number }[];
+	  }
+	| {
+			kind: "table";
+			title?: string;
+			headers: string[];
+			rows: string[][];
+	  }
+	| {
+			/** Short scenario, experimental setup, or exhibit (College Board-style stimulus). */
+			kind: "stimulus";
+			/** Optional caption; omit for sentence-only stimuli shown inline like AP Lang. */
+			title?: string;
+			body: string;
+	  }
+	| {
+			kind: "population_pyramid";
+			title?: string;
+			note?: string;
+			caption?: string;
+			bands: { age: string; male: number; female: number }[];
+	  }
+	| {
+			kind: "reaction_coordinate";
+			title?: string;
+			note?: string;
+			yLabel?: string;
+			stages: { label: string; energy: number }[];
+	  }
+	| {
+			kind: "supply_demand";
+			title?: string;
+			note?: string;
+			yLabel?: string;
+			xLabel?: string;
+			quantities: string[];
+			supplyPrice: number[];
+			demandPrice: number[];
+			supplyLabel?: string;
+			demandLabel?: string;
+	  }
+	| {
+			kind: "circuit_series";
+			title?: string;
+			note?: string;
+			resistorsOhm: number[];
+			batteryVolts?: number;
+	  }
+	| {
+			kind: "map_schematic";
+			title?: string;
+			note?: string;
+			legend?: string;
+			regions: {
+				abbrev: string;
+				path: string;
+				fill: string;
+				labelX: number;
+				labelY: number;
+			}[];
+	  }
+	| {
+			kind: "exhibit_placeholder";
+			title?: string;
+			credit?: string;
+			description: string;
+	  }
+	| {
+			kind: "process_flow";
+			title?: string;
+			note?: string;
+			nodes: { id: string; label: string }[];
+	  }
+	| {
+			kind: "scatter_plot";
+			title?: string;
+			note?: string;
+			xLabel?: string;
+			yLabel?: string;
+			points: { x: number; y: number; label?: string }[];
+			showTrendLine?: boolean;
+	  }
+	| {
+			kind: "histogram";
+			title?: string;
+			note?: string;
+			yLabel?: string;
+			bins: { label: string; count: number }[];
+	  }
+	| {
+			kind: "food_web";
+			title?: string;
+			note?: string;
+			legend?: string;
+			taxa: { id: string; label: string; tier: number }[];
+			links: { from: string; to: string }[];
+	  };
+
+/** Figures rendered outside the core bar / line / table / stimulus path. */
+export type NonCoreExamFigure = Exclude<
+	ExamFigure,
+	{ kind: "stimulus" } | { kind: "table" } | { kind: "bar_chart" } | { kind: "line_chart" }
+>;
 
 export interface ExamQuestion {
  id: string;
