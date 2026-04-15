@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { VantaLogo } from "@/components/branding/VantaLogo";
-import { Button, Card } from "@/components/ui";
+import { Card } from "@/components/ui";
 import { AP_COURSES } from "@/lib/apCatalog";
-import { calculateAPScore } from "@/lib/calculateAPScore";
 import { formatNiceMath } from "@/lib/typography/niceMath";
 import {
 	computeApSubjectScore,
@@ -14,8 +13,6 @@ import {
 	type ApSubjectScoreModel,
 	type ApSubjectScoreResult,
 } from "@/lib/utils";
-
-type ExamMode = "ap_subject" | "ap_quick";
 
 function earnedForSection(maxPoints: number, raw: string | undefined): number {
 	const v = parseFloat(raw ?? "");
@@ -140,7 +137,6 @@ function ApScoreShowcase({ score, animationKey }: { score: number; animationKey:
 export default function ScoreCalculatorPage() {
 	const examYear = new Date().getFullYear();
 	const models = useMemo(() => listApSubjectModels(), []);
-	const [mode, setMode] = useState<ExamMode>("ap_subject");
 	const [courseId, setCourseId] = useState(AP_COURSES[0].id);
 	const [sectionValues, setSectionValues] = useState<Record<string, string>>(() => {
 		const m = listApSubjectModels().find((x) => x.courseId === AP_COURSES[0].id);
@@ -151,14 +147,6 @@ export default function ScoreCalculatorPage() {
 		return o;
 	});
 
-	const [rawScore, setRawScore] = useState("");
-	const [totalQuestions, setTotalQuestions] = useState("");
-
-	const [quickResult, setQuickResult] = useState<{
-		percentage: number;
-		apScore: number;
-	} | null>(null);
-
 	const activeModel = useMemo(() => models.find((m) => m.courseId === courseId), [models, courseId]);
 	const sectionGroups = useMemo(
 		() => (activeModel ? partitionSectionsForDisplay(activeModel) : []),
@@ -166,7 +154,7 @@ export default function ScoreCalculatorPage() {
 	);
 
 	const subjectPreview = useMemo((): ApSubjectScoreResult | null => {
-		if (mode !== "ap_subject" || !activeModel) return null;
+		if (!activeModel) return null;
 		const earned: Record<string, number> = {};
 		for (const s of activeModel.sections) {
 			const raw = earnedForSection(s.maxPoints, sectionValues[s.id]);
@@ -175,7 +163,7 @@ export default function ScoreCalculatorPage() {
 		const out = computeApSubjectScore(courseId, earned);
 		if ("error" in out) return null;
 		return out;
-	}, [mode, activeModel, courseId, sectionValues]);
+	}, [activeModel, courseId, sectionValues]);
 
 	const resetSectionState = (id: string) => {
 		const m = models.find((x) => x.courseId === id);
@@ -184,18 +172,6 @@ export default function ScoreCalculatorPage() {
 			next[s.id] = "";
 		});
 		setSectionValues(next);
-	};
-
-	const calculateQuick = () => {
-		const raw = parseInt(rawScore, 10);
-		const total = parseInt(totalQuestions, 10);
-		if (Number.isNaN(raw) || Number.isNaN(total) || total <= 0 || raw < 0 || raw > total) return;
-
-		const { apScore, percentage } = calculateAPScore({ rawScore: raw, totalQuestions: total });
-		setQuickResult({
-			percentage,
-			apScore,
-		});
 	};
 
 	const apScoreDescriptions = {
@@ -223,29 +199,7 @@ export default function ScoreCalculatorPage() {
 			<div className="grid lg:grid-cols-2 gap-8 lg:gap-10 items-start">
 				{/* Inputs — Test Ninjas–style: instructions + grouped sliders */}
 				<Card className="p-6 md:p-8 fade-up rounded-2xl border border-vanta-border/80 shadow-lg shadow-black/20 overflow-hidden">
-					<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.18em] mb-3">Mode</p>
-					<div className="flex flex-wrap gap-2 mb-8">
-						{(["ap_subject", "ap_quick"] as const).map((key) => (
-							<button
-								key={key}
-								type="button"
-								onClick={() => {
-									setMode(key);
-									setQuickResult(null);
-									if (key === "ap_subject") resetSectionState(courseId);
-								}}
-								className={`px-4 py-2.5 rounded-xl text-sm font-medium border transition-all duration-200 ${
-									mode === key
-										? "bg-sky-500/15 border-sky-500/50 text-sky-200 shadow-[0_0_20px_-8px_rgba(56,189,248,0.5)]"
-										: "border-vanta-border text-vanta-muted hover:border-sky-500/40 hover:text-vanta-text"
-								}`}
-							>
-								{key === "ap_subject" ? "AP® by subject" : "AP® quick %"}
-							</button>
-						))}
-					</div>
-
-					{mode === "ap_subject" && activeModel ? (
+					{activeModel ? (
 						<>
 							<div className="mb-6 pb-6 border-b border-vanta-border/80">
 								<h2 className="font-display text-xl md:text-2xl font-bold text-vanta-text leading-tight">
@@ -454,60 +408,13 @@ export default function ScoreCalculatorPage() {
 							</div>
 						</>
 					) : (
-						<>
-							<div className="rounded-xl border border-sky-500/20 bg-sky-500/[0.06] p-4 mb-6">
-								<p className="text-xs font-bold text-sky-200/90 uppercase tracking-wider mb-2">Instructions</p>
-								<p className="text-sm text-vanta-muted leading-relaxed">
-									Enter how many questions you got right and the total number of questions on your practice set.
-									Tap Calculate for a generic 1–5 band from percentage (not course-specific).
-								</p>
-							</div>
-							<div className="space-y-5 mb-8">
-								<div>
-									<label className="text-[11px] font-semibold text-vanta-muted uppercase tracking-wider block mb-2">
-										Questions correct (raw)
-									</label>
-									<input
-										type="number"
-										min={0}
-										value={rawScore}
-										onChange={(e) => setRawScore(e.target.value)}
-										placeholder="e.g. 38"
-										className="w-full bg-vanta-surface-elevated text-vanta-text placeholder-vanta-muted/70 rounded-xl px-4 py-3 text-base border border-vanta-border focus:border-sky-500/60 focus:outline-none transition-colors duration-200"
-									/>
-								</div>
-								<div>
-									<label className="text-[11px] font-semibold text-vanta-muted uppercase tracking-wider block mb-2">
-										Total questions
-									</label>
-									<input
-										type="number"
-										min={1}
-										value={totalQuestions}
-										onChange={(e) => setTotalQuestions(e.target.value)}
-										placeholder="e.g. 45"
-										className="w-full bg-vanta-surface-elevated text-vanta-text placeholder-vanta-muted/70 rounded-xl px-4 py-3 text-base border border-vanta-border focus:border-sky-500/60 focus:outline-none transition-colors duration-200"
-									/>
-								</div>
-							</div>
-							<p className="text-sm text-vanta-muted mb-6 leading-relaxed">
-								Single practice-test percentage mapped to a generic AP® 1–5 band.
-							</p>
-							<Button
-								type="button"
-								onClick={calculateQuick}
-								className="w-full transition-transform duration-200 active:scale-[0.98]"
-								size="lg"
-							>
-								Calculate
-							</Button>
-						</>
+						<p className="text-sm text-vanta-muted">No scoring model found for this course.</p>
 					)}
 				</Card>
 
 				{/* Results */}
 				<div className="space-y-6">
-					{mode === "ap_subject" && subjectPreview ? (
+					{subjectPreview ? (
 						<Card className="p-6 md:p-8 fade-up overflow-hidden border-vanta-border bg-vanta-surface bg-gradient-to-b from-sky-500/[0.05] to-transparent shadow-card">
 							<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.22em] mb-1 text-center">
 								Predicted AP® score
@@ -637,67 +544,14 @@ export default function ScoreCalculatorPage() {
 								estimates are for practice only.
 							</p>
 						</Card>
-					) : mode === "ap_quick" && quickResult ? (
-						<Card className="p-6 md:p-8 fade-up overflow-hidden border-vanta-border bg-vanta-surface bg-gradient-to-b from-sky-500/[0.05] to-transparent shadow-card">
-							<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.22em] mb-1 text-center">
-								Predicted AP® score (generic)
-							</p>
-							<ApScoreShowcase
-								score={quickResult.apScore}
-								animationKey={`quick-${quickResult.apScore}-${quickResult.percentage.toFixed(0)}`}
-							/>
-							<div className="text-center mb-8">
-								<p className="text-vanta-muted text-base leading-relaxed">
-									{apScoreDescriptions[quickResult.apScore as keyof typeof apScoreDescriptions]}
-								</p>
-							</div>
-							<div className="rounded-xl border border-vanta-border/60 bg-vanta-surface-elevated p-4">
-								<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.22em] mb-4">
-									Section scores
-								</p>
-								<div className="flex justify-between text-base mb-2">
-									<span className="text-vanta-text font-medium">Practice accuracy</span>
-									<span className="text-sky-200 font-bold tabular-nums">
-										{quickResult.percentage.toFixed(1)}
-										<span className="text-vanta-muted font-semibold"> %</span>
-									</span>
-								</div>
-								<div className="h-3 bg-vanta-border rounded-full overflow-hidden">
-									<div
-										className="h-full bg-gradient-to-r from-sky-600 to-sky-400 rounded-full transition-[width] duration-700 ease-out"
-										style={{ width: `${quickResult.percentage}%` }}
-									/>
-								</div>
-							</div>
-							<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.2em] mt-8 mb-3">
-								AP® score scale
-							</p>
-							<div className="grid grid-cols-5 gap-2">
-								{([1, 2, 3, 4, 5] as const).map((score) => (
-									<div
-										key={score}
-										className={`text-center py-3 rounded-xl text-base font-bold transition-all duration-300 ${
-											score === quickResult.apScore
-												? "bg-sky-500/25 text-sky-100 border-2 border-sky-400/60 scale-[1.02] shadow-[0_0_24px_-6px_rgba(56,189,248,0.45)]"
-												: score < quickResult.apScore
-													? "bg-sky-600/15 text-sky-200/90 border border-sky-500/25"
-													: "bg-vanta-border/30 text-vanta-muted border border-transparent"
-										}`}
-									>
-										{score}
-									</div>
-								))}
-							</div>
-						</Card>
 					) : (
 						<Card className="p-6 md:p-8 rounded-2xl border border-dashed border-vanta-border/80 bg-vanta-surface-elevated/60 ap-cal-empty-pulse">
 							<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.2em] mb-3">
 								Your result
 							</p>
 							<p className="text-vanta-muted text-sm leading-relaxed">
-								{mode === "ap_subject"
-									? "Select a course and move the sliders — your predicted AP® score, section scores, and raw breakdown appear here."
-									: "Enter raw correct count and total questions, then tap Calculate."}
+								Select a course and move the sliders — your predicted AP® score, section scores, and raw breakdown appear
+								here.
 							</p>
 						</Card>
 					)}

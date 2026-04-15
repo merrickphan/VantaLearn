@@ -66,7 +66,7 @@ const TOOLS: Tool[] = [
  {
  href: "/dashboard/score-calculator",
  title: "Score calculator",
- description: "Estimate AP® 1-5 or SAT section scores from raw points.",
+ description: "Estimate AP® 1–5 from per-section raw points.",
  emoji: "",
  accent: "from-green-500/15 to-emerald-500/10",
  },
