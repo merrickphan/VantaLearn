@@ -734,7 +734,9 @@ function buildMathSet(
 	const mathFig0: ExamFigure = {
 		kind: "line_chart",
 		title: "FIGURE 1. Selected values of \\(y = f(x)\\) (rounded)",
-		yLabel: "y",
+		yLabel: "Dependent variable: \\(y = f(x)\\) (rounded to nearest integer on the plot)",
+		xLabel:
+			"Independent variable: \\(x\\). Each value along the bottom is an input; the number above the point is the corresponding output \\(y\\).",
 		points: sampleXs.map((x) => ({
 			x: String(x),
 			y: Math.round(a * x * x + b * x + c),

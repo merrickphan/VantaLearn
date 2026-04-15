@@ -83,6 +83,8 @@ export type ExamFigure =
  kind: "line_chart";
  title?: string;
  yLabel?: string;
+ /** Horizontal-axis caption below the plot (may include \\(…\\) LaTeX). */
+ xLabel?: string;
  points: { x: string; y: number }[];
  }
  | {
