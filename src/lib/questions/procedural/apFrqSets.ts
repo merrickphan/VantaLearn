@@ -199,7 +199,7 @@ function buildHumanGeoSet(
 
 	const hgFig0 = frqFigureHumanGeoQ0(rng, { place, unitTitle: ctx.unitTitle });
 
-	const q0Stem = `Political geography connects states, identities, and networks across scales. Focus your answers on ${place} and on ${ctx.unitTitle}, drawing on ideas such as devolution, centripetal and centrifugal forces, uneven development, and communication technologies where they help your argument. Figure 1 may be a map, population pyramid, photograph exhibit, chart, or histogram (see caption); use it where it strengthens a part of your answer.`;
+	const q0Stem = `Political geography connects states, identities, and networks across scales. Focus your answers on ${place} and on ${ctx.unitTitle}, drawing on ideas such as devolution, centripetal and centrifugal forces, uneven development, and communication technologies where they help your argument. Figure 1 may be a map, population pyramid, urban land-use model, clustered bar chart, photograph exhibit, chart, or histogram (see caption); use it where it strengthens a part of your answer.`;
 
 	const q0Parts: FrqRubricPart[] = [
 		hgOnePointPart(
@@ -454,7 +454,7 @@ function buildSocialSet(
 		place,
 		unitTitle: ctx.unitTitle,
 	});
-	const soc0Stem = `Use concepts from ${ctx.unitTitle} in ${ctx.courseName}. Where it strengthens your answer, ground claims in a setting like ${place}. Figure 1 may show a market diagram, process model, photograph exhibit, or time series; use it when discussing attitudes, institutions, or policy feedback.`;
+	const soc0Stem = `Use concepts from ${ctx.unitTitle} in ${ctx.courseName}. Where it strengthens your answer, ground claims in a setting like ${place}. Figure 1 may show a market diagram, process model, photograph exhibit, time series, synapse schematic, or action-potential trace; use it when discussing attitudes, institutions, or policy feedback.`;
 
 	const q0 = frqQ(
 		{
@@ -722,7 +722,86 @@ function buildMathSet(
 	const fx = b >= 0 ? `${a}x^2 + ${b}x + ${c}` : `${a}x^2 - ${-b}x + ${c}`;
 	const sampleXs = [-2, -1, 0, 1, 2] as const;
 	const mathFig0 = frqFigureMathQ0(rng, { courseId: ctx.courseId, fx, a, b, c, sampleXs });
-	const q0Stem = `Let \\(f(x) = ${fx}\\) for all real numbers \\(x\\). This question aligns with ${ctx.unitTitle}. Figure 1 shows rounded evaluations of \\(f\\) at integer inputs; treat \\(f\\) as differentiable everywhere between those points.`;
+
+	let q0Stem = `Let \\(f(x) = ${fx}\\) for all real numbers \\(x\\). This question aligns with ${ctx.unitTitle}. Figure 1 shows rounded evaluations of \\(f\\) at integer inputs; treat \\(f\\) as differentiable everywhere between those points.`;
+
+	let q0Rubric = rubricDoc("Question 1 (Figure 1 — function snapshot)", 4, [
+		{
+			letter: "a",
+			promptText: "Find \\(f'(x)\\).",
+			maxPoints: 1,
+			criteria: [
+				crit("(Point 1)", "Derivative", [
+					"Applies power rule (and constant rule) correctly to obtain a linear derivative.",
+					"Simplifies to standard polynomial form.",
+				]),
+			],
+		},
+		{
+			letter: "b",
+			promptText:
+				"Determine whether \\(f\\) has a local maximum, local minimum, or neither at the critical point in the interior of the domain suggested by your algebra—justify using an appropriate derivative test or sign analysis.",
+			maxPoints: 3,
+			criteria: [
+				crit("(Point 1)", "Critical point", ["Finds where f'(x)=0 (or explains if none) with correct algebra."]),
+				crit("(Point 2)", "Test choice", ["Uses first-derivative sign change or second derivative test consistently."]),
+				crit("(Point 3)", "Conclusion", ["States max/min/neither with reasoning matching the test outcome."]),
+			],
+		},
+	]);
+
+	if (mathFig0.kind === "polar_area_cartesian") {
+		q0Stem = `Figure 1 shows two polar curves plotted in the \\(xy\\)-plane for \\(0 \\le \\theta \\le \\pi\\), with the shaded region between them. This question aligns with ${ctx.unitTitle}.`;
+		q0Rubric = rubricDoc("Question 1 (Figure 1 — polar area)", 4, [
+			{
+				letter: "a",
+				promptText: "Write an integral that gives the area of the shaded region using polar coordinates.",
+				maxPoints: 2,
+				criteria: [
+					crit("(Point 1)", "Integrand", ["Uses a correct polar area element form such as \\(\\frac{1}{2}\\int (R^2 - r^2)\\,d\\theta\\) with consistent inner/outer radii."]),
+					crit("(Point 2)", "Bounds", ["Uses \\(0\\) to \\(\\pi\\) (or an equivalent correct description of the traced region)."]),
+				],
+			},
+			{
+				letter: "b",
+				promptText: "In one sentence, explain why integrating from \\(\\pi\\) to \\(2\\pi\\) would not contribute additional shaded area in this diagram.",
+				maxPoints: 2,
+				criteria: [
+					crit("(Point 1)", "Geometry", ["Notes symmetry, overlap, cancellation, or that the shaded wedge is only traced once on \\(0\\le\\theta\\le\\pi\\)."]),
+					crit("(Point 2)", "Consistency", ["Does not contradict the figure (e.g., no claim that the shaded region reappears identically on \\(\\pi\\) to \\(2\\pi\\))."]),
+				],
+			},
+		]);
+	} else if (mathFig0.kind === "calculus_area_vertical") {
+		q0Stem = `Figure 1 shows two differentiable functions \\(f\\) (blue) and \\(g\\) (orange) on a closed interval; the shaded region lies between the graphs. This question aligns with ${ctx.unitTitle}.`;
+		q0Rubric = rubricDoc("Question 1 (Figure 1 — area between curves)", 4, [
+			{
+				letter: "a",
+				promptText: "Set up a definite integral that gives the area of the shaded region with respect to \\(x\\).",
+				maxPoints: 2,
+				criteria: [
+					crit("(Point 1)", "Integrand", ["Uses \\(\\int (f(x)-g(x))\\,dx\\) (or equivalent) with the upper minus lower ordering consistent with the figure."]),
+					crit("(Point 2)", "Bounds", ["Uses endpoints consistent with the shaded interval shown (may read from axis labels)."]),
+				],
+			},
+			{
+				letter: "b",
+				promptText:
+					mathFig0.mode === "riemann_strip"
+						? "Explain how the highlighted vertical strip relates to a Riemann sum approximation for the area."
+						: "Explain in words why subtracting the lower curve from the upper curve yields a nonnegative integrand on the shaded interval.",
+				maxPoints: 2,
+				criteria: [
+					crit("(Point 1)", "Concept", [
+						mathFig0.mode === "riemann_strip"
+							? "Connects strip width to \\(\\Delta x\\) and height to a sample value of \\(f-g\\) (or endpoint values) in a sum."
+							: "Notes \\(f(x)\\ge g(x)\\) on the interval so \\(f-g\\) represents vertical slice height.",
+					]),
+					crit("(Point 2)", "Clarity", ["Explanation matches the diagram without contradicting which curve is upper/lower."]),
+				],
+			},
+		]);
+	}
 
 	const q0 = frqQ(
 		{
@@ -732,31 +811,13 @@ function buildMathSet(
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
 			figure: mathFig0,
 			procedural_structure_id: "math-q1-lowercase-parts-figure",
-			frq_rubric: rubricDoc("Question 1 (Figure 1 — function snapshot)", 4, [
-				{
-					letter: "a",
-					promptText: "Find \\(f'(x)\\).",
-					maxPoints: 1,
-					criteria: [
-						crit("(Point 1)", "Derivative", [
-							"Applies power rule (and constant rule) correctly to obtain a linear derivative.",
-							"Simplifies to standard polynomial form.",
-						]),
-					],
-				},
-				{
-					letter: "b",
-					promptText:
-						"Determine whether \\(f\\) has a local maximum, local minimum, or neither at the critical point in the interior of the domain suggested by your algebra—justify using an appropriate derivative test or sign analysis.",
-					maxPoints: 3,
-					criteria: [
-						crit("(Point 1)", "Critical point", ["Finds where f'(x)=0 (or explains if none) with correct algebra."]),
-						crit("(Point 2)", "Test choice", ["Uses first-derivative sign change or second derivative test consistently."]),
-						crit("(Point 3)", "Conclusion", ["States max/min/neither with reasoning matching the test outcome."]),
-					],
-				},
-			]),
-			explanation: `Differentiate with the power rule, then locate critical points where f'(x)=0 and justify max/min with an appropriate test.`,
+			frq_rubric: q0Rubric,
+			explanation:
+				mathFig0.kind === "line_chart"
+					? `Differentiate with the power rule, then locate critical points where f'(x)=0 and justify max/min with an appropriate test.`
+					: mathFig0.kind === "polar_area_cartesian"
+						? `Use the polar area formula with correct inner/outer radii and limits matching the shaded wedge.`
+						: `Set up \\(\\int (f-g)\\,dx\\) with correct bounds and relate strips to Riemann sums or nonnegative height as appropriate.`,
 		},
 		q0Stem,
 	);
@@ -909,7 +970,7 @@ function buildScienceSet(
 			},
 		]),
 		},
-		`You are investigating ${phenom} within ${ctx.unitTitle} (${ctx.courseName}). Figure 1 may show a model diagram, circuit, reaction profile, food web, scatterplot, or time series—use it to motivate design choices where appropriate.`,
+		`You are investigating ${phenom} within ${ctx.unitTitle} (${ctx.courseName}). Figure 1 may show a model diagram, circuit, pendulum schematic, reaction profile, food web, chromosome crossing-over diagram, scatterplot, or time series—use it to motivate design choices where appropriate.`,
 	);
 
 	const fig = frqFigureScienceQ1(createRng(`frq|${ctx.courseId}|s${ctx.setIndex}|sci-q1`, "v0"), { courseId: ctx.courseId });
@@ -939,7 +1000,7 @@ function buildScienceSet(
 			},
 		]),
 		},
-		`Use Figure 2. It may be a time series, histogram, scatterplot, or demographic diagram—describe patterns using evidence from the figure.`,
+		`Use Figure 2. It may be a time series, histogram, scatterplot, demographic diagram, or second genetics schematic—describe patterns using evidence from the figure.`,
 	);
 
 	const stim: ExamFigure = {

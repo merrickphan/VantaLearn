@@ -7,7 +7,32 @@ export function frqFigureHumanGeoQ0(
 	ctx: { place: string; unitTitle: string },
 ): ExamFigure {
 	const r = rng();
-	if (r < 0.18) {
+	if (r < 0.12) {
+		const variants = ["concentric", "sector", "multiple_nuclei"] as const;
+		return {
+			kind: "urban_land_use_model",
+			title: "FIGURE 1. Classic urban land-use model (hypothetical labels)",
+			note: `Use the diagram with ${ctx.unitTitle} when discussing internal structure, accessibility, and land rent—not as a map of ${ctx.place}.`,
+			variant: variants[Math.floor(rng() * variants.length)]!,
+		};
+	}
+	if (r < 0.26) {
+		return {
+			kind: "grouped_bar_chart",
+			title: "FIGURE 1. Hypothetical racial/ethnic composition by census year (%)",
+			note: "Clustered bars share a year on the horizontal axis; values sum to roughly 100% within each year.",
+			yLabel: "Percentage of population",
+			xLabel: "Year",
+			groupLabels: ["1980", "2000", "2010", "2050*"],
+			series: [
+				{ label: "Group A", values: [82, 68, 63, 47].map((v) => v + randInt(rng, -2, 2)), fill: "#cbd5e1" },
+				{ label: "Group B", values: [6, 14, 17, 29].map((v) => v + randInt(rng, -1, 1)), fill: "#64748b" },
+				{ label: "Group C", values: [12, 13, 13, 13].map((v) => v + randInt(rng, -1, 1)), striped: true },
+				{ label: "Group D", values: [2, 5, 7, 9].map((v) => v + randInt(rng, -1, 1)), fill: "#0f172a" },
+			],
+		};
+	}
+	if (r < 0.36) {
 		return {
 			kind: "population_pyramid",
 			title: "FIGURE 1. Age–sex composition (hypothetical thousands; modeled region)",
@@ -21,7 +46,7 @@ export function frqFigureHumanGeoQ0(
 			],
 		};
 	}
-	if (r < 0.36) {
+	if (r < 0.46) {
 		return {
 			kind: "map_schematic",
 			title: "FIGURE 1. Stylized regions within a hypothetical state (not drawn to geographic scale)",
@@ -59,7 +84,7 @@ export function frqFigureHumanGeoQ0(
 			],
 		};
 	}
-	if (r < 0.52) {
+	if (r < 0.62) {
 		return {
 			kind: "exhibit_placeholder",
 			title: "PHOTO 1. Central business district edge (hypothetical)",
@@ -67,7 +92,7 @@ export function frqFigureHumanGeoQ0(
 			description: `Shows mid-rise commercial blocks, street-level retail, and visible informal vending along sidewalks—useful for discussing land use, informal economy, and urban morphology in a setting comparable to ${ctx.place}.`,
 		};
 	}
-	if (r < 0.72) {
+	if (r < 0.82) {
 		return {
 			kind: "bar_chart",
 			title: "FIGURE 1. Sector share of GDP in a hypothetical national economy (%)",
@@ -97,6 +122,23 @@ export function frqFigureSocialQ0(
 	rng: () => number,
 	ctx: { courseId: string; courseName: string; place: string; unitTitle: string },
 ): ExamFigure {
+	if (ctx.courseId === "psych") {
+		const r = rng();
+		if (r < 0.22) {
+			return {
+				kind: "synapse_schematic",
+				title: "FIGURE 1. Chemical synapse (schematic)",
+				note: `Relates to neural communication in ${ctx.unitTitle}. Vesicles, neurotransmitter release, and postsynaptic receptors are simplified.`,
+			};
+		}
+		if (r < 0.44) {
+			return {
+				kind: "neuron_action_potential",
+				title: "FIGURE 1. Membrane potential vs. time during one action potential (model trace)",
+				note: "Threshold near −55 mV; trace is illustrative, not from a single empirical recording.",
+			};
+		}
+	}
 	if (ctx.courseId === "macro" || ctx.courseId === "micro") {
 		const q0 = ["10", "20", "30", "40", "50"];
 		const sUp = [12, 14, 16, 18, 22].map((b, i) => b + randInt(rng, -2, 2) + i * 2);
@@ -352,7 +394,7 @@ export function frqFigureCapstoneQ0(rng: () => number): ExamFigure {
 }
 
 export function frqFigureMathQ0(
-	_rng: () => number,
+	rng: () => number,
 	ctx: {
 		courseId: string;
 		fx: string;
@@ -362,7 +404,39 @@ export function frqFigureMathQ0(
 		sampleXs: readonly number[];
 	},
 ): ExamFigure {
-	void ctx.courseId;
+	if (ctx.courseId === "calc-bc" && rng() < 0.36) {
+		return {
+			kind: "polar_area_cartesian",
+			title: "FIGURE 1. Polar curves in the Cartesian plane",
+			note: "The shaded region lies between the inner limaçon and the outer semicircle for \\(0 \\le \\theta \\le \\pi\\).",
+			caption: "Outer boundary: \\(r = 2\\). Inner boundary: \\(r = 1 + \\cos\\theta\\).",
+			outerR: 2,
+			innerR0: 1,
+			innerRCos: 1,
+		};
+	}
+	if (ctx.courseId === "calc-ab" && rng() < 0.36) {
+		const xs = [-1, -0.5, 0, 0.5, 1, 1.5, 2];
+		const upperY = xs.map((x) => 4 - x * x);
+		const lowerY = xs.map((x) => 0.5 * x + 0.5);
+		const mode = rng() < 0.5 ? "full_shade" : "riemann_strip";
+		return {
+			kind: "calculus_area_vertical",
+			title: "FIGURE 1. Region between two graphs (illustrative)",
+			note: "Blue curve is the upper boundary; orange is the lower boundary. Shading shows the region between the curves on the interval shown.",
+			xLabel: "Independent variable \\(x\\)",
+			yLabel: "Dependent variable \\(y\\)",
+			xs,
+			upperY,
+			lowerY,
+			shadeFromIndex: 0,
+			shadeToIndex: xs.length - 1,
+			mode,
+			riemannStripIndex: mode === "riemann_strip" ? 3 : undefined,
+			upperCurveLabel: "f(x)",
+			lowerCurveLabel: "g(x)",
+		};
+	}
 	void ctx.fx;
 	const sampleXs = ctx.sampleXs;
 	return {
@@ -398,6 +472,16 @@ export function frqFigureScienceQ0(
 		};
 	}
 	if (courseId.startsWith("physics")) {
+		if (rng() < 0.42) {
+			return {
+				kind: "physics_pendulum",
+				title: "FIGURE 1. Simple pendulum held at an angle (schematic)",
+				note: `Context: ${ctx.unitTitle}. Diagram is not to scale; dashed line shows the vertical through the pivot.`,
+				lengthM: 2 + randInt(rng, 0, 4) / 10,
+				massKg: 1 + randInt(rng, 2, 16) / 10,
+				angleDeg: [20, 25, 30, 35][randInt(rng, 0, 3)]!,
+			};
+		}
 		return {
 			kind: "circuit_series",
 			title: "FIGURE 1. Hypothetical series circuit for a mechanics/electricity lab setup",
@@ -407,6 +491,13 @@ export function frqFigureScienceQ0(
 		};
 	}
 	if (courseId === "bio") {
+		if (rng() < 0.38) {
+			return {
+				kind: "biology_crossing_over",
+				title: "FIGURE 1. Homologous chromosomes before and after crossing over (schematic)",
+				note: `Relates to meiosis and genetic variation in ${ctx.unitTitle}. Gene blocks are simplified markers, not drawn to genomic scale.`,
+			};
+		}
 		return {
 			kind: "food_web",
 			title: "FIGURE 1. Hypothetical partial food web (arbitrary species labels)",
@@ -501,7 +592,14 @@ export function frqFigureScienceQ1(rng: () => number, ctx: { courseId: string })
 			showTrendLine: true,
 		};
 	}
-	if (courseId === "bio" && r < 0.4) {
+	if (courseId === "bio" && r < 0.32) {
+		return {
+			kind: "biology_crossing_over",
+			title: "FIGURE 2. Crossing over within a tetrad (alternate schematic)",
+			note: "Compare to Figure 1 if both appear in the same set; otherwise use independently.",
+		};
+	}
+	if (courseId === "bio" && r < 0.55) {
 		return {
 			kind: "population_pyramid",
 			title: "FIGURE 2. Hypothetical age structure for a prey population (model counts)",

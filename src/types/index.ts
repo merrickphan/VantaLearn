@@ -181,6 +181,72 @@ export type ExamFigure =
 			legend?: string;
 			taxa: { id: string; label: string; tier: number }[];
 			links: { from: string; to: string }[];
+	  }
+	| {
+			/** Side-by-side bars per category (e.g. demographic composition by year). */
+			kind: "grouped_bar_chart";
+			title?: string;
+			note?: string;
+			yLabel?: string;
+			xLabel?: string;
+			groupLabels: string[];
+			series: { label: string; values: number[]; fill?: string; striped?: boolean }[];
+	  }
+	| {
+			/** Area under / between curves with optional single Riemann strip (AP Calc style). */
+			kind: "calculus_area_vertical";
+			title?: string;
+			note?: string;
+			xLabel?: string;
+			yLabel?: string;
+			xs: number[];
+			upperY: number[];
+			lowerY?: number[];
+			shadeFromIndex: number;
+			shadeToIndex: number;
+			mode: "full_shade" | "riemann_strip";
+			riemannStripIndex?: number;
+			upperCurveLabel?: string;
+			lowerCurveLabel?: string;
+	  }
+	| {
+			/** Polar curves plotted as \\(x=r\\cos\\theta, y=r\\sin\\theta\\); shaded between inner and outer on \\(0\\le\\theta\\le\\pi\\). */
+			kind: "polar_area_cartesian";
+			title?: string;
+			note?: string;
+			caption?: string;
+			outerR: number;
+			innerR0: number;
+			innerRCos: number;
+	  }
+	| {
+			kind: "urban_land_use_model";
+			title?: string;
+			note?: string;
+			variant: "concentric" | "sector" | "multiple_nuclei";
+	  }
+	| {
+			kind: "physics_pendulum";
+			title?: string;
+			note?: string;
+			lengthM: number;
+			massKg: number;
+			angleDeg: number;
+	  }
+	| {
+			kind: "biology_crossing_over";
+			title?: string;
+			note?: string;
+	  }
+	| {
+			kind: "neuron_action_potential";
+			title?: string;
+			note?: string;
+	  }
+	| {
+			kind: "synapse_schematic";
+			title?: string;
+			note?: string;
 	  };
 
 /** Figures rendered outside the core bar / line / table / stimulus path. */

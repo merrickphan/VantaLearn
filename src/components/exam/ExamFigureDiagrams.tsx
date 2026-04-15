@@ -4,6 +4,16 @@ import { useId } from "react";
 import type { ExamFigure, NonCoreExamFigure } from "@/types";
 import { MathText } from "@/components/typography/MathText";
 import { axisTicks, formatAxisNumber } from "./figureAxisUtils";
+import {
+	BiologyCrossingOverFigure,
+	CalculusAreaVerticalFigure,
+	GroupedBarChartFigure,
+	NeuronActionPotentialFigure,
+	PhysicsPendulumFigure,
+	PolarAreaCartesianFigure,
+	SynapseSchematicFigure,
+	UrbanLandUseModelFigure,
+} from "./ExamFigureApExtensions";
 
 type PopFig = Extract<ExamFigure, { kind: "population_pyramid" }>;
 type RxFig = Extract<ExamFigure, { kind: "reaction_coordinate" }>;
@@ -689,5 +699,21 @@ export function SpecialExamFigure({ figure }: { figure: NonCoreExamFigure }) {
 			return <HistogramFigure figure={figure} />;
 		case "food_web":
 			return <FoodWebFigure figure={figure} />;
+		case "grouped_bar_chart":
+			return <GroupedBarChartFigure figure={figure} />;
+		case "calculus_area_vertical":
+			return <CalculusAreaVerticalFigure figure={figure} />;
+		case "polar_area_cartesian":
+			return <PolarAreaCartesianFigure figure={figure} />;
+		case "urban_land_use_model":
+			return <UrbanLandUseModelFigure figure={figure} />;
+		case "physics_pendulum":
+			return <PhysicsPendulumFigure figure={figure} />;
+		case "biology_crossing_over":
+			return <BiologyCrossingOverFigure figure={figure} />;
+		case "neuron_action_potential":
+			return <NeuronActionPotentialFigure figure={figure} />;
+		case "synapse_schematic":
+			return <SynapseSchematicFigure figure={figure} />;
 	}
 }
