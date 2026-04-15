@@ -144,9 +144,9 @@ export function FrqPracticeSetupModal({
 						</select>
 					</div>
 
-					{readOnlyRow("Number of FRQs (exam replica)", `${replica.frqCount} — ${replica.frqCountLabel}`)}
-					{readOnlyRow("Section timer (exam replica)", replica.timerLabel)}
-					{readOnlyRow("Calculator policy (exam replica)", replica.calculatorLabel)}
+					{readOnlyRow("Number of FRQs", `${replica.frqCount} — ${replica.frqCountLabel}`)}
+					{readOnlyRow("Section timer", replica.timerLabel)}
+					{readOnlyRow("Calculator policy", replica.calculatorLabel)}
 				</div>
 
 				<div className="px-5 py-3 bg-vanta-surface-elevated/50 border-t border-vanta-border flex justify-end gap-2">
