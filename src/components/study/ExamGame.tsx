@@ -266,7 +266,7 @@ function QuestionCard({
 										onChange={(e) => onAnswer(mergeFrqPartAnswer(answer, p.letter, e.target.value))}
 										disabled={submitted}
 										rows={submitted ? Math.min(12, Math.max(4, Math.ceil(raw.length / 72) + 2)) : 4}
-										className="ml-0 sm:ml-11 font-sans text-[15px] leading-relaxed"
+										className="w-full pl-11 font-sans text-[15px] leading-relaxed"
 									/>
 								</div>
 							);
