@@ -111,8 +111,13 @@ export interface ExamQuestion {
  figure?: ExamFigure;
  /** Procedural template id for variety tracking (not shown to students). */
  procedural_structure_id?: string;
- /** When set, exam UI shows a structured scoring guide after submit (self-check). */
- frq_rubric?: FrqRubricDoc;
+	/** When set, exam UI shows a structured scoring guide after submit (self-check). */
+	frq_rubric?: FrqRubricDoc;
+	/**
+	 * Intro / shared stem only (no lettered parts). With `frq_rubric`, the exam player shows
+	 * one rubric part at a time (College Board–style sections).
+	 */
+	frq_stem?: string;
 }
 
 export interface ExamAttempt {

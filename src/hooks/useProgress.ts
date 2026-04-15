@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { FlashcardStatus } from "@/types";
+import { frqAnswerHasAnyDraft } from "@/lib/exam/frqSectionAnswers";
+import type { ExamQuestion, FlashcardStatus } from "@/types";
+
+function answerLooksNonEmpty(answer: string | undefined, q: ExamQuestion): boolean {
+	if (answer == null || typeof answer !== "string") return false;
+	if (q.frq_rubric && q.frq_stem) return frqAnswerHasAnyDraft(answer);
+	return answer.trim().length > 0;
+}
 
 export function useFlashcardProgress(totalCards: number) {
  const [statuses, setStatuses] = useState<Record<string, FlashcardStatus>>({});
@@ -38,7 +45,7 @@ export function useFlashcardProgress(totalCards: number) {
  };
 }
 
-export function useExamProgress(totalQuestions: number) {
+export function useExamProgress(totalQuestions: number, questions?: ExamQuestion[]) {
  const [answers, setAnswers] = useState<Record<string, string>>({});
  const [currentIndex, setCurrentIndex] = useState(0);
  const [submitted, setSubmitted] = useState(false);
@@ -57,7 +64,10 @@ export function useExamProgress(totalQuestions: number) {
 
  const submit = useCallback(() => setSubmitted(true), []);
 
- const answeredCount = Object.values(answers).filter((a) => typeof a === "string" && a.trim().length > 0).length;
+ const answeredCount =
+ questions && questions.length === totalQuestions
+ ? questions.filter((q) => answerLooksNonEmpty(answers[q.id], q)).length
+ : Object.values(answers).filter((a) => typeof a === "string" && a.trim().length > 0).length;
  const progress = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
 
  return {

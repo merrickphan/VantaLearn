@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback, type ReactNode } from "react"
 import Link from "next/link";
 import type { ExamFigure as ExamFigureData, ExamQuestion, FrqRubricDoc } from "@/types";
 import { AP_FRQ_PLACEHOLDER_ANSWER } from "@/lib/questions/procedural/apFrqSets";
+import { frqAnswerHasAnyDraft, mergeFrqPartAnswer, parseFrqPartAnswers } from "@/lib/exam/frqSectionAnswers";
 import { useExamProgress } from "@/hooks/useProgress";
 import { useTimer } from "@/hooks/useTimer";
 import { DesmosCalculatorDock } from "@/components/study/DesmosCalculatorDock";
@@ -13,6 +14,7 @@ import { ExamFigure } from "@/components/exam/ExamFigure";
 import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 import { recordExamComplete } from "@/lib/cmdStats";
 import { formatNiceMath } from "@/lib/typography/niceMath";
+import { stripMarkdownBoldMarkers } from "@/lib/typography/plainExamText";
 
 function isStimulusFigure(f: ExamQuestion["figure"]): f is Extract<ExamFigureData, { kind: "stimulus" }> {
  return f?.kind === "stimulus";
@@ -65,11 +67,11 @@ function FrqRubricPanel({ doc }: { doc: FrqRubricDoc }) {
 }
 
 function stemSignalsExhibitBelow(question: ExamQuestion): boolean {
- if (!isStimulusFigure(question.figure)) return false;
- const q = question.question;
- return /reproduced below|shown below|in the (?:passage|excerpt|paragraph|text|following)(?:\s+\w+)?\s+below|\(below\)|below\s*,\s*which|following\s+sentence/i.test(
- q,
- );
+	if (!isStimulusFigure(question.figure)) return false;
+	const q = question.frq_stem ?? question.question;
+	return /reproduced below|shown below|in the (?:passage|excerpt|paragraph|text|following)(?:\s+\w+)?\s+below|\(below\)|below\s*,\s*which|following\s+sentence/i.test(
+		q,
+	);
 }
 
 function QuestionCard({
@@ -87,6 +89,13 @@ function QuestionCard({
  submitted: boolean;
 }) {
 	const rubricQ = Boolean(question.frq_rubric);
+	const steppedFrq =
+		rubricQ && Boolean(question.frq_stem) && (question.frq_rubric?.parts?.length ?? 0) > 0;
+	const [frqPartIdx, setFrqPartIdx] = useState(0);
+	useEffect(() => {
+		setFrqPartIdx(0);
+	}, [question.id]);
+
 	const isCorrect =
 		submitted && !rubricQ && answer === question.correct_answer && question.correct_answer !== AP_FRQ_PLACEHOLDER_ANSWER;
 	const isWrong =
@@ -95,10 +104,24 @@ function QuestionCard({
 		answer &&
 		answer !== question.correct_answer &&
 		question.correct_answer !== AP_FRQ_PLACEHOLDER_ANSWER;
- const [tapOptionIdx, setTapOptionIdx] = useState<number | null>(null);
- const [aiFeedback, setAiFeedback] = useState("");
- const [loadingFeedback, setLoadingFeedback] = useState(false);
- const [feedbackRequested, setFeedbackRequested] = useState(false);
+	const [tapOptionIdx, setTapOptionIdx] = useState<number | null>(null);
+	const [aiFeedback, setAiFeedback] = useState("");
+	const [loadingFeedback, setLoadingFeedback] = useState(false);
+	const [feedbackRequested, setFeedbackRequested] = useState(false);
+
+	const parts = question.frq_rubric?.parts ?? [];
+	const partIdx = steppedFrq ? Math.min(frqPartIdx, Math.max(0, parts.length - 1)) : 0;
+	const activePart = steppedFrq ? parts[partIdx] : undefined;
+	const partAnswers = parseFrqPartAnswers(answer);
+	const partTextareaValue =
+		activePart == null
+			? ""
+			: (() => {
+					const v = partAnswers[activePart.letter];
+					if (v != null && v !== "") return v;
+					if (partIdx === 0 && partAnswers._) return partAnswers._;
+					return "";
+				})();
 
  const getAIFeedback = async () => {
  setLoadingFeedback(true);
@@ -145,22 +168,29 @@ function QuestionCard({
  <ExamFigure figure={dataFig} />
  </div>
  ) : null}
- {exhibitAboveStem ? (
- <p className="mb-3 text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
- {formatNiceMath(stim.body)}
- </p>
- ) : null}
- <p className="text-vanta-text font-medium mb-3 leading-relaxed text-[15px]">
- <span className="tabular-nums">{questionNumber}. </span>
- {formatNiceMath(question.question)}
- </p>
- {exhibitBelow ? (
- <p className="mb-4 text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
- {formatNiceMath(stim.body)}
- </p>
- ) : null}
+			{exhibitAboveStem ? (
+				<p className="mb-3 text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
+					{formatNiceMath(stripMarkdownBoldMarkers(stim.body))}
+				</p>
+			) : null}
+			{steppedFrq ? (
+				<p className="text-vanta-text font-medium mb-3 leading-relaxed text-[15px] whitespace-pre-wrap">
+					<span className="tabular-nums">{questionNumber}. </span>
+					{formatNiceMath(question.frq_stem ?? "")}
+				</p>
+			) : (
+				<p className="text-vanta-text font-medium mb-3 leading-relaxed text-[15px]">
+					<span className="tabular-nums">{questionNumber}. </span>
+					{formatNiceMath(rubricQ ? stripMarkdownBoldMarkers(question.question) : question.question)}
+				</p>
+			)}
+			{exhibitBelow ? (
+				<p className="mb-4 text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
+					{formatNiceMath(stripMarkdownBoldMarkers(stim.body))}
+				</p>
+			) : null}
 
- {question.type === "multiple_choice" && question.options ? (
+			{question.type === "multiple_choice" && question.options ? (
  <div className="space-y-2">
  {question.options.map((opt, optIdx) => {
  const letter = String.fromCharCode(65 + optIdx);
@@ -209,15 +239,81 @@ function QuestionCard({
  );
  })}
  </div>
- ) : (
- <Textarea
- placeholder="Write your response here..."
- value={answer}
- onChange={(e) => onAnswer(e.target.value)}
- disabled={submitted}
- rows={5}
- />
- )}
+			) : steppedFrq && activePart && !submitted ? (
+				<>
+					<div className="mb-4 flex gap-3 items-start">
+						<span className="shrink-0 tabular-nums font-semibold text-vanta-text pt-0.5">
+							({activePart.letter})
+						</span>
+						<div className="flex-1 min-w-0">
+							<p className="text-[15px] leading-relaxed text-vanta-text">{formatNiceMath(activePart.promptText)}</p>
+							<p className="text-xs text-vanta-muted mt-1.5">
+								{activePart.maxPoints} point{activePart.maxPoints === 1 ? "" : "s"}
+							</p>
+						</div>
+					</div>
+					<Textarea
+						placeholder={`Write your response for part (${activePart.letter})…`}
+						value={partTextareaValue}
+						onChange={(e) => onAnswer(mergeFrqPartAnswer(answer, activePart.letter, e.target.value))}
+						disabled={submitted}
+						rows={6}
+					/>
+					<div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+						<Button
+							type="button"
+							variant="secondary"
+							disabled={partIdx <= 0}
+							onClick={() => setFrqPartIdx((i) => Math.max(0, i - 1))}
+						>
+							Previous part
+						</Button>
+						<span className="text-xs text-vanta-muted tabular-nums order-last sm:order-none">
+							Part {partIdx + 1} of {parts.length}
+						</span>
+						<Button
+							type="button"
+							disabled={partIdx >= parts.length - 1}
+							onClick={() => setFrqPartIdx((i) => Math.min(parts.length - 1, i + 1))}
+						>
+							Next part
+						</Button>
+					</div>
+				</>
+			) : steppedFrq && submitted ? (
+				<div className="space-y-4 mb-2">
+					{parts.map((p) => {
+						const draft =
+							partAnswers[p.letter] ||
+							(parts[0]?.letter === p.letter ? partAnswers._ : "") ||
+							"";
+						return (
+							<div
+								key={p.letter}
+								className="rounded-lg border border-vanta-border/80 bg-vanta-surface-elevated/40 p-4"
+							>
+								<div className="flex gap-3 items-start mb-2">
+									<span className="shrink-0 font-semibold text-vanta-text tabular-nums">({p.letter})</span>
+									<p className="text-sm text-vanta-muted leading-relaxed flex-1 min-w-0">
+										{formatNiceMath(p.promptText)}
+									</p>
+								</div>
+								<p className="text-sm text-vanta-text whitespace-pre-wrap leading-relaxed">
+									{draft.trim() ? draft : <span className="text-vanta-muted italic">No response</span>}
+								</p>
+							</div>
+						);
+					})}
+				</div>
+			) : (
+				<Textarea
+					placeholder="Write your response here..."
+					value={answer}
+					onChange={(e) => onAnswer(e.target.value)}
+					disabled={submitted}
+					rows={5}
+				/>
+			)}
 
 		{submitted && question.frq_rubric ? <FrqRubricPanel doc={question.frq_rubric} /> : null}
 		{submitted && question.explanation && !question.frq_rubric ? (
@@ -282,7 +378,7 @@ export function ExamGame({
  /** Shows a Desmos graphing calculator dock (e.g. AP Calc calculator section). */
  showDesmosCalculator?: boolean;
 }) {
- const { answers, submitted, answerQuestion, submit, stats } = useExamProgress(questions.length);
+ const { answers, submitted, answerQuestion, submit, stats } = useExamProgress(questions.length, questions);
  const statsRecorded = useRef(false);
  const submitRef = useRef(submit);
  submitRef.current = submit;
@@ -302,7 +398,11 @@ export function ExamGame({
  if (!submitted || statsRecorded.current) return;
  statsRecorded.current = true;
  const rubricOnly = questions.length > 0 && questions.every((q) => q.frq_rubric);
- const drafted = questions.filter((q) => (answers[q.id] ?? "").trim().length > 0).length;
+ const drafted = questions.filter((q) => {
+ const a = answers[q.id];
+ if (q.frq_rubric && q.frq_stem) return frqAnswerHasAnyDraft(a);
+ return (a ?? "").trim().length > 0;
+ }).length;
  const mcCorrect = questions.filter(
   (q) => !q.frq_rubric && answers[q.id] === q.correct_answer && q.correct_answer !== AP_FRQ_PLACEHOLDER_ANSWER,
  ).length;
@@ -323,7 +423,11 @@ export function ExamGame({
 
 	if (submitted) {
 		const rubricOnly = questions.length > 0 && questions.every((q) => q.frq_rubric);
-		const drafted = questions.filter((q) => (answers[q.id] ?? "").trim().length > 0).length;
+		const drafted = questions.filter((q) => {
+			const a = answers[q.id];
+			if (q.frq_rubric && q.frq_stem) return frqAnswerHasAnyDraft(a);
+			return (a ?? "").trim().length > 0;
+		}).length;
 		const mcCorrect = questions.filter(
 			(q) => !q.frq_rubric && answers[q.id] === q.correct_answer && q.correct_answer !== AP_FRQ_PLACEHOLDER_ANSWER,
 		).length;

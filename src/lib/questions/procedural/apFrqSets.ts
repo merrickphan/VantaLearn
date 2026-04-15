@@ -1,6 +1,7 @@
 import { AP_COURSES } from "@/lib/apCatalog";
 import { getApFrqReplicaSpec } from "@/lib/apFrqExamReplicaFormat";
 import { getUnitOrFirst, getUnitsForCourseId } from "@/lib/apUnits";
+import { stripMarkdownBoldMarkers } from "@/lib/typography/plainExamText";
 import type { ExamFigure, ExamQuestion, FrqRubricCriterion, FrqRubricDoc, FrqRubricPart } from "@/types";
 import type { ProceduralDifficulty } from "@/lib/questions/procedural";
 import { createRng, hashString, pick, randInt } from "./utils";
@@ -67,6 +68,30 @@ function crit(pointLabel: string, descriptor: string, acceptable: string[]): Frq
 
 function rubricDoc(header: string, total: number, parts: FrqRubricPart[]): FrqRubricDoc {
 	return { header, totalPoints: total, parts };
+}
+
+function plainFrqPartsBlock(rubric: FrqRubricDoc): string {
+	return rubric.parts
+		.map((p) => `(${p.letter}) ${p.promptText} (${p.maxPoints} point${p.maxPoints === 1 ? "" : "s"}).`)
+		.join("\n\n");
+}
+
+function withPlainStimulusBody(fig: ExamFigure | undefined): ExamFigure | undefined {
+	if (!fig || fig.kind !== "stimulus") return fig;
+	return { ...fig, body: stripMarkdownBoldMarkers(fig.body) };
+}
+
+type FrqQInput = Omit<ExamQuestion, "question" | "frq_stem"> & { frq_rubric: FrqRubricDoc };
+
+function frqQ(base: FrqQInput, stem: string): ExamQuestion {
+	const stemPlain = stripMarkdownBoldMarkers(stem.trim());
+	const figure = withPlainStimulusBody(base.figure);
+	return {
+		...base,
+		figure,
+		frq_stem: stemPlain,
+		question: `${stemPlain}\n\n${plainFrqPartsBlock(base.frq_rubric)}`,
+	};
 }
 
 const PLACES = [
@@ -144,13 +169,13 @@ function buildHumanGeoSet(
 	const place = pick(rng, PLACES);
 	const c0 = pick(rng, HG_CONCEPTS);
 
-	const q0: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 0, "hg0"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		question: `You are analyzing ${place} within the scope of **${ctx.unitTitle}**.\n\n**A)** Define the concept of **${c0.term}**. **(1 point)**\n\n**B)** Explain **one** way ${c0.term} helps explain a pattern you would expect to see in ${place}. **(2 points)**`,
-		frq_rubric: rubricDoc("Question 1: No stimulus", 3, [
+	const q0 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 0, "hg0"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			frq_rubric: rubricDoc("Question 1: No stimulus", 3, [
 			{
 				letter: "A",
 				promptText: `Define the concept of ${c0.term}.`,
@@ -183,8 +208,10 @@ function buildHumanGeoSet(
 				],
 			},
 		]),
-		explanation: `Self-check: ${c0.term} should be defined precisely, then tied to an observable pattern in ${place}.`,
-	};
+			explanation: `Self-check: ${c0.term} should be defined precisely, then tied to an observable pattern in ${place}.`,
+		},
+		`You are analyzing ${place} within the scope of ${ctx.unitTitle}.`,
+	);
 
 	const fig1: ExamFigure = {
 		kind: "table",
@@ -197,14 +224,14 @@ function buildHumanGeoSet(
 		],
 	};
 
-	const q1: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 1, "hg1"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: fig1,
-		question: `Use **Table 1** and your knowledge of **${ctx.unitTitle}**.\n\n**A)** Describe **one** pattern suggested by the table. **(1 point)**\n\n**B)** Explain **one** plausible geographic process that could help account for that pattern. **(2 points)**`,
-		frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
+	const q1 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 1, "hg1"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: fig1,
+			frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
 			{
 				letter: "A",
 				promptText: "Describe one pattern suggested by the table.",
@@ -232,7 +259,9 @@ function buildHumanGeoSet(
 				],
 			},
 		]),
-	};
+		},
+		`Use Table 1 and your knowledge of ${ctx.unitTitle}.`,
+	);
 
 	const stim2: ExamFigure = {
 		kind: "stimulus",
@@ -240,14 +269,14 @@ function buildHumanGeoSet(
 		body: `**Stimulus A — excerpt (hypothetical)**\nA national government announces incentives for firms to relocate manufacturing to secondary cities, citing “balanced growth” and reduced congestion in the primate city.\n\n---\n\n**Stimulus B — data note (hypothetical)**\nAnalysts report rising intra-regional trade within a customs union while per-capita income dispersion across member states remains high.`,
 	};
 
-	const q2: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 2, "hg2"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: stim2,
-		question: `Refer to **Stimulus A** and **Stimulus B**.\n\n**A)** Identify **one** economic goal implied by Stimulus A. **(1 point)**\n\n**B)** Describe **one** tension suggested when Stimulus B is read alongside Stimulus A. **(2 points)**\n\n**C)** Propose **one** geographically realistic policy tradeoff a supranational body might face when responding. **(2 points)**`,
-		frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
+	const q2 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 2, "hg2"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: stim2,
+			frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
 			{
 				letter: "A",
 				promptText: "Identify one economic goal implied by Stimulus A.",
@@ -286,7 +315,9 @@ function buildHumanGeoSet(
 				],
 			},
 		]),
-	};
+		},
+		`Refer to Stimulus A and Stimulus B.`,
+	);
 
 	return [q0, q1, q2];
 }
@@ -297,13 +328,13 @@ function buildSocialSet(
 ): ExamQuestion[] {
 	const concept = pick(rng, SOCIAL_CONCEPTS);
 	const place = pick(rng, PLACES);
-	const q0: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 0, "soc0"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		question: `In **${ctx.unitTitle}** (${ctx.courseName}), **A)** define **${concept}** in your own words. **(1 point)** **B)** explain **one** consequence of ${concept} for governance or behavior in ${place}. **(2 points)**`,
-		frq_rubric: rubricDoc("Question 1: No stimulus", 3, [
+	const q0 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 0, "soc0"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			frq_rubric: rubricDoc("Question 1: No stimulus", 3, [
 			{
 				letter: "A",
 				promptText: `Define ${concept}.`,
@@ -325,7 +356,9 @@ function buildSocialSet(
 				],
 			},
 		]),
-	};
+		},
+		`In ${ctx.unitTitle} (${ctx.courseName}).`,
+	);
 
 	const fig: ExamFigure = {
 		kind: "bar_chart",
@@ -338,14 +371,14 @@ function buildSocialSet(
 		],
 	};
 
-	const q1: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 1, "soc1"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: fig,
-		question: `Use **Figure 1**.\n\n**A)** Describe **one** pattern in public support. **(1 point)**\n\n**B)** Explain **one** reason the pattern could emerge in the context of **${ctx.unitTitle}**. **(2 points)**`,
-		frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
+	const q1 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 1, "soc1"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: fig,
+			frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
 			{
 				letter: "A",
 				promptText: "Describe one pattern in the chart.",
@@ -362,7 +395,9 @@ function buildSocialSet(
 				],
 			},
 		]),
-	};
+		},
+		`Use Figure 1.`,
+	);
 
 	const stim: ExamFigure = {
 		kind: "stimulus",
@@ -370,14 +405,14 @@ function buildSocialSet(
 		body: `**Stimulus A**\nA legislator argues that decentralizing implementation will improve responsiveness but risks uneven enforcement.\n\n---\n\n**Stimulus B**\nAn agency report claims standardized metrics improved transparency while reducing local flexibility.`,
 	};
 
-	const q2: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 2, "soc2"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: stim,
-		question: `**A)** Identify **one** tradeoff emphasized in Stimulus A. **(1 point)**\n\n**B)** Describe **one** tension between Stimulus A and Stimulus B. **(2 points)**\n\n**C)** Propose **one** design principle that could mitigate the tension (without claiming a perfect solution). **(2 points)**`,
-		frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
+	const q2 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 2, "soc2"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: stim,
+			frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
 			{
 				letter: "A",
 				promptText: "Identify one tradeoff in Stimulus A.",
@@ -403,7 +438,9 @@ function buildSocialSet(
 				],
 			},
 		]),
-	};
+		},
+		`Refer to Stimulus A and Stimulus B.`,
+	);
 
 	return [q0, q1, q2];
 }
@@ -414,13 +451,13 @@ function buildHistorySet(
 ): ExamQuestion[] {
 	const topic = pick(rng, HISTORY_TOPICS);
 	const era = ctx.unitTitle;
-	const q0: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 0, "his0"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		question: `Within **${era}** (${ctx.courseName}), **A)** describe **one** significant change related to **${topic}**. **(2 points)**\n\n**B)** explain **one** cause *or* consequence of that change. **(2 points)**`,
-		frq_rubric: rubricDoc("Question 1: No stimulus", 4, [
+	const q0 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 0, "his0"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			frq_rubric: rubricDoc("Question 1: No stimulus", 4, [
 			{
 				letter: "A",
 				promptText: `Describe one significant change (${topic}).`,
@@ -440,7 +477,9 @@ function buildHistorySet(
 				],
 			},
 		]),
-	};
+		},
+		`Within ${era} (${ctx.courseName}).`,
+	);
 
 	const fig: ExamFigure = {
 		kind: "line_chart",
@@ -454,14 +493,14 @@ function buildHistorySet(
 		],
 	};
 
-	const q1: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 1, "his1"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: fig,
-		question: `Use **Figure 1** and your understanding of **${era}**.\n\n**A)** Describe **one** trend in the index. **(1 point)**\n\n**B)** Explain **one** historical development that could help explain the trend. **(2 points)**`,
-		frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
+	const q1 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 1, "his1"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: fig,
+			frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
 			{
 				letter: "A",
 				promptText: "Describe one trend.",
@@ -478,7 +517,9 @@ function buildHistorySet(
 				],
 			},
 		]),
-	};
+		},
+		`Use Figure 1 and your understanding of ${era}.`,
+	);
 
 	const stim: ExamFigure = {
 		kind: "stimulus",
@@ -486,14 +527,14 @@ function buildHistorySet(
 		body: `**Stimulus A — perspective 1**\n“We modernized transport and finance; critics forget the human costs in the countryside.”\n\n---\n\n**Stimulus B — perspective 2**\n“Growth depended on extracting labor and resources from colonized peripheries—prosperity was not evenly shared.”`,
 	};
 
-	const q2: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 2, "his2"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: stim,
-		question: `**A)** Identify **one** point of agreement *or* disagreement between the perspectives. **(1 point)**\n\n**B)** Explain **one** way **${topic}** helps interpret the disagreement. **(2 points)**\n\n**C)** Provide **one** piece of historical evidence that supports *either* perspective (not both). **(2 points)**`,
-		frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
+	const q2 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 2, "his2"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: stim,
+			frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
 			{
 				letter: "A",
 				promptText: "Identify agreement or disagreement.",
@@ -519,7 +560,9 @@ function buildHistorySet(
 				],
 			},
 		]),
-	};
+		},
+		`Refer to the two perspectives in the stimuli above.`,
+	);
 
 	return [q0, q1, q2];
 }
@@ -532,13 +575,13 @@ function buildMathSet(
 	const b = randInt(rng, -12, 12);
 	const c = randInt(rng, 2, 11);
 	const fx = b >= 0 ? `${a}x^2 + ${b}x + ${c}` : `${a}x^2 - ${-b}x + ${c}`;
-	const q0: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 0, "m0"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		question: `Let \\(f(x) = ${fx}\\) for all real \\(x\\). This item aligns with **${ctx.unitTitle}**.\n\n**A)** Find \\(f'(x)\\). **(1 point)**\n\n**B)** Determine whether \\(f\\) has a local maximum, local minimum, or neither at the critical point in the interior of the domain shown by your algebra—justify using an appropriate derivative test or sign analysis. **(3 points)**`,
-		frq_rubric: rubricDoc("Question 1: No stimulus", 4, [
+	const q0 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 0, "m0"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			frq_rubric: rubricDoc("Question 1: No stimulus", 4, [
 			{
 				letter: "A",
 				promptText: "Find f'(x).",
@@ -561,8 +604,10 @@ function buildMathSet(
 				],
 			},
 		]),
-		explanation: `Differentiate with the power rule, then locate critical points where f'(x)=0 and justify max/min with an appropriate test.`,
-	};
+			explanation: `Differentiate with the power rule, then locate critical points where f'(x)=0 and justify max/min with an appropriate test.`,
+		},
+		`Let \\(f(x) = ${fx}\\) for all real \\(x\\). This item aligns with ${ctx.unitTitle}.`,
+	);
 
 	const x0 = randInt(rng, 1, 8);
 	const table: ExamFigure = {
@@ -576,14 +621,14 @@ function buildMathSet(
 		],
 	};
 
-	const q1: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 1, "m1"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: table,
-		question: `A differentiable function \\(g\\) is modeled by **Table 1** near \\(x=${x0}\\).\n\n**A)** Estimate \\(g'(${x0})\\) using the table (show the difference quotient you use). **(2 points)**\n\n**B)** In one sentence, interpret the sign of your estimate in a real-world quantity if \\(g(x)\\) represents thousands of units sold at price \\(x\\). **(1 point)**`,
-		frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
+	const q1 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 1, "m1"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: table,
+			frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
 			{
 				letter: "A",
 				promptText: "Estimate g'(x0) from the table.",
@@ -605,7 +650,9 @@ function buildMathSet(
 				],
 			},
 		]),
-	};
+		},
+		`A differentiable function \\(g\\) is modeled by Table 1 near \\(x=${x0}\\).`,
+	);
 
 	const stim: ExamFigure = {
 		kind: "stimulus",
@@ -613,14 +660,14 @@ function buildMathSet(
 		body: `**Stimulus A**\nA student claims: “Because the definite integral counts area, it must always be positive.”\n\n---\n\n**Stimulus B**\nAnother student responds: “But the integrand can be negative on part of the interval, so the integral can be negative or zero.”`,
 	};
 
-	const q2: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 2, "m2"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: stim,
-		question: `**A)** Identify **one** mathematical error or oversimplification in Stimulus A. **(1 point)**\n\n**B)** Explain **one** correct idea in Stimulus B using the language of **${ctx.unitTitle}**. **(2 points)**\n\n**C)** Give **one** concrete integral example on a closed interval that supports Stimulus B (you may define a simple piecewise linear function). **(2 points)**`,
-		frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
+	const q2 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 2, "m2"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: stim,
+			frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
 			{
 				letter: "A",
 				promptText: "Identify issue in Stimulus A.",
@@ -650,7 +697,9 @@ function buildMathSet(
 				],
 			},
 		]),
-	};
+		},
+		`Refer to Stimulus A and Stimulus B.`,
+	);
 
 	return [q0, q1, q2];
 }
@@ -660,13 +709,13 @@ function buildScienceSet(
 	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
 ): ExamQuestion[] {
 	const phenom = pick(rng, SCI_PHENOM);
-	const q0: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 0, "sci0"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		question: `You are investigating **${phenom}** within **${ctx.unitTitle}** (${ctx.courseName}).\n\n**A)** State **one** measurable independent variable and **one** dependent variable you could study. **(2 points)**\n\n**B)** Describe **one** control or randomization choice that would strengthen a causal claim. **(2 points)**`,
-		frq_rubric: rubricDoc("Question 1: No stimulus", 4, [
+	const q0 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 0, "sci0"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			frq_rubric: rubricDoc("Question 1: No stimulus", 4, [
 			{
 				letter: "A",
 				promptText: "Variables",
@@ -686,7 +735,9 @@ function buildScienceSet(
 				],
 			},
 		]),
-	};
+		},
+		`You are investigating ${phenom} within ${ctx.unitTitle} (${ctx.courseName}).`,
+	);
 
 	const fig: ExamFigure = {
 		kind: "line_chart",
@@ -700,14 +751,14 @@ function buildScienceSet(
 		],
 	};
 
-	const q1: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 1, "sci1"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: fig,
-		question: `Use **Figure 1**.\n\n**A)** Describe **one** pattern in the measured quantity. **(1 point)**\n\n**B)** Propose **one** biophysical or chemical mechanism consistent with the pattern (course-appropriate). **(2 points)**`,
-		frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
+	const q1 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 1, "sci1"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: fig,
+			frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
 			{
 				letter: "A",
 				promptText: "Pattern",
@@ -724,7 +775,9 @@ function buildScienceSet(
 				],
 			},
 		]),
-	};
+		},
+		`Use Figure 1.`,
+	);
 
 	const stim: ExamFigure = {
 		kind: "stimulus",
@@ -732,14 +785,14 @@ function buildScienceSet(
 		body: `**Stimulus A — lab note**\n“We increased temperature and observed faster initial rate but lower final yield.”\n\n---\n\n**Stimulus B — field note**\n“Predator introduction reduced herbivore pressure; plant diversity increased after two seasons.”`,
 	};
 
-	const q2: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 2, "sci2"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: stim,
-		question: `**A)** Identify **one** variable interaction implied by Stimulus A. **(1 point)**\n\n**B)** Explain **one** way Stimulus B illustrates a community-level outcome. **(2 points)**\n\n**C)** State **one** hypothesis that links a mechanism in A to an ecosystem property in B (hypothesis may be tentative). **(2 points)**`,
-		frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
+	const q2 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 2, "sci2"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: stim,
+			frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
 			{
 				letter: "A",
 				promptText: "Interaction in A",
@@ -765,7 +818,9 @@ function buildScienceSet(
 				],
 			},
 		]),
-	};
+		},
+		`Refer to Stimulus A and Stimulus B.`,
+	);
 
 	return [q0, q1, q2];
 }
@@ -780,13 +835,13 @@ function buildEnglishSet(
 		"A scientist warns that ‘correlation is not causation’ but then implies policy should wait indefinitely for certainty.",
 	]);
 
-	const q0: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 0, "en0"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		question: `Read the following claim (hypothetical):\n\n> ${passage}\n\n**A)** Identify **one** rhetorical strategy or assumption in the passage. **(1 point)**\n\n**B)** Analyze **one** implication of that strategy for how audiences might respond. **(2 points)**`,
-		frq_rubric: rubricDoc("Question 1: No stimulus", 3, [
+	const q0 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 0, "en0"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			frq_rubric: rubricDoc("Question 1: No stimulus", 3, [
 			{
 				letter: "A",
 				promptText: "Strategy / assumption",
@@ -803,7 +858,9 @@ function buildEnglishSet(
 				],
 			},
 		]),
-	};
+		},
+		`Read the following claim (hypothetical):\n\n> ${passage}`,
+	);
 
 	const fig: ExamFigure = {
 		kind: "table",
@@ -816,14 +873,14 @@ function buildEnglishSet(
 		],
 	};
 
-	const q1: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 1, "en1"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: fig,
-		question: `Use **Table 1** while revising an argument tied to **${ctx.unitTitle}**.\n\n**A)** Describe **one** revision pattern suggested by the counts. **(1 point)**\n\n**B)** Explain **one** rhetorical benefit *or* risk of that revision for a skeptical reader. **(2 points)**`,
-		frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
+	const q1 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 1, "en1"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: fig,
+			frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
 			{
 				letter: "A",
 				promptText: "Pattern",
@@ -840,7 +897,9 @@ function buildEnglishSet(
 				],
 			},
 		]),
-	};
+		},
+		`Use Table 1 while revising an argument tied to ${ctx.unitTitle}.`,
+	);
 
 	const stim: ExamFigure = {
 		kind: "stimulus",
@@ -848,14 +907,14 @@ function buildEnglishSet(
 		body: `**Stimulus A — excerpt 1**\n“Policy must follow the data—even when communities disagree.”\n\n---\n\n**Stimulus B — excerpt 2**\n“Data never speak for themselves; every dataset embeds choices about what to measure.”`,
 	};
 
-	const q2: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 2, "en2"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: stim,
-		question: `**A)** Identify **one** tension between Stimulus A and Stimulus B. **(2 points)**\n\n**B)** Craft **one** sentence that negotiates the tension (a qualified claim). **(1 point)**\n\n**C)** Name **one** rhetorical move that makes your sentence persuasive without overclaiming. **(2 points)**`,
-		frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
+	const q2 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 2, "en2"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: stim,
+			frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
 			{
 				letter: "A",
 				promptText: "Tension",
@@ -881,7 +940,9 @@ function buildEnglishSet(
 				],
 			},
 		]),
-	};
+		},
+		`Refer to Stimulus A and Stimulus B.`,
+	);
 
 	return [q0, q1, q2];
 }
@@ -890,13 +951,13 @@ function buildCsSet(
 	rng: () => number,
 	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
 ): ExamQuestion[] {
-	const q0: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 0, "cs0"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		question: `Design context: **${ctx.unitTitle}**.\n\n**A)** State **one** invariant or precondition your program should enforce. **(1 point)**\n\n**B)** Describe **one** failure mode if the invariant is violated and how you would detect it at runtime or test time. **(2 points)**`,
-		frq_rubric: rubricDoc("Question 1: No stimulus", 3, [
+	const q0 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 0, "cs0"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			frq_rubric: rubricDoc("Question 1: No stimulus", 3, [
 			{
 				letter: "A",
 				promptText: "Invariant / precondition",
@@ -913,7 +974,9 @@ function buildCsSet(
 				],
 			},
 		]),
-	};
+		},
+		`Design context: ${ctx.unitTitle}.`,
+	);
 
 	const fig: ExamFigure = {
 		kind: "table",
@@ -926,14 +989,14 @@ function buildCsSet(
 		],
 	};
 
-	const q1: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 1, "cs1"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: fig,
-		question: `Use **Table 1**.\n\n**A)** Identify the most likely complexity class among **O(n)**, **O(n log n)**, and **O(n^2)** (justify with ratios). **(2 points)**\n\n**B)** Name **one** practical implication for choosing data structures in **${ctx.unitTitle}**. **(1 point)**`,
-		frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
+	const q1 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 1, "cs1"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: fig,
+			frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
 			{
 				letter: "A",
 				promptText: "Complexity justification",
@@ -950,7 +1013,9 @@ function buildCsSet(
 				criteria: [crit("(Point 1)", "Implication", ["Chooses structure/strategy aligned to the inferred scaling (hash map, heap, sorting, etc.)."])],
 			},
 		]),
-	};
+		},
+		`Use Table 1.`,
+	);
 
 	const stim: ExamFigure = {
 		kind: "stimulus",
@@ -958,14 +1023,14 @@ function buildCsSet(
 		body: `**Stimulus A**\n“Ship fast: store user passwords in plaintext so support can help recover accounts.”\n\n---\n\n**Stimulus B**\n“Security is a tradeoff: usability suffers if we require long passwords and MFA for everyone.”`,
 	};
 
-	const q2: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 2, "cs2"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: stim,
-		question: `**A)** Identify **one** ethical and **one** technical problem with Stimulus A. **(2 points)**\n\n**B)** Explain **one** way Stimulus B is reasonable *and* **one** way it could excuse harmful choices. **(2 points)**\n\n**C)** Propose **one** policy that balances B’s concern without adopting A’s approach. **(1 point)**`,
-		frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
+	const q2 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 2, "cs2"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: stim,
+			frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
 			{
 				letter: "A",
 				promptText: "Ethical + technical problems",
@@ -991,7 +1056,9 @@ function buildCsSet(
 				criteria: [crit("(Point 1)", "Policy", ["MFA tiers, hashed passwords, recovery codes, risk-based auth—any coherent compromise."])],
 			},
 		]),
-	};
+		},
+		`Refer to Stimulus A and Stimulus B.`,
+	);
 
 	return [q0, q1, q2];
 }
@@ -1013,13 +1080,13 @@ function buildWorldLangSet(
 							? "Chinese"
 							: "Japanese";
 
-	const q0: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 0, "wl0"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		question: `**${lang} free response.** Theme: **${ctx.unitTitle}**.\n\nRespond in **${lang}** with **3–4 sentences**.\n\n**Prompt:** Describe **one** community tradition you value and **one** change you have noticed in daily life. Explain how the two connect.\n\n_(Rubric text is in English for clarity.)_`,
-		frq_rubric: rubricDoc("Question 1: No stimulus", 4, [
+	const q0 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 0, "wl0"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			frq_rubric: rubricDoc("Question 1: No stimulus", 4, [
 			{
 				letter: "A",
 				promptText: "Task completion",
@@ -1039,7 +1106,9 @@ function buildWorldLangSet(
 				],
 			},
 		]),
-	};
+		},
+		`${lang} free response. Theme: ${ctx.unitTitle}.\n\nRespond in ${lang} with 3–4 sentences.\n\nPrompt: Describe one community tradition you value and one change you have noticed in daily life. Explain how the two connect.\n\n(Rubric text is in English for clarity.)`,
+	);
 
 	const fig: ExamFigure = {
 		kind: "table",
@@ -1052,14 +1121,14 @@ function buildWorldLangSet(
 		],
 	};
 
-	const q1: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 1, "wl1"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: fig,
-		question: `Use **Table 1**. In **${lang}**, write **4–5 sentences**:\n\n**A)** summarize **one** pattern from the table, and **B)** compare it with **your** motivation related to **${ctx.unitTitle}**.`,
-		frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
+	const q1 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 1, "wl1"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: fig,
+			frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
 			{
 				letter: "A",
 				promptText: "Summary of pattern",
@@ -1076,7 +1145,9 @@ function buildWorldLangSet(
 				],
 			},
 		]),
-	};
+		},
+		`Use Table 1. In ${lang}, write 4–5 sentences total across the parts that follow.`,
+	);
 
 	const stim: ExamFigure = {
 		kind: "stimulus",
@@ -1084,14 +1155,14 @@ function buildWorldLangSet(
 		body: `**Stimulus A (English prompt for exam integrity)**\nTwo classmates disagree whether classroom-only practice is enough for proficiency.\n\n---\n\n**Stimulus B (English prompt for exam integrity)**\nA teacher argues that “interpersonal risk-taking” matters more than perfect grammar early on.`,
 	};
 
-	const q2: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 2, "wl2"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: stim,
-		question: `In **${lang}**, respond with **5–6 sentences**.\n\n**A)** State **one** agreement *or* disagreement with Stimulus A.\n\n**B)** Explain **one** way Stimulus B changes how you would study for **${ctx.unitTitle}**.\n\n**C)** Give **one** concrete study habit you will try this week.`,
-		frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
+	const q2 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 2, "wl2"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: stim,
+			frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
 			{
 				letter: "A",
 				promptText: "Position on A",
@@ -1117,7 +1188,9 @@ function buildWorldLangSet(
 				],
 			},
 		]),
-	};
+		},
+		`In ${lang}, respond with 5–6 sentences total across the parts that follow.`,
+	);
 
 	return [q0, q1, q2];
 }
@@ -1126,13 +1199,13 @@ function buildArtsSet(
 	rng: () => number,
 	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
 ): ExamQuestion[] {
-	const q0: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 0, "ar0"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		question: `Choose **one** work or repertoire item you have studied in **${ctx.unitTitle}** (hypothetical if needed).\n\n**A)** Identify **two** observable formal traits (visual, sonic, or structural). **(2 points)**\n\n**B)** Explain **one** likely intent or cultural function supported by those traits. **(2 points)**`,
-		frq_rubric: rubricDoc("Question 1: No stimulus", 4, [
+	const q0 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 0, "ar0"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			frq_rubric: rubricDoc("Question 1: No stimulus", 4, [
 			{
 				letter: "A",
 				promptText: "Formal traits",
@@ -1152,7 +1225,9 @@ function buildArtsSet(
 				],
 			},
 		]),
-	};
+		},
+		`Choose one work or repertoire item you have studied in ${ctx.unitTitle} (hypothetical if needed).`,
+	);
 
 	const fig: ExamFigure = {
 		kind: "bar_chart",
@@ -1165,14 +1240,14 @@ function buildArtsSet(
 		],
 	};
 
-	const q1: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 1, "ar1"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: fig,
-		question: `Use **Figure 1** as peer feedback on a draft tied to **${ctx.unitTitle}**.\n\n**A)** Describe **one** pattern. **(1 point)**\n\n**B)** Recommend **one** revision priority and justify it using the chart. **(2 points)**`,
-		frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
+	const q1 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 1, "ar1"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: fig,
+			frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
 			{
 				letter: "A",
 				promptText: "Pattern",
@@ -1189,7 +1264,9 @@ function buildArtsSet(
 				],
 			},
 		]),
-	};
+		},
+		`Use Figure 1 as peer feedback on a draft tied to ${ctx.unitTitle}.`,
+	);
 
 	const stim: ExamFigure = {
 		kind: "stimulus",
@@ -1197,14 +1274,14 @@ function buildArtsSet(
 		body: `**Stimulus A — artist statement (hypothetical)**\n“I repeat forms to create calm, not boredom.”\n\n---\n\n**Stimulus B — critic note (hypothetical)**\n“Repetition here reads as insistence—almost political.”`,
 	};
 
-	const q2: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 2, "ar2"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: stim,
-		question: `**A)** Identify **one** interpretive difference between Stimulus A and Stimulus B. **(2 points)**\n\n**B)** Propose **one** additional contextual detail (historical, institutional, or material) that would help adjudicate the disagreement. **(2 points)**\n\n**C)** State **one** criterion you would use to decide which reading is stronger. **(1 point)**`,
-		frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
+	const q2 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 2, "ar2"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: stim,
+			frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
 			{
 				letter: "A",
 				promptText: "Interpretive difference",
@@ -1230,7 +1307,9 @@ function buildArtsSet(
 				criteria: [crit("(Point 1)", "Criterion", ["Coherence, audience, intention, material constraints, intertext—any defensible standard."])],
 			},
 		]),
-	};
+		},
+		`Refer to Stimulus A and Stimulus B.`,
+	);
 
 	return [q0, q1, q2];
 }
@@ -1239,13 +1318,13 @@ function buildCapstoneSet(
 	rng: () => number,
 	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
 ): ExamQuestion[] {
-	const q0: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 0, "cap0"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		question: `Within **${ctx.unitTitle}**, propose **one** researchable question.\n\n**A)** State the question in **one** sentence. **(1 point)**\n\n**B)** Explain **one** reason the question is significant to a defined stakeholder group. **(2 points)**`,
-		frq_rubric: rubricDoc("Question 1: No stimulus", 3, [
+	const q0 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 0, "cap0"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			frq_rubric: rubricDoc("Question 1: No stimulus", 3, [
 			{
 				letter: "A",
 				promptText: "Research question",
@@ -1262,7 +1341,9 @@ function buildCapstoneSet(
 				],
 			},
 		]),
-	};
+		},
+		`Within ${ctx.unitTitle}, propose one researchable question.`,
+	);
 
 	const fig: ExamFigure = {
 		kind: "table",
@@ -1275,14 +1356,14 @@ function buildCapstoneSet(
 		],
 	};
 
-	const q1: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 1, "cap1"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: fig,
-		question: `Use **Table 1**.\n\n**A)** Identify **one** source you would prioritize for evidence and **one** you would use only with caution. **(2 points)**\n\n**B)** Justify both choices using criteria from **${ctx.unitTitle}**. **(2 points)**`,
-		frq_rubric: rubricDoc("Question 2: One stimulus", 4, [
+	const q1 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 1, "cap1"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: fig,
+			frq_rubric: rubricDoc("Question 2: One stimulus", 4, [
 			{
 				letter: "A",
 				promptText: "Prioritization",
@@ -1302,7 +1383,9 @@ function buildCapstoneSet(
 				],
 			},
 		]),
-	};
+		},
+		`Use Table 1.`,
+	);
 
 	const stim: ExamFigure = {
 		kind: "stimulus",
@@ -1310,14 +1393,14 @@ function buildCapstoneSet(
 		body: `**Stimulus A**\n“A narrow question saves time.”\n\n---\n\n**Stimulus B**\n“If the question is too narrow, you’ll miss the system causing the problem.”`,
 	};
 
-	const q2: ExamQuestion = {
-		id: idFor(ctx.courseId, ctx.setIndex, 2, "cap2"),
-		type: "free_response",
-		subject: ctx.courseName,
-		correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-		figure: stim,
-		question: `**A)** Describe **one** tension between A and B for researchers. **(2 points)**\n\n**B)** Propose **one** scoping move (boundary choice) that keeps the project feasible **without** ignoring Stimulus B’s warning. **(2 points)**\n\n**C)** Name **one** method limitation you will disclose in your report. **(1 point)**`,
-		frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
+	const q2 = frqQ(
+		{
+			id: idFor(ctx.courseId, ctx.setIndex, 2, "cap2"),
+			type: "free_response",
+			subject: ctx.courseName,
+			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
+			figure: stim,
+			frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
 			{
 				letter: "A",
 				promptText: "Tension",
@@ -1343,7 +1426,9 @@ function buildCapstoneSet(
 				criteria: [crit("(Point 1)", "Limitation", ["Sampling, access, self-report, generalizability, measurement validity, etc.—specific."])],
 			},
 		]),
-	};
+		},
+		`Refer to Stimulus A and Stimulus B.`,
+	);
 
 	return [q0, q1, q2];
 }
