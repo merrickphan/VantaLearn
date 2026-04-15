@@ -194,7 +194,7 @@ const BY_COURSE: Partial<Record<string, ApFrqReplicaSpec>> = {
 	"hum-geo": {
 		frqCount: 3,
 		sectionMinutes: 75,
-		frqCountLabel: "3 free-response questions (Section II)",
+		frqCountLabel: "3 free-response questions (Section II); each question has parts (A)–(G)",
 		timerLabel: "75 minutes (Section II)",
 		calculatorLabel: "Four-function, scientific, or graphing calculator allowed where applicable.",
 		examCalcSection: "calculator",

@@ -162,12 +162,120 @@ const SCI_PHENOM = [
 	"natural selection in a changing environment",
 ];
 
+function frqBulletBlock(title: string, lines: string[]): string {
+	return `${title}\n${lines.map((l) => `• ${l}`).join("\n")}`;
+}
+
+function frqNumberedBlock(title: string, lines: string[]): string {
+	return `${title}\n${lines.map((l, i) => `${i + 1}. ${l}`).join("\n")}`;
+}
+
+/** Single-point AP Human Geography–style rubric part (7 parts per FRQ is typical). */
+function hgOnePointPart(letter: string, promptText: string, descriptor: string, examples: string[]): FrqRubricPart {
+	return {
+		letter,
+		promptText,
+		maxPoints: 1,
+		criteria: [crit("(1 pt)", descriptor, examples)],
+	};
+}
+
 function buildHumanGeoSet(
 	rng: () => number,
 	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
 ): ExamQuestion[] {
 	const place = pick(rng, PLACES);
 	const c0 = pick(rng, HG_CONCEPTS);
+	let c1 = pick(rng, HG_CONCEPTS);
+	let guard = 0;
+	while (c1.term === c0.term && guard++ < 12) {
+		c1 = pick(rng, HG_CONCEPTS);
+	}
+
+	const q0Stem = [
+		frqBulletBlock("Directions", [
+			"You must answer all parts (A)–(G) in order.",
+			"Use geographic vocabulary appropriate to AP Human Geography.",
+			"Write complete sentences; labels alone do not earn credit.",
+			"Budget your time across all seven parts.",
+		]),
+		"",
+		frqBulletBlock("Geographic focus", [
+			`Place of reference: ${place}.`,
+			`Content emphasis: ${ctx.unitTitle}.`,
+		]),
+		"",
+		frqNumberedBlock("Background for your answers", [
+			"Political geographers study how states, identities, and networks interact across scales.",
+			"You may draw on devolution, centripetal and centrifugal forces, uneven development, and communication technologies where relevant.",
+		]),
+	].join("\n");
+
+	const q0Parts: FrqRubricPart[] = [
+		hgOnePointPart(
+			"A",
+			`Define the concept of ${c0.term}.`,
+			"Accurate definition",
+			[
+				`States that ${c0.term} involves ${c0.define}.`,
+				"Uses geographic vocabulary correctly (may paraphrase).",
+			],
+		),
+		hgOnePointPart(
+			"B",
+			`Explain how ${c0.term} can help explain a pattern you would expect to observe in ${place}.`,
+			"Mechanism + place",
+			[
+				"Links the definition to a concrete geographic outcome (migration, borders, development, diffusion, etc.).",
+				`Grounds the explanation in ${place} with at least one plausible detail.`,
+			],
+		),
+		hgOnePointPart(
+			"C",
+			`Explain how communication technology can matter for ${c1.term} in contexts related to ${ctx.unitTitle}.`,
+			"Technology role",
+			[
+				"Names a plausible role (coordination, mobilization, surveillance, information diffusion, etc.).",
+				"Connects the technology idea to geographic or political outcomes (not only a gadget list).",
+			],
+		),
+		hgOnePointPart(
+			"D",
+			"Explain one limitation of communication technology in achieving political or geographic goals you discussed in part (C).",
+			"Limitation stated",
+			[
+				"States a clear constraint (access gaps, misinformation, state capacity, digital divide, censorship, etc.).",
+				"Shows why the limitation weakens or complicates the goal.",
+			],
+		),
+		hgOnePointPart(
+			"E",
+			"Describe ONE centripetal force that governments sometimes use to promote the state as a nation.",
+			"Centripetal force",
+			[
+				"Names a defensible centripetal mechanism (symbols, education, infrastructure, shared institutions, etc.).",
+				"Briefly explains how it can increase cohesion.",
+			],
+		),
+		hgOnePointPart(
+			"F",
+			`Explain how uneven development within or across regions tied to ${place} can act as a centrifugal pressure on cohesion.`,
+			"Uneven development",
+			[
+				"Explains a plausible inequality or spatial disparity mechanism.",
+				"Links unevenness to tension, grievance, or contested legitimacy (not only a statistic).",
+			],
+		),
+		hgOnePointPart(
+			"G",
+			"For a multinational state facing pressures similar to devolution, explain ONE reason a government might create an autonomous region OR choose to maintain a more unitary structure.",
+			"Reasoning about autonomy vs unitary rule",
+			[
+				"Chooses one path (autonomous region or unitary maintenance) and defends it with governance logic.",
+				"Uses at least one geographic or political tradeoff (identity, revenue, security, representation).",
+			],
+		),
+	];
 
 	const q0 = frqQ(
 		{
@@ -175,54 +283,92 @@ function buildHumanGeoSet(
 			type: "free_response",
 			subject: ctx.courseName,
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-			frq_rubric: rubricDoc("Question 1: No stimulus", 3, [
-			{
-				letter: "A",
-				promptText: `Define the concept of ${c0.term}.`,
-				maxPoints: 1,
-				criteria: [
-					crit(
-						"(Point 1)",
-						"Accurate definition",
-						[
-							`States that ${c0.term} involves ${c0.define}.`,
-							"Uses geographic vocabulary correctly (may paraphrase).",
-							"Shows understanding distinct from a vague synonym.",
-						],
-					),
-				],
-			},
-			{
-				letter: "B",
-				promptText: `Explain one way ${c0.term} helps explain an expected pattern in ${place}.`,
-				maxPoints: 2,
-				criteria: [
-					crit("(Point 1)", "Logical mechanism", [
-						"Links the definition to a concrete geographic outcome (migration, borders, development, diffusion, etc.).",
-						"Explains *why* the mechanism follows from the concept (not only an example list).",
-					]),
-					crit("(Point 2)", "Place-specific grounding", [
-						`Explicitly ties the explanation to ${place} (process, policy, or landscape evidence).`,
-						"Uses at least one plausible geographic detail (distance, scale, institutions, resources).",
-					]),
-				],
-			},
-		]),
-			explanation: `Self-check: ${c0.term} should be defined precisely, then tied to an observable pattern in ${place}.`,
+			procedural_structure_id: "hg-q1-seven-part",
+			frq_rubric: rubricDoc("Question 1 (no stimulus)", 7, q0Parts),
+			explanation: `Self-check: work from definitions (${c0.term}, ${c1.term}) to mechanisms, then to tradeoffs and governance choices, using ${place} and ${ctx.unitTitle}.`,
 		},
-		`You are analyzing ${place} within the scope of ${ctx.unitTitle}.`,
+		q0Stem,
 	);
 
 	const fig1: ExamFigure = {
 		kind: "table",
-		title: "Table 1. Selected indicators (practice exhibit)",
+		title: "TABLE 1. Selected development indicators (hypothetical)",
 		headers: ["Indicator", "Value"],
 		rows: [
 			["Urban population share (%)", String(randInt(rng, 42, 92))],
 			["Youth dependency ratio", String((randInt(rng, 35, 75) / 100).toFixed(2))],
-			["Female LF participation (%)", String(randInt(rng, 38, 72))],
+			["Female labor-force participation (%)", String(randInt(rng, 38, 72))],
 		],
 	};
+
+	const q1Stem = [
+		frqBulletBlock("Directions", [
+			"You must answer all parts (A)–(G) in order.",
+			"Refer to Table 1 (reproduced above) where a part asks for evidence from the table.",
+			"Integrate knowledge from the course, especially " + ctx.unitTitle + ".",
+		]),
+		"",
+		frqBulletBlock("Geographic focus", [`Place of reference: ${place}.`, `Content emphasis: ${ctx.unitTitle}.`]),
+		"",
+		frqNumberedBlock("How to use Table 1", [
+			"Compare rows to identify contrasts or trends.",
+			"Use numbers explicitly when you make a claim tied to the table.",
+		]),
+	].join("\n");
+
+	const q1Parts: FrqRubricPart[] = [
+		hgOnePointPart(
+			"A",
+			"Identify ONE pattern suggested by Table 1.",
+			"Pattern from data",
+			["Uses at least two rows or a clear row-to-row comparison.", "Pattern is consistent with the numeric values shown."],
+		),
+		hgOnePointPart(
+			"B",
+			"Describe ONE geographic relationship implied by the pattern you identified in part (A).",
+			"Relationship",
+			[
+				"Names a plausible spatial or structural relationship (core–periphery, urban–rural, gendered labor markets, etc.).",
+				"Does not contradict the table.",
+			],
+		),
+		hgOnePointPart(
+			"C",
+			`Explain ONE demographic or economic process that could help account for the pattern in ${place}.`,
+			"Process explanation",
+			[
+				"Names a geographic process (migration, fertility transition, industrial restructuring, policy change, etc.).",
+				`Ties the process to ${place} with plausible reasoning.`,
+			],
+		),
+		hgOnePointPart(
+			"D",
+			"Explain ONE limitation of using Table 1 alone to explain development outcomes in the region.",
+			"Limitation",
+			[
+				"States a clear limitation (missing variables, scale, time, causal ambiguity, etc.).",
+				"Explains why the limitation matters for interpretation.",
+			],
+		),
+		hgOnePointPart(
+			"E",
+			"Propose ONE additional indicator (not in Table 1) that would strengthen an analysis of well-being or equity in this setting.",
+			"Indicator proposal",
+			["Names a measurable indicator relevant to equity or development.", "Explains what new information it would add."],
+		),
+		hgOnePointPart(
+			"F",
+			"Explain how changing the geographic scale of analysis (local vs national vs global) might change the interpretation of the pattern in part (A).",
+			"Scale reasoning",
+			["Contrasts at least two scales.", "Explains what becomes visible or hidden at each scale."],
+		),
+		hgOnePointPart(
+			"G",
+			"Predict ONE plausible policy consequence if leaders in the region respond to the pattern in Table 1 with a spatially targeted investment program.",
+			"Policy consequence",
+			["Prediction is geographically realistic.", "Connects to the table pattern without contradicting it."],
+		),
+	];
 
 	const q1 = frqQ(
 		{
@@ -231,43 +377,87 @@ function buildHumanGeoSet(
 			subject: ctx.courseName,
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
 			figure: fig1,
-			frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
-			{
-				letter: "A",
-				promptText: "Describe one pattern suggested by the table.",
-				maxPoints: 1,
-				criteria: [
-					crit("(Point 1)", "Data-linked description", [
-						"Identifies a relationship or contrast supported by the numeric values.",
-						"Uses evidence from at least two rows (explicitly or implicitly).",
-					]),
-				],
-			},
-			{
-				letter: "B",
-				promptText: "Explain one plausible geographic process behind the pattern.",
-				maxPoints: 2,
-				criteria: [
-					crit("(Point 1)", "Process clarity", [
-						"Names a geographic process (e.g., migration, urbanization, policy, diffusion, industrial restructuring).",
-						"Explains direction of change or who/where is affected.",
-					]),
-					crit("(Point 2)", "Mechanism + linkage", [
-						"Connects the process back to the table pattern without contradicting the data.",
-						"Uses course-appropriate reasoning (scale, place, interaction).",
-					]),
-				],
-			},
-		]),
+			procedural_structure_id: "hg-q2-seven-part-table",
+			frq_rubric: rubricDoc("Question 2 (one stimulus — Table 1)", 7, q1Parts),
+			explanation:
+				"Self-check: anchor every evidence claim in Table 1, then extend with processes, limitations, and scale—typical of AP-style data FRQs.",
 		},
-		`Use Table 1 and your knowledge of ${ctx.unitTitle}.`,
+		q1Stem,
 	);
 
 	const stim2: ExamFigure = {
 		kind: "stimulus",
-		title: "Stimuli for Question 3",
-		body: `**Stimulus A — excerpt (hypothetical)**\nA national government announces incentives for firms to relocate manufacturing to secondary cities, citing “balanced growth” and reduced congestion in the primate city.\n\n---\n\n**Stimulus B — data note (hypothetical)**\nAnalysts report rising intra-regional trade within a customs union while per-capita income dispersion across member states remains high.`,
+		title: "STIMULI FOR QUESTION 3",
+		body: [
+			"STIMULUS A — government announcement",
+			"• A national government announces incentives for firms to relocate manufacturing to secondary cities.",
+			"• Officials cite “balanced growth” and reduced congestion in the primate city.",
+			"",
+			"STIMULUS B — regional analysts",
+			"• Analysts report rising intra-regional trade within a customs union.",
+			"• Per-capita income dispersion across member states remains high.",
+		].join("\n"),
 	};
+
+	const q2Stem = [
+		frqBulletBlock("Directions", [
+			"You must answer all parts (A)–(G) in order.",
+			"Refer to Stimulus A and Stimulus B (reproduced above).",
+			"Integrate geographic reasoning; avoid inventing real-world treaties or organizations by name unless you are certain.",
+		]),
+		"",
+		frqBulletBlock("Geographic focus", [`Place of reference: ${place}.`, `Content emphasis: ${ctx.unitTitle}.`]),
+		"",
+		frqNumberedBlock("Reading strategy", [
+			"Treat each stimulus as a distinct scale or actor (state-led policy vs regional integration outcomes).",
+			"Use parts (A)–(D) to establish goals and tensions before proposing responses in (E)–(G).",
+		]),
+	].join("\n");
+
+	const q2Parts: FrqRubricPart[] = [
+		hgOnePointPart(
+			"A",
+			"Identify ONE economic or spatial goal implied by Stimulus A.",
+			"Goal from Stimulus A",
+			["Goal is defensible from the announcement (deconcentration, jobs, competitiveness, congestion relief, etc.).", "Uses logic consistent with Stimulus A."],
+		),
+		hgOnePointPart(
+			"B",
+			"Describe ONE tension that emerges when Stimulus B is read alongside Stimulus A.",
+			"Tension",
+			["Names a clear tension (growth vs dispersion, integration vs inequality, etc.).", "Explains why both stimuli cannot be fully “success stories” at once without qualification."],
+		),
+		hgOnePointPart(
+			"C",
+			"Explain ONE geographic mechanism (for example, cores and peripheries, factor mobility, or institutions) that helps explain the tension in part (B).",
+			"Mechanism",
+			["Mechanism is course-appropriate and geographic (not purely moral opinion).", "Links mechanism back to language or claims in the stimuli."],
+		),
+		hgOnePointPart(
+			"D",
+			"Identify ONE group or region type that is likely to experience uneven benefits if policies like Stimulus A spread widely without addressing Stimulus B’s concern.",
+			"Uneven benefits",
+			["Identifies a plausible stakeholder or region type (borderlands, secondary cities, rural hinterlands, smaller member states, etc.).", "Explains why benefits or costs may be uneven."],
+		),
+		hgOnePointPart(
+			"E",
+			"Propose ONE geographically realistic policy tradeoff a supranational body might face when responding to the situation described in Stimulus B.",
+			"Supranational tradeoff",
+			["Names both a gain and a sacrifice or risk (sovereignty, cohesion, equity, enforcement capacity).", "Policy tool is plausible (standards, funds, monitoring, dispute resolution, etc.)."],
+		),
+		hgOnePointPart(
+			"F",
+			`Explain ONE way ${ctx.unitTitle} concepts could help a decision maker prioritize between the goal in part (A) and the tension in part (B).`,
+			"Course linkage",
+			["Uses at least one idea from the unit framing (scale, networks, political geography, development, etc.).", "Shows how the concept changes what should be measured or protected first."],
+		),
+		hgOnePointPart(
+			"G",
+			`For ${place}, state ONE likely long-run geographic outcome if the policies in Stimulus A succeed in reducing primate-city congestion but Stimulus B’s dispersion persists.`,
+			"Long-run outcome",
+			["Outcome is geographically plausible (sprawl, polycentric growth, cross-border commuting, fiscal stress, etc.).", "Does not ignore Stimulus B’s inequality signal."],
+		),
+	];
 
 	const q2 = frqQ(
 		{
@@ -276,47 +466,12 @@ function buildHumanGeoSet(
 			subject: ctx.courseName,
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
 			figure: stim2,
-			frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
-			{
-				letter: "A",
-				promptText: "Identify one economic goal implied by Stimulus A.",
-				maxPoints: 1,
-				criteria: [
-					crit("(Point 1)", "Accurate identification", [
-						"Names a defensible goal (deconcentration, employment, competitiveness, congestion relief, regional equity).",
-						"Cites language or logic consistent with Stimulus A.",
-					]),
-				],
-			},
-			{
-				letter: "B",
-				promptText: "Describe one tension when A and B are read together.",
-				maxPoints: 2,
-				criteria: [
-					crit("(Point 1)", "Tension stated clearly", [
-						"Explains how B complicates a simple success story implied by A (e.g., integration vs inequality).",
-					]),
-					crit("(Point 2)", "Geographic/economic reasoning", [
-						"Uses at least one mechanism: cores/peripheries, factor mobility, institutions, scale economies, transfers.",
-					]),
-				],
-			},
-			{
-				letter: "C",
-				promptText: "Propose one realistic supranational policy tradeoff.",
-				maxPoints: 2,
-				criteria: [
-					crit("(Point 1)", "Tradeoff named", [
-						"States what is gained *and* what is sacrificed or risked (sovereignty, cohesion, equity, enforcement).",
-					]),
-					crit("(Point 2)", "Plausible governance detail", [
-						"References a tool harmonization, standards, funds, dispute resolution, or monitoring—without inventing fake treaties by name.",
-					]),
-				],
-			},
-		]),
+			procedural_structure_id: "hg-q3-seven-part-stimuli",
+			frq_rubric: rubricDoc("Question 3 (two stimuli)", 7, q2Parts),
+			explanation:
+				"Self-check: anchor claims in both stimuli, then build mechanism → tradeoff → prioritization → scenario—mirrors multi-part AP synthesis FRQs.",
 		},
-		`Refer to Stimulus A and Stimulus B.`,
+		q2Stem,
 	);
 
 	return [q0, q1, q2];
@@ -328,6 +483,19 @@ function buildSocialSet(
 ): ExamQuestion[] {
 	const concept = pick(rng, SOCIAL_CONCEPTS);
 	const place = pick(rng, PLACES);
+	const soc0Stem = [
+		frqBulletBlock("Directions", [
+			"Answer each labeled part (A) and (B).",
+			"Write complete sentences with political science / economics / psychology vocabulary as appropriate to the course.",
+		]),
+		"",
+		frqBulletBlock("Context", [
+			`Course unit: ${ctx.unitTitle}.`,
+			`Course: ${ctx.courseName}.`,
+			`Illustrative setting: ${place}.`,
+		]),
+	].join("\n");
+
 	const q0 = frqQ(
 		{
 			id: idFor(ctx.courseId, ctx.setIndex, 0, "soc0"),
@@ -357,7 +525,7 @@ function buildSocialSet(
 			},
 		]),
 		},
-		`In ${ctx.unitTitle} (${ctx.courseName}).`,
+		soc0Stem,
 	);
 
 	const fig: ExamFigure = {
@@ -370,6 +538,15 @@ function buildSocialSet(
 			{ label: "Option R", value: randInt(rng, 12, 36) },
 		],
 	};
+
+	const soc1Stem = [
+		frqBulletBlock("Directions", [
+			"Answer each labeled part (A) and (B).",
+			"Use Figure 1 (above) wherever the part asks you to reference the chart.",
+		]),
+		"",
+		frqBulletBlock("Context", [`Course unit: ${ctx.unitTitle}.`, `Illustrative setting: ${place}.`]),
+	].join("\n");
 
 	const q1 = frqQ(
 		{
@@ -396,14 +573,31 @@ function buildSocialSet(
 			},
 		]),
 		},
-		`Use Figure 1.`,
+		soc1Stem,
 	);
 
 	const stim: ExamFigure = {
 		kind: "stimulus",
 		title: "Stimuli for Question 3",
-		body: `**Stimulus A**\nA legislator argues that decentralizing implementation will improve responsiveness but risks uneven enforcement.\n\n---\n\n**Stimulus B**\nAn agency report claims standardized metrics improved transparency while reducing local flexibility.`,
+		body: [
+			"STIMULUS A — legislator",
+			"• Argues that decentralizing implementation will improve responsiveness.",
+			"• Warns that decentralization risks uneven enforcement across jurisdictions.",
+			"",
+			"STIMULUS B — agency report",
+			"• Claims standardized metrics improved transparency.",
+			"• Notes standardized metrics reduced local flexibility in implementation.",
+		].join("\n"),
 	};
+
+	const soc2Stem = [
+		frqBulletBlock("Directions", [
+			"Answer each labeled part (A), (B), and (C).",
+			"Refer to Stimulus A and Stimulus B (above).",
+		]),
+		"",
+		frqBulletBlock("Context", [`Course unit: ${ctx.unitTitle}.`, `Illustrative setting: ${place}.`]),
+	].join("\n");
 
 	const q2 = frqQ(
 		{
@@ -439,7 +633,7 @@ function buildSocialSet(
 			},
 		]),
 		},
-		`Refer to Stimulus A and Stimulus B.`,
+		soc2Stem,
 	);
 
 	return [q0, q1, q2];
@@ -575,38 +769,53 @@ function buildMathSet(
 	const b = randInt(rng, -12, 12);
 	const c = randInt(rng, 2, 11);
 	const fx = b >= 0 ? `${a}x^2 + ${b}x + ${c}` : `${a}x^2 - ${-b}x + ${c}`;
+	const q0Stem = [
+		frqBulletBlock("Directions (AP Calculus–style labeling)", [
+			"Answer each labeled part (a) and (b).",
+			"Unless otherwise specified, you may use a graphing calculator in calculator-allowed portions of your session.",
+			"Show the reasoning that leads to your answers.",
+		]),
+		"",
+		frqBulletBlock("Information", [
+			`This question aligns with ${ctx.unitTitle}.`,
+			`Let \\(f(x) = ${fx}\\) for all real numbers \\(x\\).`,
+		]),
+	].join("\n");
+
 	const q0 = frqQ(
 		{
 			id: idFor(ctx.courseId, ctx.setIndex, 0, "m0"),
 			type: "free_response",
 			subject: ctx.courseName,
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-			frq_rubric: rubricDoc("Question 1: No stimulus", 4, [
-			{
-				letter: "A",
-				promptText: "Find f'(x).",
-				maxPoints: 1,
-				criteria: [
-					crit("(Point 1)", "Derivative", [
-						"Applies power rule (and constant rule) correctly to obtain a linear derivative.",
-						"Simplifies to standard polynomial form.",
-					]),
-				],
-			},
-			{
-				letter: "B",
-				promptText: "Classify the interior critical point with justification.",
-				maxPoints: 3,
-				criteria: [
-					crit("(Point 1)", "Critical point", ["Finds where f'(x)=0 (or explains if none) with correct algebra."]),
-					crit("(Point 2)", "Test choice", ["Uses first-derivative sign change or second derivative test consistently."]),
-					crit("(Point 3)", "Conclusion", ["States max/min/neither with reasoning matching the test outcome."]),
-				],
-			},
-		]),
+			procedural_structure_id: "math-q1-lowercase-parts",
+			frq_rubric: rubricDoc("Question 1 (no calculator–style stem)", 4, [
+				{
+					letter: "a",
+					promptText: "Find \\(f'(x)\\).",
+					maxPoints: 1,
+					criteria: [
+						crit("(Point 1)", "Derivative", [
+							"Applies power rule (and constant rule) correctly to obtain a linear derivative.",
+							"Simplifies to standard polynomial form.",
+						]),
+					],
+				},
+				{
+					letter: "b",
+					promptText:
+						"Determine whether \\(f\\) has a local maximum, local minimum, or neither at the critical point in the interior of the domain suggested by your algebra—justify using an appropriate derivative test or sign analysis.",
+					maxPoints: 3,
+					criteria: [
+						crit("(Point 1)", "Critical point", ["Finds where f'(x)=0 (or explains if none) with correct algebra."]),
+						crit("(Point 2)", "Test choice", ["Uses first-derivative sign change or second derivative test consistently."]),
+						crit("(Point 3)", "Conclusion", ["States max/min/neither with reasoning matching the test outcome."]),
+					],
+				},
+			]),
 			explanation: `Differentiate with the power rule, then locate critical points where f'(x)=0 and justify max/min with an appropriate test.`,
 		},
-		`Let \\(f(x) = ${fx}\\) for all real \\(x\\). This item aligns with ${ctx.unitTitle}.`,
+		q0Stem,
 	);
 
 	const x0 = randInt(rng, 1, 8);
@@ -621,6 +830,19 @@ function buildMathSet(
 		],
 	};
 
+	const q1Stem = [
+		frqBulletBlock("Directions", [
+			"Answer each labeled part (a) and (b).",
+			"Use Table 1 (above) wherever the part references tabular values.",
+			"Show difference quotient work where applicable.",
+		]),
+		"",
+		frqBulletBlock("Information", [
+			`A differentiable function \\(g\\) is modeled by Table 1 near \\(x=${x0}\\).`,
+			`This item aligns with ${ctx.unitTitle}.`,
+		]),
+	].join("\n");
+
 	const q1 = frqQ(
 		{
 			id: idFor(ctx.courseId, ctx.setIndex, 1, "m1"),
@@ -628,37 +850,53 @@ function buildMathSet(
 			subject: ctx.courseName,
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
 			figure: table,
-			frq_rubric: rubricDoc("Question 2: One stimulus", 3, [
-			{
-				letter: "A",
-				promptText: "Estimate g'(x0) from the table.",
-				maxPoints: 2,
-				criteria: [
-					crit("(Point 1)", "Setup", ["Uses a plausible symmetric or one-sided difference quotient with correct substitution."]),
-					crit("(Point 2)", "Computation", ["Arithmetic matches the chosen points from the table."]),
-				],
-			},
-			{
-				letter: "B",
-				promptText: "Interpret sign in context.",
-				maxPoints: 1,
-				criteria: [
-					crit("(Point 1)", "Interpretation", [
-						"Positive derivative: sales increase as price increases near x0 (local upward trend).",
-						"Negative derivative: sales decrease as price increases near x0.",
-					]),
-				],
-			},
-		]),
+			procedural_structure_id: "math-q2-table-lowercase",
+			frq_rubric: rubricDoc("Question 2 (tabular stimulus)", 3, [
+				{
+					letter: "a",
+					promptText: `Estimate \\(g'(${x0})\\) using the table (show the difference quotient you use).`,
+					maxPoints: 2,
+					criteria: [
+						crit("(Point 1)", "Setup", ["Uses a plausible symmetric or one-sided difference quotient with correct substitution."]),
+						crit("(Point 2)", "Computation", ["Arithmetic matches the chosen points from the table."]),
+					],
+				},
+				{
+					letter: "b",
+					promptText:
+						"In one sentence, interpret the sign of your estimate in a real-world quantity if \\(g(x)\\) represents thousands of units sold at price \\(x\\).",
+					maxPoints: 1,
+					criteria: [
+						crit("(Point 1)", "Interpretation", [
+							"Positive derivative: sales increase as price increases near x0 (local upward trend).",
+							"Negative derivative: sales decrease as price increases near x0.",
+						]),
+					],
+				},
+			]),
 		},
-		`A differentiable function \\(g\\) is modeled by Table 1 near \\(x=${x0}\\).`,
+		q1Stem,
 	);
 
 	const stim: ExamFigure = {
 		kind: "stimulus",
-		title: "Stimuli for Question 3",
-		body: `**Stimulus A**\nA student claims: “Because the definite integral counts area, it must always be positive.”\n\n---\n\n**Stimulus B**\nAnother student responds: “But the integrand can be negative on part of the interval, so the integral can be negative or zero.”`,
+		title: "STIMULI FOR QUESTION 3",
+		body: [
+			"STIMULUS A — student claim",
+			"• “Because the definite integral counts area, it must always be positive.”",
+			"",
+			"STIMULUS B — response",
+			"• “The integrand can be negative on part of the interval, so the integral can be negative or zero.”",
+		].join("\n"),
 	};
+
+	const q2Stem = [
+		frqBulletBlock("Directions", [
+			"Answer each labeled part (a), (b), and (c).",
+			"Refer to Stimulus A and Stimulus B (above).",
+			`Use language appropriate to ${ctx.unitTitle} where part (b) asks for a conceptual explanation.`,
+		]),
+	].join("\n");
 
 	const q2 = frqQ(
 		{
@@ -667,38 +905,40 @@ function buildMathSet(
 			subject: ctx.courseName,
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
 			figure: stim,
-			frq_rubric: rubricDoc("Question 3: Two stimuli", 5, [
-			{
-				letter: "A",
-				promptText: "Identify issue in Stimulus A.",
-				maxPoints: 1,
-				criteria: [
-					crit("(Point 1)", "Accuracy", [
-						"Notes signed area / cancellation / below-axis contributions / orientation vs area.",
-					]),
-				],
-			},
-			{
-				letter: "B",
-				promptText: "Explain Stimulus B with unit language.",
-				maxPoints: 2,
-				criteria: [
-					crit("(Point 1)", "Concept", ["Discusses net change, accumulation, FTC intuition, or signed contribution."]),
-					crit("(Point 2)", "Unit linkage", [`Ties the idea explicitly to ${ctx.unitTitle} (not generic math only).`]),
-				],
-			},
-			{
-				letter: "C",
-				promptText: "Concrete example.",
-				maxPoints: 2,
-				criteria: [
-					crit("(Point 1)", "Example validity", ["Provides an interval and function behavior that yields ≤ 0 integral."]),
-					crit("(Point 2)", "Explanation", ["Sketches reasoning (symmetry, negative region dominates, etc.)."]),
-				],
-			},
-		]),
+			procedural_structure_id: "math-q3-stimuli-lowercase",
+			frq_rubric: rubricDoc("Question 3 (two student statements)", 5, [
+				{
+					letter: "a",
+					promptText: "Identify one mathematical error or oversimplification in Stimulus A.",
+					maxPoints: 1,
+					criteria: [
+						crit("(Point 1)", "Accuracy", [
+							"Notes signed area / cancellation / below-axis contributions / orientation vs area.",
+						]),
+					],
+				},
+				{
+					letter: "b",
+					promptText: `Explain one correct idea in Stimulus B using the language of ${ctx.unitTitle}.`,
+					maxPoints: 2,
+					criteria: [
+						crit("(Point 1)", "Concept", ["Discusses net change, accumulation, FTC intuition, or signed contribution."]),
+						crit("(Point 2)", "Unit linkage", [`Ties the idea explicitly to ${ctx.unitTitle} (not generic math only).`]),
+					],
+				},
+				{
+					letter: "c",
+					promptText:
+						"Give one concrete integral example on a closed interval that supports Stimulus B (you may define a simple piecewise linear function).",
+					maxPoints: 2,
+					criteria: [
+						crit("(Point 1)", "Example validity", ["Provides an interval and function behavior that yields ≤ 0 integral."]),
+						crit("(Point 2)", "Explanation", ["Sketches reasoning (symmetry, negative region dominates, etc.)."]),
+					],
+				},
+			]),
 		},
-		`Refer to Stimulus A and Stimulus B.`,
+		q2Stem,
 	);
 
 	return [q0, q1, q2];
