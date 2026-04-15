@@ -57,7 +57,7 @@ export function useExamProgress(totalQuestions: number) {
 
  const submit = useCallback(() => setSubmitted(true), []);
 
- const answeredCount = Object.keys(answers).length;
+ const answeredCount = Object.values(answers).filter((a) => typeof a === "string" && a.trim().length > 0).length;
  const progress = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
 
  return {

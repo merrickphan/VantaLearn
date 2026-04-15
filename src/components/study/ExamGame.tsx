@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
 import Link from "next/link";
-import type { ExamFigure as ExamFigureData, ExamQuestion } from "@/types";
+import type { ExamFigure as ExamFigureData, ExamQuestion, FrqRubricDoc } from "@/types";
+import { AP_FRQ_PLACEHOLDER_ANSWER } from "@/lib/questions/procedural/apFrqSets";
 import { useExamProgress } from "@/hooks/useProgress";
 import { useTimer } from "@/hooks/useTimer";
 import { DesmosCalculatorDock } from "@/components/study/DesmosCalculatorDock";
@@ -21,6 +22,48 @@ function isStimulusFigure(f: ExamQuestion["figure"]): f is Extract<ExamFigureDat
  * Stems that say the exhibit appears *below* the stem (AP Lang-style revision).
  * In those cases the numbered stem comes first, then the italic line, then choices.
  */
+function FrqRubricPanel({ doc }: { doc: FrqRubricDoc }) {
+	return (
+		<div className="mt-4 rounded-xl border border-sky-500/25 bg-gradient-to-b from-sky-500/[0.08] to-transparent overflow-hidden shadow-[inset_0_1px_0_rgba(56,189,248,0.12)]">
+			<div className="px-4 py-3 border-b border-sky-500/20 bg-sky-500/10 flex flex-wrap items-center justify-between gap-2">
+				<span className="text-sm font-semibold text-vanta-text tracking-tight">{doc.header}</span>
+				<span className="text-xs font-bold uppercase tracking-wider text-sky-200/95 tabular-nums shrink-0">
+					{doc.totalPoints} points
+				</span>
+			</div>
+			<div className="p-4 sm:p-5 space-y-6">
+				{doc.parts.map((part) => (
+					<div key={part.letter} className="border-t border-vanta-border/50 first:border-0 first:pt-0 pt-5 first:mt-0 mt-1">
+						<div className="flex flex-wrap items-start justify-between gap-2 mb-2">
+							<p className="text-sm font-bold text-vanta-text">
+								<span className="tabular-nums">{part.letter}.</span>{" "}
+								<span className="font-medium text-vanta-muted">{part.promptText}</span>
+							</p>
+							<span className="text-xs font-semibold text-sky-300/90 tabular-nums shrink-0">{part.maxPoints} pt</span>
+						</div>
+						{part.criteria.map((c, idx) => (
+							<div key={`${part.letter}-c-${idx}`} className="mb-4 pl-3 sm:pl-4 border-l-2 border-sky-500/35">
+								<p className="text-xs font-bold text-sky-100/95 mb-1">
+									{c.pointLabel}{" "}
+									<span className="font-semibold text-vanta-text/90">— {c.descriptor}</span>
+								</p>
+								<p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-vanta-muted mb-2">
+									Examples of acceptable responses may include:
+								</p>
+								<ul className="list-disc pl-5 space-y-1.5 text-sm text-vanta-text leading-relaxed marker:text-sky-400/80">
+									{c.acceptableExamples.map((ex, j) => (
+										<li key={j}>{formatNiceMath(ex)}</li>
+									))}
+								</ul>
+							</div>
+						))}
+					</div>
+				))}
+			</div>
+		</div>
+	);
+}
+
 function stemSignalsExhibitBelow(question: ExamQuestion): boolean {
  if (!isStimulusFigure(question.figure)) return false;
  const q = question.question;
@@ -43,8 +86,15 @@ function QuestionCard({
  onAnswer: (a: string) => void;
  submitted: boolean;
 }) {
- const isCorrect = submitted && answer === question.correct_answer;
- const isWrong = submitted && answer && answer !== question.correct_answer;
+	const rubricQ = Boolean(question.frq_rubric);
+	const isCorrect =
+		submitted && !rubricQ && answer === question.correct_answer && question.correct_answer !== AP_FRQ_PLACEHOLDER_ANSWER;
+	const isWrong =
+		submitted &&
+		!rubricQ &&
+		answer &&
+		answer !== question.correct_answer &&
+		question.correct_answer !== AP_FRQ_PLACEHOLDER_ANSWER;
  const [tapOptionIdx, setTapOptionIdx] = useState<number | null>(null);
  const [aiFeedback, setAiFeedback] = useState("");
  const [loadingFeedback, setLoadingFeedback] = useState(false);
@@ -78,10 +128,18 @@ function QuestionCard({
  const exhibitBelow = stim && stemSignalsExhibitBelow(question);
  const exhibitAboveStem = stim && !exhibitBelow;
 
- return (
- <Card
- className={`p-6 mb-4 transition-all duration-300 exam-card-enter ${isCorrect ? "border-vanta-success/70 shadow-[inset_0_0_0_1px_rgba(74,222,128,0.25)]" : isWrong ? "border-vanta-error/70 shadow-[inset_0_0_0_1px_rgba(248,113,113,0.25)]" : ""}`}
- >
+	return (
+		<Card
+			className={`p-6 mb-4 transition-all duration-300 exam-card-enter ${
+				rubricQ && submitted
+					? "border-sky-500/30 shadow-[inset_0_0_0_1px_rgba(56,189,248,0.18)]"
+					: isCorrect
+						? "border-vanta-success/70 shadow-[inset_0_0_0_1px_rgba(74,222,128,0.25)]"
+						: isWrong
+							? "border-vanta-error/70 shadow-[inset_0_0_0_1px_rgba(248,113,113,0.25)]"
+							: ""
+			}`}
+		>
  {dataFig ? (
  <div className="figure-reveal mb-3">
  <ExamFigure figure={dataFig} />
@@ -161,17 +219,24 @@ function QuestionCard({
  />
  )}
 
- {submitted && question.explanation && (
- <div className="mt-4 p-4 bg-vanta-bg rounded-lg border border-vanta-border">
- <p className="text-xs text-vanta-muted font-semibold uppercase tracking-wider mb-1">Explanation</p>
- <p className="text-vanta-text text-sm leading-relaxed">{formatNiceMath(question.explanation)}</p>
- </div>
- )}
+		{submitted && question.frq_rubric ? <FrqRubricPanel doc={question.frq_rubric} /> : null}
+		{submitted && question.explanation && !question.frq_rubric ? (
+			<div className="mt-4 p-4 bg-vanta-bg rounded-lg border border-vanta-border">
+				<p className="text-xs text-vanta-muted font-semibold uppercase tracking-wider mb-1">Explanation</p>
+				<p className="text-vanta-text text-sm leading-relaxed">{formatNiceMath(question.explanation)}</p>
+			</div>
+		) : null}
+		{submitted && question.explanation && question.frq_rubric ? (
+			<div className="mt-4 p-4 rounded-lg border border-vanta-border/80 bg-vanta-surface-elevated/60">
+				<p className="text-xs text-vanta-muted font-semibold uppercase tracking-wider mb-1">Coach note</p>
+				<p className="text-vanta-text text-sm leading-relaxed">{formatNiceMath(question.explanation)}</p>
+			</div>
+		) : null}
 
- {submitted && (
- <div className="mt-3">
- {!feedbackRequested ? (
- <Button variant="ghost" size="sm" onClick={getAIFeedback} className="gap-2">
+		{submitted && !question.frq_rubric ? (
+			<div className="mt-3">
+				{!feedbackRequested ? (
+					<Button variant="ghost" size="sm" onClick={getAIFeedback} className="gap-2">
  <span aria-hidden className="inline-flex">
  <SimpleIconBox name="spark" size={22} />
  </span>
@@ -192,11 +257,11 @@ function QuestionCard({
  </p>
  <p className="text-vanta-text text-sm leading-relaxed whitespace-pre-line">{aiFeedback}</p>
  </div>
- ) : null}
- </div>
- )}
- </Card>
- );
+				) : null}
+			</div>
+		) : null}
+	</Card>
+	);
 }
 
 export function ExamGame({
@@ -236,7 +301,12 @@ export function ExamGame({
  useEffect(() => {
  if (!submitted || statsRecorded.current) return;
  statsRecorded.current = true;
- const correctCount = questions.filter((q) => answers[q.id] === q.correct_answer).length;
+ const rubricOnly = questions.length > 0 && questions.every((q) => q.frq_rubric);
+ const drafted = questions.filter((q) => (answers[q.id] ?? "").trim().length > 0).length;
+ const mcCorrect = questions.filter(
+  (q) => !q.frq_rubric && answers[q.id] === q.correct_answer && q.correct_answer !== AP_FRQ_PLACEHOLDER_ANSWER,
+ ).length;
+ const correctCount = rubricOnly ? drafted : mcCorrect;
  const subject = questions[0]?.subject ?? "Mixed";
  recordExamComplete(subject, correctCount, questions.length);
  // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -251,37 +321,65 @@ export function ExamGame({
  else window.location.reload();
  };
 
- if (submitted) {
- const correctCount = questions.filter((q) => answers[q.id] === q.correct_answer).length;
- const { apScore, percentage } = calculateAPScore({ rawScore: correctCount, totalQuestions: questions.length });
+	if (submitted) {
+		const rubricOnly = questions.length > 0 && questions.every((q) => q.frq_rubric);
+		const drafted = questions.filter((q) => (answers[q.id] ?? "").trim().length > 0).length;
+		const mcCorrect = questions.filter(
+			(q) => !q.frq_rubric && answers[q.id] === q.correct_answer && q.correct_answer !== AP_FRQ_PLACEHOLDER_ANSWER,
+		).length;
+		const correctCount = rubricOnly ? drafted : mcCorrect;
+		const { apScore, percentage } = calculateAPScore({ rawScore: correctCount, totalQuestions: questions.length });
 
- return (
- <div className="max-w-3xl mx-auto px-4 py-8">
- <div className="text-center mb-8 fade-up">
- <div className="mb-4 flex justify-center motion-float" aria-hidden>
- <SimpleIconBox name="chart" size={48} />
- </div>
- <h1 className="text-2xl font-bold text-vanta-text mb-2">Exam Complete</h1>
- <p className="text-vanta-muted">{title}</p>
- </div>
+		return (
+			<div className="max-w-3xl mx-auto px-4 py-8">
+				<div className="text-center mb-8 fade-up">
+					<div className="mb-4 flex justify-center motion-float" aria-hidden>
+						<SimpleIconBox name="chart" size={48} />
+					</div>
+					<h1 className="text-2xl font-bold text-vanta-text mb-2">Exam Complete</h1>
+					<p className="text-vanta-muted">{title}</p>
+				</div>
 
- <Card className="p-6 mb-6 text-center fade-up shadow-lg shadow-sky-500/5">
- <div className="grid grid-cols-3 gap-6">
- <div>
- <p className="text-3xl font-bold text-vanta-blue">{correctCount}/{questions.length}</p>
- <p className="text-xs text-vanta-muted mt-1">Raw Score</p>
- </div>
- <div>
- <p className="text-3xl font-bold text-vanta-text">{percentage.toFixed(0)}%</p>
- <p className="text-xs text-vanta-muted mt-1">Accuracy</p>
- </div>
- <div>
- <p className={`text-3xl font-bold ${apScore >= 3 ? "text-vanta-success" : "text-vanta-error"}`}>{apScore}</p>
- <p className="text-xs text-vanta-muted mt-1">Est. AP Score</p>
- </div>
- </div>
- <ProgressBar value={percentage} className="mt-4" color={percentage >= 60 ? "green" : "blue"} showLabel />
- </Card>
+				<Card className="p-6 mb-6 text-center fade-up shadow-lg shadow-sky-500/5">
+					{rubricOnly ? (
+						<>
+							<p className="text-sm text-vanta-muted mb-4 leading-relaxed max-w-lg mx-auto">
+								This session is free-response practice. Use each scoring guide to self-check; there is no automatic
+								letter grade for open-ended work.
+							</p>
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+								<div>
+									<p className="text-3xl font-bold text-vanta-blue">
+										{drafted}/{questions.length}
+									</p>
+									<p className="text-xs text-vanta-muted mt-1">Responses drafted</p>
+								</div>
+								<div>
+									<p className="text-3xl font-bold text-vanta-text">—</p>
+									<p className="text-xs text-vanta-muted mt-1">Rubric self-score</p>
+								</div>
+							</div>
+						</>
+					) : (
+						<div className="grid grid-cols-3 gap-6">
+							<div>
+								<p className="text-3xl font-bold text-vanta-blue">{correctCount}/{questions.length}</p>
+								<p className="text-xs text-vanta-muted mt-1">Raw Score</p>
+							</div>
+							<div>
+								<p className="text-3xl font-bold text-vanta-text">{percentage.toFixed(0)}%</p>
+								<p className="text-xs text-vanta-muted mt-1">Accuracy</p>
+							</div>
+							<div>
+								<p className={`text-3xl font-bold ${apScore >= 3 ? "text-vanta-success" : "text-vanta-error"}`}>{apScore}</p>
+								<p className="text-xs text-vanta-muted mt-1">Est. AP Score</p>
+							</div>
+						</div>
+					)}
+					{!rubricOnly ? (
+						<ProgressBar value={percentage} className="mt-4" color={percentage >= 60 ? "green" : "blue"} showLabel />
+					) : null}
+				</Card>
 
  <div className="space-y-4">
  <h2 className="text-sm font-semibold text-vanta-muted uppercase tracking-wider">Review Answers</h2>

@@ -41,6 +41,31 @@ export interface FlashcardSession {
 // Exam types
 export type QuestionType = "multiple_choice" | "free_response";
 
+/** One row in an AP-style scoring guide (acceptable answers may vary). */
+export interface FrqRubricCriterion {
+	pointLabel: string;
+	descriptor: string;
+	acceptableExamples: string[];
+}
+
+/** Part A / B / C within a single FRQ prompt. */
+export interface FrqRubricPart {
+	letter: string;
+	promptText: string;
+	maxPoints: number;
+	criteria: FrqRubricCriterion[];
+}
+
+/**
+ * Full answer key for one free-response item (College Board-style structure,
+ * rendered with VantaLearn styling in the exam player).
+ */
+export interface FrqRubricDoc {
+	header: string;
+	totalPoints: number;
+	parts: FrqRubricPart[];
+}
+
 export interface ExamContent {
  questions: ExamQuestion[];
  time_limit_minutes?: number;
@@ -86,6 +111,8 @@ export interface ExamQuestion {
  figure?: ExamFigure;
  /** Procedural template id for variety tracking (not shown to students). */
  procedural_structure_id?: string;
+ /** When set, exam UI shows a structured scoring guide after submit (self-check). */
+ frq_rubric?: FrqRubricDoc;
 }
 
 export interface ExamAttempt {

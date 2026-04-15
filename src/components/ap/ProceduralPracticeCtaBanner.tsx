@@ -2,9 +2,18 @@
 
 import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 
-export function ProceduralPracticeCtaBanner({ onStart }: { onStart: () => void }) {
+export function ProceduralPracticeCtaBanner({
+  onStart,
+  className = "mb-8",
+}: {
+  onStart: () => void;
+  /** Override default bottom margin (e.g. `mb-0` when stacked with another CTA). */
+  className?: string;
+}) {
   return (
-    <div className="mb-8 rounded-2xl border border-vanta-border bg-vanta-surface shadow-card px-4 py-4 sm:px-6 sm:py-5 flex flex-wrap items-center justify-between gap-4 fade-up transition-shadow duration-300 hover:shadow-card-hover hover:border-sky-500/25">
+    <div
+      className={`rounded-2xl border border-vanta-border bg-vanta-surface shadow-card px-4 py-4 sm:px-6 sm:py-5 flex flex-wrap items-center justify-between gap-4 fade-up transition-shadow duration-300 hover:shadow-card-hover hover:border-sky-500/25 ${className}`}
+    >
       <div className="flex items-center gap-3 sm:gap-4 min-w-0">
         <span
           className="shrink-0 rounded-xl bg-vanta-surface-elevated p-2.5 ring-1 ring-sky-500/20 shadow-sm"

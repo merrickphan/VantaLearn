@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
+import { AP_FRQ_PRACTICE_SET_COUNT } from "@/lib/questions/procedural/apFrqSets";
+import { hashString } from "@/lib/questions/procedural/utils";
 import { AP_COURSES } from "@/lib/apCatalog";
 import { getCourseOverview } from "@/lib/apCourseOverviews";
 import { AP_SECTIONS, getSectionIdForCourseId } from "@/lib/apCategories";
@@ -11,6 +13,7 @@ import { Card, Badge } from "@/components/ui";
 import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 import { PracticeTestSetupModal } from "@/components/ap/PracticeTestSetupModal";
 import { ProceduralPracticeCtaBanner } from "@/components/ap/ProceduralPracticeCtaBanner";
+import { FrqPracticeCtaBanner } from "@/components/ap/FrqPracticeCtaBanner";
 import type { ApUnit } from "@/lib/apUnits";
 
 export function ApCourseUnitList({
@@ -25,6 +28,7 @@ export function ApCourseUnitList({
   intro?: string;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [setupOpen, setSetupOpen] = useState(false);
   const [setupUnit, setSetupUnit] = useState<ApUnit | null>(null);
@@ -98,13 +102,28 @@ export function ApCourseUnitList({
       ) : null}
 
       {units.length > 0 ? (
-        <ProceduralPracticeCtaBanner
-          onStart={() => {
-            setSetupShowUnitPicker(true);
-            setSetupUnit(null);
-            setSetupOpen(true);
-          }}
-        />
+        <div className="mb-8 space-y-3">
+          <ProceduralPracticeCtaBanner
+            className="mb-0"
+            onStart={() => {
+              setSetupShowUnitPicker(true);
+              setSetupUnit(null);
+              setSetupOpen(true);
+            }}
+          />
+          <FrqPracticeCtaBanner
+            className="mb-0"
+            onStart={() => {
+              const frqSet = hashString(course.id) % AP_FRQ_PRACTICE_SET_COUNT;
+              const qs = new URLSearchParams();
+              qs.set("procFrq", "1");
+              qs.set("course", course.id);
+              qs.set("unit", "all");
+              qs.set("set", String(frqSet));
+              router.push(`/study/exam?${qs.toString()}`);
+            }}
+          />
+        </div>
       ) : null}
 
       <div className="space-y-3 stagger">
