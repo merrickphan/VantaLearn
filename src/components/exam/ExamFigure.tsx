@@ -133,19 +133,27 @@ export function ExamFigure({ figure }: { figure: ExamFigureType }) {
  );
  }
 
- // line_chart
+ // line_chart (supports negative y via min/max range)
  const pts = figure.points;
- const maxY = Math.max(...pts.map((p) => p.y), 1);
+ const ys = pts.map((p) => p.y);
+ const rawMin = Math.min(...ys);
+ const rawMax = Math.max(...ys);
+ const span = rawMax - rawMin;
+ const minY = span === 0 ? rawMin - 0.5 : rawMin;
+ const maxY = span === 0 ? rawMax + 0.5 : rawMax;
+ const range = maxY - minY || 1;
  const w = 340;
  const h = 150;
  const pad = { t: 28, r: 16, b: 32, l: 36 };
  const innerW = w - pad.l - pad.r;
  const innerH = h - pad.t - pad.b;
 
+ const yFor = (yv: number) => pad.t + innerH - ((yv - minY) / range) * innerH;
+
  const pathD = pts
  .map((p, i) => {
  const x = pad.l + (i / Math.max(pts.length - 1, 1)) * innerW;
- const y = pad.t + innerH - (p.y / maxY) * innerH;
+ const y = yFor(p.y);
  return `${i === 0 ? "M" : "L"} ${x} ${y}`;
  })
  .join(" ");
@@ -184,7 +192,7 @@ export function ExamFigure({ figure }: { figure: ExamFigureType }) {
  />
  {pts.map((p, i) => {
  const x = pad.l + (i / Math.max(pts.length - 1, 1)) * innerW;
- const y = pad.t + innerH - (p.y / maxY) * innerH;
+ const y = yFor(p.y);
  return <circle key={p.x} cx={x} cy={y} r={3} fill="#7dd3fc" />;
  })}
  {pts.map((p, i) => {

@@ -184,7 +184,18 @@ function buildHumanGeoSet(
 		c1 = pick(rng, HG_CONCEPTS);
 	}
 
-	const q0Stem = `Political geography connects states, identities, and networks across scales. Focus your answers on ${place} and on ${ctx.unitTitle}, drawing on ideas such as devolution, centripetal and centrifugal forces, uneven development, and communication technologies where they help your argument.`;
+	const hgFig0: ExamFigure = {
+		kind: "bar_chart",
+		title: "FIGURE 1. Sector share of GDP in a hypothetical national economy (%)",
+		yLabel: "Percent of GDP",
+		bars: [
+			{ label: "Primary", value: randInt(rng, 3, 24) },
+			{ label: "Secondary", value: randInt(rng, 16, 45) },
+			{ label: "Tertiary", value: randInt(rng, 35, 76) },
+		],
+	};
+
+	const q0Stem = `Political geography connects states, identities, and networks across scales. Focus your answers on ${place} and on ${ctx.unitTitle}, drawing on ideas such as devolution, centripetal and centrifugal forces, uneven development, and communication technologies where they help your argument. Figure 1 summarizes a simplified economic structure for a hypothetical country; reference it where it strengthens a part of your answer.`;
 
 	const q0Parts: FrqRubricPart[] = [
 		hgOnePointPart(
@@ -258,8 +269,9 @@ function buildHumanGeoSet(
 			type: "free_response",
 			subject: ctx.courseName,
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-			procedural_structure_id: "hg-q1-seven-part",
-			frq_rubric: rubricDoc("Question 1 (no stimulus)", 7, q0Parts),
+			figure: hgFig0,
+			procedural_structure_id: "hg-q1-seven-part-figure",
+			frq_rubric: rubricDoc("Question 1 (Figure 1 — sector structure)", 7, q0Parts),
 			explanation: `Self-check: work from definitions (${c0.term}, ${c1.term}) to mechanisms, then to tradeoffs and governance choices, using ${place} and ${ctx.unitTitle}.`,
 		},
 		q0Stem,
@@ -432,7 +444,18 @@ function buildSocialSet(
 ): ExamQuestion[] {
 	const concept = pick(rng, SOCIAL_CONCEPTS);
 	const place = pick(rng, PLACES);
-	const soc0Stem = `Use concepts from ${ctx.unitTitle} in ${ctx.courseName}. Where it strengthens your answer, ground claims in a setting like ${place}.`;
+	const socFig0: ExamFigure = {
+		kind: "line_chart",
+		title: "FIGURE 1. Hypothetical index of institutional trust (selected waves; first wave = 100)",
+		yLabel: "Index",
+		points: [
+			{ x: "W1", y: 100 },
+			{ x: "W2", y: randInt(rng, 94, 108) },
+			{ x: "W3", y: randInt(rng, 88, 112) },
+			{ x: "W4", y: randInt(rng, 90, 118) },
+		],
+	};
+	const soc0Stem = `Use concepts from ${ctx.unitTitle} in ${ctx.courseName}. Where it strengthens your answer, ground claims in a setting like ${place}. Figure 1 shows a hypothetical trust trend; you may reference it when discussing attitudes, legitimacy, or policy feedback.`;
 
 	const q0 = frqQ(
 		{
@@ -440,7 +463,8 @@ function buildSocialSet(
 			type: "free_response",
 			subject: ctx.courseName,
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-			frq_rubric: rubricDoc("Question 1: No stimulus", 3, [
+			figure: socFig0,
+			frq_rubric: rubricDoc("Question 1: Figure 1", 3, [
 			{
 				letter: "A",
 				promptText: `Define ${concept}.`,
@@ -468,7 +492,7 @@ function buildSocialSet(
 
 	const fig: ExamFigure = {
 		kind: "bar_chart",
-		title: "Figure 1. Survey support for three policy options (%)",
+		title: "Figure 2. Survey support for three policy options (%)",
 		yLabel: "Percent supporting",
 		bars: [
 			{ label: "Option P", value: randInt(rng, 18, 42) },
@@ -477,7 +501,7 @@ function buildSocialSet(
 		],
 	};
 
-	const soc1Stem = `Figure 1 summarizes survey support for three policy options in a setting analogous to ${place}. Answer using the figure and ${ctx.unitTitle}.`;
+	const soc1Stem = `Figure 2 summarizes survey support for three policy options in a setting analogous to ${place}. Answer using the figure and ${ctx.unitTitle}.`;
 
 	const q1 = frqQ(
 		{
@@ -569,13 +593,26 @@ function buildHistorySet(
 ): ExamQuestion[] {
 	const topic = pick(rng, HISTORY_TOPICS);
 	const era = ctx.unitTitle;
+	const hisFig0: ExamFigure = {
+		kind: "bar_chart",
+		title: "FIGURE 1. Hypothetical share of labor force by sector in one region (%)",
+		yLabel: "Percent of labor force",
+		bars: [
+			{ label: "Agr.", value: randInt(rng, 18, 52) },
+			{ label: "Ind.", value: randInt(rng, 22, 48) },
+			{ label: "Serv.", value: randInt(rng, 20, 45) },
+		],
+	};
+	const his0Stem = `Within ${era} (${ctx.courseName}). Figure 1 is a stylized snapshot (not tied to a specific country); use it only where it helps you discuss structure, change, or causation.`;
+
 	const q0 = frqQ(
 		{
 			id: idFor(ctx.courseId, ctx.setIndex, 0, "his0"),
 			type: "free_response",
 			subject: ctx.courseName,
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-			frq_rubric: rubricDoc("Question 1: No stimulus", 4, [
+			figure: hisFig0,
+			frq_rubric: rubricDoc("Question 1: Figure 1", 4, [
 			{
 				letter: "A",
 				promptText: `Describe one significant change (${topic}).`,
@@ -596,12 +633,12 @@ function buildHistorySet(
 			},
 		]),
 		},
-		`Within ${era} (${ctx.courseName}).`,
+		his0Stem,
 	);
 
 	const fig: ExamFigure = {
 		kind: "line_chart",
-		title: "Figure 1. Index of urban wage earners (hypothetical, 1880–1920)",
+		title: "Figure 2. Index of urban wage earners (hypothetical, 1880–1920)",
 		yLabel: "Index (1880 = 100)",
 		points: [
 			{ x: "1880", y: 100 },
@@ -636,7 +673,7 @@ function buildHistorySet(
 			},
 		]),
 		},
-		`Use Figure 1 and your understanding of ${era}.`,
+		`Use Figure 2 and your understanding of ${era}.`,
 	);
 
 	const stim: ExamFigure = {
@@ -693,7 +730,17 @@ function buildMathSet(
 	const b = randInt(rng, -12, 12);
 	const c = randInt(rng, 2, 11);
 	const fx = b >= 0 ? `${a}x^2 + ${b}x + ${c}` : `${a}x^2 - ${-b}x + ${c}`;
-	const q0Stem = `Let \\(f(x) = ${fx}\\) for all real numbers \\(x\\). This question aligns with ${ctx.unitTitle}.`;
+	const sampleXs = [-2, -1, 0, 1, 2] as const;
+	const mathFig0: ExamFigure = {
+		kind: "line_chart",
+		title: "FIGURE 1. Selected values of \\(y = f(x)\\) (rounded)",
+		yLabel: "y",
+		points: sampleXs.map((x) => ({
+			x: String(x),
+			y: Math.round(a * x * x + b * x + c),
+		})),
+	};
+	const q0Stem = `Let \\(f(x) = ${fx}\\) for all real numbers \\(x\\). This question aligns with ${ctx.unitTitle}. Figure 1 shows rounded evaluations of \\(f\\) at integer inputs; treat \\(f\\) as differentiable everywhere between those points.`;
 
 	const q0 = frqQ(
 		{
@@ -701,8 +748,9 @@ function buildMathSet(
 			type: "free_response",
 			subject: ctx.courseName,
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-			procedural_structure_id: "math-q1-lowercase-parts",
-			frq_rubric: rubricDoc("Question 1 (no calculator–style stem)", 4, [
+			figure: mathFig0,
+			procedural_structure_id: "math-q1-lowercase-parts-figure",
+			frq_rubric: rubricDoc("Question 1 (Figure 1 — function snapshot)", 4, [
 				{
 					letter: "a",
 					promptText: "Find \\(f'(x)\\).",
@@ -845,13 +893,45 @@ function buildScienceSet(
 	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
 ): ExamQuestion[] {
 	const phenom = pick(rng, SCI_PHENOM);
+	const sciFig0Title =
+		ctx.courseId === "chem"
+			? "FIGURE 1. Hypothetical product concentration vs. elapsed time during a batch run"
+			: ctx.courseId === "bio"
+				? "FIGURE 1. Hypothetical population count across sampling intervals"
+				: ctx.courseId === "env"
+					? "FIGURE 1. Hypothetical index of stream health vs. distance downstream of a disturbance"
+					: ctx.courseId.startsWith("physics")
+						? "FIGURE 1. Hypothetical sensor reading vs. time in a short lab interval"
+						: "FIGURE 1. Hypothetical measured quantity across sequential trial runs";
+	const sciFig0Y =
+		ctx.courseId === "chem"
+			? "Concentration (arb. units)"
+			: ctx.courseId === "bio"
+				? "Population (arb. units)"
+				: ctx.courseId === "env"
+					? "Health index (arb. units)"
+					: ctx.courseId.startsWith("physics")
+						? "Reading (arb. units)"
+						: "Quantity (arb. units)";
+	const sciFig0: ExamFigure = {
+		kind: "line_chart",
+		title: sciFig0Title,
+		yLabel: sciFig0Y,
+		points: [
+			{ x: "t0", y: randInt(rng, 8, 28) },
+			{ x: "t1", y: randInt(rng, 22, 48) },
+			{ x: "t2", y: randInt(rng, 38, 62) },
+			{ x: "t3", y: randInt(rng, 30, 55) },
+		],
+	};
 	const q0 = frqQ(
 		{
 			id: idFor(ctx.courseId, ctx.setIndex, 0, "sci0"),
 			type: "free_response",
 			subject: ctx.courseName,
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-			frq_rubric: rubricDoc("Question 1: No stimulus", 4, [
+			figure: sciFig0,
+			frq_rubric: rubricDoc("Question 1: Figure 1", 4, [
 			{
 				letter: "A",
 				promptText: "Variables",
@@ -872,12 +952,12 @@ function buildScienceSet(
 			},
 		]),
 		},
-		`You are investigating ${phenom} within ${ctx.unitTitle} (${ctx.courseName}).`,
+		`You are investigating ${phenom} within ${ctx.unitTitle} (${ctx.courseName}). Figure 1 shows hypothetical pilot-style measurements you might use to motivate your design choices.`,
 	);
 
 	const fig: ExamFigure = {
 		kind: "line_chart",
-		title: "Figure 1. Measured quantity over time (arbitrary units)",
+		title: "Figure 2. Measured quantity over time (arbitrary units)",
 		yLabel: "Quantity",
 		points: [
 			{ x: "t0", y: randInt(rng, 10, 30) },
@@ -912,7 +992,7 @@ function buildScienceSet(
 			},
 		]),
 		},
-		`Use Figure 1.`,
+		`Use Figure 2.`,
 	);
 
 	const stim: ExamFigure = {
@@ -971,13 +1051,25 @@ function buildEnglishSet(
 		"A scientist warns that ‘correlation is not causation’ but then implies policy should wait indefinitely for certainty.",
 	]);
 
+	const enFig0: ExamFigure = {
+		kind: "bar_chart",
+		title: "FIGURE 1. Hypothetical reader survey: dominant impression after first read (%)",
+		yLabel: "Percent of readers",
+		bars: [
+			{ label: "Persuaded", value: randInt(rng, 12, 32) },
+			{ label: "Unsure", value: randInt(rng, 38, 58) },
+			{ label: "Skeptical", value: randInt(rng, 18, 38) },
+		],
+	};
+
 	const q0 = frqQ(
 		{
 			id: idFor(ctx.courseId, ctx.setIndex, 0, "en0"),
 			type: "free_response",
 			subject: ctx.courseName,
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-			frq_rubric: rubricDoc("Question 1: No stimulus", 3, [
+			figure: enFig0,
+			frq_rubric: rubricDoc("Question 1: Figure 1", 3, [
 			{
 				letter: "A",
 				promptText: "Strategy / assumption",
@@ -995,7 +1087,7 @@ function buildEnglishSet(
 			},
 		]),
 		},
-		`Read the following claim (hypothetical):\n\n> ${passage}`,
+		`Read the following claim (hypothetical):\n\n> ${passage}\n\nFigure 1 summarizes a hypothetical first-impression poll of readers like those in ${ctx.unitTitle}; cite it only if it sharpens your analysis.`,
 	);
 
 	const fig: ExamFigure = {
@@ -1087,13 +1179,25 @@ function buildCsSet(
 	rng: () => number,
 	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
 ): ExamQuestion[] {
+	const csFig0: ExamFigure = {
+		kind: "line_chart",
+		title: "FIGURE 1. Hypothetical automated test pass rate by nightly build (%)",
+		yLabel: "Tests passed (%)",
+		points: [
+			{ x: "B1", y: randInt(rng, 78, 92) },
+			{ x: "B2", y: randInt(rng, 72, 90) },
+			{ x: "B3", y: randInt(rng, 81, 96) },
+			{ x: "B4", y: randInt(rng, 76, 94) },
+		],
+	};
 	const q0 = frqQ(
 		{
 			id: idFor(ctx.courseId, ctx.setIndex, 0, "cs0"),
 			type: "free_response",
 			subject: ctx.courseName,
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-			frq_rubric: rubricDoc("Question 1: No stimulus", 3, [
+			figure: csFig0,
+			frq_rubric: rubricDoc("Question 1: Figure 1", 3, [
 			{
 				letter: "A",
 				promptText: "Invariant / precondition",
@@ -1111,7 +1215,7 @@ function buildCsSet(
 			},
 		]),
 		},
-		`Design context: ${ctx.unitTitle}.`,
+		`Design context: ${ctx.unitTitle}. Figure 1 is hypothetical CI-style telemetry; use it if it helps you reason about invariants, failure modes, or detection.`,
 	);
 
 	const fig: ExamFigure = {
@@ -1216,13 +1320,26 @@ function buildWorldLangSet(
 							? "Chinese"
 							: "Japanese";
 
+	const wlFig0: ExamFigure = {
+		kind: "bar_chart",
+		title: "FIGURE 1. Hypothetical weekly hours learners reported by skill focus",
+		yLabel: "Hours per week",
+		bars: [
+			{ label: "Listen", value: randInt(rng, 2, 8) },
+			{ label: "Speak", value: randInt(rng, 1, 6) },
+			{ label: "Read", value: randInt(rng, 2, 9) },
+			{ label: "Write", value: randInt(rng, 1, 5) },
+		],
+	};
+
 	const q0 = frqQ(
 		{
 			id: idFor(ctx.courseId, ctx.setIndex, 0, "wl0"),
 			type: "free_response",
 			subject: ctx.courseName,
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-			frq_rubric: rubricDoc("Question 1: No stimulus", 4, [
+			figure: wlFig0,
+			frq_rubric: rubricDoc("Question 1: Figure 1", 4, [
 			{
 				letter: "A",
 				promptText: "Task completion",
@@ -1243,7 +1360,7 @@ function buildWorldLangSet(
 			},
 		]),
 		},
-		`${lang} free response. Theme: ${ctx.unitTitle}.\n\nRespond in ${lang} with 3–4 sentences.\n\nPrompt: Describe one community tradition you value and one change you have noticed in daily life. Explain how the two connect.\n\n(Rubric text is in English for clarity.)`,
+		`${lang} free response. Theme: ${ctx.unitTitle}.\n\nFigure 1 shows hypothetical weekly study-time allocation; you may refer to it in ${lang} if it supports your response.\n\nRespond in ${lang} with 3–4 sentences.\n\nPrompt: Describe one community tradition you value and one change you have noticed in daily life. Explain how the two connect.\n\n(Rubric text is in English for clarity.)`,
 	);
 
 	const fig: ExamFigure = {
@@ -1335,13 +1452,26 @@ function buildArtsSet(
 	rng: () => number,
 	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
 ): ExamQuestion[] {
+	const arFig0: ExamFigure = {
+		kind: "line_chart",
+		title: "FIGURE 1. Hypothetical audience engagement index during a single viewing/listening (arbitrary units)",
+		yLabel: "Engagement",
+		points: [
+			{ x: "0%", y: randInt(rng, 20, 40) },
+			{ x: "25%", y: randInt(rng, 35, 55) },
+			{ x: "50%", y: randInt(rng, 45, 70) },
+			{ x: "75%", y: randInt(rng, 40, 68) },
+			{ x: "100%", y: randInt(rng, 30, 55) },
+		],
+	};
 	const q0 = frqQ(
 		{
 			id: idFor(ctx.courseId, ctx.setIndex, 0, "ar0"),
 			type: "free_response",
 			subject: ctx.courseName,
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-			frq_rubric: rubricDoc("Question 1: No stimulus", 4, [
+			figure: arFig0,
+			frq_rubric: rubricDoc("Question 1: Figure 1", 4, [
 			{
 				letter: "A",
 				promptText: "Formal traits",
@@ -1362,12 +1492,12 @@ function buildArtsSet(
 			},
 		]),
 		},
-		`Choose one work or repertoire item you have studied in ${ctx.unitTitle} (hypothetical if needed).`,
+		`Choose one work or repertoire item you have studied in ${ctx.unitTitle} (hypothetical if needed). Figure 1 models a hypothetical engagement arc; reference it if it helps connect form to audience experience.`,
 	);
 
 	const fig: ExamFigure = {
 		kind: "bar_chart",
-		title: "Figure 1. Audience ratings (hypothetical)",
+		title: "Figure 2. Audience ratings (hypothetical)",
 		yLabel: "Rating",
 		bars: [
 			{ label: "Clarity", value: randInt(rng, 6, 9) },
@@ -1401,7 +1531,7 @@ function buildArtsSet(
 			},
 		]),
 		},
-		`Use Figure 1 as peer feedback on a draft tied to ${ctx.unitTitle}.`,
+		`Use Figure 2 as peer feedback on a draft tied to ${ctx.unitTitle}.`,
 	);
 
 	const stim: ExamFigure = {
@@ -1454,13 +1584,25 @@ function buildCapstoneSet(
 	rng: () => number,
 	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
 ): ExamQuestion[] {
+	const capFig0: ExamFigure = {
+		kind: "bar_chart",
+		title: "FIGURE 1. Hypothetical mean importance ratings for capstone criteria (1–10 scale)",
+		yLabel: "Mean rating",
+		bars: [
+			{ label: "Rigor", value: randInt(rng, 6, 10) },
+			{ label: "Feasibility", value: randInt(rng, 5, 9) },
+			{ label: "Impact", value: randInt(rng, 6, 10) },
+			{ label: "Ethics", value: randInt(rng, 7, 10) },
+		],
+	};
 	const q0 = frqQ(
 		{
 			id: idFor(ctx.courseId, ctx.setIndex, 0, "cap0"),
 			type: "free_response",
 			subject: ctx.courseName,
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
-			frq_rubric: rubricDoc("Question 1: No stimulus", 3, [
+			figure: capFig0,
+			frq_rubric: rubricDoc("Question 1: Figure 1", 3, [
 			{
 				letter: "A",
 				promptText: "Research question",
@@ -1478,7 +1620,7 @@ function buildCapstoneSet(
 			},
 		]),
 		},
-		`Within ${ctx.unitTitle}, propose one researchable question.`,
+		`Within ${ctx.unitTitle}, propose one researchable question. Figure 1 shows hypothetical priorities from a peer rubric exercise—use it if it helps you justify significance or scope.`,
 	);
 
 	const fig: ExamFigure = {
