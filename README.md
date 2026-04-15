@@ -1,6 +1,6 @@
 # VantaLearn
 
-> Free AI-powered AP & SAT study platform for high school students.
+> Free AI-powered AP® study platform for high school students.
 
 Built with Next.js 15, Tailwind CSS 4, Supabase, and OpenAI.
 
@@ -68,7 +68,7 @@ src/
 │   │   ├── page.tsx              # Main dashboard
 │   │   ├── progress/page.tsx     # Progress tracker
 │   │   ├── settings/page.tsx     # Exam timers & settings
-│   │   └── score-calculator/     # AP/SAT score calculator
+│   │   └── score-calculator/     # AP® score calculator
 │   ├── study/
 │   │   ├── page.tsx              # Study library
 │   │   ├── flashcards/page.tsx   # Flashcard player
@@ -105,7 +105,7 @@ src/
 | Practice exams with scoring | ✅ |
 | AI feedback on answers (GPT-4o-mini) | ✅ |
 | AI study tips by subject | ✅ |
-| AP & SAT score calculator | ✅ |
+| AP® score calculator | ✅ |
 | Progress tracker | ✅ |
 | Admin content portal | ✅ |
 | Mobile-first responsive layout | ✅ |

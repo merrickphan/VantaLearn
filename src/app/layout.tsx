@@ -17,13 +17,13 @@ const geistMono = Geist_Mono({
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
- title: "VantaLearn - Master AP & SAT Exams",
+ title: "VantaLearn - Master AP® Exams",
  description:
- "Free AI-powered study platform for high school students. Practice exams, flashcards, and smart feedback to help you ace AP and SAT tests.",
- keywords: ["AP exam prep", "SAT study", "flashcards", "practice tests", "high school"],
+ "Free AI-powered study platform for high school students. Practice exams, flashcards, and smart feedback to help you ace AP® tests.",
+ keywords: ["AP exam prep", "AP study", "flashcards", "practice tests", "high school"],
  openGraph: {
  title: "VantaLearn",
- description: "AI-powered AP & SAT prep for high school students",
+ description: "AI-powered AP® prep for high school students",
  type: "website",
  },
 };

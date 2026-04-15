@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button, Card } from "@/components/ui";
 import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
-import { AP_SUBJECTS, SAT_SUBJECTS } from "@/lib/utils";
+import { AP_SUBJECTS } from "@/lib/utils";
 
 export default function StudyTipsPage() {
  const [selectedSubject, setSelectedSubject] = useState("");
@@ -12,7 +12,7 @@ export default function StudyTipsPage() {
  const [loading, setLoading] = useState(false);
  const [error, setError] = useState("");
 
- const allSubjects = [...AP_SUBJECTS, ...SAT_SUBJECTS];
+ const allSubjects = [...AP_SUBJECTS];
 
  const getTip = async () => {
  if (!selectedSubject) return;

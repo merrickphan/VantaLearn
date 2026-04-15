@@ -76,7 +76,7 @@ export default function HomePage() {
  {(
  [
  { icon: "cards" as SimpleIconId, title: "Flashcards", desc: "3D flip cards with swipe gestures for spaced repetition" },
- { icon: "document" as SimpleIconId, title: "Practice Exams", desc: "Real AP & SAT questions with instant scoring" },
+ { icon: "document" as SimpleIconId, title: "Practice Exams", desc: "Real AP®-style questions with instant scoring" },
  { icon: "spark" as SimpleIconId, title: "AI Feedback", desc: "GPT-4o-mini explains every answer and gives study tips" },
  { icon: "clock" as SimpleIconId, title: "Exam Countdown", desc: "Track days remaining to your exams at a glance" },
  ] as const

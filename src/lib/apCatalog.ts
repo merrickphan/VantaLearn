@@ -60,7 +60,5 @@ export function buildCommonExamDates(): Record<string, string> {
  for (const c of AP_COURSES) {
  map[c.name] = c.examDate;
  }
- map["SAT Math"] = "2026-05-03";
- map["SAT Reading & Writing"] = "2026-05-03";
  return map;
 }

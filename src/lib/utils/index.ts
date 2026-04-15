@@ -28,11 +28,7 @@ export function formatTimeSpent(seconds: number): string {
 }
 
 // Score calculation utilities (implementation in dedicated module — see `calculateAPScore.ts`)
-export {
- calculateAPScore,
- calculateSATScore,
- type ScoreScaleConfig,
-} from "@/lib/calculateAPScore";
+export { calculateAPScore, type ScoreScaleConfig } from "@/lib/calculateAPScore";
 
 // Progress utilities
 export function calculateRetentionRate(
@@ -43,12 +39,9 @@ export function calculateRetentionRate(
  return Math.round((gotIt / total) * 100);
 }
 
-// All AP courses from catalog (+ SAT below)
 export const AP_SUBJECTS = AP_COURSE_NAMES;
 
-export const SAT_SUBJECTS = ["SAT Math", "SAT Reading & Writing"] as const;
-
-export const ALL_EXAMS = [...AP_COURSE_NAMES, ...SAT_SUBJECTS] as const;
+export const ALL_EXAMS = [...AP_COURSE_NAMES] as const;
 
 export const COMMON_EXAM_DATES: Record<string, string> = buildCommonExamDates();
 

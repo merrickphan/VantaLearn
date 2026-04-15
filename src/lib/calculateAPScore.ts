@@ -20,12 +20,3 @@ export function calculateAPScore(config: ScoreScaleConfig): {
 
  return { apScore, percentage };
 }
-
-export function calculateSATScore(config: ScoreScaleConfig): {
- scaledScore: number;
- percentage: number;
-} {
- const percentage = (config.rawScore / config.totalQuestions) * 100;
- const scaledScore = Math.round(400 + (percentage / 100) * 1200);
- return { scaledScore, percentage };
-}

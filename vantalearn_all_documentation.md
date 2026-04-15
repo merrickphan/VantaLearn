@@ -1,7 +1,7 @@
 # VantaLearn
 
 ## Project Description
-A webapp designed to allow highschoolers/students study through study tips, practice ap/sat exams, etc. This webapp is called VantaLearn.
+A webapp designed to allow highschoolers/students study through study tips, practice AP® exams, etc. This webapp is called VantaLearn.
 
 ## Product Requirements Document
 # Product Requirements Document: VantaLearn
@@ -10,13 +10,13 @@ A webapp designed to allow highschoolers/students study through study tips, prac
 VantaLearn is a web-based educational platform designed to empower high school students by providing a comprehensive, free, and intuitive study environment. By combining AI-driven feedback, structured exam preparation tools, and progress tracking, VantaLearn aims to bridge the gap in accessible, high-quality study resources.
 
 ## 2. Goals & Objectives
-- Provide a centralized, free platform for AP and SAT preparation.
+- Provide a centralized, free platform for AP® preparation.
 - Enable students to feel confident through structured, followable study modules.
 - Achieve a launch-ready MVP within a 30-day timeline.
 - Maintain a minimalistic, high-performance UI suitable for intensive study sessions.
 
 ## 3. User Persona
-- Primary: High school students (grades 9-12) preparing for college admissions (SAT) or college-credit coursework (AP exams).
+- Primary: High school students (grades 9-12) preparing for college-credit coursework (AP® exams).
 - Needs: Efficient time management, immediate feedback on practice questions, and clear progress visualization.
 
 ## 4. Functional Requirements
@@ -28,12 +28,12 @@ VantaLearn is a web-based educational platform designed to empower high school s
 
 ### 4.2 Study Tools
 - Flashcards: Interactive card interface with flip functionality.
-- Exam Practice: Practice question sets covering major AP/SAT subjects.
+- Exam Practice: Practice question sets covering major AP® subjects.
 - AI Feedback: Integration of an AI LLM (via API) to provide explanations and constructive critique for user answers.
-- Score Calculators: Built-in tools for users to input raw scores and estimate their AP/SAT results.
+- Score Calculators: Built-in tools for users to input raw scores and estimate their AP® results.
 
 ### 4.3 Progress & Time Tracking
-- Countdown Timer: Dashboard-level widget displaying days/hours remaining until specific AP/SAT exam dates.
+- Countdown Timer: Dashboard-level widget displaying days/hours remaining until specific AP® exam dates.
 - Progress Tracker: Visual dashboard indicating completion rates for study sets and improvements over time.
 
 ### 4.4 Content Management
@@ -67,7 +67,7 @@ VantaLearn is a web-based educational platform designed to empower high school s
 # VantaLearn Technology Stack Documentation
 
 ## 1. Overview
-VantaLearn is a high-performance, mobile-first web application designed to help students master AP and SAT coursework. Given the one-month launch timeline and budget constraints, the stack focuses on rapid development, cost-efficiency, and a seamless user experience.
+VantaLearn is a high-performance, mobile-first web application designed to help students master AP® coursework. Given the one-month launch timeline and budget constraints, the stack focuses on rapid development, cost-efficiency, and a seamless user experience.
 
 ## 2. Frontend
 - Framework: Next.js (React) - Chosen for its excellent SEO, performance, and built-in routing. It facilitates the mobile-first approach and ensures fast page loads for students.
@@ -131,7 +131,7 @@ This document outlines the directory structure and organization for the VantaLea
 DIRECTORY EXPLANATIONS:
 
 /app: Utilizes Next.js App Router. The (auth) folder groups authentication pages, while the dashboard acts as the central hub for progress tracking.
-/components/features: Houses the logic for core requirements. 'ScoreCalculator' and 'Timer' are modular components that can be reused across different study paths (AP/SAT).
+/components/features: Houses the logic for core requirements. 'ScoreCalculator' and 'Timer' are modular components that can be reused across different study paths (AP®).
 /lib/ai: Contains the bridge between student input and AI feedback engines. This is abstracted to allow for future integration of advanced 1-on-1 tutoring features.
 /styles: Tailwind CSS is the primary styling engine. Configuration will define the 'Vanta Blue' accent palette against a deep dark-mode background consistent with the requested aesthetic.
 /public: Contains the assets required for brand identity, optimized for fast loading and mobile-first performance.
@@ -159,7 +159,7 @@ The VantaLearn database is designed for a relational structure (PostgreSQL recom
 **StudyResources**
 - id: UUID (PK)
 - title: VARCHAR
-- subject: VARCHAR (e.g., 'AP Calculus', 'SAT Math')
+- subject: VARCHAR (e.g., 'AP Calculus AB')
 - type: VARCHAR (e.g., 'flashcard_set', 'practice_exam')
 - content_data: JSONB (Stores structured questions/answers for flexibility)
 - created_at: TIMESTAMP
@@ -213,7 +213,7 @@ The VantaLearn user journey is designed for high school students seeking a frict
 2. ONBOARDING & AUTHENTICATION
 - Entry Point: Landing page featuring a 'Get Started' CTA.
 - Sign-Up/Login: Modal overlay supporting 'Sign in with Google' and Email/Password authentication.
-- Initial Setup: A brief 2-step onboarding flow where the user selects their upcoming exams (AP/SAT) and sets target dates. This data populates the 'Time-to-Exam' countdown widget on the user dashboard.
+- Initial Setup: A brief 2-step onboarding flow where the user selects their upcoming AP® exams and sets target dates. This data populates the 'Time-to-Exam' countdown widget on the user dashboard.
 
 3. CORE USER JOURNEYS
 
@@ -225,7 +225,7 @@ The VantaLearn user journey is designed for high school students seeking a frict
 - Selection: User selects subject/exam type.
 - Execution: System presents questions sequentially. 
 - Interaction Pattern: Minimalistic card-based layout. User selects answer -> Real-time AI validation -> Immediate feedback/explanation provided below the selection -> 'Next' button triggers smooth transition to subsequent question.
-- Completion: Post-exam report page displaying raw score and a calculated 'Scaled Score' based on standard AP/SAT curves.
+- Completion: Post-exam report page displaying raw score and a calculated score based on standard AP® practice curves.
 
 3.3. Flashcard Flow
 - Selection: User selects a flashcard deck (created by admin).

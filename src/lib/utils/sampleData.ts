@@ -45,8 +45,8 @@ const CORE_RESOURCES: StudyResource[] = [
  },
  {
  id: "2",
- title: "SAT Math: Algebra Fundamentals",
- subject: "SAT Math",
+ title: "AP Calculus AB: Algebraic foundations",
+ subject: "AP Calculus AB",
  type: "flashcard_set",
  created_at: new Date().toISOString(),
  content_data: {
