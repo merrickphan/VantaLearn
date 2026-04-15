@@ -146,7 +146,6 @@ export function FrqPracticeSetupModal({
 
 					{readOnlyRow("Number of FRQs", `${replica.frqCount} — ${replica.frqCountLabel}`)}
 					{readOnlyRow("Section timer", replica.timerLabel)}
-					{readOnlyRow("Calculator policy", replica.calculatorLabel)}
 				</div>
 
 				<div className="px-5 py-3 bg-vanta-surface-elevated/50 border-t border-vanta-border flex justify-end gap-2">
