@@ -838,14 +838,124 @@ export const AP_UNITS_BY_COURSE_ID: Record<string, ApUnit[]> = {
    ],
   },
  ]),
- "physics-2": U("physics-2", [
- "Fluids",
- "Thermodynamics",
- "Electric Force, Field, and Potential",
- "Electric Circuits",
- "Magnetism and Electromagnetic Induction",
- "Geometric and Physical Optics",
- "Quantum, Atomic, and Nuclear Physics",
+ "physics-2": unitsDetailed("physics-2", [
+  {
+   title: "Fluids (expanded from AP Physics 1)",
+   summary:
+    "Lesson 1.1 Density and specific gravity; Lesson 1.2 Pressure in fluids (P = F/A, P = ρgh); Lesson 1.3 Pascal’s principle and hydraulic systems; Lesson 1.4 Buoyancy (Archimedes’ principle) and floating equilibrium; Lesson 1.5 Fluid flow basics: continuity equation (A₁v₁ = A₂v₂); Lesson 1.6 Bernoulli’s principle (qualitative energy in fluids).",
+   hooks: [
+    "density and specific gravity",
+    "fluid pressure F over A rho g h",
+    "Pascal principle hydraulics",
+    "buoyancy and floating equilibrium",
+    "continuity equation A1v1 equals A2v2",
+    "Bernoulli qualitative energy",
+   ],
+  },
+  {
+   title: "Thermodynamics",
+   summary:
+    "Lesson 2.1 Temperature vs heat vs internal energy; Lesson 2.2 Thermal equilibrium and zeroth law; Lesson 2.3 Heat transfer: conduction, convection, radiation; Lesson 2.4 Specific heat capacity (Q = mcΔT); Lesson 2.5 Phase changes and latent heat; Lesson 2.6 Ideal gas law (PV = nRT); Lesson 2.7 Kinetic molecular theory (gas behavior at microscopic level); Lesson 2.8 Thermodynamic processes: isothermal, isobaric, isochoric, adiabatic; Lesson 2.9 First law of thermodynamics (ΔU = Q − W); Lesson 2.10 PV diagrams and work interpretation.",
+   hooks: [
+    "temperature heat internal energy",
+    "zeroth law thermal equilibrium",
+    "conduction convection radiation",
+    "specific heat Q equals mc delta T",
+    "latent heat phase change",
+    "ideal gas law PV equals nRT",
+    "kinetic molecular theory",
+    "thermodynamic processes types",
+    "first law delta U equals Q minus W",
+    "PV diagrams and work",
+   ],
+  },
+  {
+   title: "Electric Force, Field, and Potential",
+   summary:
+    "Lesson 3.1 Electric charge and conservation of charge; Lesson 3.2 Coulomb’s law (F = kq₁q₂/r²); Lesson 3.3 Electric field (E = F/q) and field diagrams; Lesson 3.4 Superposition of electric fields; Lesson 3.5 Electric potential energy; Lesson 3.6 Electric potential (voltage) and equipotential lines; Lesson 3.7 Relationship between field and potential (E = −dV/dx conceptually).",
+   hooks: [
+    "charge conservation",
+    "Coulomb law inverse square",
+    "electric field definition and diagrams",
+    "superposition of fields",
+    "electric potential energy",
+    "voltage and equipotentials",
+    "field vs potential conceptual derivative",
+   ],
+  },
+  {
+   title: "DC Circuits",
+   summary:
+    "Lesson 4.1 Current, resistance, and Ohm’s law (V = IR); Lesson 4.2 Power in circuits (P = IV, P = I²R, P = V²/R); Lesson 4.3 Series circuits: current, voltage, equivalent resistance; Lesson 4.4 Parallel circuits: current splitting, equivalent resistance; Lesson 4.5 Kirchhoff’s laws (junction and loop rules); Lesson 4.6 Multi-loop circuit analysis; Lesson 4.7 Capacitors in circuits (basic charge, voltage, energy); Lesson 4.8 RC circuits (charging and discharging behavior, qualitative + equations).",
+   hooks: [
+    "Ohm law V equals IR",
+    "circuit power formulas",
+    "series circuit rules",
+    "parallel circuit rules",
+    "Kirchhoff junction and loop rules",
+    "multi-loop analysis",
+    "capacitors Q V energy",
+    "RC charging and discharging",
+   ],
+  },
+  {
+   title: "Magnetism and Electromagnetism",
+   summary:
+    "Lesson 5.1 Magnetic fields and field direction rules; Lesson 5.2 Force on moving charges (F = qvB sinθ); Lesson 5.3 Force on current-carrying wires; Lesson 5.4 Motion of charged particles in magnetic fields (circular paths); Lesson 5.5 Electromagnetic induction basics; Lesson 5.6 Faraday’s law (changing flux induces emf); Lesson 5.7 Lenz’s law (direction of induced current); Lesson 5.8 Applications: generators and motors (conceptual level).",
+   hooks: [
+    "magnetic field direction rules",
+    "force on moving charge q v B",
+    "force on current-carrying wire",
+    "charged particle circular motion in B",
+    "induction basics",
+    "Faraday law changing flux",
+    "Lenz law direction",
+    "generators and motors concepts",
+   ],
+  },
+  {
+   title: "Geometric and Physical Optics",
+   summary:
+    "Lesson 6.1 Wave nature of light; Lesson 6.2 Reflection and refraction basics; Lesson 6.3 Snell’s law (n₁sinθ₁ = n₂sinθ₂); Lesson 6.4 Total internal reflection; Lesson 6.5 Mirrors: ray diagrams and image formation; Lesson 6.6 Lenses: converging and diverging lens equations; Lesson 6.7 Thin lens equation (1/f = 1/do + 1/di); Lesson 6.8 Magnification and image properties; Lesson 6.9 Interference and diffraction (qualitative introduction).",
+   hooks: [
+    "wave nature of light",
+    "reflection and refraction",
+    "Snell law",
+    "total internal reflection",
+    "mirror ray diagrams",
+    "lens types and ray diagrams",
+    "thin lens equation",
+    "magnification and image properties",
+    "interference and diffraction qualitative",
+   ],
+  },
+  {
+   title: "Modern Physics",
+   summary:
+    "Lesson 7.1 Quantum concepts: photons and energy quantization; Lesson 7.2 Photoelectric effect (light as particles, threshold frequency); Lesson 7.3 de Broglie wavelength (matter waves concept); Lesson 7.4 Atomic models and energy levels; Lesson 7.5 Nuclear physics basics: decay, half-life; Lesson 7.6 Mass-energy equivalence (E = mc²); Lesson 7.7 Radioactivity types (alpha, beta, gamma) and penetration.",
+   hooks: [
+    "photons and quantization",
+    "photoelectric effect threshold",
+    "de Broglie wavelength matter waves",
+    "atomic energy levels",
+    "nuclear decay and half-life",
+    "mass-energy equivalence",
+    "alpha beta gamma penetration",
+   ],
+  },
+  {
+   title: "Experimental Design and Data Analysis",
+   summary:
+    "Lesson 8.1 Experimental variables and control design; Lesson 8.2 Uncertainty, error propagation (basic AP level); Lesson 8.3 Linearization of relationships; Lesson 8.4 Graph interpretation (slope/area meaning in physics contexts); Lesson 8.5 Experimental justification and reasoning (FRQ-style explanations); Lesson 8.6 Designing experiments with constraints and assumptions.",
+   hooks: [
+    "variables and controls",
+    "uncertainty and error propagation",
+    "linearization",
+    "graph slope and area meaning",
+    "FRQ-style experimental reasoning",
+    "constraints and assumptions in design",
+   ],
+  },
  ]),
  "physics-c-m": U("physics-c-m", [
  "Kinematics",
