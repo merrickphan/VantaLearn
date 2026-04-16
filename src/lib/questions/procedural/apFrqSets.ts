@@ -17,13 +17,36 @@ import {
 	frqFigureSocialQ0,
 	frqFigureWorldLangQ0,
 } from "./apFrqFigures";
-import { createRng, hashString, pick, randInt, randomSeedEntropy } from "./utils";
+import { createRng, hashString, pick, questionAvoidFingerprintKeys, randInt, randomSeedEntropy } from "./utils";
 
 /** Number of FRQ practice set slots per course (RNG varies wording within a slot each request). */
 export const AP_FRQ_PRACTICE_SET_COUNT = 100;
 
 /** Internal sentinel so auto-grading never marks FRQ items “correct” by accident. */
 export const AP_FRQ_PLACEHOLDER_ANSWER = "__VANTALEARN_FRQ_SELF_SCORE__";
+
+/** Unit metadata passed into every procedural FRQ builder (content-focused prompts). */
+export type FrqUnitCtx = {
+	courseId: string;
+	courseName: string;
+	unitTitle: string;
+	/** Short CB-style unit description from the catalog. */
+	unitSummary: string;
+	/** Optional prompt angles from the unit definition. */
+	unitHooks: readonly string[];
+	/** 1-based unit index within the course. */
+	unitIndex: number;
+	setIndex: number;
+};
+
+function frqUnitAnchorSentence(ctx: FrqUnitCtx): string {
+	const s = ctx.unitSummary.trim();
+	const hooks = ctx.unitHooks.filter((h) => h.trim().length > 0);
+	const parts: string[] = [];
+	if (s) parts.push(s);
+	if (hooks.length) parts.push(`Useful angles include ${hooks.slice(0, 4).join("; ")}.`);
+	return parts.join(" ");
+}
 
 type FrqTrack =
 	| "human_geo"
@@ -120,6 +143,7 @@ const PLACES = [
 	"a Middle Eastern entrepôt trading hub",
 ];
 
+/** Political geography (Unit 4) — also default pool if unit index is unexpected. */
 const HG_CONCEPTS = [
 	{ term: "nation-state", define: "a sovereign state whose boundaries largely align with a dominant national group" },
 	{ term: "supranational organization", define: "an institution where member states voluntarily pool authority to address shared issues" },
@@ -131,7 +155,106 @@ const HG_CONCEPTS = [
 	{ term: "perceptual region", define: "a region defined by popular feelings, images, or stereotypes rather than strict data" },
 	{ term: "distance decay", define: "the decline of interaction or influence as distance increases" },
 	{ term: "time-space compression", define: "the sense that places are effectively closer because connectivity reduces friction of distance" },
-];
+] as const;
+
+const HG_FRQ_U1_TERMS = [
+	{ term: "absolute location", define: "a precise coordinate-based description of where a place is on Earth" },
+	{ term: "relative location", define: "where a place is described in relation to other places, flows, or networks" },
+	{ term: "site", define: "the physical characteristics of a place itself (terrain, resources, built environment)" },
+	{ term: "situation", define: "how a place is situated relative to external connections such as trade routes or markets" },
+	{ term: "formal region", define: "an area defined by one or more measurable, shared traits" },
+	{ term: "functional region", define: "an area organized around a node and interaction (flows, networks)" },
+	{ term: "perceptual region", define: "a region defined by popular feelings, images, or stereotypes rather than strict data" },
+	{ term: "distance decay", define: "the decline of interaction or influence as distance increases" },
+	{ term: "time-space compression", define: "the sense that places are effectively closer because connectivity reduces friction of distance" },
+	{ term: "choropleth map", define: "a thematic map that uses color shading within reporting zones to show rates or densities" },
+] as const;
+
+const HG_FRQ_U2_TERMS = [
+	{ term: "demographic transition", define: "a model describing long-run shifts in birth and death rates and their effects on growth" },
+	{ term: "push factor", define: "a condition at an origin that encourages people to leave" },
+	{ term: "pull factor", define: "a condition at a destination that attracts migrants" },
+	{ term: "step migration", define: "migration that occurs in stages rather than as a single long-distance move" },
+	{ term: "refugee", define: "a person forced to flee across an international border due to persecution, conflict, or disaster" },
+	{ term: "internally displaced person", define: "someone forced to flee home but who remains inside their country" },
+	{ term: "dependency ratio", define: "a measure comparing dependents to the working-age population in a place" },
+	{ term: "rate of natural increase", define: "birth rate minus death rate, ignoring migration effects" },
+	{ term: "brain drain", define: "the emigration of skilled workers from a country or region" },
+	{ term: "guest-worker policy", define: "rules that allow temporary labor migration while limiting long-term settlement" },
+] as const;
+
+const HG_FRQ_U3_TERMS = [
+	{ term: "cultural diffusion", define: "the spread of cultural traits or practices across space over time" },
+	{ term: "syncretism", define: "the blending of cultural traits from different sources into a new practice or belief" },
+	{ term: "language family", define: "a group of related languages that share a distant common ancestor" },
+	{ term: "lingua franca", define: "a language used for communication among groups with different mother tongues" },
+	{ term: "ethnic enclave", define: "a neighborhood where a minority group concentrates social institutions and daily life" },
+	{ term: "folk culture", define: "traditions practiced by relatively small, often rural, homogeneous groups" },
+	{ term: "popular culture", define: "cultural practices produced for mass consumption and rapid diffusion" },
+	{ term: "cultural landscape", define: "the visible imprint of culture on the land, including buildings, signs, and land use" },
+	{ term: "sense of place", define: "the meanings and feelings people attach to a location beyond its physical traits" },
+	{ term: "toponym", define: "a place name that can reveal history, power, identity, or language contact" },
+] as const;
+
+const HG_FRQ_U5_TERMS = [
+	{ term: "Von Thünen model", define: "a model explaining rural land use as rings of activity around a central market based on transport cost" },
+	{ term: "subsistence agriculture", define: "farming mainly to feed the farmer’s household with little surplus for sale" },
+	{ term: "commercial agriculture", define: "farming oriented to selling output in markets, often at larger scale" },
+	{ term: "Green Revolution", define: "a package of high-yield seeds, irrigation, and inputs that raised productivity in many regions" },
+	{ term: "food desert", define: "an area where residents lack affordable access to nutritious food retailers" },
+	{ term: "agribusiness", define: "large-scale farming integrated with processing, distribution, and marketing firms" },
+	{ term: "sustainable agriculture", define: "practices that reduce environmental harm and maintain soil and water for future yields" },
+	{ term: "plantation agriculture", define: "large estates focused on one or two cash crops for export markets" },
+	{ term: "pastoral nomadism", define: "herding animals while moving seasonally to find pasture and water" },
+	{ term: "aquaculture", define: "the farming of fish or shellfish under controlled conditions" },
+] as const;
+
+const HG_FRQ_U6_TERMS = [
+	{ term: "bid-rent theory", define: "the idea that land values reflect willingness to pay for access to central markets or jobs" },
+	{ term: "primate city", define: "a dominant city that is disproportionately large relative to the next-ranked cities in a country" },
+	{ term: "gentrification", define: "the reinvestment and upgrading of a neighborhood that often displaces lower-income residents" },
+	{ term: "edge city", define: "a large suburban job and retail center that functions like a downtown without traditional urban form" },
+	{ term: "filtering", define: "the movement of housing downmarket as buildings age and different income groups occupy them" },
+	{ term: "infill development", define: "building on vacant or underused parcels inside an existing urban footprint" },
+	{ term: "sprawl", define: "low-density outward expansion of urban land use with heavy automobile dependence" },
+	{ term: "CBD", define: "the central business district where retail, offices, and services concentrate" },
+	{ term: "transit-oriented development", define: "compact, walkable growth focused near transit corridors to reduce automobile dependence" },
+	{ term: "redlining (historic)", define: "systematic denial of credit or services in certain neighborhoods, shaping long-run inequality" },
+] as const;
+
+const HG_FRQ_U7_TERMS = [
+	{ term: "Human Development Index (HDI)", define: "a composite measure combining health, education, and standard of living indicators" },
+	{ term: "core region", define: "a highly interconnected, wealthy region in world-systems accounts of global structure" },
+	{ term: "periphery", define: "regions characterized as suppliers of raw materials and lower-wage labor in global systems" },
+	{ term: "comparative advantage", define: "the idea that places gain by specializing in what they produce relatively efficiently" },
+	{ term: "commodity chain", define: "the linked stages from raw inputs to retail that deliver a product to consumers" },
+	{ term: "foreign direct investment", define: "ownership or control of productive assets in another country by outside firms" },
+	{ term: "microfinance", define: "small loans and financial services aimed at people excluded from traditional banking" },
+	{ term: "structural adjustment", define: "policy reforms tied to loans that often reduce subsidies and open markets" },
+	{ term: "sustainable development", define: "development that meets present needs without compromising future generations’ resources" },
+	{ term: "gender inequality index", define: "an index summarizing gender gaps in reproductive health, empowerment, and labor" },
+] as const;
+
+function hgFrqTermPool(unitIndex: number): readonly { term: string; define: string }[] {
+	switch (unitIndex) {
+		case 1:
+			return HG_FRQ_U1_TERMS;
+		case 2:
+			return HG_FRQ_U2_TERMS;
+		case 3:
+			return HG_FRQ_U3_TERMS;
+		case 4:
+			return HG_CONCEPTS;
+		case 5:
+			return HG_FRQ_U5_TERMS;
+		case 6:
+			return HG_FRQ_U6_TERMS;
+		case 7:
+			return HG_FRQ_U7_TERMS;
+		default:
+			return HG_CONCEPTS;
+	}
+}
 
 const SOCIAL_CONCEPTS = [
 	"policy feedback",
@@ -175,7 +298,7 @@ const SCI_PHENOM = [
 	"natural selection in a changing environment",
 ];
 
-/** Single-point AP Human Geography–style rubric part (7 parts per FRQ is typical). */
+/** Single-point multi-part rubric line (Human Geography FRQs). */
 function hgOnePointPart(letter: string, promptText: string, descriptor: string, examples: string[]): FrqRubricPart {
 	return {
 		letter,
@@ -185,87 +308,528 @@ function hgOnePointPart(letter: string, promptText: string, descriptor: string, 
 	};
 }
 
-function buildHumanGeoSet(
-	rng: () => number,
-	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
-): ExamQuestion[] {
+function hgFrqTableFigure(rng: () => number, unitIndex: number): ExamFigure {
+	switch (unitIndex) {
+		case 2:
+			return {
+				kind: "table",
+				title: "TABLE 1. Demographic snapshot (hypothetical)",
+				headers: ["Indicator", "Value"],
+				rows: [
+					["Total fertility rate (births per woman)", String((randInt(rng, 12, 34) / 10).toFixed(1))],
+					["Net migration rate (per 1,000)", String(randInt(rng, -8, 14))],
+					["Share of population under age 15 (%)", String(randInt(rng, 18, 42))],
+				],
+			};
+		case 5:
+			return {
+				kind: "table",
+				title: "TABLE 1. Farm-economy indicators (hypothetical)",
+				headers: ["Indicator", "Value"],
+				rows: [
+					["Share of labor force in agriculture (%)", String(randInt(rng, 8, 48))],
+					["Irrigated cropland share (%)", String(randInt(rng, 12, 62))],
+					["Value of food imports as share of merchandise imports (%)", String(randInt(rng, 9, 35))],
+				],
+			};
+		case 6:
+			return {
+				kind: "table",
+				title: "TABLE 1. Urban-region indicators (hypothetical)",
+				headers: ["Indicator", "Value"],
+				rows: [
+					["Transit commute share (%)", String(randInt(rng, 12, 48))],
+					["Median gross rent as share of median household income (%)", String(randInt(rng, 26, 48))],
+					["Jobs per km² in inner ring (index, 2010 = 100)", String(randInt(rng, 92, 138))],
+				],
+			};
+		case 7:
+			return {
+				kind: "table",
+				title: "TABLE 1. Development and environment indicators (hypothetical)",
+				headers: ["Indicator", "Value"],
+				rows: [
+					["GNI per capita growth (5-year average, %)", String(randInt(rng, -2, 7))],
+					["Estimated income Gini coefficient", String((randInt(rng, 31, 52) / 100).toFixed(2))],
+					["Electricity from renewable sources (%)", String(randInt(rng, 8, 56))],
+				],
+			};
+		default:
+			return {
+				kind: "table",
+				title: "TABLE 1. Selected regional indicators (hypothetical)",
+				headers: ["Indicator", "Value"],
+				rows: [
+					["Urban population share (%)", String(randInt(rng, 42, 92))],
+					["Youth dependency ratio", String((randInt(rng, 35, 75) / 100).toFixed(2))],
+					["Female labor-force participation (%)", String(randInt(rng, 38, 72))],
+				],
+			};
+	}
+}
+
+function hgFrqStimulusBody(unitIndex: number): string {
+	switch (unitIndex) {
+		case 1:
+			return [
+				"STIMULUS A — planning office memo",
+				"• Planners argue equal-area projections should be standard for all public dashboards so regions are comparable.",
+				"• They worry that students misread compact countries as “small economies” on common web basemaps.",
+				"",
+				"STIMULUS B — logistics firm brief",
+				"• Shippers request conformal or distance-faithful basemaps for routing and ETA tools.",
+				"• Analysts say distortion near poles matters less for their current corridor network.",
+			].join("\n");
+		case 2:
+			return [
+				"STIMULUS A — national statistical office",
+				"• Reports slowing natural increase and rising elderly share.",
+				"• Notes difficulty enumerating seasonal and circular migrants in border districts.",
+				"",
+				"STIMULUS B — municipal health department",
+				"• Sees rising pediatric clinic demand in arrival neighborhoods.",
+				"• Requests more school seats and maternal-health outreach funding.",
+			].join("\n");
+		case 3:
+			return [
+				"STIMULUS A — tourism board campaign",
+				"• Promotes a heritage district as “authentic living culture” for visitors.",
+				"• Funds street festivals and multilingual signage downtown.",
+				"",
+				"STIMULUS B — community council letter",
+				"• Residents report noise, crowding, and rising rents near festival venues.",
+				"• Elders say some ceremonies were never meant as daily spectacle for outsiders.",
+			].join("\n");
+		case 5:
+			return [
+				"STIMULUS A — agriculture ministry",
+				"• Expands credit for fertilizer and hybrid seed to raise staple yields.",
+				"• Targets river valleys with existing irrigation canals.",
+				"",
+				"STIMULUS B — watershed council",
+				"• Monitors rising nitrate readings in shallow wells downstream of intensive plots.",
+				"• Requests buffer strips and rotational fallow in the same valleys.",
+			].join("\n");
+		case 6:
+			return [
+				"STIMULUS A — metropolitan transport authority",
+				"• Opens a new bus-rapid-transit spine aimed at cutting peak congestion.",
+				"• Rezones station areas for higher residential density.",
+				"",
+				"STIMULUS B — suburban mayors’ joint statement",
+				"• Warns that downtown tax abatements pull retail and offices away from older suburbs.",
+				"• Asks for revenue-sharing on projects that use regional road networks.",
+			].join("\n");
+		case 7:
+			return [
+				"STIMULUS A — finance ministry",
+				"• Negotiates a loan package tied to cutting fuel subsidies and privatizing two state firms.",
+				"• Projects higher export competitiveness within five years.",
+				"",
+				"STIMULUS B — labor federation",
+				"• Reports job losses in capital-intensive plants and bus fare protests after subsidy cuts.",
+				"• Demands retraining funds and cash transfers for low-income households.",
+			].join("\n");
+		default:
+			return [
+				"STIMULUS A — government announcement",
+				"• A national government announces incentives for firms to relocate manufacturing to secondary cities.",
+				"• Officials cite “balanced growth” and reduced congestion in the primate city.",
+				"",
+				"STIMULUS B — regional analysts",
+				"• Analysts report rising intra-regional trade within a customs union.",
+				"• Per-capita income dispersion across member states remains high.",
+			].join("\n");
+	}
+}
+
+function hgFrqQ0StemAndParts(
+	ctx: FrqUnitCtx,
+	place: string,
+	c0: { term: string; define: string },
+	c1: { term: string; define: string },
+	hgOnePointPartFn: typeof hgOnePointPart,
+): { q0Stem: string; q0Parts: FrqRubricPart[] } {
+	const anchor = frqUnitAnchorSentence(ctx);
+	const figHint =
+		"Figure 1 may be a map, chart, photograph exhibit, diagram, or other geographic display (see caption); cite it only where it strengthens your reasoning.";
+	const u = ctx.unitIndex;
+
+	if (u === 1) {
+		return {
+			q0Stem: `You interpret ${place} using **${ctx.unitTitle}**. ${anchor} ${figHint}`,
+			q0Parts: [
+				hgOnePointPartFn("A", `Define ${c0.term}.`, "Accurate definition", [
+					`Explains that ${c0.term} involves ${c0.define}.`,
+					"Uses geographic vocabulary correctly (may paraphrase).",
+				]),
+				hgOnePointPartFn(
+					"B",
+					`Explain how ${c0.term} helps you describe or compare what is happening in ${place}.`,
+					"Mechanism + place",
+					[
+						"Links the concept to a concrete spatial pattern, comparison, or boundary problem.",
+						`Grounds the explanation in ${place} with at least one plausible detail.`,
+					],
+				),
+				hgOnePointPartFn(
+					"C",
+					`Explain how geospatial data, maps, or remote sensing can clarify ${c1.term} when studying ${place}.`,
+					"Data and tools",
+					[
+						"Names a plausible use (layers, GPS traces, imagery time series, volunteered data, etc.).",
+						"Connects the tool to geographic insight (not only a product list).",
+					],
+				),
+				hgOnePointPartFn(
+					"D",
+					"Describe ONE limitation of relying only on digital map products or imagery for the goals you discussed in part (C).",
+					"Limitation",
+					[
+						"Names a clear constraint (resolution, metadata gaps, projection bias, access, update lag, etc.).",
+						"Explains why the limitation matters for interpretation or decisions.",
+					],
+				),
+				hgOnePointPartFn(
+					"E",
+					`Explain ONE way changing the scale of analysis (local, national, or global) could change the conclusion you draw about ${place}.`,
+					"Scale",
+					["Contrasts what becomes visible or hidden across at least two scales.", "Uses geographic logic, not opinion only."],
+				),
+				hgOnePointPartFn(
+					"F",
+					`Describe ONE risk of comparing ${place} to another world region using only a single thematic map layer.`,
+					"Comparison risk",
+					["Names a defensible risk (ecological fallacy, masking internal diversity, outdated boundaries, etc.).", "Explains the geographic consequence briefly."],
+				),
+				hgOnePointPartFn(
+					"G",
+					"Propose ONE additional spatial or social data layer you would add to strengthen an argument about inequality or access in this setting.",
+					"Data proposal",
+					["Names a measurable layer (transit stops, hazard zones, income bins, land tenure, etc.).", "States what new question it helps answer."],
+				),
+			],
+		};
+	}
+
+	if (u === 2) {
+		return {
+			q0Stem: `You study population change and mobility in ${place} through **${ctx.unitTitle}**. ${anchor} ${figHint}`,
+			q0Parts: [
+				hgOnePointPartFn("A", `Define ${c0.term}.`, "Accurate definition", [
+					`Explains that ${c0.term} involves ${c0.define}.`,
+					"Uses demographic or migration vocabulary correctly (may paraphrase).",
+				]),
+				hgOnePointPartFn(
+					"B",
+					`Explain how ${c0.term} helps explain a population or mobility pattern you would expect in ${place}.`,
+					"Mechanism + place",
+					["Links the concept to fertility, mortality, migration, or age structure outcomes.", `Uses at least one plausible detail about ${place}.`],
+				),
+				hgOnePointPartFn(
+					"C",
+					`Explain how ${c1.term} interacts with labor markets, housing, or public services in communities tied to ${place}.`,
+					"Process link",
+					["Shows how the second concept shapes concrete outcomes (schools, clinics, rents, informal work, etc.).", "Stays geographically grounded."],
+				),
+				hgOnePointPartFn(
+					"D",
+					"Explain ONE reason census or survey counts can undercount or misrepresent mobile populations you discussed in part (C).",
+					"Data limitation",
+					["Names a clear issue (seasonality, legal status fear, informal housing, language, etc.).", "Explains why it biases interpretation."],
+				),
+				hgOnePointPartFn(
+					"E",
+					"Describe ONE policy tool governments use to raise, lower, or steer fertility or immigration totals—and one tradeoff of that tool.",
+					"Policy",
+					["Names a plausible tool (family benefits, pension age, visa categories, border enforcement, etc.).", "States one tradeoff (equity, labor supply, fiscal cost, rights)."],
+				),
+				hgOnePointPartFn(
+					"F",
+					`Compare ONE way youth dependency can stress public budgets differently from elderly dependency in ${place}.`,
+					"Dependency contrast",
+					["Contrasts education/childcare pressures vs pension and health pressures.", "Uses plausible reasoning for the setting."],
+				),
+				hgOnePointPartFn(
+					"G",
+					`Predict ONE migration or urban consequence if ${place} experiences rapid wage growth while neighboring regions do not.`,
+					"Scenario",
+					["Prediction is geographically plausible (commuting, remittances, rent spikes, skill recruitment, etc.).", "Does not ignore neighbor ties."],
+				),
+			],
+		};
+	}
+
+	if (u === 3) {
+		return {
+			q0Stem: `You analyze cultural patterns and landscapes in ${place} using **${ctx.unitTitle}**. ${anchor} ${figHint}`,
+			q0Parts: [
+				hgOnePointPartFn("A", `Define ${c0.term}.`, "Accurate definition", [
+					`Explains that ${c0.term} involves ${c0.define}.`,
+					"Uses cultural geography vocabulary correctly (may paraphrase).",
+				]),
+				hgOnePointPartFn(
+					"B",
+					`Explain how ${c0.term} helps explain a visible cultural pattern in ${place}.`,
+					"Mechanism + place",
+					["Links the concept to language, religion, identity, media, or built landscape outcomes.", `Grounds the explanation in ${place}.`],
+				),
+				hgOnePointPartFn(
+					"C",
+					`Explain how diffusion of a global practice or popular-culture product can reshape ${c1.term} in neighborhoods tied to ${place}.`,
+					"Diffusion",
+					["Shows a believable mechanism (media, migration, tourism, firms, education).", "Avoids stereotypes stated as facts about real groups."],
+				),
+				hgOnePointPartFn(
+					"D",
+					"Describe ONE way local residents might resist or adapt outside cultural influences you discussed in part (C).",
+					"Agency",
+					["Names a plausible response (hybrid practices, zoning, language maintenance, boycotts, co-management of tourism, etc.).", "Explains spatial or social outcome briefly."],
+				),
+				hgOnePointPartFn(
+					"E",
+					"Explain ONE way language or education policy can strengthen a shared national identity—and one group it may marginalize.",
+					"Language policy",
+					["Names a plausible policy (official language, bilingual schooling, script reform, etc.).", "Names one plausible marginalization risk."],
+				),
+				hgOnePointPartFn(
+					"F",
+					`Explain how marketing ${place} as a heritage destination can create tension between income goals and sacred or intimate practices.`,
+					"Heritage tension",
+					["Names both economic upside and cultural/spatial pressure.", "Uses geographic logic (crowding, rent, access, seasonality)."],
+				),
+				hgOnePointPartFn(
+					"G",
+					"Propose ONE planning guideline that could reduce harm while still supporting livelihoods tied to cultural tourism.",
+					"Guideline",
+					["Proposal is specific (caps, routes, resident passes, revenue sharing, off-season programming, etc.).", "Acknowledges a remaining tradeoff."],
+				),
+			],
+		};
+	}
+
+	if (u === 5) {
+		return {
+			q0Stem: `You examine agriculture, food systems, and rural land use around ${place} using **${ctx.unitTitle}**. ${anchor} ${figHint}`,
+			q0Parts: [
+				hgOnePointPartFn("A", `Define ${c0.term}.`, "Accurate definition", [
+					`Explains that ${c0.term} involves ${c0.define}.`,
+					"Uses agricultural geography vocabulary correctly (may paraphrase).",
+				]),
+				hgOnePointPartFn(
+					"B",
+					`Explain how ${c0.term} helps explain land-use or livelihood patterns you would expect near ${place}.`,
+					"Mechanism + place",
+					["Links the concept to crops, labor, markets, inputs, or land tenure.", `Uses at least one plausible detail about ${place}.`],
+				),
+				hgOnePointPartFn(
+					"C",
+					`Explain how global commodity prices or trade rules can reshape farmer choices related to ${c1.term} in this region.`,
+					"Global linkage",
+					["Shows a believable chain (price shock, credit, contract farming, standards barriers, etc.).", "Does not contradict basic economic logic."],
+				),
+				hgOnePointPartFn(
+					"D",
+					"Describe ONE environmental cost that can accompany input-intensive yield gains in the systems you described.",
+					"Environmental cost",
+					["Names a plausible cost (water drawdown, salinization, nitrate leaching, biodiversity loss, soil compaction, etc.).", "Explains why it follows from the practices discussed."],
+				),
+				hgOnePointPartFn(
+					"E",
+					"Explain ONE way smallholders can lose access to land or markets when commercial agriculture expands nearby.",
+					"Equity",
+					["Names a mechanism (titles, rents, debt, contract terms, infrastructure taking, etc.).", "Grounds in geographic or institutional logic."],
+				),
+				hgOnePointPartFn(
+					"F",
+					`Compare growing export specialty crops with prioritizing staple self-sufficiency for food security in ${place}.`,
+					"Tradeoff",
+					["States at least one benefit and one risk for each path.", "Uses geographically realistic reasoning."],
+				),
+				hgOnePointPartFn(
+					"G",
+					"Propose ONE spatially targeted intervention (infrastructure, extension services, conservation set-aside, storage, etc.) that could reduce a harm you identified without ending commercial farming entirely.",
+					"Intervention",
+					["Intervention is concrete and geographically plausible.", "Acknowledges one limit or unintended effect."],
+				),
+			],
+		};
+	}
+
+	if (u === 6) {
+		return {
+			q0Stem: `You study urban form, land use, and social patterns in ${place} using **${ctx.unitTitle}**. ${anchor} ${figHint}`,
+			q0Parts: [
+				hgOnePointPartFn("A", `Define ${c0.term}.`, "Accurate definition", [
+					`Explains that ${c0.term} involves ${c0.define}.`,
+					"Uses urban geography vocabulary correctly (may paraphrase).",
+				]),
+				hgOnePointPartFn(
+					"B",
+					`Explain how ${c0.term} helps explain rent gradients, commuting, or neighborhood change in ${place}.`,
+					"Mechanism + place",
+					["Links the concept to land markets, transport, segregation, or governance.", `Uses at least one plausible detail about ${place}.`],
+				),
+				hgOnePointPartFn(
+					"C",
+					`Explain how public investment in transit or arterial roads can shift ${c1.term} in the wider metropolitan area.`,
+					"Infrastructure effect",
+					["Shows a believable spatial mechanism (accessibility, agglomeration, land value, mode share).", "Does not ignore who gains or loses."],
+				),
+				hgOnePointPartFn(
+					"D",
+					"Describe ONE mechanism through which neighborhood upgrading can displace long-term lower-income residents.",
+					"Displacement",
+					["Names a plausible channel (rents, property tax, eviction, loss of retail/services, etc.).", "Explains why displacement is geographic, not only a price label."],
+				),
+				hgOnePointPartFn(
+					"E",
+					"Explain ONE fiscal or governance challenge when a primate city concentrates tax base and talent while smaller municipalities ring it.",
+					"Governance",
+					["Names a plausible challenge (infrastructure finance, service spillovers, coordination, inequality).", "Uses realistic public-finance or planning logic."],
+				),
+				hgOnePointPartFn(
+					"F",
+					`For ${place}, compare concentrating new jobs in the urban core with decentralizing jobs to secondary centers—name one spatial consequence of each approach.`,
+					"Spatial consequence",
+					["Contrasts consequences (commute lengths, emissions, land take, tax competition, etc.).", "Avoids claiming both are costless."],
+				),
+				hgOnePointPartFn(
+					"G",
+					"Propose ONE land-use or housing rule change that could spread benefits of growth more evenly—state who it helps and one risk.",
+					"Policy",
+					["Proposal is specific (inclusionary zoning, linkage fees, TOD density bonuses, etc.).", "Names one risk or implementation limit."],
+				),
+			],
+		};
+	}
+
+	if (u === 7) {
+		return {
+			q0Stem: `You analyze development, trade, and inequality involving ${place} using **${ctx.unitTitle}**. ${anchor} ${figHint}`,
+			q0Parts: [
+				hgOnePointPartFn("A", `Define ${c0.term}.`, "Accurate definition", [
+					`Explains that ${c0.term} involves ${c0.define}.`,
+					"Uses development or economic geography vocabulary correctly (may paraphrase).",
+				]),
+				hgOnePointPartFn(
+					"B",
+					`Explain how ${c0.term} helps explain uneven opportunities or outcomes linked to ${place} in the world economy.`,
+					"Mechanism + place",
+					["Links the concept to trade, investment, labor, or institutions.", `Uses at least one plausible detail about ${place}.`],
+				),
+				hgOnePointPartFn(
+					"C",
+					`Explain how ${c1.term} can both raise average productivity and create dependency or vulnerability for workers in export-oriented sectors.`,
+					"Dual effect",
+					["Names a productivity channel (technology transfer, specialization, scale).", "Names a dependency channel (price shocks, buyer power, seasonal work, debt)."],
+				),
+				hgOnePointPartFn(
+					"D",
+					"Give ONE reason a single headline indicator (such as GDP per capita growth) can hide inequality within a country or city.",
+					"Indicator limit",
+					["Names a masking problem (spatial averaging, informal work, environmental harm, elite capture, etc.).", "Explains what is hidden briefly."],
+				),
+				hgOnePointPartFn(
+					"E",
+					"Describe ONE way structural adjustment or austerity-style reforms can improve a fiscal indicator while worsening lived conditions for some groups.",
+					"Reform tradeoff",
+					["Names a plausible reform channel (subsidy cuts, privatization, devaluation).", "Names a plausible harm channel (fares, food prices, layoffs, service cuts)."],
+				),
+				hgOnePointPartFn(
+					"F",
+					`Explain how gendered labor market patterns can make growth in settings like ${place} less inclusive even when aggregate output rises.`,
+					"Inclusion",
+					["Names a plausible mechanism (occupational segregation, unpaid care, wage gaps, informal work).", "Connects to geographic outcomes (commute, housing, services)."],
+				),
+				hgOnePointPartFn(
+					"G",
+					"Propose ONE geographically targeted investment or regulation that could reduce spatial inequality you discussed—state what you would measure to judge success.",
+					"Targeting",
+					["Proposal is concrete (rural broadband, clinic placement, transit, industrial clusters, protected wages in zones, etc.).", "Names at least one outcome metric."],
+				),
+			],
+		};
+	}
+
+	// Unit 4 political geography (default for political unit and unknown indices)
+	return {
+		q0Stem: `You analyze how states, borders, and networks shape life in ${place} using **${ctx.unitTitle}**. ${anchor} ${figHint}`,
+		q0Parts: [
+			hgOnePointPartFn("A", `Define ${c0.term}.`, "Accurate definition", [
+				`States that ${c0.term} involves ${c0.define}.`,
+				"Uses geographic vocabulary correctly (may paraphrase).",
+			]),
+			hgOnePointPartFn(
+				"B",
+				`Explain how ${c0.term} can help explain a pattern you would expect to observe in ${place}.`,
+				"Mechanism + place",
+				[
+					"Links the definition to a concrete geographic outcome (migration, borders, development, diffusion, etc.).",
+					`Grounds the explanation in ${place} with at least one plausible detail.`,
+				],
+			),
+			hgOnePointPartFn(
+				"C",
+				`Explain how communication technology can matter for ${c1.term} in contexts related to ${ctx.unitTitle}.`,
+				"Technology role",
+				[
+					"Names a plausible role (coordination, mobilization, surveillance, information diffusion, etc.).",
+					"Connects the technology idea to geographic or political outcomes (not only a gadget list).",
+				],
+			),
+			hgOnePointPartFn(
+				"D",
+				"Explain one limitation of communication technology in achieving political or geographic goals you discussed in part (C).",
+				"Limitation stated",
+				[
+					"States a clear constraint (access gaps, misinformation, state capacity, digital divide, censorship, etc.).",
+					"Shows why the limitation weakens or complicates the goal.",
+				],
+			),
+			hgOnePointPartFn(
+				"E",
+				"Describe ONE centripetal force that governments sometimes use to promote the state as a nation.",
+				"Centripetal force",
+				[
+					"Names a defensible centripetal mechanism (symbols, education, infrastructure, shared institutions, etc.).",
+					"Briefly explains how it can increase cohesion.",
+				],
+			),
+			hgOnePointPartFn(
+				"F",
+				`Explain how uneven development within or across regions tied to ${place} can act as a centrifugal pressure on cohesion.`,
+				"Uneven development",
+				[
+					"Explains a plausible inequality or spatial disparity mechanism.",
+					"Links unevenness to tension, grievance, or contested legitimacy (not only a statistic).",
+				],
+			),
+			hgOnePointPartFn(
+				"G",
+				"For a multinational state facing pressures similar to devolution, explain ONE reason a government might create an autonomous region OR choose to maintain a more unitary structure.",
+				"Reasoning about autonomy vs unitary rule",
+				[
+					"Chooses one path (autonomous region or unitary maintenance) and defends it with governance logic.",
+					"Uses at least one geographic or political tradeoff (identity, revenue, security, representation).",
+				],
+			),
+		],
+	};
+}
+
+function buildHumanGeoSet(rng: () => number, ctx: FrqUnitCtx): ExamQuestion[] {
 	const place = pick(rng, PLACES);
-	const c0 = pick(rng, HG_CONCEPTS);
-	let c1 = pick(rng, HG_CONCEPTS);
+	const pool = hgFrqTermPool(ctx.unitIndex);
+	const c0 = pick(rng, pool);
+	let c1 = pick(rng, pool);
 	let guard = 0;
-	while (c1.term === c0.term && guard++ < 12) {
-		c1 = pick(rng, HG_CONCEPTS);
+	while (c1.term === c0.term && guard++ < 16) {
+		c1 = pick(rng, pool);
 	}
 
 	const hgFig0 = frqFigureHumanGeoQ0(rng, { place, unitTitle: ctx.unitTitle });
-
-	const q0Stem = `Political geography connects states, identities, and networks across scales. Focus your answers on ${place} and on ${ctx.unitTitle}, drawing on ideas such as devolution, centripetal and centrifugal forces, uneven development, and communication technologies where they help your argument. Figure 1 may be a map, population pyramid, urban land-use model, clustered bar chart, photograph exhibit, chart, or histogram (see caption); use it where it strengthens a part of your answer.`;
-
-	const q0Parts: FrqRubricPart[] = [
-		hgOnePointPart(
-			"A",
-			`Define the concept of ${c0.term}.`,
-			"Accurate definition",
-			[
-				`States that ${c0.term} involves ${c0.define}.`,
-				"Uses geographic vocabulary correctly (may paraphrase).",
-			],
-		),
-		hgOnePointPart(
-			"B",
-			`Explain how ${c0.term} can help explain a pattern you would expect to observe in ${place}.`,
-			"Mechanism + place",
-			[
-				"Links the definition to a concrete geographic outcome (migration, borders, development, diffusion, etc.).",
-				`Grounds the explanation in ${place} with at least one plausible detail.`,
-			],
-		),
-		hgOnePointPart(
-			"C",
-			`Explain how communication technology can matter for ${c1.term} in contexts related to ${ctx.unitTitle}.`,
-			"Technology role",
-			[
-				"Names a plausible role (coordination, mobilization, surveillance, information diffusion, etc.).",
-				"Connects the technology idea to geographic or political outcomes (not only a gadget list).",
-			],
-		),
-		hgOnePointPart(
-			"D",
-			"Explain one limitation of communication technology in achieving political or geographic goals you discussed in part (C).",
-			"Limitation stated",
-			[
-				"States a clear constraint (access gaps, misinformation, state capacity, digital divide, censorship, etc.).",
-				"Shows why the limitation weakens or complicates the goal.",
-			],
-		),
-		hgOnePointPart(
-			"E",
-			"Describe ONE centripetal force that governments sometimes use to promote the state as a nation.",
-			"Centripetal force",
-			[
-				"Names a defensible centripetal mechanism (symbols, education, infrastructure, shared institutions, etc.).",
-				"Briefly explains how it can increase cohesion.",
-			],
-		),
-		hgOnePointPart(
-			"F",
-			`Explain how uneven development within or across regions tied to ${place} can act as a centrifugal pressure on cohesion.`,
-			"Uneven development",
-			[
-				"Explains a plausible inequality or spatial disparity mechanism.",
-				"Links unevenness to tension, grievance, or contested legitimacy (not only a statistic).",
-			],
-		),
-		hgOnePointPart(
-			"G",
-			"For a multinational state facing pressures similar to devolution, explain ONE reason a government might create an autonomous region OR choose to maintain a more unitary structure.",
-			"Reasoning about autonomy vs unitary rule",
-			[
-				"Chooses one path (autonomous region or unitary maintenance) and defends it with governance logic.",
-				"Uses at least one geographic or political tradeoff (identity, revenue, security, representation).",
-			],
-		),
-	];
+	const { q0Stem, q0Parts } = hgFrqQ0StemAndParts(ctx, place, c0, c1, hgOnePointPart);
 
 	const q0 = frqQ(
 		{
@@ -275,24 +839,15 @@ function buildHumanGeoSet(
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
 			figure: hgFig0,
 			procedural_structure_id: "hg-q1-seven-part-figure",
-			frq_rubric: rubricDoc("Question 1 (Figure 1 — geographic exhibit)", 7, q0Parts),
-			explanation: `Self-check: work from definitions (${c0.term}, ${c1.term}) to mechanisms, then to tradeoffs and governance choices, using ${place} and ${ctx.unitTitle}.`,
+			frq_rubric: rubricDoc("Task 1 — Figure 1 (geographic exhibit)", 7, q0Parts),
+			explanation: `Self-check: tie definitions (${c0.term}, ${c1.term}) to mechanisms in ${place}, then to tradeoffs, using ideas from **${ctx.unitTitle}**.`,
 		},
 		q0Stem,
 	);
 
-	const fig1: ExamFigure = {
-		kind: "table",
-		title: "TABLE 1. Selected development indicators (hypothetical)",
-		headers: ["Indicator", "Value"],
-		rows: [
-			["Urban population share (%)", String(randInt(rng, 42, 92))],
-			["Youth dependency ratio", String((randInt(rng, 35, 75) / 100).toFixed(2))],
-			["Female labor-force participation (%)", String(randInt(rng, 38, 72))],
-		],
-	};
+	const fig1 = hgFrqTableFigure(rng, ctx.unitIndex);
 
-	const q1Stem = `Table 1 reports selected development indicators for a setting comparable to ${place}. Use the table together with ${ctx.unitTitle} to support your reasoning in the parts that follow.`;
+	const q1Stem = `Table 1 lists hypothetical indicators for a setting comparable to ${place}. Use the numbers as evidence while reasoning with **${ctx.unitTitle}** (${frqUnitAnchorSentence(ctx)}).`;
 
 	const q1Parts: FrqRubricPart[] = [
 		hgOnePointPart(
@@ -306,22 +861,22 @@ function buildHumanGeoSet(
 			"Describe ONE geographic relationship implied by the pattern you identified in part (A).",
 			"Relationship",
 			[
-				"Names a plausible spatial or structural relationship (core–periphery, urban–rural, gendered labor markets, etc.).",
+				"Names a plausible spatial or structural relationship (urban–rural, core–periphery, environment, labor markets, etc.).",
 				"Does not contradict the table.",
 			],
 		),
 		hgOnePointPart(
 			"C",
-			`Explain ONE demographic or economic process that could help account for the pattern in ${place}.`,
+			`Explain ONE process (economic, demographic, environmental, political, or cultural) that could help account for the pattern in ${place}.`,
 			"Process explanation",
 			[
-				"Names a geographic process (migration, fertility transition, industrial restructuring, policy change, etc.).",
-				`Ties the process to ${place} with plausible reasoning.`,
+				"Names a geographically plausible process.",
+				`Ties the process to ${place} with reasoning consistent with the table.`,
 			],
 		),
 		hgOnePointPart(
 			"D",
-			"Explain ONE limitation of using Table 1 alone to explain development outcomes in the region.",
+			"Explain ONE limitation of using Table 1 alone to interpret conditions in the region.",
 			"Limitation",
 			[
 				"States a clear limitation (missing variables, scale, time, causal ambiguity, etc.).",
@@ -332,7 +887,7 @@ function buildHumanGeoSet(
 			"E",
 			"Propose ONE additional indicator (not in Table 1) that would strengthen an analysis of well-being or equity in this setting.",
 			"Indicator proposal",
-			["Names a measurable indicator relevant to equity or development.", "Explains what new information it would add."],
+			["Names a measurable indicator relevant to equity or livelihoods.", "Explains what new information it would add."],
 		),
 		hgOnePointPart(
 			"F",
@@ -342,7 +897,7 @@ function buildHumanGeoSet(
 		),
 		hgOnePointPart(
 			"G",
-			"Predict ONE plausible policy consequence if leaders in the region respond to the pattern in Table 1 with a spatially targeted investment program.",
+			"Predict ONE plausible consequence if public agencies respond to the table’s pattern with a spatially targeted investment or regulation.",
 			"Policy consequence",
 			["Prediction is geographically realistic.", "Connects to the table pattern without contradicting it."],
 		),
@@ -356,71 +911,65 @@ function buildHumanGeoSet(
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
 			figure: fig1,
 			procedural_structure_id: "hg-q2-seven-part-table",
-			frq_rubric: rubricDoc("Question 2 (one stimulus — Table 1)", 7, q1Parts),
-			explanation:
-				"Self-check: anchor every evidence claim in Table 1, then extend with processes, limitations, and scale—typical of AP-style data FRQs.",
+			frq_rubric: rubricDoc("Task 2 — Table 1", 7, q1Parts),
+			explanation: "Self-check: anchor each claim in Table 1, then extend with process, limits, scale, and a realistic policy consequence.",
 		},
 		q1Stem,
 	);
 
 	const stim2: ExamFigure = {
 		kind: "stimulus",
-		title: "STIMULI FOR QUESTION 3",
-		body: [
-			"STIMULUS A — government announcement",
-			"• A national government announces incentives for firms to relocate manufacturing to secondary cities.",
-			"• Officials cite “balanced growth” and reduced congestion in the primate city.",
-			"",
-			"STIMULUS B — regional analysts",
-			"• Analysts report rising intra-regional trade within a customs union.",
-			"• Per-capita income dispersion across member states remains high.",
-		].join("\n"),
+		title: "STIMULI FOR TASK 3",
+		body: hgFrqStimulusBody(ctx.unitIndex),
 	};
 
-	const q2Stem = `Read Stimulus A and Stimulus B. Use geographic reasoning tied to ${place} and ${ctx.unitTitle}. Do not invent real treaties or organizations by name unless you are certain they exist.`;
+	const q2Stem = `Read both stimuli. Use geographic reasoning tied to ${place} and **${ctx.unitTitle}**. Do not invent real treaties or organizations by name unless you are certain they exist.`;
 
 	const q2Parts: FrqRubricPart[] = [
 		hgOnePointPart(
 			"A",
-			"Identify ONE economic or spatial goal implied by Stimulus A.",
+			"Identify ONE goal or priority implied by Stimulus A.",
 			"Goal from Stimulus A",
-			["Goal is defensible from the announcement (deconcentration, jobs, competitiveness, congestion relief, etc.).", "Uses logic consistent with Stimulus A."],
+			["Goal is defensible from the text (efficiency, growth, order, equity claim, etc.).", "Uses logic consistent with Stimulus A."],
 		),
 		hgOnePointPart(
 			"B",
 			"Describe ONE tension that emerges when Stimulus B is read alongside Stimulus A.",
 			"Tension",
-			["Names a clear tension (growth vs dispersion, integration vs inequality, etc.).", "Explains why both stimuli cannot be fully “success stories” at once without qualification."],
+			["Names a clear tension between claims, metrics, or interests.", "Explains why both cannot be fully “success stories” at once without qualification."],
 		),
 		hgOnePointPart(
 			"C",
-			"Explain ONE geographic mechanism (for example, cores and peripheries, factor mobility, or institutions) that helps explain the tension in part (B).",
+			"Explain ONE geographic mechanism (for example, distance, networks, institutions, land markets, or environment) that helps explain the tension in part (B).",
 			"Mechanism",
-			["Mechanism is course-appropriate and geographic (not purely moral opinion).", "Links mechanism back to language or claims in the stimuli."],
+			["Mechanism is geographic (not purely moral opinion).", "Links mechanism back to language or claims in the stimuli."],
 		),
 		hgOnePointPart(
 			"D",
-			"Identify ONE group or region type that is likely to experience uneven benefits if policies like Stimulus A spread widely without addressing Stimulus B’s concern.",
-			"Uneven benefits",
-			["Identifies a plausible stakeholder or region type (borderlands, secondary cities, rural hinterlands, smaller member states, etc.).", "Explains why benefits or costs may be uneven."],
+			"Identify ONE group or place type that is likely to experience uneven benefits or costs if the priorities in Stimulus A spread without addressing Stimulus B’s concern.",
+			"Uneven effects",
+			["Identifies a plausible stakeholder or place type.", "Explains why effects may be uneven."],
 		),
 		hgOnePointPart(
 			"E",
-			"Propose ONE geographically realistic policy tradeoff a supranational body might face when responding to the situation described in Stimulus B.",
-			"Supranational tradeoff",
-			["Names both a gain and a sacrifice or risk (sovereignty, cohesion, equity, enforcement capacity).", "Policy tool is plausible (standards, funds, monitoring, dispute resolution, etc.)."],
+			"Propose ONE realistic policy or governance tradeoff decision-makers face when responding to Stimulus B’s concern.",
+			"Tradeoff",
+			["Names both a gain and a sacrifice or risk.", "Tool or approach is plausible (standards, funds, monitoring, co-management, phased rules, etc.)."],
 		),
 		hgOnePointPart(
 			"F",
-			`Explain ONE way ${ctx.unitTitle} concepts could help a decision maker prioritize between the goal in part (A) and the tension in part (B).`,
-			"Course linkage",
-			["Uses at least one idea from the unit framing (scale, networks, political geography, development, etc.).", "Shows how the concept changes what should be measured or protected first."],
+			`Explain ONE way ideas from **${ctx.unitTitle}** could help a planner weigh the priority in part (A) against the tension in part (B).`,
+			"Concept application",
+			[
+				"Uses at least one idea consistent with the unit summary or hooks.",
+				"Shows how the idea changes what should be measured, protected, or sequenced first.",
+			],
 		),
 		hgOnePointPart(
 			"G",
-			`For ${place}, state ONE likely long-run geographic outcome if the policies in Stimulus A succeed in reducing primate-city congestion but Stimulus B’s dispersion persists.`,
+			`For ${place}, state ONE likely long-run geographic outcome if actors follow Stimulus A’s priorities while Stimulus B’s worry remains partly unresolved.`,
 			"Long-run outcome",
-			["Outcome is geographically plausible (sprawl, polycentric growth, cross-border commuting, fiscal stress, etc.).", "Does not ignore Stimulus B’s inequality signal."],
+			["Outcome is geographically plausible.", "Does not ignore the risk or cost signal in Stimulus B."],
 		),
 	];
 
@@ -432,9 +981,8 @@ function buildHumanGeoSet(
 			correct_answer: AP_FRQ_PLACEHOLDER_ANSWER,
 			figure: stim2,
 			procedural_structure_id: "hg-q3-seven-part-stimuli",
-			frq_rubric: rubricDoc("Question 3 (two stimuli)", 7, q2Parts),
-			explanation:
-				"Self-check: anchor claims in both stimuli, then build mechanism → tradeoff → prioritization → scenario—mirrors multi-part AP synthesis FRQs.",
+			frq_rubric: rubricDoc("Task 3 — two stimuli", 7, q2Parts),
+			explanation: "Self-check: ground each part in both stimuli, then chain mechanism → tradeoff → concept choice → long-run scenario.",
 		},
 		q2Stem,
 	);
@@ -444,7 +992,7 @@ function buildHumanGeoSet(
 
 function buildSocialSet(
 	rng: () => number,
-	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
+	ctx: FrqUnitCtx,
 ): ExamQuestion[] {
 	const concept = pick(rng, SOCIAL_CONCEPTS);
 	const place = pick(rng, PLACES);
@@ -454,7 +1002,7 @@ function buildSocialSet(
 		place,
 		unitTitle: ctx.unitTitle,
 	});
-	const soc0Stem = `Use concepts from ${ctx.unitTitle} in ${ctx.courseName}. Where it strengthens your answer, ground claims in a setting like ${place}. Figure 1 may show a market diagram, process model, photograph exhibit, time series, synapse schematic, or action-potential trace; use it when discussing attitudes, institutions, or policy feedback.`;
+	const soc0Stem = `Apply ideas from **${ctx.unitTitle}** (${frqUnitAnchorSentence(ctx)}). Where it helps, ground claims in a setting like ${place}. Figure 1 may show a market diagram, process model, photograph exhibit, time series, synapse schematic, or action-potential trace; use it when discussing attitudes, institutions, or policy feedback.`;
 
 	const q0 = frqQ(
 		{
@@ -500,7 +1048,7 @@ function buildSocialSet(
 		],
 	};
 
-	const soc1Stem = `Figure 2 summarizes survey support for three policy options in a setting analogous to ${place}. Answer using the figure and ${ctx.unitTitle}.`;
+	const soc1Stem = `Figure 2 summarizes survey support for three policy options in a setting analogous to ${place}. Use the figure together with **${ctx.unitTitle}** (${frqUnitAnchorSentence(ctx)}).`;
 
 	const q1 = frqQ(
 		{
@@ -518,7 +1066,7 @@ function buildSocialSet(
 			},
 			{
 				letter: "B",
-				promptText: "Explain one reason tied to the unit.",
+				promptText: `Explain one reason grounded in **${ctx.unitTitle}**.`,
 				maxPoints: 2,
 				criteria: [
 					crit("(Point 1)", "Causal logic", ["Provides a believable mechanism (information, interests, institutions, framing)."]),
@@ -544,7 +1092,7 @@ function buildSocialSet(
 		].join("\n"),
 	};
 
-	const soc2Stem = `Use Stimulus A, Stimulus B, and ${ctx.unitTitle}. Tie claims to ${place} where a part asks for application.`;
+	const soc2Stem = `Use Stimulus A, Stimulus B, and **${ctx.unitTitle}** (${frqUnitAnchorSentence(ctx)}). Tie claims to ${place} wherever a part asks for application.`;
 
 	const q2 = frqQ(
 		{
@@ -588,12 +1136,12 @@ function buildSocialSet(
 
 function buildHistorySet(
 	rng: () => number,
-	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
+	ctx: FrqUnitCtx,
 ): ExamQuestion[] {
 	const topic = pick(rng, HISTORY_TOPICS);
 	const era = ctx.unitTitle;
 	const hisFig0 = frqFigureHistoryQ0(rng, { era, courseName: ctx.courseName });
-	const his0Stem = `Within ${era} (${ctx.courseName}). Figure 1 may be a demographic chart, stylized map, photograph exhibit, or sector graph; use it only where it helps you discuss structure, change, or causation.`;
+	const his0Stem = `You are writing about **${era}** in historical context: ${frqUnitAnchorSentence(ctx)} Figure 1 may be a demographic chart, stylized map, photograph exhibit, or sector graph; use it only where it helps you discuss structure, change, or causation.`;
 
 	const q0 = frqQ(
 		{
@@ -663,7 +1211,7 @@ function buildHistorySet(
 			},
 		]),
 		},
-		`Use Figure 2 and your understanding of ${era}.`,
+		`Use Figure 2 together with **${era}** (${frqUnitAnchorSentence(ctx)}).`,
 	);
 
 	const stim: ExamFigure = {
@@ -692,7 +1240,7 @@ function buildHistorySet(
 				maxPoints: 2,
 				criteria: [
 					crit("(Point 1)", "Interpretation", ["Shows how the theme reframes stakes (who wins, who loses, what scales matter)."]),
-					crit("(Point 2)", "Precision", ["Avoids anachronisms relative to the unit framing."]),
+					crit("(Point 2)", "Precision", ["Avoids anachronisms for the period and places implied by your argument."]),
 				],
 			},
 			{
@@ -706,7 +1254,7 @@ function buildHistorySet(
 			},
 		]),
 		},
-		`Refer to the two perspectives in the stimuli above.`,
+		`Refer to the two perspectives in the stimuli above, keeping arguments consistent with **${era}** (${frqUnitAnchorSentence(ctx)}).`,
 	);
 
 	return [q0, q1, q2];
@@ -714,8 +1262,12 @@ function buildHistorySet(
 
 function buildMathSet(
 	rng: () => number,
-	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
+	ctx: FrqUnitCtx,
 ): ExamQuestion[] {
+	const mathUnitBridge =
+		ctx.unitHooks.length > 0
+			? `Tie any applied interpretation to **${ctx.unitTitle}** (for example: ${ctx.unitHooks.slice(0, 2).join("; ")}).`
+			: `Tie any applied interpretation to **${ctx.unitTitle}** (${ctx.unitSummary.trim().slice(0, 200)}${ctx.unitSummary.trim().length > 200 ? "…" : ""}).`;
 	const a = randInt(rng, 2, 9);
 	const b = randInt(rng, -12, 12);
 	const c = randInt(rng, 2, 11);
@@ -723,7 +1275,7 @@ function buildMathSet(
 	const sampleXs = [-2, -1, 0, 1, 2] as const;
 	const mathFig0 = frqFigureMathQ0(rng, { courseId: ctx.courseId, fx, a, b, c, sampleXs });
 
-	let q0Stem = `Let \\(f(x) = ${fx}\\) for all real numbers \\(x\\). This question aligns with ${ctx.unitTitle}. Figure 1 shows rounded evaluations of \\(f\\) at integer inputs; treat \\(f\\) as differentiable everywhere between those points.`;
+	let q0Stem = `Let \\(f(x) = ${fx}\\) for all real numbers \\(x\\). ${mathUnitBridge} Figure 1 shows rounded evaluations of \\(f\\) at integer inputs; treat \\(f\\) as differentiable everywhere between those points.`;
 
 	let q0Rubric = rubricDoc("Question 1 (Figure 1 — function snapshot)", 4, [
 		{
@@ -751,7 +1303,7 @@ function buildMathSet(
 	]);
 
 	if (mathFig0.kind === "polar_area_cartesian") {
-		q0Stem = `Figure 1 shows two polar curves plotted in the \\(xy\\)-plane for \\(0 \\le \\theta \\le \\pi\\), with the shaded region between them. This question aligns with ${ctx.unitTitle}.`;
+		q0Stem = `Figure 1 shows two polar curves plotted in the \\(xy\\)-plane for \\(0 \\le \\theta \\le \\pi\\), with the shaded region between them. ${mathUnitBridge}`;
 		q0Rubric = rubricDoc("Question 1 (Figure 1 — polar area)", 4, [
 			{
 				letter: "a",
@@ -773,7 +1325,7 @@ function buildMathSet(
 			},
 		]);
 	} else if (mathFig0.kind === "calculus_area_vertical") {
-		q0Stem = `Figure 1 shows two differentiable functions \\(f\\) (blue) and \\(g\\) (orange) on a closed interval; the shaded region lies between the graphs. This question aligns with ${ctx.unitTitle}.`;
+		q0Stem = `Figure 1 shows two differentiable functions \\(f\\) (blue) and \\(g\\) (orange) on a closed interval; the shaded region lies between the graphs. ${mathUnitBridge}`;
 		q0Rubric = rubricDoc("Question 1 (Figure 1 — area between curves)", 4, [
 			{
 				letter: "a",
@@ -834,7 +1386,7 @@ function buildMathSet(
 		],
 	};
 
-	const q1Stem = `A differentiable function \\(g\\) is modeled by Table 1 near \\(x=${x0}\\). This item aligns with ${ctx.unitTitle}.`;
+	const q1Stem = `A differentiable function \\(g\\) is modeled by Table 1 near \\(x=${x0}\\). ${mathUnitBridge}`;
 
 	const q1 = frqQ(
 		{
@@ -883,7 +1435,7 @@ function buildMathSet(
 		].join("\n"),
 	};
 
-	const q2Stem = `Use Stimulus A and Stimulus B. In part (b), use language appropriate to ${ctx.unitTitle}.`;
+	const q2Stem = `Use Stimulus A and Stimulus B. In part (b), explain the correct integral idea using situations or vocabulary that fit **${ctx.unitTitle}**.`;
 
 	const q2 = frqQ(
 		{
@@ -910,7 +1462,9 @@ function buildMathSet(
 					maxPoints: 2,
 					criteria: [
 						crit("(Point 1)", "Concept", ["Discusses net change, accumulation, FTC intuition, or signed contribution."]),
-						crit("(Point 2)", "Unit linkage", [`Ties the idea explicitly to ${ctx.unitTitle} (not generic math only).`]),
+						crit("(Point 2)", "Unit linkage", [
+							`Ties the idea explicitly to **${ctx.unitTitle}** (${frqUnitAnchorSentence(ctx)}), not generic math only.`,
+						]),
 					],
 				},
 				{
@@ -933,7 +1487,7 @@ function buildMathSet(
 
 function buildScienceSet(
 	rng: () => number,
-	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
+	ctx: FrqUnitCtx,
 ): ExamQuestion[] {
 	const phenom = pick(rng, SCI_PHENOM);
 	const sciFig0 = frqFigureScienceQ0(rng, {
@@ -970,7 +1524,7 @@ function buildScienceSet(
 			},
 		]),
 		},
-		`You are investigating ${phenom} within ${ctx.unitTitle} (${ctx.courseName}). Figure 1 may show a model diagram, circuit, pendulum schematic, reaction profile, food web, chromosome crossing-over diagram, scatterplot, or time series—use it to motivate design choices where appropriate.`,
+		`You model ${phenom} as part of **${ctx.unitTitle}** (${frqUnitAnchorSentence(ctx)}). Figure 1 may show a model diagram, circuit, pendulum schematic, reaction profile, food web, chromosome crossing-over diagram, scatterplot, or time series—use it to motivate design choices where appropriate.`,
 	);
 
 	const fig = frqFigureScienceQ1(createRng(`frq|${ctx.courseId}|s${ctx.setIndex}|sci-q1`, "v0"), { courseId: ctx.courseId });
@@ -1043,7 +1597,7 @@ function buildScienceSet(
 			},
 		]),
 		},
-		`Refer to Stimulus A and Stimulus B.`,
+		`Refer to Stimulus A and Stimulus B. Connect your reasoning to **${ctx.unitTitle}** (${frqUnitAnchorSentence(ctx)}).`,
 	);
 
 	return [q0, q1, q2];
@@ -1051,7 +1605,7 @@ function buildScienceSet(
 
 function buildEnglishSet(
 	rng: () => number,
-	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
+	ctx: FrqUnitCtx,
 ): ExamQuestion[] {
 	const passage = pick(rng, [
 		"A city council member argues that ‘efficiency’ should outweigh neighborhood character when approving new housing.",
@@ -1086,7 +1640,7 @@ function buildEnglishSet(
 			},
 		]),
 		},
-		`Read the following claim (hypothetical):\n\n> ${passage}\n\nFigure 1 may be a reader poll, a rhetorical process sketch, or a photograph exhibit; cite it only if it sharpens your analysis for ${ctx.unitTitle}.`,
+		`Read the following claim (hypothetical):\n\n> ${passage}\n\nFigure 1 may be a reader poll, a rhetorical process sketch, or a photograph exhibit; cite it only if it sharpens your analysis for **${ctx.unitTitle}** (${frqUnitAnchorSentence(ctx)}).`,
 	);
 
 	const fig: ExamFigure = {
@@ -1120,12 +1674,14 @@ function buildEnglishSet(
 				maxPoints: 2,
 				criteria: [
 					crit("(Point 1)", "Claim", ["States a clear benefit (clarity, urgency, inclusivity) or risk (hectoring, vagueness, overclaim)."]),
-					crit("(Point 2)", "Development", [`Connects to ${ctx.unitTitle} skills (line of reasoning, concession, evidence use).`]),
+					crit("(Point 2)", "Development", [
+						`Connects drafting choices to **${ctx.unitTitle}** (line of reasoning, concession, evidence use) with at least one concrete link to the unit’s themes.`,
+					]),
 				],
 			},
 		]),
 		},
-		`Use Table 1 while revising an argument tied to ${ctx.unitTitle}.`,
+		`Use Table 1 while revising an argument tied to **${ctx.unitTitle}** (${frqUnitAnchorSentence(ctx)}).`,
 	);
 
 	const stim: ExamFigure = {
@@ -1168,7 +1724,7 @@ function buildEnglishSet(
 			},
 		]),
 		},
-		`Refer to Stimulus A and Stimulus B.`,
+		`Refer to Stimulus A and Stimulus B. Relate your answers to **${ctx.unitTitle}** (${frqUnitAnchorSentence(ctx)}).`,
 	);
 
 	return [q0, q1, q2];
@@ -1176,7 +1732,7 @@ function buildEnglishSet(
 
 function buildCsSet(
 	rng: () => number,
-	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
+	ctx: FrqUnitCtx,
 ): ExamQuestion[] {
 	const csFig0 = frqFigureCsQ0(rng, { courseId: ctx.courseId, unitTitle: ctx.unitTitle });
 	const q0 = frqQ(
@@ -1204,7 +1760,7 @@ function buildCsSet(
 			},
 		]),
 		},
-		`Design context: ${ctx.unitTitle}. Figure 1 may show a process/network sketch, a simple circuit model, or build telemetry—use it if it helps you reason about invariants, failure modes, or detection.`,
+		`Design context: **${ctx.unitTitle}** (${frqUnitAnchorSentence(ctx)}). Figure 1 may show a process/network sketch, a simple circuit model, or build telemetry—use it if it helps you reason about invariants, failure modes, or detection.`,
 	);
 
 	const fig: ExamFigure = {
@@ -1286,7 +1842,7 @@ function buildCsSet(
 			},
 		]),
 		},
-		`Refer to Stimulus A and Stimulus B.`,
+		`Refer to Stimulus A and Stimulus B. Relate your answers to **${ctx.unitTitle}** (${frqUnitAnchorSentence(ctx)}).`,
 	);
 
 	return [q0, q1, q2];
@@ -1294,7 +1850,7 @@ function buildCsSet(
 
 function buildWorldLangSet(
 	rng: () => number,
-	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
+	ctx: FrqUnitCtx,
 ): ExamQuestion[] {
 	const lang =
 		ctx.courseId === "spanish"
@@ -1339,7 +1895,7 @@ function buildWorldLangSet(
 			},
 		]),
 		},
-		`${lang} free response. Theme: ${ctx.unitTitle}.\n\nFigure 1 may be a photograph exhibit or a skills bar chart; you may refer to it in ${lang} if it supports your response.\n\nRespond in ${lang} with 3–4 sentences.\n\nPrompt: Describe one community tradition you value and one change you have noticed in daily life. Explain how the two connect.\n\n(Rubric text is in English for clarity.)`,
+		`${lang} response — **${ctx.unitTitle}**.\n${frqUnitAnchorSentence(ctx)}\n\nFigure 1 may be a photograph exhibit or a chart; refer to it in ${lang} only if it supports your answer.\n\nRespond in ${lang} with 3–4 sentences.\n\nPrompt: Describe one tradition or practice that matters in a community you know, and one recent change in daily life there. Explain how the two are connected for people who live there.`,
 	);
 
 	const fig: ExamFigure = {
@@ -1384,7 +1940,7 @@ function buildWorldLangSet(
 	const stim: ExamFigure = {
 		kind: "stimulus",
 		title: "Stimuli for Question 3",
-		body: `**Stimulus A (English prompt for exam integrity)**\nTwo classmates disagree whether classroom-only practice is enough for proficiency.\n\n---\n\n**Stimulus B (English prompt for exam integrity)**\nA teacher argues that “interpersonal risk-taking” matters more than perfect grammar early on.`,
+		body: `**Stimulus A — learning context (English)**\nTwo classmates disagree whether studying only at home is enough to build real proficiency in ${lang}.\n\n---\n\n**Stimulus B — learning context (English)**\nA mentor argues that taking interpersonal risks (starting conversations, making mistakes aloud) matters more than perfect grammar in the first months.`,
 	};
 
 	const q2 = frqQ(
@@ -1407,7 +1963,7 @@ function buildWorldLangSet(
 				maxPoints: 2,
 				criteria: [
 					crit("(Point 1)", "Interpretation", ["Explains risk-taking vs accuracy tradeoff in study strategy."]),
-					crit("(Point 2)", "Unit linkage", [`Applies to ${ctx.unitTitle} specifically.`]),
+					crit("(Point 2)", "Unit linkage", [`Applies to **${ctx.unitTitle}** (${frqUnitAnchorSentence(ctx)}).`]),
 				],
 			},
 			{
@@ -1429,7 +1985,7 @@ function buildWorldLangSet(
 
 function buildArtsSet(
 	rng: () => number,
-	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
+	ctx: FrqUnitCtx,
 ): ExamQuestion[] {
 	const arFig0 = frqFigureArtsQ0(rng, { unitTitle: ctx.unitTitle });
 	const q0 = frqQ(
@@ -1460,7 +2016,7 @@ function buildArtsSet(
 			},
 		]),
 		},
-		`Choose one work or repertoire item you have studied in ${ctx.unitTitle} (hypothetical if needed). Figure 1 may be a photograph exhibit or an engagement curve; reference it if it helps connect form to audience experience.`,
+		`Choose one work or repertoire item you have studied in **${ctx.unitTitle}** (${frqUnitAnchorSentence(ctx)}; hypothetical if needed). Figure 1 may be a photograph exhibit or an engagement curve; reference it if it helps connect form to audience experience.`,
 	);
 
 	const fig: ExamFigure = {
@@ -1542,7 +2098,7 @@ function buildArtsSet(
 			},
 		]),
 		},
-		`Refer to Stimulus A and Stimulus B.`,
+		`Refer to Stimulus A and Stimulus B. Relate your answers to **${ctx.unitTitle}** (${frqUnitAnchorSentence(ctx)}).`,
 	);
 
 	return [q0, q1, q2];
@@ -1550,7 +2106,7 @@ function buildArtsSet(
 
 function buildCapstoneSet(
 	rng: () => number,
-	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
+	ctx: FrqUnitCtx,
 ): ExamQuestion[] {
 	const capFig0 = frqFigureCapstoneQ0(rng);
 	const q0 = frqQ(
@@ -1578,7 +2134,7 @@ function buildCapstoneSet(
 			},
 		]),
 		},
-		`Within ${ctx.unitTitle}, propose one researchable question. Figure 1 may show a rubric bar chart, a score histogram, or a research-cycle flowchart—use it if it helps you justify significance or scope.`,
+		`Grounded in **${ctx.unitTitle}** (${frqUnitAnchorSentence(ctx)}), propose one researchable question. Figure 1 may show a planning sketch, score histogram, or research-cycle flowchart—use it if it helps you justify significance or scope.`,
 	);
 
 	const fig: ExamFigure = {
@@ -1663,7 +2219,7 @@ function buildCapstoneSet(
 			},
 		]),
 		},
-		`Refer to Stimulus A and Stimulus B.`,
+		`Refer to Stimulus A and Stimulus B. Relate your answers to **${ctx.unitTitle}** (${frqUnitAnchorSentence(ctx)}).`,
 	);
 
 	return [q0, q1, q2];
@@ -1671,7 +2227,7 @@ function buildCapstoneSet(
 
 function buildGenericSet(
 	rng: () => number,
-	ctx: { courseId: string; courseName: string; unitTitle: string; setIndex: number },
+	ctx: FrqUnitCtx,
 ): ExamQuestion[] {
 	// Mirrors the three-item AP practice structure: no stimulus, one stimulus, two stimuli.
 	return buildSocialSet(rng, ctx);
@@ -1684,6 +2240,8 @@ function generateApFrqPracticeTriple(params: {
 	difficulty?: ProceduralDifficulty;
 	/** Per-request salt so the same setIndex never yields identical FRQ wording. */
 	sessionEntropy?: string;
+	/** Fingerprints (precise + read) to avoid repeating items the user already saw. */
+	avoidFingerprints?: readonly string[];
 }): ExamQuestion[] {
 	const course = AP_COURSES.find((c) => c.id === params.courseId);
 	if (!course) throw new Error(`Unknown course: ${params.courseId}`);
@@ -1699,55 +2257,81 @@ function generateApFrqPracticeTriple(params: {
 			: getUnitOrFirst(params.courseId, params.unitId);
 	if (!unit) throw new Error(`Bad unit for course: ${params.courseId}`);
 
-	const entropy = params.sessionEntropy ?? randomSeedEntropy();
-	const seed = `frq|${params.courseId}|u:${unit.id}|set:${si}|diff:${diff}|${entropy}`;
+	const avoid = new Set(params.avoidFingerprints ?? []);
 	const track = frqTrackForCourse(params.courseId);
 
-	const ctx = {
+	const ctxBase: Omit<FrqUnitCtx, "setIndex"> = {
 		courseId: params.courseId,
 		courseName: course.name,
 		unitTitle: unit.title,
-		setIndex: si,
+		unitSummary: unit.summary,
+		unitHooks: unit.questionHooks ?? [],
+		unitIndex: unit.index,
 	};
 
-	const r0 = createRng(seed, "q0");
-	const r1 = createRng(seed, "q1");
+	let attemptEntropy = params.sessionEntropy ?? randomSeedEntropy();
+	let lastQs: ExamQuestion[] = [];
 
-	const mk = (): ExamQuestion[] => {
-		switch (track) {
-			case "human_geo":
-				return buildHumanGeoSet(r0, ctx);
-			case "history":
-				return buildHistorySet(r0, ctx);
-			case "math":
-				return buildMathSet(r0, ctx);
-			case "science":
-				return buildScienceSet(r0, ctx);
-			case "social":
-				return buildSocialSet(r0, ctx);
-			case "english":
-				return buildEnglishSet(r0, ctx);
-			case "cs":
-				return buildCsSet(r0, ctx);
-			case "world_lang":
-				return buildWorldLangSet(r0, ctx);
-			case "arts":
-				return buildArtsSet(r0, ctx);
-			case "capstone":
-				return buildCapstoneSet(r0, ctx);
-			default:
-				return buildGenericSet(r0, ctx);
-		}
-	};
+	for (let attempt = 0; attempt < 48; attempt++) {
+		const entropy = `${attemptEntropy}|try${attempt}`;
+		const seed = `frq|${params.courseId}|u:${unit.id}|set:${si}|diff:${diff}|${entropy}`;
+		const ctx: FrqUnitCtx = { ...ctxBase, setIndex: si };
+		const r0 = createRng(seed, "q0");
+		const r1 = createRng(seed, "q1");
 
-	let qs = mk();
-	const jitter = createRng(seed, `jitter|${si}`);
-	if (jitter() > 0.5) {
-		if (track === "math" || track === "science") {
-			qs = track === "math" ? buildMathSet(r1, ctx) : buildScienceSet(r1, ctx);
+		const mk = (): ExamQuestion[] => {
+			switch (track) {
+				case "human_geo":
+					return buildHumanGeoSet(r0, ctx);
+				case "history":
+					return buildHistorySet(r0, ctx);
+				case "math":
+					return buildMathSet(r0, ctx);
+				case "science":
+					return buildScienceSet(r0, ctx);
+				case "social":
+					return buildSocialSet(r0, ctx);
+				case "english":
+					return buildEnglishSet(r0, ctx);
+				case "cs":
+					return buildCsSet(r0, ctx);
+				case "world_lang":
+					return buildWorldLangSet(r0, ctx);
+				case "arts":
+					return buildArtsSet(r0, ctx);
+				case "capstone":
+					return buildCapstoneSet(r0, ctx);
+				default:
+					return buildGenericSet(r0, ctx);
+			}
+		};
+
+		let qs = mk();
+		const jitter = createRng(seed, `jitter|${si}`);
+		if (jitter() > 0.5) {
+			if (track === "math" || track === "science") {
+				qs = track === "math" ? buildMathSet(r1, ctx) : buildScienceSet(r1, ctx);
+			}
 		}
+		lastQs = qs;
+
+		const seen = new Set<string>();
+		let clash = false;
+		for (const q of qs) {
+			for (const k of questionAvoidFingerprintKeys(q)) {
+				if (avoid.has(k) || seen.has(k)) {
+					clash = true;
+					break;
+				}
+				seen.add(k);
+			}
+			if (clash) break;
+		}
+		if (!clash) return qs;
+		attemptEntropy = randomSeedEntropy();
 	}
-	return qs;
+
+	return lastQs;
 }
 
 export function generateApFrqPracticeSet(params: {
@@ -1756,10 +2340,12 @@ export function generateApFrqPracticeSet(params: {
 	unitId: string;
 	difficulty?: ProceduralDifficulty;
 	sessionEntropy?: string;
+	avoidFingerprints?: readonly string[];
 }): ExamQuestion[] {
 	const spec = getApFrqReplicaSpec(params.courseId);
 	const n = Math.max(1, Math.min(24, spec.frqCount));
 	const out: ExamQuestion[] = [];
+	const avoidAccum = new Set(params.avoidFingerprints ?? []);
 	let round = 0;
 	const baseEntropy = params.sessionEntropy ?? randomSeedEntropy();
 	while (out.length < n && round < 20) {
@@ -1767,6 +2353,7 @@ export function generateApFrqPracticeSet(params: {
 			...params,
 			setIndex: clampSetIndex(params.setIndex + round),
 			sessionEntropy: `${baseEntropy}|round${round}|${randomSeedEntropy()}`,
+			avoidFingerprints: [...avoidAccum],
 		});
 		for (const q of chunk) {
 			if (out.length >= n) break;
@@ -1774,6 +2361,9 @@ export function generateApFrqPracticeSet(params: {
 				...q,
 				id: idFor(params.courseId, params.setIndex, out.length, hashString(q.question.slice(0, 48)).toString(36)),
 			});
+			for (const k of questionAvoidFingerprintKeys(q)) {
+				avoidAccum.add(k);
+			}
 		}
 		round++;
 	}

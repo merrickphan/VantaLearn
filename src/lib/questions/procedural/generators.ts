@@ -1,13 +1,19 @@
 ﻿import type { ExamFigure, ExamQuestion } from "@/types";
 import {
+ CALC_ANTIDERIV_CONTEXT_ONLY,
+ CALC_FUNCTION_CONTEXT_ONLY,
  CALC_FUNCTION_INTROS,
+ COMPOSITION_STEMS,
  COMPOSITION_TABLE_STEMS,
  DERIVATIVE_AFTER_STIM_STEMS,
+ DERIVATIVE_POWER_STEMS,
  fillStem,
  INTEGRAL_AFTER_STIM_STEMS,
+ INTEGRAL_POWER_STEMS,
  KE_TABLE_STEMS,
  KINEMATICS_TABLE_STEMS,
  LIMIT_AFTER_TABLE_STEMS,
+ LIMIT_LINEAR_STEMS,
  MEAN_AFTER_TABLE_STEMS,
  MOLARITY_TABLE_STEMS,
  ZSCORE_TABLE_STEMS,
@@ -111,13 +117,26 @@ export function genDerivativePower(rng: () => number, ctx: ProcCtx, i: number): 
  const coef = coefMag * sign;
  const d = coef * n;
  const nm1 = n - 1;
- const fx = coef < 0 ? `${coef}x^${n}` : `${coef}x^${n}`;
+ const fx = `${coef}x^${n}`;
  const correct = `${d}x^${nm1}`;
- const stemIdx = randInt(rng, 0, DERIVATIVE_AFTER_STIM_STEMS.length - 1);
- const stem = DERIVATIVE_AFTER_STIM_STEMS[stemIdx];
+ const stemInQuestion = rng() < 0.44;
+ let stem: string;
+ let stemIdx: number;
+ let structStem: string;
+ if (stemInQuestion) {
+ stemIdx = randInt(rng, 0, DERIVATIVE_POWER_STEMS.length - 1);
+ stem = fillStem(DERIVATIVE_POWER_STEMS[stemIdx], { fx });
+ structStem = `e${stemIdx}`;
+ } else {
+ stemIdx = randInt(rng, 0, DERIVATIVE_AFTER_STIM_STEMS.length - 1);
+ stem = DERIVATIVE_AFTER_STIM_STEMS[stemIdx];
+ structStem = `s${stemIdx}`;
+ }
  const fig: ExamFigure = {
  kind: "stimulus",
- body: `${pick(rng, CALC_FUNCTION_INTROS)}\n\nf(x) = ${fx}`,
+ body: stemInQuestion
+ ? pick(rng, CALC_FUNCTION_CONTEXT_ONLY)
+ : `${pick(rng, CALC_FUNCTION_INTROS)}\n\nf(x) = ${fx}`,
  };
  return mc(
  rng,
@@ -132,7 +151,7 @@ export function genDerivativePower(rng: () => number, ctx: ProcCtx, i: number): 
  `Power rule: d/dx[c x^n] = (cn)x^(n-1). Here cn = ${d}.`,
  {
  figure: fig,
- procedural_structure_id: `calc-dpow-s${stemIdx}-n${n}-c${coefMag}`,
+ procedural_structure_id: `calc-dpow-${structStem}-n${n}-c${coefMag}`,
  },
  );
 }
@@ -143,12 +162,27 @@ export function genLimitLinear(rng: () => number, ctx: ProcCtx, i: number): Exam
  const b = randInt(rng, spread === "tight" ? -18 : -60, spread === "tight" ? 18 : spread === "wide" ? 72 : 60);
  const c = randInt(rng, 1, spread === "tight" ? 18 : spread === "wide" ? 62 : 55);
  const lim = a * c + b;
- const stemIdx = randInt(rng, 0, LIMIT_AFTER_TABLE_STEMS.length - 1);
- const stem = LIMIT_AFTER_TABLE_STEMS[stemIdx];
+ const explicitStem = rng() < 0.36;
+ let stem: string;
+ let stemIdx: number;
+ let structTag: string;
+ if (explicitStem) {
+ stemIdx = randInt(rng, 0, LIMIT_LINEAR_STEMS.length - 1);
+ stem = fillStem(LIMIT_LINEAR_STEMS[stemIdx], { a, b, c });
+ structTag = `L${stemIdx}`;
+ } else {
+ stemIdx = randInt(rng, 0, LIMIT_AFTER_TABLE_STEMS.length - 1);
+ stem = LIMIT_AFTER_TABLE_STEMS[stemIdx];
+ structTag = `s${stemIdx}`;
+ }
  const gx = b >= 0 ? `${a}x + ${b}` : `${a}x - ${-b}`;
  const fig: ExamFigure = {
  kind: "table",
- title: "Table 1. Linear function g(x) = ax + b",
+ title: pick(rng, [
+ "Table 1. Linear function g(x) = ax + b",
+ "Table 1. Parameters for g(x) = ax + b",
+ "Table 1. Coefficients and limit target for linear g",
+ ]),
  headers: ["a", "b", "c (target)", "g(x)"],
  rows: [[String(a), String(b), String(c), gx]],
  };
@@ -165,7 +199,7 @@ export function genLimitLinear(rng: () => number, ctx: ProcCtx, i: number): Exam
  `Substitute x = ${c} into the continuous linear function.`,
  {
  figure: fig,
- procedural_structure_id: `calc-lim-s${stemIdx}-a${a}-b${b}-c${c}`,
+ procedural_structure_id: `calc-lim-${structTag}-a${a}-b${b}-c${c}`,
  },
  );
 }
@@ -177,11 +211,24 @@ export function genIntegralPower(rng: () => number, ctx: ProcCtx, i: number): Ex
  const exp = n + 1;
  const num = coef;
  const correct = `(${num}/${exp})x^${exp} + C`;
- const stemIdx = randInt(rng, 0, INTEGRAL_AFTER_STIM_STEMS.length - 1);
- const stem = INTEGRAL_AFTER_STIM_STEMS[stemIdx];
+ const stemInQuestion = rng() < 0.4;
+ let stem: string;
+ let stemIdx: number;
+ let structStem: string;
+ if (stemInQuestion) {
+ stemIdx = randInt(rng, 0, INTEGRAL_POWER_STEMS.length - 1);
+ stem = fillStem(INTEGRAL_POWER_STEMS[stemIdx], { coef, n });
+ structStem = `e${stemIdx}`;
+ } else {
+ stemIdx = randInt(rng, 0, INTEGRAL_AFTER_STIM_STEMS.length - 1);
+ stem = INTEGRAL_AFTER_STIM_STEMS[stemIdx];
+ structStem = `s${stemIdx}`;
+ }
  const fig: ExamFigure = {
  kind: "stimulus",
- body: `${pick(rng, CALC_FUNCTION_INTROS)}\n\nf(x) = ${coef}x^${n}`,
+ body: stemInQuestion
+ ? pick(rng, CALC_ANTIDERIV_CONTEXT_ONLY)
+ : `${pick(rng, CALC_FUNCTION_INTROS)}\n\nf(x) = ${coef}x^${n}`,
  };
  return mc(
  rng,
@@ -196,7 +243,7 @@ export function genIntegralPower(rng: () => number, ctx: ProcCtx, i: number): Ex
  `Increase exponent by 1 and divide by the new exponent.`,
  {
  figure: fig,
- procedural_structure_id: `calc-int-s${stemIdx}-n${n}-k${coef}`,
+ procedural_structure_id: `calc-int-${structStem}-n${n}-k${coef}`,
  },
  );
 }
@@ -209,12 +256,23 @@ export function genCompositionValue(rng: () => number, ctx: ProcCtx, i: number):
  const inner = a * x0 + b;
  const outerCoef = randInt(rng, 2, spread === "tight" ? 12 : spread === "wide" ? 28 : 24);
  const val = outerCoef * inner;
- const stemIdx = randInt(rng, 0, COMPOSITION_TABLE_STEMS.length - 1);
- const stem = fillStem(COMPOSITION_TABLE_STEMS[stemIdx], { x0 });
  const gb = b >= 0 ? `${a}x + ${b}` : `${a}x - ${-b}`;
+ const useFullCompositionStem = b >= 0 && rng() < 0.42;
+ let stem: string;
+ let stemIdx: number;
+ let structStem: string;
+ if (useFullCompositionStem) {
+ stemIdx = randInt(rng, 0, COMPOSITION_STEMS.length - 1);
+ stem = fillStem(COMPOSITION_STEMS[stemIdx], { oc: String(outerCoef), a: String(a), b: String(b), x0: String(x0) });
+ structStem = `e${stemIdx}`;
+ } else {
+ stemIdx = randInt(rng, 0, COMPOSITION_TABLE_STEMS.length - 1);
+ stem = fillStem(COMPOSITION_TABLE_STEMS[stemIdx], { x0 });
+ structStem = `s${stemIdx}`;
+ }
  const fig: ExamFigure = {
  kind: "table",
- title: "Table 1. Function definitions",
+ title: pick(rng, ["Table 1. Function definitions", "Table 1. Rules for f and g", "Table 1. Composition setup"]),
  headers: ["Name", "Rule"],
  rows: [
  ["f(x)", `${outerCoef}x`],
@@ -235,7 +293,95 @@ export function genCompositionValue(rng: () => number, ctx: ProcCtx, i: number):
  `First g(${x0}) = ${inner}, then f(${inner}) = ${outerCoef} x ${inner}.`,
  {
  figure: fig,
- procedural_structure_id: `calc-comp-s${stemIdx}-x${x0}-o${outerCoef}`,
+ procedural_structure_id: `calc-comp-${structStem}-x${x0}-o${outerCoef}`,
+ },
+ );
+}
+
+const SLOPE_TWO_POINT_STEMS = [
+ "The table lists two points on a nonvertical line. The slope of the line is",
+ "For the line through the two points in the table, the slope m equals",
+ "Using (x1, y1) and (x2, y2) from the table, the slope (rise over run) is",
+ "Compute the slope of the line passing through the two given points.",
+ "The constant rate of change between the two tabled points equals",
+] as const;
+
+/** Average rate of change / slope from two integer points (distinct x). */
+export function genLinearSlopeTwoPoints(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const spread = numericSpreadForCtx(ctx);
+ const x1 = randInt(rng, spread === "tight" ? 0 : -4, spread === "tight" ? 8 : 12);
+ const run = randInt(rng, 2, spread === "tight" ? 7 : 10);
+ const x2 = x1 + run;
+ let mTrue = randInt(rng, spread === "tight" ? -5 : -8, spread === "tight" ? 5 : 8);
+ if (mTrue === 0) mTrue = pick(rng, [-4, -3, -2, 2, 3, 4, 5, 6] as const);
+ const y1 = randInt(rng, spread === "tight" ? -12 : -28, spread === "tight" ? 18 : 40);
+ const y2 = y1 + mTrue * run;
+ const stem = pick(rng, SLOPE_TWO_POINT_STEMS);
+ const fig: ExamFigure = {
+ kind: "table",
+ title: pick(rng, ["Table 1. Two points on a line", "Table 1. Coordinate pairs", "Table 1. (x, y) values"]),
+ headers: ["Point", "x", "y"],
+ rows: [
+ ["P", String(x1), String(y1)],
+ ["Q", String(x2), String(y2)],
+ ],
+ };
+ const wrongRise = mTrue + pick(rng, [-1, 1] as const);
+ return mc(
+ rng,
+ ctx,
+ i,
+ "slope-2pt",
+ stem,
+ `${mTrue}`,
+ `${wrongRise}`,
+ `${y2 - y1}`,
+ `${run}`,
+ `m = (y2 - y1)/(x2 - x1) = (${y2} - ${y1})/(${x2} - ${x1}) = ${mTrue}.`,
+ {
+ figure: fig,
+ procedural_structure_id: `calc-slope2-m${mTrue}-r${run}`,
+ },
+ );
+}
+
+const INTEGER_POWER_STEMS = [
+ "The value of the expression above is",
+ "Evaluating the power yields",
+ "Which value equals the expression shown?",
+ "The expression simplifies to",
+] as const;
+
+/** Small integer powers for symbolic / mental evaluation (no calculator section friendly). */
+export function genSmallIntegerPowerEval(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const base = pick(rng, [2, 3, 4, 5] as const);
+ const exp = randInt(rng, 2, base === 2 ? 5 : base === 3 ? 4 : 3);
+ const correctN = base ** exp;
+ const stem = pick(rng, INTEGER_POWER_STEMS);
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ body: pick(rng, [
+ `Evaluate without a calculator:\n\n${base}^${exp}`,
+ `Consider the numerical expression ${base}^${exp}.`,
+ `Compute ${base}^${exp}.`,
+ ]),
+ };
+ const offByOne = base ** (exp - 1);
+ const wrongA = exp > 2 ? base ** (exp - 2) : base + 1;
+ return mc(
+ rng,
+ ctx,
+ i,
+ "pow-int",
+ stem,
+ `${correctN}`,
+ `${offByOne}`,
+ `${base * exp}`,
+ `${wrongA}`,
+ `Repeated multiplication: ${base}^${exp} = ${correctN}.`,
+ {
+ figure: fig,
+ procedural_structure_id: `calc-powint-b${base}-e${exp}`,
  },
  );
 }
@@ -257,6 +403,11 @@ const TRIG_ROWS: { stem: string; c: string; w: [string, string, string]; ex: str
  { stem: "cos(π/3) equals", c: "1/2", w: ["√(3)/2", "√(2)/2", "1"], ex: "cos(π/3) = 1/2." },
  { stem: "tan(0) equals", c: "0", w: ["1", "undefined", "1/2"], ex: "tan(0) = 0." },
  { stem: "tan(π/4) equals", c: "1", w: ["0", "√(2)", "1/2"], ex: "tan(π/4) = 1." },
+ { stem: "tan(π/3) equals", c: "√(3)", w: ["1", "1/√(3)", "2"], ex: "tan(π/3) = √(3)." },
+ { stem: "sin(2π) equals", c: "0", w: ["1", "-1", "1/2"], ex: "sin(2π) = 0." },
+ { stem: "cos(2π) equals", c: "1", w: ["0", "-1", "1/2"], ex: "cos(2π) = 1." },
+ { stem: "sin(-π/2) equals", c: "-1", w: ["0", "1", "1/2"], ex: "sin(-π/2) = -1." },
+ { stem: "cos(-π) equals", c: "-1", w: ["0", "1", "1/2"], ex: "cos(-π) = -1." },
 ];
 
 const TRIG_REFERENCE_FIGURE: ExamFigure = {
@@ -1741,18 +1892,22 @@ const CALC: QuestionGen[] = [
  genLimitLinear,
  genIntegralPower,
  genCompositionValue,
+ genLinearSlopeTwoPoints,
+ genSmallIntegerPowerEval,
  genTrigSpecial,
 ];
 
 /**
- * AP-style no-calculator MCQ mix for Calc AB/BC: symbolic calculus + light composition,
- * exact trig, and conceptual stats (no multi-hundred arithmetic means).
+ * AP-style no-calculator MCQ mix for symbolic calculus + light composition,
+ * exact trig, integer powers, slope from two points, and conceptual stats (no heavy arithmetic means).
  */
 const CALC_NO_CALCULATOR_SECTION: QuestionGen[] = [
  genDerivativePower,
  genLimitLinear,
  genIntegralPower,
  genCompositionValue,
+ genLinearSlopeTwoPoints,
+ genSmallIntegerPowerEval,
  genTrigSpecial,
  genZScoreConcept,
 ];

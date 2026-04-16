@@ -1,7 +1,15 @@
 ﻿import { AP_COURSES } from "@/lib/apCatalog";
 import { getUnitOrFirst, getUnitsForCourseId } from "@/lib/apUnits";
 import type { ExamQuestion } from "@/types";
-import { createRng, hashString, proceduralUniqKey, randomSeedEntropy, shuffleInPlace } from "./utils";
+import {
+	createRng,
+	hashString,
+	isQuestionAvoidedBySet,
+	proceduralUniqKey,
+	questionReadDedupKey,
+	randomSeedEntropy,
+	shuffleInPlace,
+} from "./utils";
 import { getGeneratorsForCourse, type CalculatorSectionPolicy, type ProcCtx } from "./generators";
 
 export type { CalculatorSectionPolicy };
@@ -61,7 +69,8 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
  const out: ExamQuestion[] = [];
  const n = Math.min(100, Math.max(1, Math.floor(params.count)));
 
- const seen = new Set<string>();
+ /** Precise + “same reading” keys already emitted in this batch. */
+ const placedFingerprints = new Set<string>();
  const seenStructure = new Set<string>();
  const avoid = params.avoidKeys ?? new Set<string>();
 
@@ -114,44 +123,93 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
  );
  const cand = pool[genIndex](rng, ctx, i);
  const key = proceduralUniqKey(cand);
+ const readKey = questionReadDedupKey(cand);
  const struct = cand.procedural_structure_id ?? "";
- const isStructRepeated = struct ? seenStructure.has(struct) : false;
- const acceptable = !avoid.has(key) && !seen.has(key) && !isStructRepeated;
+ const structOk = !struct || !seenStructure.has(struct);
+ const acceptable =
+ structOk &&
+ !isQuestionAvoidedBySet(cand, avoid) &&
+ !placedFingerprints.has(key) &&
+ !placedFingerprints.has(readKey);
  if (acceptable) {
- seen.add(key);
+ placedFingerprints.add(key);
+ placedFingerprints.add(readKey);
  if (struct) seenStructure.add(struct);
  q = cand;
  break;
  }
- if (!bestFallback && !avoid.has(key) && !seen.has(key)) bestFallback = cand;
+ const fallbackOk =
+ structOk &&
+ !isQuestionAvoidedBySet(cand, avoid) &&
+ !placedFingerprints.has(key) &&
+ !placedFingerprints.has(readKey);
+ if (!bestFallback && fallbackOk) bestFallback = cand;
  }
  if (!q) {
  if (bestFallback) {
  q = bestFallback;
  const key = proceduralUniqKey(q);
+ const readKey = questionReadDedupKey(q);
  const struct = q.procedural_structure_id ?? "";
- seen.add(key);
+ placedFingerprints.add(key);
+ placedFingerprints.add(readKey);
  if (struct) seenStructure.add(struct);
  } else {
  let picked: ExamQuestion | undefined;
- for (let fb = 0; fb < 240; fb++) {
+ for (let fb = 0; fb < 360; fb++) {
  const genIndex = order[(i + fb) % order.length];
  const rng = createRng(`${seedBase}|fb${fb}`, `${randomSeedEntropy()}|${hashString(unit.id)}|${i}`);
  const cand = pool[genIndex](rng, ctx, i);
  const key = proceduralUniqKey(cand);
+ const readKey = questionReadDedupKey(cand);
  const struct = cand.procedural_structure_id ?? "";
  const structOk = !struct || !seenStructure.has(struct);
- if (!avoid.has(key) && !seen.has(key) && structOk) {
+ const ok =
+ !isQuestionAvoidedBySet(cand, avoid) &&
+ !placedFingerprints.has(key) &&
+ !placedFingerprints.has(readKey) &&
+ structOk;
+ if (ok) {
  picked = cand;
- seen.add(key);
+ placedFingerprints.add(key);
+ placedFingerprints.add(readKey);
  if (struct) seenStructure.add(struct);
  break;
+ }
+ }
+ if (!picked) {
+ for (let lr = 0; lr < 200; lr++) {
+ const genIndex = order[(i + lr) % order.length];
+ const rng = createRng(randomSeedEntropy(), `lastresort|${i}|lr${lr}|${randomSeedEntropy()}`);
+ const cand = pool[genIndex](rng, ctx, i);
+ const key = proceduralUniqKey(cand);
+ const readKey = questionReadDedupKey(cand);
+ const struct = cand.procedural_structure_id ?? "";
+ const structOk = !struct || !seenStructure.has(struct);
+ if (
+ !isQuestionAvoidedBySet(cand, avoid) &&
+ !placedFingerprints.has(key) &&
+ !placedFingerprints.has(readKey) &&
+ structOk
+ ) {
+ picked = cand;
+ placedFingerprints.add(key);
+ placedFingerprints.add(readKey);
+ if (struct) seenStructure.add(struct);
+ break;
+ }
  }
  }
  if (!picked) {
  const genIndex = order[i % order.length];
  const rng = createRng(randomSeedEntropy(), `lastresort|${i}|${randomSeedEntropy()}`);
  picked = pool[genIndex](rng, ctx, i);
+ const key = proceduralUniqKey(picked);
+ const readKey = questionReadDedupKey(picked);
+ placedFingerprints.add(key);
+ placedFingerprints.add(readKey);
+ const struct = picked.procedural_structure_id ?? "";
+ if (struct) seenStructure.add(struct);
  }
  q = picked;
  }

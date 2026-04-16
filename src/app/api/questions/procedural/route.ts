@@ -6,7 +6,11 @@ import {
  type ProceduralDifficulty,
 } from "@/lib/questions/procedural";
 import { createClient } from "@/lib/supabase/server";
-import { proceduralUniqKey, randomSeedEntropy } from "@/lib/questions/procedural/utils";
+import {
+	isQuestionAvoidedBySet,
+	questionAvoidFingerprintKeys,
+	randomSeedEntropy,
+} from "@/lib/questions/procedural/utils";
 
 export async function POST(req: Request) {
  try {
@@ -21,7 +25,7 @@ export async function POST(req: Request) {
  const clientAvoid: string[] = Array.isArray(clientAvoidRaw)
   ? clientAvoidRaw
     .filter((x: unknown) => typeof x === "string" && (x as string).length > 0 && (x as string).length < 900)
-    .slice(0, 600)
+    .slice(0, 1000)
   : [];
  const rawCalcSection = body.calculatorSection;
  const calculatorSection: CalculatorSectionPolicy | undefined =
@@ -75,7 +79,7 @@ export async function POST(req: Request) {
   // If still stuck, treat it as "exhausted" and reset the seen set for this course/unit.
   if (userId) {
    for (let round = 0; round < MAX_ROUNDS; round++) {
-    const unseen = questions.filter((q) => !avoid.has(proceduralUniqKey(q)));
+    const unseen = questions.filter((q) => !isQuestionAvoidedBySet(q, avoid));
     if (unseen.length >= count) {
      questions = unseen.slice(0, count);
      break;
@@ -91,16 +95,16 @@ export async function POST(req: Request) {
      difficulty,
     });
     for (const q of more) {
-     const key = proceduralUniqKey(q);
-     if (!avoid.has(key)) questions.push(q);
+     if (!isQuestionAvoidedBySet(q, avoid)) questions.push(q);
     }
    }
 
    const final: typeof questions = [];
    for (const q of questions) {
-    const key = proceduralUniqKey(q);
-    if (avoid.has(key)) continue;
-    avoid.add(key);
+    if (isQuestionAvoidedBySet(q, avoid)) continue;
+    for (const fp of questionAvoidFingerprintKeys(q)) {
+     avoid.add(fp);
+    }
     final.push(q);
     if (final.length >= count) break;
    }
@@ -142,12 +146,14 @@ export async function POST(req: Request) {
    // Persist newly served fingerprints.
    try {
     const supabase = await createClient();
-    const inserts = questions.map((q) => ({
-     user_id: userId,
-     course_id: courseId,
-     unit_id: unitId ?? "",
-     fingerprint: proceduralUniqKey(q),
-    }));
+    const inserts = questions.flatMap((q) =>
+     questionAvoidFingerprintKeys(q).map((fingerprint) => ({
+      user_id: userId,
+      course_id: courseId,
+      unit_id: unitId ?? "",
+      fingerprint,
+     })),
+    );
     if (inserts.length) {
      await supabase.from("procedural_seen_questions").upsert(inserts, { onConflict: "user_id,fingerprint" });
     }

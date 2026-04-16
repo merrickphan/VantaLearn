@@ -148,12 +148,14 @@ function ProceduralFrqExamSession({
  const router = useRouter();
  const [questions, setQuestions] = useState<ExamQuestion[] | null>(null);
  const [error, setError] = useState<string | null>(null);
+ const sessionBundleRef = useRef<{ courseId: string; unitScope: string; questions: ExamQuestion[] } | null>(null);
 
  const course = AP_COURSES.find((c) => c.id === courseId);
  const isAllUnits = unitParam === "all";
  const units = courseId ? getUnitsForCourseId(courseId) : [];
  const unitForTitle = isAllUnits ? undefined : getUnitOrFirst(courseId, unitParam || undefined);
  const resolvedUnitId = isAllUnits ? "all" : unitForTitle?.id;
+ const unitScope = practiceUnitScope(resolvedUnitId);
 
  useEffect(() => {
  let cancelled = false;
@@ -162,6 +164,11 @@ function ProceduralFrqExamSession({
  if (!courseId || !resolvedUnitId) return;
  (async () => {
  try {
+ const bundle = sessionBundleRef.current;
+ if (bundle?.questions?.length && bundle.courseId === courseId && bundle.unitScope === unitScope) {
+ appendClientSeenFingerprints(courseId, unitScope, bundle.questions);
+ }
+ const avoidFingerprints = peekClientAvoidFingerprints(courseId, unitScope);
  const res = await fetch("/api/questions/frq-set", {
  method: "POST",
  headers: { "Content-Type": "application/json" },
@@ -170,12 +177,16 @@ function ProceduralFrqExamSession({
  unitId: resolvedUnitId,
  setIndex,
  difficulty: practice.difficulty,
+ avoidFingerprints,
  }),
  });
  const data = await res.json();
  if (!res.ok) throw new Error(data.error || "Could not generate FRQ set.");
+ const qs = data.questions as ExamQuestion[];
  if (!cancelled) {
- setQuestions(data.questions as ExamQuestion[]);
+ appendClientSeenFingerprints(courseId, unitScope, qs);
+ sessionBundleRef.current = { courseId, unitScope, questions: qs };
+ setQuestions(qs);
  }
  } catch (e) {
  if (!cancelled) setError(e instanceof Error ? e.message : "Something went wrong.");
@@ -184,7 +195,7 @@ function ProceduralFrqExamSession({
  return () => {
  cancelled = true;
  };
- }, [courseId, resolvedUnitId, setIndex, practice.difficulty]);
+ }, [courseId, resolvedUnitId, unitScope, setIndex, practice.difficulty]);
 
  if (!course || units.length === 0) {
  return (

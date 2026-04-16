@@ -2,7 +2,7 @@ import type { ExamQuestion } from "@/types";
 import { findUnitById, getCourseIdFromSubjectName } from "@/lib/apUnits";
 import { generateOneValidatedMcq } from "@/lib/ai/questionGeneration/generateOneMcq";
 import { getSubjectConfigForCourse } from "@/lib/ai/questionGeneration/subjectConfigRegistry";
-import { proceduralUniqKey } from "@/lib/questions/procedural/utils";
+import { proceduralUniqKey, questionReadDedupKey } from "@/lib/questions/procedural/utils";
 
 export interface GenerateQuestionsInput {
 	subject: string;
@@ -60,8 +60,10 @@ export async function generateExamQuestions(input: GenerateQuestionsInput): Prom
 				topicNote: input.topic,
 			});
 			const k = proceduralUniqKey(cand);
-			if (!blocked.has(k)) {
+			const r = questionReadDedupKey(cand);
+			if (!blocked.has(k) && !blocked.has(r)) {
 				blocked.add(k);
+				blocked.add(r);
 				q = cand;
 				break;
 			}
@@ -78,6 +80,7 @@ export async function generateExamQuestions(input: GenerateQuestionsInput): Prom
 				topicNote: input.topic,
 			});
 			blocked.add(proceduralUniqKey(cand));
+			blocked.add(questionReadDedupKey(cand));
 			q = cand;
 		}
 		out.push(q);

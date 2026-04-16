@@ -127,6 +127,59 @@ export function proceduralUniqKey(q: ExamQuestion): string {
  return `fp:${proceduralQuestionFingerprint(q)}`;
 }
 
+function stripDiacritics(s: string): string {
+	return s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+}
+
+/** Heuristic: keep digit detail for symbolic / LaTeX stems so different numbers stay distinct. */
+function readDedupPreserveDigits(questionText: string): boolean {
+	const t = questionText.slice(0, 4000);
+	return (
+		/\\[a-zA-Z]+|\\frac|\\sqrt|\\int|\\sum|\\lim|\\\\/.test(t) ||
+		/\$\$|\$/.test(t) ||
+		/\b(?:f|g|h)\s*\(\s*x\s*\)/i.test(t) ||
+		/x\s*\^/.test(t)
+	);
+}
+
+/**
+ * Normalizes visible stem text so “same template, different constants” matches for prose MCQs.
+ * Not used as the sole key — paired with {@link proceduralUniqKey}.
+ */
+export function normalizeQuestionTextForReadDedup(questionText: string): string {
+	let s = stripDiacritics(questionText).toLowerCase();
+	s = s.replace(/\\[()[\]]/g, " ").replace(/\$/g, " ");
+	s = s.replace(/\s+/g, " ").trim();
+	if (!readDedupPreserveDigits(questionText)) {
+		s = s.replace(/\d+(?:[.,]\d+)?/g, "#");
+		s = s.replace(/(?:#\s*){2,}/g, "# ");
+	}
+	s = s.replace(/[^a-z0-9#?\s]/gi, " ");
+	return s.replace(/\s+/g, " ").trim().slice(0, 2500);
+}
+
+/**
+ * Secondary fingerprint: “would this read the same on screen as something I already did?”
+ * Prefers `frq_stem` when present so FRQs dedupe on the intro, not the full rubric dump.
+ */
+export function questionReadDedupKey(q: ExamQuestion): string {
+	const raw = (q.frq_stem ?? q.question).trim();
+	if (!raw) return "read:empty";
+	const n = normalizeQuestionTextForReadDedup(raw);
+	return `read:${hashString(n).toString(36)}`;
+}
+
+/** Precise template key plus human-read stem key — store/check both for avoidance. */
+export function questionAvoidFingerprintKeys(q: ExamQuestion): string[] {
+	const a = proceduralUniqKey(q);
+	const b = questionReadDedupKey(q);
+	return a === b ? [a] : [a, b];
+}
+
+export function isQuestionAvoidedBySet(q: ExamQuestion, avoid: ReadonlySet<string>): boolean {
+	return questionAvoidFingerprintKeys(q).some((k) => avoid.has(k));
+}
+
 export function uniqueOptions(correct: string, wrong: string[], rng: () => number): string[] {
  const set = new Set<string>([correct, ...wrong]);
  const opts = shuffleInPlace(rng, [...set]);

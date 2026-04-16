@@ -20,12 +20,20 @@ export async function POST(req: Request) {
 			return NextResponse.json({ error: "courseId and unitId are required" }, { status: 400 });
 		}
 
+		const rawAvoid = body.avoidFingerprints;
+		const avoidFingerprints: string[] = Array.isArray(rawAvoid)
+			? rawAvoid
+					.filter((x: unknown) => typeof x === "string" && (x as string).length > 0 && (x as string).length < 900)
+					.slice(0, 1000)
+			: [];
+
 		const questions = generateApFrqPracticeSet({
 			courseId,
 			unitId,
 			setIndex,
 			difficulty,
 			sessionEntropy: randomSeedEntropy(),
+			...(avoidFingerprints.length > 0 ? { avoidFingerprints } : {}),
 		});
 		return NextResponse.json({ questions, setIndex });
 	} catch (e) {

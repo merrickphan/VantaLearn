@@ -1,5 +1,5 @@
 import type { ExamQuestion } from "@/types";
-import { proceduralUniqKey } from "@/lib/questions/procedural/utils";
+import { questionAvoidFingerprintKeys } from "@/lib/questions/procedural/utils";
 
 const STORAGE_PREFIX = "vanta_proc_fp_v1";
 
@@ -55,9 +55,9 @@ export function peekClientAvoidFingerprints(courseId: string, unitScope: string,
 export function appendClientSeenFingerprints(courseId: string, unitScope: string, questions: ExamQuestion[]): void {
 	if (typeof window === "undefined" || questions.length === 0) return;
 	try {
-		const keys = questions.map((q) => proceduralUniqKey(q));
+		const keys = questions.flatMap((q) => questionAvoidFingerprintKeys(q));
 		const prev = readJsonArray(sessionStorage.getItem(scopedStorageKey(courseId, unitScope)));
-		const merged = uniqueStringsPreserveOrder([...keys, ...prev], 1200);
+		const merged = uniqueStringsPreserveOrder([...keys, ...prev], 2600);
 		sessionStorage.setItem(scopedStorageKey(courseId, unitScope), JSON.stringify(merged));
 	} catch {
 		/* ignore quota / privacy mode */

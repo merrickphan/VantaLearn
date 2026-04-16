@@ -18,8 +18,37 @@ export function buildUnitVarietyDirective(unit: ApUnit, varietySeed: number): st
  "experimental / methodological",
  "real-world context (different domain each time)",
  "edge case or common misconception",
+ "policy or stakeholder tradeoff",
+ "historical or document-based vignette",
+ "map, model, or diagram interpretation",
+ "compare two cases or two quantities",
+ "limitations, uncertainty, or assumptions",
  ];
  const sk = scenarioKinds[((varietySeed >> 3) % scenarioKinds.length + scenarioKinds.length) % scenarioKinds.length];
+
+ const skillVerbs = [
+ "interpret",
+ "explain",
+ "identify",
+ "justify",
+ "compare",
+ "predict",
+ "evaluate",
+ "support with evidence",
+ ];
+ const sv = skillVerbs[((varietySeed >> 5) % skillVerbs.length + skillVerbs.length) % skillVerbs.length];
+
+ const frames = [
+ "short lab or investigation write-up",
+ "public agency memo or briefing excerpt",
+ "teacher demonstration notes",
+ "student project summary",
+ "industry quality-control or operations blurb",
+ "field observation log",
+ "news-style summary (hypothetical outlet)",
+ "conference abstract or poster snippet",
+ ];
+ const fr = frames[((varietySeed >> 7) % frames.length + frames.length) % frames.length];
 
  return [
  `Variety batch ID: ${varietySeed}.`,
@@ -27,8 +56,11 @@ export function buildUnitVarietyDirective(unit: ApUnit, varietySeed: number): st
  `Secondary hook (weave into several items): "${hooks[b]}".`,
  `Tertiary hook (at least one question): "${hooks[c]}".`,
  `Scenario style emphasis for this batch: ${sk}.`,
+ `Primary skill framing for this batch: students should ${sv} — make the stem require that cognitive action.`,
+ `Narrative frame to vary tone (do not label it in the stem): ${fr}.`,
+ `AP realism: stems should be concise (avoid long preamble), use neutral third person, and match the pacing of released-exam style items (no “for homework” or “in class today” meta).`,
  `Use different fictional datasets, names, years, and contexts than typical textbook examples.`,
- `Do not repeat identical stem structures across questions - vary sentence openings and setups.`,
+ `Do not repeat identical stem structures across questions — vary sentence openings, subject matter, and whether the lead is data-first vs claim-first.`,
  ].join(" ");
 }
 
