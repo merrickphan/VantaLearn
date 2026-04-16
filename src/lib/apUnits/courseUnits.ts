@@ -1702,71 +1702,143 @@ export const AP_UNITS_BY_COURSE_ID: Record<string, ApUnit[]> = {
    ],
   },
  ]),
- ush: [
- {
- id: "ush-u1",
- index: 1,
- title: "Period 1: 1491-1607",
- summary:
- "Indigenous societies and environments; peopling of the Americas; European exploration and Columbian Exchange; Spanish colonial systems (including encomienda); early rival empires; introduction of African slavery in the Atlantic world; first sustained English and French footholds.",
- },
- {
- id: "ush-u2",
- index: 2,
- title: "Period 2: 1607-1754",
- summary:
- "British, French, Dutch, and Spanish colonies; labor (indenture, slavery, family farming); mercantilism and Navigation Acts; regional cultures (Chesapeake, New England, middle colonies); Native diplomacy and conflict; Bacon's Rebellion; slavery's growth; First Great Awakening; imperial wars culminating in the Seven Years' War.",
- },
- {
- id: "ush-u3",
- index: 3,
- title: "Period 3: 1754-1800",
- summary:
- "French and Indian War to independence; imperial reforms and resistance (taxation, protest, loyalism); revolution, war, and Native alliances; state and national experiments under the Articles; Constitutional Convention and Bill of Rights; Hamilton-Jefferson divisions; Washington's presidency and early foreign policy.",
- },
- {
- id: "ush-u4",
- index: 4,
- title: "Period 4: 1800-1848",
- summary:
- "Jeffersonian and Jacksonian democracy; Louisiana Purchase and exploration; War of 1812; Market Revolution and transportation; Indian Removal; Monroe Doctrine; sectionalism and slavery's expansion; reform movements (abolition, women's rights, temperance); Mexican-American War and territorial acquisition.",
- },
- {
- id: "ush-u5",
- index: 5,
- title: "Period 5: 1844-1877",
- summary:
- "Manifest destiny and the Mexican Cession; compromise and crisis (Compromise of 1850, Kansas-Nebraska, Dred Scott); Civil War mobilization, emancipation, and turning points; Reconstruction plans, amendments, Freedmen's Bureau; retreat from Reconstruction and contested endings.",
- },
- {
- id: "ush-u6",
- index: 6,
- title: "Period 6: 1865-1898",
- summary:
- "Industrialization, immigration, and urban growth; labor conflict and agrarian protest; Gilded Age politics and corruption; segregation and disenfranchisement after Reconstruction; Populists; overseas expansion and the Spanish-American War; debates over empire, markets, and reform.",
- },
- {
- id: "ush-u7",
- index: 7,
- title: "Period 7: 1890-1945",
- summary:
- "Progressivism and regulatory state; women's suffrage; World War I and its aftermath; Great Migration; Roaring Twenties; Great Depression; New Deal; World War II mobilization, home front, and internment; paths toward postwar superpower status.",
- },
- {
- id: "ush-u8",
- index: 8,
- title: "Period 8: 1945-1980",
- summary:
- "Cold War containment, Korea, and Vietnam; civil rights movement and landmark legislation; Great Society; suburbanization; environmental and consumer culture; Watergate; stagflation; shifting foreign policy and detente; social movements (feminism, environmentalism, conservatism's rise).",
- },
- {
- id: "ush-u9",
- index: 9,
- title: "Period 9: 1980-Present",
- summary:
- "Reagan revolution and end of Cold War; globalization, trade, and immigration after 1965; culture wars; digital economy; war on terror and security policy; recurring debates over inequality, health care, climate, and partisan polarization - interpretation of very recent events remains contested.",
- },
- ],
+ ush: unitsDetailed("ush", [
+  {
+   title: "1491–1607 (Native Societies and Early Encounters)",
+   summary:
+    "Lesson 1.1 Native American societies before European contact: regional diversity, culture, governance; Lesson 1.2 Early European exploration: motives (God, Gold, Glory) and major explorers; Lesson 1.3 Columbian Exchange: biological, economic, and cultural impacts; Lesson 1.4 Early interactions: cooperation, conflict, and disease effects; Lesson 1.5 Spanish colonization: encomienda system and early empire building.",
+   hooks: [
+    "Lesson 1.1 Native societies regional diversity culture governance",
+    "Lesson 1.2 European exploration motives God Gold Glory",
+    "Lesson 1.3 Columbian Exchange",
+    "Lesson 1.4 cooperation conflict disease",
+    "Lesson 1.5 Spanish colonization encomienda",
+   ],
+  },
+  {
+   title: "1607–1754 (Colonial America)",
+   summary:
+    "Lesson 2.1 Jamestown and Virginia colony development; Lesson 2.2 New England colonies: Puritan society and religious motivations; Lesson 2.3 Middle colonies: diversity, economy, and governance; Lesson 2.4 Southern colonies: plantation economy and slavery expansion; Lesson 2.5 Colonial labor systems: indentured servitude and enslaved labor; Lesson 2.6 Colonial society: social hierarchy and regional differences; Lesson 2.7 Colonial governance and early self-rule traditions.",
+   hooks: [
+    "Lesson 2.1 Jamestown Virginia",
+    "Lesson 2.2 New England Puritans",
+    "Lesson 2.3 middle colonies",
+    "Lesson 2.4 southern colonies plantation slavery",
+    "Lesson 2.5 indentured servitude enslaved labor",
+    "Lesson 2.6 colonial social hierarchy",
+    "Lesson 2.7 colonial governance self-rule",
+   ],
+  },
+  {
+   title: "1754–1800 (Revolution and Early Republic)",
+   summary:
+    "Lesson 3.1 French and Indian War causes and consequences; Lesson 3.2 Growing tensions with Britain: taxation and colonial resistance; Lesson 3.3 American Revolution: ideology and major events; Lesson 3.4 Declaration of Independence: Enlightenment influence; Lesson 3.5 Articles of Confederation: strengths and weaknesses; Lesson 3.6 Constitutional Convention: compromise and structure; Lesson 3.7 Ratification debate: Federalists vs Anti-Federalists; Lesson 3.8 Washington and Adams administrations: precedents and early policies.",
+   hooks: [
+    "Lesson 3.1 French and Indian War",
+    "Lesson 3.2 taxation colonial resistance",
+    "Lesson 3.3 American Revolution ideology events",
+    "Lesson 3.4 Declaration Enlightenment",
+    "Lesson 3.5 Articles of Confederation",
+    "Lesson 3.6 Constitutional Convention",
+    "Lesson 3.7 Federalists vs Anti-Federalists",
+    "Lesson 3.8 Washington Adams administrations",
+   ],
+  },
+  {
+   title: "1800–1848 (Expansion and Reform)",
+   summary:
+    "Lesson 4.1 Jeffersonian democracy and Louisiana Purchase; Lesson 4.2 War of 1812 and nationalism; Lesson 4.3 Market Revolution: transportation, industry, and communication changes; Lesson 4.4 Jacksonian democracy and expanded suffrage; Lesson 4.5 Indian Removal and Trail of Tears; Lesson 4.6 Reform movements: abolitionism, temperance, women’s rights; Lesson 4.7 Manifest Destiny and territorial expansion.",
+   hooks: [
+    "Lesson 4.1 Jefferson Louisiana Purchase",
+    "Lesson 4.2 War of 1812 nationalism",
+    "Lesson 4.3 Market Revolution",
+    "Lesson 4.4 Jacksonian democracy suffrage",
+    "Lesson 4.5 Indian Removal Trail of Tears",
+    "Lesson 4.6 reform abolition temperance women",
+    "Lesson 4.7 Manifest Destiny",
+   ],
+  },
+  {
+   title: "1844–1877 (Civil War and Reconstruction)",
+   summary:
+    "Lesson 5.1 Sectionalism and slavery debates; Lesson 5.2 Causes of the Civil War: political, economic, and social tensions; Lesson 5.3 Civil War major events and strategies; Lesson 5.4 Emancipation Proclamation and shifting war goals; Lesson 5.5 Reconstruction plans and amendments (13th, 14th, 15th); Lesson 5.6 Reconstruction successes and failures; Lesson 5.7 Rise of Southern resistance and end of Reconstruction.",
+   hooks: [
+    "Lesson 5.1 sectionalism slavery debates",
+    "Lesson 5.2 Civil War causes",
+    "Lesson 5.3 Civil War events strategies",
+    "Lesson 5.4 Emancipation Proclamation",
+    "Lesson 5.5 Reconstruction amendments 13 14 15",
+    "Lesson 5.6 Reconstruction outcomes",
+    "Lesson 5.7 Southern resistance end of Reconstruction",
+   ],
+  },
+  {
+   title: "1865–1898 (Gilded Age)",
+   summary:
+    "Lesson 6.1 Industrialization and big business growth; Lesson 6.2 Labor movements and strikes; Lesson 6.3 Immigration and urbanization; Lesson 6.4 Political machines and corruption; Lesson 6.5 Economic inequality and social tensions; Lesson 6.6 Western expansion and Native American displacement.",
+   hooks: [
+    "Lesson 6.1 industrialization big business",
+    "Lesson 6.2 labor movements strikes",
+    "Lesson 6.3 immigration urbanization",
+    "Lesson 6.4 political machines corruption",
+    "Lesson 6.5 inequality social tensions",
+    "Lesson 6.6 West Native displacement",
+   ],
+  },
+  {
+   title: "1890–1945 (Progressive Era through WWII)",
+   summary:
+    "Lesson 7.1 Progressive reforms: regulation and social justice; Lesson 7.2 Imperialism and overseas expansion (Spanish-American War); Lesson 7.3 World War I causes and U.S. involvement; Lesson 7.4 Roaring Twenties: culture and economy; Lesson 7.5 Great Depression causes and impacts; Lesson 7.6 New Deal programs and government expansion; Lesson 7.7 World War II: causes, major battles, and home front.",
+   hooks: [
+    "Lesson 7.1 Progressive reforms",
+    "Lesson 7.2 imperialism Spanish-American War",
+    "Lesson 7.3 World War I US involvement",
+    "Lesson 7.4 Roaring Twenties",
+    "Lesson 7.5 Great Depression",
+    "Lesson 7.6 New Deal",
+    "Lesson 7.7 World War II home front",
+   ],
+  },
+  {
+   title: "1945–1980 (Cold War Era)",
+   summary:
+    "Lesson 8.1 Origins of the Cold War and containment policy; Lesson 8.2 Korean War and early Cold War conflicts; Lesson 8.3 Domestic Cold War: McCarthyism and fear of communism; Lesson 8.4 Civil Rights Movement: major leaders and legislation; Lesson 8.5 Vietnam War and antiwar movement; Lesson 8.6 1960s–70s social movements and cultural change.",
+   hooks: [
+    "Lesson 8.1 Cold War origins containment",
+    "Lesson 8.2 Korean War",
+    "Lesson 8.3 McCarthyism",
+    "Lesson 8.4 Civil Rights Movement",
+    "Lesson 8.5 Vietnam antiwar",
+    "Lesson 8.6 1960s 70s social movements",
+   ],
+  },
+  {
+   title: "1980–Present (Modern America)",
+   summary:
+    "Lesson 9.1 Reagan era and conservative resurgence; Lesson 9.2 End of the Cold War; Lesson 9.3 Globalization and economic change; Lesson 9.4 Domestic policy shifts and political polarization; Lesson 9.5 9/11 and War on Terror; Lesson 9.6 Recent social, technological, and cultural developments.",
+   hooks: [
+    "Lesson 9.1 Reagan conservative resurgence",
+    "Lesson 9.2 end of Cold War",
+    "Lesson 9.3 globalization",
+    "Lesson 9.4 polarization domestic policy",
+    "Lesson 9.5 9/11 War on Terror",
+    "Lesson 9.6 recent developments",
+   ],
+  },
+  {
+   title: "Historical Thinking Skills (AP Skills Unit)",
+   summary:
+    "Lesson 10.1 Contextualization and causation; Lesson 10.2 Comparison and continuity/change over time; Lesson 10.3 Historical argumentation and thesis writing; Lesson 10.4 Primary source analysis (HIPP: historical context, intended audience, purpose, point of view); Lesson 10.5 DBQ structure and evidence use; Lesson 10.6 LEQ structure and historical reasoning strategies.",
+   hooks: [
+    "Lesson 10.1 contextualization causation",
+    "Lesson 10.2 comparison CCOT",
+    "Lesson 10.3 argumentation thesis",
+    "Lesson 10.4 primary source HIPP",
+    "Lesson 10.5 DBQ evidence",
+    "Lesson 10.6 LEQ reasoning",
+   ],
+  },
+ ]),
  wh: [
  {
  id: "wh-u1",
