@@ -620,13 +620,100 @@ export const AP_UNITS_BY_COURSE_ID: Record<string, ApUnit[]> = {
    ],
   },
  ]),
- csp: U("csp", [
- "Creative Development",
- "Data",
- "Algorithms and Programming",
- "Computing Systems and Networks",
- "Impact of Computing",
- "Investigative Practices",
+ csp: unitsDetailed("csp", [
+  {
+   title: "Big Ideas of Computing Systems",
+   summary:
+    "Lesson 1.1 Computing systems: hardware vs software, devices and networks; Lesson 1.2 Internet basics: packets, routing, latency, redundancy; Lesson 1.3 Abstraction in computing systems: hiding complexity through layers; Lesson 1.4 Impact of computing: social, economic, and ethical effects; Lesson 1.5 Digital information: how data is represented and processed.",
+   hooks: [
+    "hardware vs software",
+    "packets routing latency redundancy",
+    "abstraction and layers",
+    "social economic ethical impacts",
+    "digital information representation",
+   ],
+  },
+  {
+   title: "Digital Information (Data Representation)",
+   summary:
+    "Lesson 2.1 Bits and bytes: binary representation fundamentals; Lesson 2.2 Number systems: binary to decimal conversion and vice versa; Lesson 2.3 Representing text: ASCII and Unicode basics; Lesson 2.4 Representing images: pixels, resolution, color encoding (RGB); Lesson 2.5 Representing sound: sampling, bit depth, compression basics; Lesson 2.6 Data compression: lossless vs lossy compression.",
+   hooks: [
+    "bits vs bytes",
+    "binary decimal conversion",
+    "ASCII vs Unicode",
+    "pixels resolution RGB",
+    "sampling bit depth compression",
+    "lossless vs lossy",
+   ],
+  },
+  {
+   title: "Algorithms and Programming Basics",
+   summary:
+    "Lesson 3.1 Algorithms: definition, steps, and logic flow; Lesson 3.2 Pseudocode and flowcharts: representing algorithms clearly; Lesson 3.3 Sequencing, selection, iteration; Lesson 3.4 Variables and assignment; Lesson 3.5 Boolean logic and expressions; Lesson 3.6 Debugging and error detection; Lesson 3.7 Algorithm efficiency (basic comparison of steps/time).",
+   hooks: [
+    "algorithm steps and logic flow",
+    "pseudocode and flowcharts",
+    "sequencing selection iteration",
+    "variables and assignment",
+    "boolean logic",
+    "debugging",
+    "efficiency steps comparison",
+   ],
+  },
+  {
+   title: "Programming Concepts (App Development)",
+   summary:
+    "Lesson 4.1 Event-driven programming (especially in App Lab); Lesson 4.2 User input and output; Lesson 4.3 Functions: defining and calling procedures; Lesson 4.4 Parameters and return values; Lesson 4.5 Conditionals in code; Lesson 4.6 Loops in code; Lesson 4.7 Lists (basic data structures in CSP context); Lesson 4.8 Developing small apps with multiple components.",
+   hooks: [
+    "event-driven programming",
+    "input and output",
+    "procedures and functions",
+    "parameters and return values",
+    "conditionals",
+    "loops",
+    "lists",
+    "multi-component apps",
+   ],
+  },
+  {
+   title: "The Internet and Cybersecurity",
+   summary:
+    "Lesson 5.1 How the internet works: clients, servers, protocols; Lesson 5.2 HTTP/HTTPS and basic web communication; Lesson 5.3 IP addresses and domain names (DNS); Lesson 5.4 Routing and packet switching; Lesson 5.5 Cybersecurity: encryption, hashing, authentication basics; Lesson 5.6 Threats: phishing, malware, social engineering; Lesson 5.7 Digital privacy and data protection.",
+   hooks: [
+    "clients servers protocols",
+    "HTTP vs HTTPS",
+    "IP and DNS",
+    "routing packet switching",
+    "encryption hashing authentication",
+    "phishing malware social engineering",
+    "privacy and data protection",
+   ],
+  },
+  {
+   title: "Data, Simulation, and Modeling",
+   summary:
+    "Lesson 6.1 Data collection and analysis; Lesson 6.2 Data visualization: charts, graphs, trends; Lesson 6.3 Simulations: modeling real-world systems; Lesson 6.4 Randomness and probability in simulations; Lesson 6.5 Using data to make predictions and conclusions.",
+   hooks: [
+    "data collection and analysis",
+    "data visualization",
+    "simulations and models",
+    "randomness and probability",
+    "predictions and conclusions",
+   ],
+  },
+  {
+   title: "Impact of Computing (Computing in Society)",
+   summary:
+    "Lesson 7.1 Bias in computing systems and datasets; Lesson 7.2 Ethical issues: privacy, surveillance, ownership; Lesson 7.3 Digital divide and accessibility; Lesson 7.4 Intellectual property and copyright; Lesson 7.5 Effects of computing innovations on society; Lesson 7.6 Responsible computing and decision-making.",
+   hooks: [
+    "bias in systems and datasets",
+    "ethics privacy surveillance ownership",
+    "digital divide accessibility",
+    "intellectual property copyright",
+    "innovations and societal effects",
+    "responsible computing decisions",
+   ],
+  },
  ]),
  "physics-1": U("physics-1", [
  "Kinematics",
