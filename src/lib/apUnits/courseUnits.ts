@@ -127,50 +127,166 @@ const CALC_AB_UNIT_DEFS = [
  },
 ] as const;
 
-/** BC-only units 9–10 (AB students do not see these). */
-const CALC_BC_EXTRA_UNITS: readonly {
- title: string;
- summary: string;
- hooks: readonly string[];
-}[] = [
+/**
+ * AP Calculus BC — unit map aligned to your requested pacing (Units 1–11).
+ * Units 1–8 overlap AB; Units 9–11 are BC-only.
+ */
+const CALC_BC_UNIT_DEFS: readonly { title: string; summary: string; hooks: readonly string[] }[] = [
+ // 1
  {
- title: "Parametric Equations, Polar Coordinates, and Vector-Valued Functions",
- summary:
- "Parametric motion and vector-valued derivatives; polar area and curve behavior; velocity and acceleration in 2D (BC). Practice here emphasizes BC-only representations while building on AB differentiation and integration skills.",
- hooks: [
- "parametric derivative dy/dx",
- "polar area element",
- "vector-valued motion",
- ],
+  title: "Limits and Continuity",
+  summary:
+   "Limits as approach behavior from graphs, tables, and algebraic expressions; left-hand and right-hand limits; conditions for limit existence; algebraic limit techniques (substitution, factoring/canceling, rationalizing, simplifying complex rational expressions); indeterminate forms 0/0 and ∞/∞ resolved by algebra; limits at infinity and horizontal asymptotes via dominant-term reasoning; continuity definition and continuity on intervals; discontinuity types (removable, jump, infinite); Intermediate Value Theorem for existence of values on a continuous interval.",
+  hooks: [
+   "limit existence (left vs right)",
+   "algebraic simplification for 0/0",
+   "∞/∞ and dominant-term reasoning",
+   "limits at infinity / horizontal asymptote",
+   "continuity: three conditions",
+   "discontinuity types from graphs",
+   "IVT guarantees a value",
+  ],
  },
+ // 2
  {
- title: "Infinite Sequences and Series",
- summary:
- "Sequence limits; series convergence tests; power series; Taylor/Maclaurin representations; interval of convergence; error bounds where appropriate (BC).",
- hooks: [
- "series convergence reasoning",
- "Taylor polynomials",
- "interval of convergence",
- ],
+  title: "Derivatives Foundations",
+  summary:
+   "Derivative concept as slope of the tangent line and instantaneous rate of change; secant-to-tangent limiting process; differentiability and where derivatives fail (corner, cusp, vertical tangent, discontinuity); relationship between continuity and differentiability; basic derivative rules (constant, power, sum/difference); interpreting derivatives from graphs (sign and magnitude).",
+  hooks: [
+   "secant-to-tangent limit",
+   "where derivative fails to exist",
+   "power rule and linearity",
+   "derivative sign from a graph",
+   "instantaneous rate interpretation",
+  ],
  },
-];
+ // 3
+ {
+  title: "Differentiation Techniques",
+  summary:
+   "Chain rule for composite functions; product and quotient rules; implicit differentiation; derivatives of inverse functions; trigonometric derivatives (sin, cos, tan) with chain rule; logarithmic differentiation for products and variable exponents.",
+  hooks: [
+   "chain rule nesting",
+   "product rule structure",
+   "quotient rule structure",
+   "implicit dy/dx",
+   "inverse-function derivative rule",
+   "logarithmic differentiation setup",
+  ],
+ },
+ // 4
+ {
+  title: "Applications of Derivatives",
+  summary:
+   "Motion analysis (position, velocity, acceleration) and sign/magnitude interpretations; related rates (setup relationships, differentiate with respect to time, substitute values); linear approximation; differentials and error interpretations (absolute and relative).",
+  hooks: [
+   "motion: v and a meaning",
+   "related rates setup",
+   "related rates solve step",
+   "linear approximation",
+   "differentials and error",
+  ],
+ },
+ // 5
+ {
+  title: "Function Analysis",
+  summary:
+   "Critical points; increasing/decreasing intervals; First Derivative Test; concavity via second derivative; inflection points; Second Derivative Test; optimization; curve sketching by synthesizing derivative information.",
+  hooks: [
+   "critical points classification",
+   "first derivative test",
+   "concavity from f''",
+   "inflection points",
+   "optimization reasoning",
+   "curve sketching synthesis",
+  ],
+ },
+ // 6
+ {
+  title: "Integration and the Fundamental Theorem of Calculus",
+  summary:
+   "Riemann sums (left/right/midpoint) and definite integrals as net signed area; FTC Part 1 (derivative of an accumulation function) and Part 2 (evaluate definite integrals using antiderivatives); antiderivatives with +C; accumulation functions interpreted as total change.",
+  hooks: [
+   "Riemann sums (L/R/M)",
+   "definite integral as net area",
+   "FTC Part 1",
+   "FTC Part 2 evaluation",
+   "antiderivative + C",
+   "accumulation interpretation",
+  ],
+ },
+ // 7
+ {
+  title: "Differential Equations",
+  summary:
+   "Slope fields and matching behavior; separable differential equations (separate variables and integrate); exponential growth/decay dy/dt = ky and solution form; initial value problems and solving for constants.",
+  hooks: [
+   "slope field reading",
+   "separable separation step",
+   "exponential model ky",
+   "IVP constant from condition",
+  ],
+ },
+ // 8
+ {
+  title: "Applications of Integration",
+  summary:
+   "Area between curves; volume by disk method; average value of a function; motion with integrals (displacement vs total distance).",
+  hooks: [
+   "area between curves setup",
+   "volume (disk) setup",
+   "average value formula",
+   "displacement vs distance",
+  ],
+ },
+ // 9 (BC-only)
+ {
+  title: "Parametric, Polar, and Vector Motion",
+  summary:
+   "Parametric representations x(t), y(t); dy/dx = (dy/dt)/(dx/dt); velocity and acceleration in parametric form; arc length for a parametric curve; polar coordinates r = f(θ), polar area (1/2)∫r^2 dθ, and polar slope ideas.",
+  hooks: [
+   "parametric dy/dx ratio",
+   "parametric velocity/acceleration",
+   "parametric arc length",
+   "polar area one-half integral",
+   "polar slope conversion",
+  ],
+ },
+ // 10 (BC-only)
+ {
+  title: "Sequences and Series",
+  summary:
+   "Sequence convergence/divergence; series and partial sums; geometric series; divergence (nth-term) test; integral test; p-series; comparison and limit comparison; alternating series test and error; ratio/root tests; power series and intervals of convergence; Taylor/Maclaurin series, polynomial approximations, and Lagrange error bounds.",
+  hooks: [
+   "geometric series sum/converge",
+   "divergence test",
+   "p-series classification",
+   "comparison tests",
+   "alternating series and error",
+   "ratio/root test",
+   "power series interval",
+   "Taylor polynomial approximation",
+   "Lagrange remainder bound",
+  ],
+ },
+ // 11 (BC-only)
+ {
+  title: "Advanced Integration Techniques",
+  summary:
+   "Improper integrals with infinite limits or discontinuous integrands; convergence/divergence of improper integrals; numerical integration (trapezoidal rule and midpoint approximation) and interpreting approximation error direction when applicable.",
+  hooks: [
+   "improper integral setup",
+   "improper integral convergence",
+   "trapezoidal approximation",
+   "midpoint approximation",
+  ],
+ },
+] as const;
 
 /** Canonical units per course id (aligned with typical CB syllabi; titles may vary slightly by year). */
 export const AP_UNITS_BY_COURSE_ID: Record<string, ApUnit[]> = {
  "calc-ab": unitsDetailed("calc-ab", CALC_AB_UNIT_DEFS),
- "calc-bc": [
- ...unitsDetailed("calc-bc", CALC_AB_UNIT_DEFS).map((u) => ({
- ...u,
- summary: `${u.summary} (BC includes additional representations in later units.)`,
- })),
- ...CALC_BC_EXTRA_UNITS.map((d, j) => ({
- id: `calc-bc-u${j + 9}`,
- index: j + 9,
- title: d.title,
- summary: d.summary,
- questionHooks: [...d.hooks],
- })),
- ],
+ "calc-bc": unitsDetailed("calc-bc", CALC_BC_UNIT_DEFS),
  precalc: U("precalc", [
  "Polynomial and Rational Functions",
  "Exponential and Logarithmic Functions",

@@ -606,6 +606,185 @@ export function genVolumeDiskIntegralSetup(rng: () => number, ctx: ProcCtx, i: n
  );
 }
 
+/* - - - Calc BC-only procedural items (units 9–11) - - - */
+
+export function genParametricDyDx(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const a = randInt(rng, 1, 4);
+ const b = randInt(rng, 1, 5);
+ const t0 = randInt(rng, 1, 4);
+ const dxdt = 2 * a * t0;
+ const dydt = 3 * b * t0 * t0;
+ const val = roundN(dydt / dxdt, 3);
+ const stem = pick(rng, [
+ "For a parametric curve defined by x(t) and y(t) as shown, dy/dx at the stated t-value equals",
+ "Using dy/dx = (dy/dt)/(dx/dt), the slope at the given parameter value is",
+ "For the parametric equations in the stimulus, compute dy/dx at the indicated t-value.",
+ ]);
+ const fig: ExamFigure = {
+ kind: "stimulus",
+ body: `Parametric curve:\n\nx(t) = ${a}t^2\ny(t) = ${b}t^3\n\nEvaluate at t = ${t0}.`,
+ };
+ return mc(
+ rng,
+ ctx,
+ i,
+ "bc-param-dydx",
+ stem,
+ `${val}`,
+ `${roundN(dxdt / dydt, 3)}`,
+ `${roundN((dydt + b) / dxdt, 3)}`,
+ `${roundN(dydt / (dxdt + a), 3)}`,
+ `Compute dx/dt = ${2 * a}t and dy/dt = ${3 * b}t^2, then dy/dx = (dy/dt)/(dx/dt).`,
+ { figure: fig, procedural_structure_id: `bc-param-a${a}-b${b}-t${t0}` },
+ );
+}
+
+export function genPolarAreaSetup(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = pick(rng, [
+ "For a polar curve r = f(θ) on [α, β], the area of the region is given by",
+ "Which integral represents the area of a region in polar coordinates for r = f(θ)?",
+ "Polar area for r = f(θ) between θ = α and θ = β is computed by",
+ ]);
+ return mc(
+ rng,
+ ctx,
+ i,
+ "bc-polar-area",
+ stem,
+ "(1/2) ∫[α to β] (f(θ))^2 dθ",
+ "∫[α to β] f(θ) dθ",
+ "π ∫[α to β] (f(θ))^2 dθ",
+ "(1/2) ∫[α to β] f(θ) dθ",
+ `Polar area uses A = (1/2) ∫ r^2 dθ.`,
+ { procedural_structure_id: "bc-polar-area-setup" },
+ );
+}
+
+export function genGeometricSeriesConcept(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const r = pick(rng, ["1/2", "-1/3", "2/3", "-3/4"] as const);
+ const stem = pick(rng, [
+ "An infinite geometric series with common ratio r converges if",
+ "For an infinite geometric series, convergence occurs exactly when",
+ "Which condition on the common ratio ensures an infinite geometric series converges?",
+ ]);
+ return mc(
+ rng,
+ ctx,
+ i,
+ "bc-geom",
+ stem,
+ "|r| < 1",
+ "r > 1",
+ "|r| > 1",
+ "r = 1 always",
+ `Infinite geometric series converge precisely when the magnitude of the common ratio is less than 1 (example r = ${r}).`,
+ { procedural_structure_id: `bc-geom-r${hashString(r).toString(36)}` },
+ );
+}
+
+export function genDivergenceTest(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = pick(rng, [
+ "If lim(n→∞) a_n ≠ 0 for a series Σ a_n, then the series",
+ "The divergence (nth-term) test says that if the limit of terms is not zero, the series",
+ "For Σ a_n, if the terms do not approach 0, then the series",
+ ]);
+ return mc(
+ rng,
+ ctx,
+ i,
+ "bc-div",
+ stem,
+ "diverges",
+ "converges",
+ "is geometric",
+ "must be alternating",
+ `A necessary condition for convergence is lim a_n = 0; if not, the series diverges.`,
+ { procedural_structure_id: "bc-div-test" },
+ );
+}
+
+export function genPSeriesClassification(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const p = pick(rng, [0.5, 1, 1.5, 2, 3] as const);
+ const stem = `Consider the p-series Σ 1/n^${p}. This series`;
+ const correct = p > 1 ? "converges" : "diverges";
+ return mc(
+ rng,
+ ctx,
+ i,
+ "bc-p",
+ stem,
+ correct,
+ correct === "converges" ? "diverges" : "converges",
+ "converges by the divergence test",
+ "cannot be classified without computing partial sums",
+ `A p-series Σ 1/n^p converges iff p > 1. Here p = ${p}.`,
+ { procedural_structure_id: `bc-p-${String(p).replace(".", "_")}` },
+ );
+}
+
+export function genRatioTestConcept(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = pick(rng, [
+ "The ratio test guarantees convergence of Σ a_n if",
+ "Which condition implies absolute convergence by the ratio test?",
+ "By the ratio test, a series converges absolutely when the limit L of |a_{n+1}/a_n| satisfies",
+ ]);
+ return mc(
+ rng,
+ ctx,
+ i,
+ "bc-ratio",
+ stem,
+ "L < 1",
+ "L = 1",
+ "L > 1",
+ "L is negative",
+ `Ratio test: if L < 1, the series converges absolutely; if L > 1, it diverges; if L = 1, inconclusive.`,
+ { procedural_structure_id: "bc-ratio-concept" },
+ );
+}
+
+export function genImproperIntegralConcept(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = pick(rng, [
+ "An improper integral is an integral that",
+ "Which description best matches an improper integral?",
+ "An integral is improper when",
+ ]);
+ return mc(
+ rng,
+ ctx,
+ i,
+ "bc-imp-def",
+ stem,
+ "has an infinite limit of integration or an unbounded integrand on the interval",
+ "cannot be evaluated with antiderivatives",
+ "always diverges",
+ "is always a Riemann sum",
+ `Improper integrals involve infinite bounds or vertical asymptotes (unbounded integrand).`,
+ { procedural_structure_id: "bc-imp-def" },
+ );
+}
+
+export function genTrapezoidalRuleSetup(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = pick(rng, [
+ "For approximating ∫_a^b f(x) dx with n equal subintervals, the trapezoidal rule uses",
+ "Which expression matches the trapezoidal rule approximation for an integral on [a, b]?",
+ "The trapezoidal rule approximation is given by",
+ ]);
+ return mc(
+ rng,
+ ctx,
+ i,
+ "bc-trap",
+ stem,
+ "(Δx/2)[f(x0) + 2f(x1) + 2f(x2) + ... + 2f(x_{n-1}) + f(x_n)]",
+ "Δx[f(x0) + f(x1) + ... + f(x_n)]",
+ "(Δx/2)[f(x0) + f(x1) + ... + f(x_n)]",
+ "Δx[f(x1) + f(x2) + ... + f(x_{n-1})]",
+ `Trapezoidal rule averages endpoint heights per subinterval, yielding the (Δx/2) weighted sum with interior terms doubled.`,
+ { procedural_structure_id: "bc-trap-setup" },
+ );
+}
+
 const TRIG_ROWS: { stem: string; c: string; w: [string, string, string]; ex: string }[] = [
  { stem: "sin(0) equals", c: "0", w: ["1", "-1", "1/2"], ex: "sin(0) = 0." },
  { stem: "cos(0) equals", c: "1", w: ["0", "-1", "1/2"], ex: "cos(0) = 1." },
@@ -2241,11 +2420,70 @@ function getCalcAbUnitGenerators(unitIndex: number, calculatorSection?: Calculat
  return calcPoolForSection(pool, calculatorSection);
 }
 
+/** Unit-indexed pools for AP Calculus BC (1–11), aligned to the course unit map. */
+const CALC_BC_UNIT_POOLS: QuestionGen[][] = [
+ // 1 — Limits & continuity
+ CALC_AB_UNIT_POOLS[0]!,
+ // 2 — Derivatives foundations
+ CALC_AB_UNIT_POOLS[1]!,
+ // 3 — Differentiation techniques
+ CALC_AB_UNIT_POOLS[2]!,
+ // 4 — Applications of derivatives
+ CALC_AB_UNIT_POOLS[3]!,
+ // 5 — Function analysis
+ CALC_AB_UNIT_POOLS[4]!,
+ // 6 — Integration & FTC
+ CALC_AB_UNIT_POOLS[5]!,
+ // 7 — Differential equations
+ CALC_AB_UNIT_POOLS[6]!,
+ // 8 — Applications of integration
+ CALC_AB_UNIT_POOLS[7]!,
+ // 9 — Parametric / polar / vector
+ [
+  genParametricDyDx,
+  genPolarAreaSetup,
+  genDerivativePower,
+  genIntegralPower,
+  genTrigSpecial,
+ ],
+ // 10 — Sequences and series
+ [
+  genGeometricSeriesConcept,
+  genDivergenceTest,
+  genPSeriesClassification,
+  genRatioTestConcept,
+  genSmallIntegerPowerEval,
+ ],
+ // 11 — Advanced integration techniques
+ [
+  genImproperIntegralConcept,
+  genTrapezoidalRuleSetup,
+  genIntegralPower,
+  genFtcPartOneValue,
+  genMeanSimple,
+ ],
+];
+
 function getCalcBcUnitGenerators(unitIndex: number, calculatorSection?: CalculatorSectionPolicy): QuestionGen[] {
- if (unitIndex >= 9) {
- return calculatorSection === "no_calculator" ? CALC_NO_CALCULATOR_SECTION : [...CALC, ...STATS_TEXT];
+ const idx = Math.min(11, Math.max(1, Math.floor(unitIndex))) - 1;
+ const pool = CALC_BC_UNIT_POOLS[idx] ?? CALC;
+ if (calculatorSection === "no_calculator") {
+  const allowed = new Set<QuestionGen>([
+   ...CALC_NO_CALCULATOR_SECTION,
+   genGeometricSeriesConcept,
+   genDivergenceTest,
+   genPSeriesClassification,
+   genRatioTestConcept,
+   genImproperIntegralConcept,
+   genTrapezoidalRuleSetup,
+   genParametricDyDx,
+   genPolarAreaSetup,
+  ]);
+  const filtered = pool.filter((g) => allowed.has(g));
+  return filtered.length > 0 ? filtered : [...CALC_NO_CALCULATOR_SECTION];
  }
- return getCalcAbUnitGenerators(unitIndex, calculatorSection);
+ if (calculatorSection === "calculator") return [...pool, ...STATS_TEXT];
+ return [...pool, ...STATS_TEXT];
 }
 
 /** Text-only stats items (safe to mix with calculus for numeric literacy). */

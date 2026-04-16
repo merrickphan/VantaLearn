@@ -4,4 +4,9 @@ export {
 	calcAbSentenceStructureIndex,
 	getCalcAbSentenceStructure,
 } from "./calcAbSentenceStructures";
+export {
+	CALC_BC_SENTENCE_STRUCTURES,
+	calcBcSentenceStructureIndex,
+	getCalcBcSentenceStructure,
+} from "./calcBcSentenceStructures";
 export { getApCourseStemStructureDirective } from "./apStemStructureDirectives";
