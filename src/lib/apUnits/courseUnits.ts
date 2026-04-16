@@ -1839,71 +1839,131 @@ export const AP_UNITS_BY_COURSE_ID: Record<string, ApUnit[]> = {
    ],
   },
  ]),
- wh: [
- {
- id: "wh-u1",
- index: 1,
- title: "The Global Tapestry",
- summary:
- "States and belief systems c. 1200: post-classical developments, major world religions (Buddhism, Christianity, Confucianism, Hinduism, Islam, Judaism), regional powers (Abbasid, Song, feudal Europe, Japan, Delhi Sultanate, Khmer, Mesoamerican empires), trade and social structures.",
- },
- {
- id: "wh-u2",
- index: 2,
- title: "Networks of Exchange",
- summary:
- "Hanseatic League, Crusades, scholasticism and universities, Mongol expansion, Mali and Songhai, Indian Ocean and Silk Road trade, Black Death, travelers (Ibn Battuta, Marco Polo), urbanization and cultural diffusion 1200-1450.",
- },
- {
- id: "wh-u3",
- index: 3,
- title: "Land-Based Empires",
- summary:
- "Renaissance humanism, Reformation and Catholic Reformation, Scientific Revolution, gunpowder empires (Ottoman, Safavid, Mughal), European state-building, Qing and Tokugawa, Atlantic slavery and resistance in Africa and the Americas.",
- },
- {
- id: "wh-u4",
- index: 4,
- title: "Transoceanic Interconnections",
- summary:
- "Iberian exploration, Treaty of Tordesillas, Columbian Exchange, encomienda, African slave trade and Middle Passage, mercantilism and joint-stock companies, silver and global trade, colonial societies 1450-1750.",
- },
- {
- id: "wh-u5",
- index: 5,
- title: "Revolutions",
- summary:
- "Enlightenment and Atlantic revolutions (US, France, Haiti, Latin America), industrial beginnings, nationalism, socialism/Marxism, women's rights debates, resistance to early industrialization.",
- },
- {
- id: "wh-u6",
- index: 6,
- title: "Consequences of Industrialization",
- summary:
- "Imperialism and ideologies of rule, British India, unequal treaties and Meiji Japan, scramble for Africa and Berlin Conference, labor and reform, economic dependency and environmental extraction.",
- },
- {
- id: "wh-u7",
- index: 7,
- title: "Global Conflict",
- summary:
- "World War I and Versailles, Russian Revolution, interwar crises and fascism, World War II and Holocaust, UN and new international order.",
- },
- {
- id: "wh-u8",
- index: 8,
- title: "Cold War and Decolonization",
- summary:
- "Containment, NATO/Warsaw Pact, decolonization (South Asia, Africa, Middle East), China's civil war, Korea and Vietnam, Cuban Missile Crisis, Non-Aligned Movement, end of the USSR.",
- },
- {
- id: "wh-u9",
- index: 9,
- title: "Globalization",
- summary:
- "Institutions (WTO, UN, ICC), regional trade, terrorism and conflict after 9/11, China and India in the world economy, migration, global health, environment, internet and culture.",
- },
- ],
+ wh: unitsDetailed("wh", [
+  {
+   title: "The Global Tapestry (c. 1200–1450)",
+   summary:
+    "Lesson 1.1 East Asia: Song Dynasty political structure, Confucian bureaucracy, economic growth; Lesson 1.2 Dar al-Islam: expansion of Islam, caliphates, trade networks, cultural exchange; Lesson 1.3 South and Southeast Asia: Hindu and Buddhist states, trade-based economies; Lesson 1.4 The Americas: Aztec Empire and Inca Empire political and economic systems; Lesson 1.5 Africa: trans-Saharan trade, kingdoms like Mali Empire; Lesson 1.6 Europe: feudalism, decentralized power, Catholic Church influence.",
+   hooks: [
+    "Lesson 1.1 Song Dynasty Confucian bureaucracy",
+    "Lesson 1.2 Dar al-Islam caliphates trade",
+    "Lesson 1.3 South Southeast Asia Hindu Buddhist",
+    "Lesson 1.4 Aztec Inca systems",
+    "Lesson 1.5 Africa trans-Saharan Mali",
+    "Lesson 1.6 Europe feudalism Church",
+   ],
+  },
+  {
+   title: "Networks of Exchange (c. 1200–1450)",
+   summary:
+    "Lesson 2.1 Silk Roads: luxury trade, cultural diffusion; Lesson 2.2 Indian Ocean trade: maritime routes, monsoon winds; Lesson 2.3 Trans-Saharan trade: gold-salt exchange, caravan networks; Lesson 2.4 Cultural exchange: spread of religion, technology, and disease; Lesson 2.5 Environmental impacts: diffusion of crops and animals.",
+   hooks: [
+    "Lesson 2.1 Silk Roads",
+    "Lesson 2.2 Indian Ocean monsoon",
+    "Lesson 2.3 trans-Saharan gold-salt",
+    "Lesson 2.4 cultural exchange religion technology disease",
+    "Lesson 2.5 crops animals diffusion",
+   ],
+  },
+  {
+   title: "Land-Based Empires (c. 1450–1750)",
+   summary:
+    "Lesson 3.1 Gunpowder empires: Ottoman Empire, Safavid Empire, Mughal Empire; Lesson 3.2 Consolidation of power: taxation, bureaucracy, military systems; Lesson 3.3 Cultural developments: art, architecture, religious policy; Lesson 3.4 Religious conflicts: Sunni vs Shia divisions; Lesson 3.5 Expansion strategies and legitimacy.",
+   hooks: [
+    "Lesson 3.1 Ottoman Safavid Mughal",
+    "Lesson 3.2 taxation bureaucracy military",
+    "Lesson 3.3 art architecture religious policy",
+    "Lesson 3.4 Sunni Shia",
+    "Lesson 3.5 expansion legitimacy",
+   ],
+  },
+  {
+   title: "Transoceanic Interconnections (c. 1450–1750)",
+   summary:
+    "Lesson 4.1 European exploration: motives and maritime technology; Lesson 4.2 Columbian Exchange: global transfer of goods, people, disease; Lesson 4.3 Atlantic slave trade: forced migration and labor systems; Lesson 4.4 Colonial economies: mercantilism and plantation systems; Lesson 4.5 Cultural blending: syncretism in the Americas.",
+   hooks: [
+    "Lesson 4.1 European exploration maritime tech",
+    "Lesson 4.2 Columbian Exchange",
+    "Lesson 4.3 Atlantic slave trade",
+    "Lesson 4.4 mercantilism plantations",
+    "Lesson 4.5 syncretism Americas",
+   ],
+  },
+  {
+   title: "Revolutions (c. 1750–1900)",
+   summary:
+    "Lesson 5.1 Enlightenment ideas and political philosophy; Lesson 5.2 American Revolution causes and outcomes; Lesson 5.3 French Revolution and political transformation; Lesson 5.4 Haitian Revolution and slave revolt success; Lesson 5.5 Latin American revolutions and independence movements; Lesson 5.6 Nationalism and state-building.",
+   hooks: [
+    "Lesson 5.1 Enlightenment political philosophy",
+    "Lesson 5.2 American Revolution",
+    "Lesson 5.3 French Revolution",
+    "Lesson 5.4 Haitian Revolution",
+    "Lesson 5.5 Latin American independence",
+    "Lesson 5.6 nationalism state-building",
+   ],
+  },
+  {
+   title: "Industrialization (c. 1750–1900)",
+   summary:
+    "Lesson 6.1 Causes of industrialization: resources, labor, capital; Lesson 6.2 Industrial Revolution developments and technology; Lesson 6.3 Economic systems: capitalism vs socialism; Lesson 6.4 Industrial labor and urbanization; Lesson 6.5 Environmental and social impacts.",
+   hooks: [
+    "Lesson 6.1 causes industrialization",
+    "Lesson 6.2 Industrial Revolution technology",
+    "Lesson 6.3 capitalism vs socialism",
+    "Lesson 6.4 labor urbanization",
+    "Lesson 6.5 environmental social impacts",
+   ],
+  },
+  {
+   title: "Global Conflict (c. 1900–present)",
+   summary:
+    "Lesson 7.1 Causes of World War I; Lesson 7.2 Consequences of WWI and Treaty systems; Lesson 7.3 Interwar period: economic instability and authoritarian regimes; Lesson 7.4 Causes and events of World War II; Lesson 7.5 Mass atrocities and global consequences.",
+   hooks: [
+    "Lesson 7.1 WWI causes",
+    "Lesson 7.2 WWI consequences treaties",
+    "Lesson 7.3 interwar instability authoritarianism",
+    "Lesson 7.4 WWII causes events",
+    "Lesson 7.5 mass atrocities",
+   ],
+  },
+  {
+   title: "Cold War and Decolonization (c. 1900–present)",
+   summary:
+    "Lesson 8.1 Origins of the Cold War: ideological conflict; Lesson 8.2 Proxy wars and global tension; Lesson 8.3 Decolonization movements in Africa and Asia; Lesson 8.4 New nations and political challenges; Lesson 8.5 Global organizations and diplomacy.",
+   hooks: [
+    "Lesson 8.1 Cold War origins ideology",
+    "Lesson 8.2 proxy wars",
+    "Lesson 8.3 decolonization Africa Asia",
+    "Lesson 8.4 new nations challenges",
+    "Lesson 8.5 global organizations diplomacy",
+   ],
+  },
+  {
+   title: "Globalization (c. 1900–present)",
+   summary:
+    "Lesson 9.1 Economic globalization and trade networks; Lesson 9.2 Technological advances and communication; Lesson 9.3 Cultural diffusion and cultural conflict; Lesson 9.4 Environmental challenges and global cooperation; Lesson 9.5 Migration and demographic changes.",
+   hooks: [
+    "Lesson 9.1 economic globalization",
+    "Lesson 9.2 technology communication",
+    "Lesson 9.3 cultural diffusion conflict",
+    "Lesson 9.4 environment global cooperation",
+    "Lesson 9.5 migration demographics",
+   ],
+  },
+  {
+   title: "Historical Thinking Skills",
+   summary:
+    "Lesson 10.1 Causation and comparison; Lesson 10.2 Continuity and change over time (CCOT); Lesson 10.3 Contextualization and synthesis; Lesson 10.4 Primary source analysis (audience, purpose, POV, context); Lesson 10.5 DBQ structure and evidence use; Lesson 10.6 LEQ writing strategies.",
+   hooks: [
+    "Lesson 10.1 causation comparison",
+    "Lesson 10.2 CCOT",
+    "Lesson 10.3 contextualization synthesis",
+    "Lesson 10.4 primary source analysis",
+    "Lesson 10.5 DBQ evidence",
+    "Lesson 10.6 LEQ strategies",
+   ],
+  },
+ ]),
  euro: U("euro", [
  "Renaissance and Exploration",
  "Age of Reformation",
