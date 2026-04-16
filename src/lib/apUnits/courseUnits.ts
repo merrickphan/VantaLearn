@@ -1571,16 +1571,136 @@ export const AP_UNITS_BY_COURSE_ID: Record<string, ApUnit[]> = {
    ],
   },
  ]),
- env: U("env", [
- "The Living World: Ecosystems",
- "The Living World: Biodiversity",
- "Populations",
- "Earth Systems and Resources",
- "Land and Water Use",
- "Energy Resources and Consumption",
- "Atmospheric Pollution",
- "Aquatic and Terrestrial Pollution",
- "Global Change",
+ env: unitsDetailed("env", [
+  {
+   title: "The Living World — Ecosystems",
+   summary:
+    "Lesson 1.1 Ecosystem structure: biotic vs abiotic factors; Lesson 1.2 Energy flow: trophic levels, food chains, food webs; Lesson 1.3 Primary productivity: GPP and NPP concepts; Lesson 1.4 Ecological pyramids: energy, biomass, numbers; Lesson 1.5 Biogeochemical cycles: water, carbon, nitrogen, phosphorus cycles; Lesson 1.6 Ecosystem resilience and stability.",
+   hooks: [
+    "Lesson 1.1 biotic vs abiotic factors",
+    "Lesson 1.2 trophic levels food chains food webs",
+    "Lesson 1.3 GPP and NPP",
+    "Lesson 1.4 ecological pyramids energy biomass numbers",
+    "Lesson 1.5 water carbon nitrogen phosphorus cycles",
+    "Lesson 1.6 ecosystem resilience and stability",
+   ],
+  },
+  {
+   title: "The Living World — Biodiversity",
+   summary:
+    "Lesson 2.1 Biodiversity types: genetic, species, ecosystem diversity; Lesson 2.2 Evolution and natural selection in ecosystems; Lesson 2.3 Ecological niches and species interactions; Lesson 2.4 Keystone species and ecosystem roles; Lesson 2.5 Invasive species impacts; Lesson 2.6 Extinction rates and causes.",
+   hooks: [
+    "Lesson 2.1 genetic species ecosystem diversity",
+    "Lesson 2.2 evolution natural selection ecosystems",
+    "Lesson 2.3 niches species interactions",
+    "Lesson 2.4 keystone species",
+    "Lesson 2.5 invasive species",
+    "Lesson 2.6 extinction rates and causes",
+   ],
+  },
+  {
+   title: "Populations",
+   summary:
+    "Lesson 3.1 Population growth models: exponential vs logistic; Lesson 3.2 Carrying capacity and limiting factors; Lesson 3.3 Survivorship curves (Type I, II, III); Lesson 3.4 Human population dynamics and demographics; Lesson 3.5 Age structure diagrams and population pyramids; Lesson 3.6 Population regulation (density-dependent vs independent factors).",
+   hooks: [
+    "Lesson 3.1 exponential vs logistic growth",
+    "Lesson 3.2 carrying capacity limiting factors",
+    "Lesson 3.3 survivorship curves Type I II III",
+    "Lesson 3.4 human population demographics",
+    "Lesson 3.5 age structure population pyramids",
+    "Lesson 3.6 density-dependent vs independent regulation",
+   ],
+  },
+  {
+   title: "Earth Systems and Resources",
+   summary:
+    "Lesson 4.1 Earth spheres: atmosphere, hydrosphere, geosphere, biosphere; Lesson 4.2 Soil formation and composition; Lesson 4.3 Rock cycle basics; Lesson 4.4 Water resources and availability; Lesson 4.5 Atmospheric composition and structure; Lesson 4.6 Climate systems and weather patterns; Lesson 4.7 Earth energy balance and greenhouse effect.",
+   hooks: [
+    "Lesson 4.1 atmosphere hydrosphere geosphere biosphere",
+    "Lesson 4.2 soil formation composition",
+    "Lesson 4.3 rock cycle",
+    "Lesson 4.4 water resources availability",
+    "Lesson 4.5 atmospheric composition structure",
+    "Lesson 4.6 climate and weather",
+    "Lesson 4.7 energy balance greenhouse effect",
+   ],
+  },
+  {
+   title: "Land and Water Use",
+   summary:
+    "Lesson 5.1 Agriculture: irrigation, fertilizers, pesticides; Lesson 5.2 Soil erosion and conservation methods; Lesson 5.3 Mining and resource extraction; Lesson 5.4 Fisheries and overharvesting; Lesson 5.5 Forestry and deforestation impacts; Lesson 5.6 Urban land use and development patterns.",
+   hooks: [
+    "Lesson 5.1 irrigation fertilizers pesticides",
+    "Lesson 5.2 soil erosion conservation",
+    "Lesson 5.3 mining extraction",
+    "Lesson 5.4 fisheries overharvesting",
+    "Lesson 5.5 forestry deforestation",
+    "Lesson 5.6 urban land use",
+   ],
+  },
+  {
+   title: "Energy Resources and Consumption",
+   summary:
+    "Lesson 6.1 Fossil fuels: coal, oil, natural gas; Lesson 6.2 Nuclear energy: fission, benefits, risks; Lesson 6.3 Renewable energy: solar, wind, hydro, geothermal, biomass; Lesson 6.4 Energy efficiency and conservation strategies; Lesson 6.5 Environmental trade-offs of energy sources.",
+   hooks: [
+    "Lesson 6.1 coal oil natural gas",
+    "Lesson 6.2 nuclear fission benefits risks",
+    "Lesson 6.3 solar wind hydro geothermal biomass",
+    "Lesson 6.4 energy efficiency conservation",
+    "Lesson 6.5 environmental trade-offs energy",
+   ],
+  },
+  {
+   title: "Atmospheric Pollution",
+   summary:
+    "Lesson 7.1 Air pollutants: CO, SO₂, NOx, particulates; Lesson 7.2 Smog formation and photochemical reactions; Lesson 7.3 Acid rain: causes and effects; Lesson 7.4 Ozone depletion and CFCs; Lesson 7.5 Climate change and greenhouse gases; Lesson 7.6 Air quality regulation and mitigation strategies.",
+   hooks: [
+    "Lesson 7.1 CO SO2 NOx particulates",
+    "Lesson 7.2 smog photochemical reactions",
+    "Lesson 7.3 acid rain",
+    "Lesson 7.4 ozone depletion CFCs",
+    "Lesson 7.5 climate change greenhouse gases",
+    "Lesson 7.6 air quality regulation mitigation",
+   ],
+  },
+  {
+   title: "Aquatic and Terrestrial Pollution",
+   summary:
+    "Lesson 8.1 Water pollution sources: point vs nonpoint; Lesson 8.2 Eutrophication and nutrient loading; Lesson 8.3 Wastewater treatment processes; Lesson 8.4 Solid waste management: landfill, recycling, incineration; Lesson 8.5 Toxic substances and biomagnification; Lesson 8.6 Environmental remediation strategies.",
+   hooks: [
+    "Lesson 8.1 point vs nonpoint pollution",
+    "Lesson 8.2 eutrophication nutrient loading",
+    "Lesson 8.3 wastewater treatment",
+    "Lesson 8.4 landfill recycling incineration",
+    "Lesson 8.5 toxic substances biomagnification",
+    "Lesson 8.6 environmental remediation",
+   ],
+  },
+  {
+   title: "Global Change",
+   summary:
+    "Lesson 9.1 Climate change causes and impacts; Lesson 9.2 Ocean acidification; Lesson 9.3 Habitat loss and fragmentation; Lesson 9.4 Conservation biology strategies; Lesson 9.5 Sustainability principles; Lesson 9.6 Environmental policies and agreements.",
+   hooks: [
+    "Lesson 9.1 climate change causes impacts",
+    "Lesson 9.2 ocean acidification",
+    "Lesson 9.3 habitat loss fragmentation",
+    "Lesson 9.4 conservation biology",
+    "Lesson 9.5 sustainability principles",
+    "Lesson 9.6 environmental policies agreements",
+   ],
+  },
+  {
+   title: "Lab and Data Analysis Skills",
+   summary:
+    "Lesson 10.1 Data interpretation and graph analysis; Lesson 10.2 Experimental design and variables; Lesson 10.3 Calculations: population growth, energy efficiency, pollution indices; Lesson 10.4 Model interpretation and prediction; Lesson 10.5 APES FRQ structure and environmental reasoning.",
+   hooks: [
+    "Lesson 10.1 data interpretation graphs",
+    "Lesson 10.2 experimental design variables",
+    "Lesson 10.3 population growth energy efficiency pollution calculations",
+    "Lesson 10.4 model interpretation prediction",
+    "Lesson 10.5 APES FRQ environmental reasoning",
+   ],
+  },
  ]),
  ush: [
  {
