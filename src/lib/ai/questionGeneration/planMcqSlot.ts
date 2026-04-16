@@ -75,7 +75,7 @@ export function planMcqSlot(params: {
 
 	const diffKeys = ["easy", "medium", "hard"] as const;
 	let wEasy = Math.max(0.05, config.difficultyRules.weights.easy);
-	let wMed = Math.max(0.05, config.difficultyRules.weights.medium);
+	const wMed = Math.max(0.05, config.difficultyRules.weights.medium);
 	let wHard = Math.max(0.05, config.difficultyRules.weights.hard);
 	const shift = config.difficultyRules.baselineDensityShift;
 	wHard *= 1 + shift;

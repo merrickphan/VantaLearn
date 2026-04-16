@@ -72,6 +72,8 @@ export function SubjectSearchBar() {
 			<input
 				ref={inputRef}
 				type="search"
+				role="combobox"
+				aria-autocomplete="list"
 				value={query}
 				onChange={(e) => {
 					setQuery(e.target.value);

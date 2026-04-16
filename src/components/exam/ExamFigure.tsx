@@ -66,7 +66,6 @@ export function ExamFigure({ figure }: { figure: ExamFigureType }) {
 	if (figure.kind === "bar_chart") {
 		const maxVal = Math.max(...figure.bars.map((b) => b.value), 0);
 		const minVal = Math.min(0, Math.min(...figure.bars.map((b) => b.value)));
-		const span = maxVal - minVal || 1;
 		const yTicks = axisTicks(minVal, maxVal, 5);
 		const domainMin = Math.min(minVal, yTicks[0]!);
 		const domainMax = Math.max(maxVal, yTicks[yTicks.length - 1]!);

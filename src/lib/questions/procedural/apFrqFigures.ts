@@ -142,7 +142,7 @@ export function frqFigureSocialQ0(
 	if (ctx.courseId === "macro" || ctx.courseId === "micro") {
 		const q0 = ["10", "20", "30", "40", "50"];
 		const sUp = [12, 14, 16, 18, 22].map((b, i) => b + randInt(rng, -2, 2) + i * 2);
-		const dDown = [24, 21, 18, 15, 12].map((b, i) => b + randInt(rng, -2, 2));
+		const dDown = [24, 21, 18, 15, 12].map((b) => b + randInt(rng, -2, 2));
 		return {
 			kind: "supply_demand",
 			title:
