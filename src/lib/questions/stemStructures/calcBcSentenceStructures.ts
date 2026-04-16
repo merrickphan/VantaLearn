@@ -46,6 +46,7 @@ const CALC_BC_OPEN_LEADS = [
 	"Interpreting net change from a rate function in context",
 	"Relating average value of a function to values on an interval",
 	"Where a convergence or divergence claim must be justified",
+	"Using a representation change explicitly stated in the prompt",
 ] as const;
 
 const CALC_BC_TASK_FRAMES = [
