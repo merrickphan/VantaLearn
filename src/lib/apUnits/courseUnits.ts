@@ -511,15 +511,114 @@ export const AP_UNITS_BY_COURSE_ID: Record<string, ApUnit[]> = {
    ],
   },
  ]),
- "cs-a": U("cs-a", [
- "Primitive Types and Using Objects",
- "Boolean Expressions and if Statements",
- "While Loops, String Traversal, and Algorithms",
- "Array Traversal and Algorithms",
- "Writing Classes",
- "ArrayList and Searching/Sorting",
- "Inheritance and Polymorphism",
- "Recursion",
+ "cs-a": unitsDetailed("cs-a", [
+  {
+   title: "Primitive Types and Basic Java",
+   summary:
+    "Java program structure (classes, main method, execution flow); variables (declaration, initialization, assignment); primitive types (int, double, boolean, char); expressions and operator precedence; casting and type conversion; String basics (creation, concatenation, length, immutability).",
+   hooks: [
+    "variable initialization and assignment",
+    "primitive types and literals",
+    "operator precedence",
+    "casting (int/double) effects",
+    "String length/concatenation",
+   ],
+  },
+  {
+   title: "Boolean Expressions and Control Flow",
+   summary:
+    "Boolean logic; relational operators; logical operators (&&, ||, !); if and if-else; nested conditionals; De Morgan’s law and logical equivalence; switch statements when used.",
+   hooks: [
+    "relational vs logical operators",
+    "short-circuit logic",
+    "if/else branching",
+    "nested conditionals",
+    "De Morgan equivalence",
+    "switch behavior",
+   ],
+  },
+  {
+   title: "Iteration",
+   summary:
+    "While loops and for loops; common iteration patterns (accumulation, counting, searching); nested loops; loop control patterns and common errors (off-by-one, infinite loop).",
+   hooks: [
+    "while vs for",
+    "accumulation pattern",
+    "off-by-one errors",
+    "nested loop counting",
+    "searching with loops",
+   ],
+  },
+  {
+   title: "Writing Classes (OOP Basics)",
+   summary:
+    "Classes and objects; instance variables (state); constructors; methods (behavior, return types); parameters and scope; encapsulation (private/public); accessors and mutators; this keyword.",
+   hooks: [
+    "constructor and initialization",
+    "instance variables vs local variables",
+    "accessor vs mutator",
+    "this keyword meaning",
+    "encapsulation intent",
+   ],
+  },
+  {
+   title: "Arrays",
+   summary:
+    "Array declaration/initialization; zero-based indexing; traversals; modifying elements; length; enhanced for loop; linear search; common algorithms (max/min/sum/average).",
+   hooks: [
+    "zero-based indexing",
+    "traversal patterns",
+    "length usage",
+    "linear search",
+    "max/min/sum/avg",
+   ],
+  },
+  {
+   title: "ArrayList",
+   summary:
+    "ArrayList basics (import and creation); add/remove; get/set; size; iteration; common operations; wrapper classes (Integer, Double, etc.).",
+   hooks: [
+    "ArrayList add/remove shifting",
+    "get/set and index rules",
+    "size vs index",
+    "iteration patterns",
+    "wrapper class usage",
+   ],
+  },
+  {
+   title: "Inheritance",
+   summary:
+    "Superclasses and subclasses; extends; method overriding; super keyword; polymorphism basics; is-a relationships.",
+   hooks: [
+    "override vs overload",
+    "super constructor call",
+    "polymorphism reference type",
+    "is-a relationship",
+   ],
+  },
+  {
+   title: "Recursion",
+   summary:
+    "Recursive structure (base case and recursive case); tracing calls; simple recursive methods; recursive processing of arrays/strings; call stack behavior; common recursion errors (missing base case, infinite recursion).",
+   hooks: [
+    "base case identification",
+    "trace recursive calls",
+    "stack frames concept",
+    "recursive array/string processing",
+    "common recursion bugs",
+   ],
+  },
+  {
+   title: "Exam-Level Problem Solving",
+   summary:
+    "FRQ-style method writing, especially for arrays/ArrayLists and class design; traversal/search patterns; debugging code segments; informal algorithm efficiency ideas.",
+   hooks: [
+    "FRQ-style method writing",
+    "Array/ArrayList traversal patterns",
+    "debugging code segments",
+    "efficiency intuition (Big-O informal)",
+   ],
+  },
  ]),
  csp: U("csp", [
  "Creative Development",

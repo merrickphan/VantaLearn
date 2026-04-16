@@ -13,4 +13,5 @@ export const AP_COURSES_WITH_STEM_STRUCTURE_CATALOG: ReadonlySet<string> = new S
 	"calc-bc",
 	"precalc",
 	"stats",
+	"cs-a",
 ]);

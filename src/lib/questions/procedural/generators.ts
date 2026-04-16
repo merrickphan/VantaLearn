@@ -1379,6 +1379,177 @@ export function genStatsSlopeInferenceConcept(rng: () => number, ctx: ProcCtx, i
  );
 }
 
+/* - - - AP Computer Science A procedural items (Units 1–9) - - - */
+
+export function genJavaCastingConcept(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const n = randInt(rng, 7, 29);
+ const d = randInt(rng, 2, 9);
+ const stem = "In Java, what is the value of (double) " + n + " / " + d + "?";
+ const correct = String(roundN(n / d, 3));
+ return mc(
+  rng,
+  ctx,
+  i,
+  "csa-cast",
+  stem,
+  correct,
+  String(Math.floor(n / d)),
+  String(roundN((n - (n % d)) / d, 3)),
+  String(roundN(n / d, 0)),
+  `Casting to double makes the division use floating-point arithmetic.`,
+  {
+   figure: { kind: "stimulus", body: `(double) ${n} / ${d}` },
+   procedural_structure_id: `csa-cast-${n}-${d}`,
+  },
+ );
+}
+
+export function genJavaStringLengthConcat(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const a = pick(rng, ["hi", "code", "java", "AP"] as const);
+ const b = pick(rng, ["!", "42", "rocks", " exam"] as const);
+ const stem = "What is the value of (\"" + a + "\" + \"" + b + "\").length()?";
+ const correct = String((a + b).length);
+ return mc(
+  rng,
+  ctx,
+  i,
+  "csa-str",
+  stem,
+  correct,
+  String(a.length),
+  String(b.length),
+  String(a.length + b.length - 1),
+  `String concatenation forms a new String, then length() counts all characters.`,
+  { procedural_structure_id: `csa-str-${hashString(a + "|" + b).toString(36).slice(0, 6)}` },
+ );
+}
+
+export function genDeMorganEquivalence(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = "Which expression is logically equivalent to !(A && B) ?";
+ return mc(
+  rng,
+  ctx,
+  i,
+  "csa-dem",
+  stem,
+  "(!A) || (!B)",
+  "(!A) && (!B)",
+  "(A) || (B)",
+  "!(A) && (B)",
+  `By De Morgan’s law: !(A && B) is equivalent to (!A) || (!B).`,
+  { procedural_structure_id: "csa-dem-1" },
+ );
+}
+
+export function genIfElseBranch(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const x = randInt(rng, -4, 6);
+ const y = randInt(rng, -4, 6);
+ const stem = "What is printed by the following code segment?";
+ const fig: ExamFigure = {
+  kind: "stimulus",
+  body: `int x = ${x};\nint y = ${y};\nif (x > y) {\n  System.out.print(\"A\");\n} else if (x == y) {\n  System.out.print(\"B\");\n} else {\n  System.out.print(\"C\");\n}`,
+ };
+ const correct = x > y ? "A" : x === y ? "B" : "C";
+ return mc(rng, ctx, i, "csa-if", stem, correct, "A", "B", "C", `Compare x and y to determine which branch runs.`, {
+  figure: fig,
+  procedural_structure_id: `csa-if-x${x}-y${y}`,
+ });
+}
+
+export function genLoopIterationsCount(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const n = randInt(rng, 3, 10);
+ const stem = "How many times does the loop body execute?";
+ const fig: ExamFigure = {
+  kind: "stimulus",
+  body: `int count = 0;\nfor (int i = 1; i <= ${n}; i++) {\n  count++;\n}`,
+ };
+ const correct = String(n);
+ return mc(rng, ctx, i, "csa-forcnt", stem, correct, String(n - 1), String(n + 1), "0", `The loop runs for i = 1,2,...,${n} (inclusive).`, {
+  figure: fig,
+  procedural_structure_id: `csa-forcnt-n${n}`,
+ });
+}
+
+export function genArrayIndexing(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const len = randInt(rng, 3, 7);
+ const idx = len - 1;
+ const stem = `An int[] array has length ${len}. Which index is the last valid index?`;
+ return mc(
+  rng,
+  ctx,
+  i,
+  "csa-arridx",
+  stem,
+  String(idx),
+  String(len),
+  "1",
+  String(len + 1),
+  `Arrays are zero-indexed; last valid index is length - 1.`,
+  { procedural_structure_id: `csa-arridx-l${len}` },
+ );
+}
+
+export function genArrayTraversalSum(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const a = distinctRandInts(rng, 4, 1, 9);
+ const sum = a.reduce((s, x) => s + x, 0);
+ const stem = "What is printed by the following code segment?";
+ const fig: ExamFigure = {
+  kind: "stimulus",
+  body: `int[] a = { ${a.join(", ")} };\nint s = 0;\nfor (int k = 0; k < a.length; k++) {\n  s += a[k];\n}\nSystem.out.print(s);`,
+ };
+ return mc(rng, ctx, i, "csa-arrsum", stem, String(sum), String(a[0]!), String(sum - 1), String(sum + 1), `The loop adds all elements of the array.`, {
+  figure: fig,
+  procedural_structure_id: `csa-arrsum-${hashString(a.join(",")).toString(36).slice(0, 6)}`,
+ });
+}
+
+export function genArrayListSizeAfterOps(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const start = randInt(rng, 2, 5);
+ const addN = randInt(rng, 1, 4);
+ const remN = randInt(rng, 1, Math.min(3, start + addN));
+ const final = start + addN - remN;
+ const stem = "What is printed by the following code segment?";
+ const fig: ExamFigure = {
+  kind: "stimulus",
+  body: `ArrayList<Integer> list = new ArrayList<Integer>();\nfor (int i = 0; i < ${start}; i++) { list.add(i); }\nfor (int j = 0; j < ${addN}; j++) { list.add(99); }\nfor (int k = 0; k < ${remN}; k++) { list.remove(0); }\nSystem.out.print(list.size());`,
+ };
+ return mc(rng, ctx, i, "csa-alsz", stem, String(final), String(start), String(start + addN), String(final + 1), `add increases size by 1; remove decreases size by 1.`, {
+  figure: fig,
+  procedural_structure_id: `csa-alsz-${start}-${addN}-${remN}`,
+ });
+}
+
+export function genOverrideConcept(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = "In Java, a subclass overrides a superclass method when the subclass";
+ return mc(
+  rng,
+  ctx,
+  i,
+  "csa-ovr",
+  stem,
+  "defines a method with the same name and parameter list (signature) and a compatible return type",
+  "defines a method with a different name but same return type",
+  "defines a method with the same name but different parameter list (overloading)",
+  "declares an instance variable with the same name",
+  `Overriding replaces inherited behavior for the same signature; overloading changes the parameter list.`,
+  { procedural_structure_id: "csa-override-def" },
+ );
+}
+
+export function genRecursionFactorial(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const n = randInt(rng, 3, 6);
+ const fact = Array.from({ length: n }, (_, k) => k + 1).reduce((p, x) => p * x, 1);
+ const stem = "What value is returned by the call fact(" + n + ")?";
+ const fig: ExamFigure = {
+  kind: "stimulus",
+  body: `public int fact(int n) {\n  if (n == 1) {\n    return 1;\n  }\n  return n * fact(n - 1);\n}`,
+ };
+ return mc(rng, ctx, i, "csa-rec", stem, String(fact), String(n), String(fact - 1), "0", `The method multiplies n · (n-1) · ... · 1.`, {
+  figure: fig,
+  procedural_structure_id: `csa-fact-n${n}`,
+ });
+}
+
 const TRIG_ROWS: { stem: string; c: string; w: [string, string, string]; ex: string }[] = [
  { stem: "sin(0) equals", c: "0", w: ["1", "-1", "1/2"], ex: "sin(0) = 0." },
  { stem: "cos(0) equals", c: "1", w: ["0", "-1", "1/2"], ex: "cos(0) = 1." },
@@ -3141,6 +3312,34 @@ function getStatsUnitGenerators(unitIndex: number): QuestionGen[] {
  return [...pool];
 }
 
+/** Unit-indexed pools for AP Computer Science A (1–9). */
+const CSA_UNIT_POOLS: QuestionGen[][] = [
+ // 1 — Primitive types and basic Java
+ [genJavaCastingConcept, genJavaStringLengthConcat, genLoopCount],
+ // 2 — Boolean expressions and control flow
+ [genBooleanExpr, genDeMorganEquivalence, genIfElseBranch],
+ // 3 — Iteration
+ [genLoopIterationsCount, genLoopCount, genLoopCount],
+ // 4 — Writing classes
+ [genOverrideConcept, genCsMass],
+ // 5 — Arrays
+ [genArrayIndexing, genArrayTraversalSum],
+ // 6 — ArrayList
+ [genArrayListSizeAfterOps, genCsMass],
+ // 7 — Inheritance
+ [genOverrideConcept, genCsMass],
+ // 8 — Recursion
+ [genRecursionFactorial],
+ // 9 — Exam-level problem solving / efficiency
+ [genBigO, genCsMass],
+];
+
+function getCsaUnitGenerators(unitIndex: number): QuestionGen[] {
+ const idx = Math.min(9, Math.max(1, Math.floor(unitIndex))) - 1;
+ const pool = CSA_UNIT_POOLS[idx] ?? CSA_UNIT_POOLS[0] ?? [];
+ return [...pool];
+}
+
 const CS_A: QuestionGen[] = [genBigO, genLoopCount, genBooleanExpr, genCsMass];
 const CSP: QuestionGen[] = [genBigO, genLoopCount, genBooleanExpr, genCspListIndex, genCsMass];
 const PHYS_ALG: QuestionGen[] = [genKinematicsV, genEnergyKE, genPhysMass];
@@ -3239,6 +3438,9 @@ export function getGeneratorsForCourse(
  }
  if (courseId === "stats") {
  return getStatsUnitGenerators(unitIndex);
+ }
+ if (courseId === "cs-a") {
+ return getCsaUnitGenerators(unitIndex);
  }
  return COURSE_POOL[courseId] ?? DEFAULT_POOL;
 }

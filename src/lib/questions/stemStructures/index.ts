@@ -19,4 +19,5 @@ export {
 	statsSentenceStructureIndex,
 	getStatsSentenceStructure,
 } from "./statsSentenceStructures";
+export { CSA_SENTENCE_STRUCTURES, csaSentenceStructureIndex, getCsaSentenceStructure } from "./csASentenceStructures";
 export { getApCourseStemStructureDirective } from "./apStemStructureDirectives";
