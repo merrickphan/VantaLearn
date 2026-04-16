@@ -8,4 +8,4 @@
 export const AP_STEM_STRUCTURE_MINIMUM = 1000 as const;
 
 /** Courses with a fully enumerated structure catalog in code (others use generic prompt guidance). */
-export const AP_COURSES_WITH_STEM_STRUCTURE_CATALOG: ReadonlySet<string> = new Set(["calc-ab", "calc-bc"]);
+export const AP_COURSES_WITH_STEM_STRUCTURE_CATALOG: ReadonlySet<string> = new Set(["calc-ab", "calc-bc", "precalc"]);

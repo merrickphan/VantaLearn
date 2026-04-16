@@ -785,6 +785,215 @@ export function genTrapezoidalRuleSetup(rng: () => number, ctx: ProcCtx, i: numb
  );
 }
 
+/* - - - AP Precalculus procedural items (Units 1–9) - - - */
+
+export function genPolyEndBehaviorSign(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const deg = pick(rng, [3, 4, 5, 6] as const);
+ const lc = pick(rng, [-1, 1] as const);
+ const stem = pick(rng, [
+ "A polynomial f has the stated degree and leading coefficient. Which statement best describes the end behavior of f?",
+ "Given a polynomial’s degree and leading coefficient, which end behavior is correct?",
+ "A polynomial function has the degree and sign shown. As x → ∞ and x → −∞, f(x) behaves as",
+ ]);
+ const correct =
+  deg % 2 === 0
+   ? lc > 0
+    ? "f(x) → ∞ as x → ∞ and f(x) → ∞ as x → −∞"
+    : "f(x) → −∞ as x → ∞ and f(x) → −∞ as x → −∞"
+   : lc > 0
+    ? "f(x) → ∞ as x → ∞ and f(x) → −∞ as x → −∞"
+    : "f(x) → −∞ as x → ∞ and f(x) → ∞ as x → −∞";
+ const wrongs = [
+  "f(x) → ∞ as x → ∞ and f(x) → ∞ as x → −∞",
+  "f(x) → −∞ as x → ∞ and f(x) → −∞ as x → −∞",
+  "f(x) → ∞ as x → ∞ and f(x) → −∞ as x → −∞",
+  "f(x) → −∞ as x → ∞ and f(x) → ∞ as x → −∞",
+ ].filter((s) => s !== correct);
+ const fig: ExamFigure = {
+  kind: "table",
+  title: "Table 1. Polynomial leading behavior",
+  headers: ["Degree", "Leading coefficient sign"],
+  rows: [[String(deg), lc > 0 ? "positive" : "negative"]],
+ };
+ return mc(rng, ctx, i, "pre-end", stem, correct, wrongs[0]!, wrongs[1]!, wrongs[2]!, "Even/odd degree and leading sign determine end behavior.", {
+  figure: fig,
+  procedural_structure_id: `pre-end-d${deg}-s${lc > 0 ? "p" : "n"}`,
+ });
+}
+
+export function genZeroMultiplicityBehavior(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const m = pick(rng, [1, 2, 3, 4] as const);
+ const stem = "At a real zero of a polynomial, the graph’s behavior depends on the zero’s multiplicity. If a zero has multiplicity " + m + ", the graph typically";
+ const correct = m % 2 === 1 ? "crosses the x-axis at the zero" : "touches the x-axis and turns around at the zero";
+ const w1 = m % 2 === 1 ? "touches the x-axis and turns around at the zero" : "crosses the x-axis at the zero";
+ return mc(
+  rng,
+  ctx,
+  i,
+  "pre-mult",
+  stem,
+  correct,
+  w1,
+  "has a vertical asymptote at the zero",
+  "has no x-intercept at the zero",
+  `Odd multiplicity typically crosses; even multiplicity typically touches/bounces.`,
+  { procedural_structure_id: `pre-mult-m${m}` },
+ );
+}
+
+export function genRationalDomainRestriction(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const a = randInt(rng, -6, 6);
+ const b = a === 0 ? 3 : -a;
+ const stem = pick(rng, [
+  "For the rational function f(x) = (x + 1)/(x - a), which value is excluded from the domain?",
+  "A rational function has denominator x - a. Which input is not allowed?",
+  "For f(x) = (x + 1)/(x - a), the domain excludes",
+ ]).replaceAll("a", String(a));
+ const fig: ExamFigure = {
+  kind: "stimulus",
+  body: `Function definition:\n\nf(x) = (x + 1)/(x - ${a})`,
+ };
+ return mc(rng, ctx, i, "pre-rdom", stem, `${a}`, `${b}`, "0", "1", `Denominator cannot be zero, so x ≠ ${a}.`, {
+  figure: fig,
+  procedural_structure_id: `pre-rdom-a${a}`,
+ });
+}
+
+export function genExpGrowthCompute(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const a0 = randInt(rng, 50, 400);
+ const r = pick(rng, [0.02, 0.03, 0.05, 0.08] as const);
+ const t = randInt(rng, 1, 4);
+ const val = roundN(a0 * (1 + r) ** t, 2);
+ const stem = `A quantity follows A(t) = ${a0}(1 + r)^t with r = ${r}. Find A(${t}).`;
+ return mc(
+  rng,
+  ctx,
+  i,
+  "pre-exp",
+  stem,
+  `${val}`,
+  `${roundN(a0 * (1 + r) ** (t + 1), 2)}`,
+  `${roundN(a0 * (1 - r) ** t, 2)}`,
+  `${roundN(a0 + r * t, 2)}`,
+  `Substitute t = ${t} into A(t) and evaluate.`,
+  { procedural_structure_id: `pre-exp-a${a0}-r${String(r).replace(".", "")}-t${t}` },
+ );
+}
+
+export function genLogRuleConcept(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = pick(rng, [
+  "Which identity is always true for positive x and y (and a valid log base)?",
+  "For x > 0 and y > 0, which log property is correct?",
+  "Select the correct logarithm rule for x > 0, y > 0.",
+ ]);
+ return mc(
+  rng,
+  ctx,
+  i,
+  "pre-log",
+  stem,
+  "log(xy) = log(x) + log(y)",
+  "log(x + y) = log(x) + log(y)",
+  "log(x/y) = log(x) + log(y)",
+  "log(x^y) = y + log(x)",
+  `Product rule: log(xy) = log(x) + log(y).`,
+  { procedural_structure_id: "pre-log-prod" },
+ );
+}
+
+export function genPowerOfI(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const n = randInt(rng, 1, 20);
+ const mod = n % 4;
+ const correct = mod === 0 ? "1" : mod === 1 ? "i" : mod === 2 ? "-1" : "-i";
+ const stem = `Simplify i^${n}.`;
+ return mc(
+  rng,
+  ctx,
+  i,
+  "pre-i",
+  stem,
+  correct,
+  mod === 0 ? "-1" : "1",
+  mod === 1 ? "-i" : "i",
+  "0",
+  `Powers of i repeat every 4: i^1=i, i^2=-1, i^3=-i, i^4=1.`,
+  { procedural_structure_id: `pre-i-n${n}` },
+ );
+}
+
+export function genDiscriminantRootType(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const D = pick(rng, [-9, -1, 0, 4, 25] as const);
+ const stem = `A quadratic has discriminant D = ${D}. The equation has`;
+ const correct = D < 0 ? "two nonreal complex conjugate solutions" : D === 0 ? "one real repeated solution" : "two distinct real solutions";
+ const wrongs = [
+  "two nonreal complex conjugate solutions",
+  "one real repeated solution",
+  "two distinct real solutions",
+  "no solutions",
+ ].filter((x) => x !== correct);
+ return mc(
+  rng,
+  ctx,
+  i,
+  "pre-disc",
+  stem,
+  correct,
+  wrongs[0]!,
+  wrongs[1]!,
+  wrongs[2]!,
+  `Use the sign of the discriminant: D<0 complex; D=0 repeated; D>0 distinct real.`,
+  { procedural_structure_id: `pre-disc-D${D}` },
+ );
+}
+
+export function genRemainderTheorem(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const r = randInt(rng, -3, 4);
+ const rem = randInt(rng, -8, 12);
+ const stem = `If a polynomial f is divided by (x - ${r}), the remainder is ${rem}. What is f(${r})?`;
+ return mc(
+  rng,
+  ctx,
+  i,
+  "pre-rem",
+  stem,
+  `${rem}`,
+  `${r}`,
+  `${-rem}`,
+  `${rem + 1}`,
+  `Remainder theorem: f(r) equals the remainder when dividing by (x - r).`,
+  { procedural_structure_id: `pre-rem-r${r}-m${rem}` },
+ );
+}
+
+export function genLinearSystemTwoEq(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const x = randInt(rng, -4, 5);
+ const y = randInt(rng, -4, 5);
+ const a1 = randInt(rng, 1, 5);
+ const b1 = randInt(rng, 1, 5);
+ const a2 = randInt(rng, 1, 5);
+ const b2 = randInt(rng, 1, 5);
+ const c1 = a1 * x + b1 * y;
+ const c2 = a2 * x + b2 * y;
+ const stem = "Solve the system of equations.";
+ const fig: ExamFigure = {
+  kind: "stimulus",
+  body: `${a1}x + ${b1}y = ${c1}\n${a2}x + ${b2}y = ${c2}`,
+ };
+ return mc(
+  rng,
+  ctx,
+  i,
+  "pre-sys",
+  stem,
+  `(${x}, ${y})`,
+  `(${y}, ${x})`,
+  `(${x + 1}, ${y})`,
+  `(${x}, ${y + 1})`,
+  `Substitute or eliminate to find the unique intersection point.`,
+  { figure: fig, procedural_structure_id: `pre-sys-x${x}-y${y}` },
+ );
+}
+
 const TRIG_ROWS: { stem: string; c: string; w: [string, string, string]; ex: string }[] = [
  { stem: "sin(0) equals", c: "0", w: ["1", "-1", "1/2"], ex: "sin(0) = 0." },
  { stem: "cos(0) equals", c: "1", w: ["0", "-1", "1/2"], ex: "cos(0) = 1." },
@@ -2486,6 +2695,34 @@ function getCalcBcUnitGenerators(unitIndex: number, calculatorSection?: Calculat
  return [...pool, ...STATS_TEXT];
 }
 
+/** Unit-indexed pools for AP Precalculus (1–9). */
+const PRECALC_UNIT_POOLS: QuestionGen[][] = [
+ // 1 — Polynomial and rational functions
+ [genPolyEndBehaviorSign, genZeroMultiplicityBehavior, genRationalDomainRestriction, genRemainderTheorem, genLinearSlopeTwoPoints],
+ // 2 — Exponential and logarithmic functions
+ [genExpGrowthCompute, genLogRuleConcept, genMeanSimple, genZScoreConcept],
+ // 3 — Trigonometric functions
+ [genTrigSpecial, genLinearSlopeTwoPoints, genMeanSimple],
+ // 4 — Complex numbers and polynomial systems
+ [genPowerOfI, genDiscriminantRootType, genRemainderTheorem, genLinearSlopeTwoPoints],
+ // 5 — Analytic trig and identities
+ [genTrigSpecial, genLogRuleConcept],
+ // 6 — Modeling and applications
+ [genStatsBarChartMode, genStatsExamLineTrend, genMeanSimple, genExpGrowthCompute],
+ // 7 — Systems and matrices
+ [genLinearSystemTwoEq, genLinearSlopeTwoPoints, genMeanSimple],
+ // 8 — Advanced function analysis
+ [genCompositionValue, genLinearSlopeTwoPoints, genPolyEndBehaviorSign, genRationalDomainRestriction],
+ // 9 — Data and probability foundations
+ [genStatsBarChartMode, genStatsExamLineTrend, genMeanSimple, genZScoreConcept],
+];
+
+function getPrecalcUnitGenerators(unitIndex: number): QuestionGen[] {
+ const idx = Math.min(9, Math.max(1, Math.floor(unitIndex))) - 1;
+ const pool = PRECALC_UNIT_POOLS[idx] ?? PRECALC_UNIT_POOLS[0] ?? [];
+ return [...pool];
+}
+
 /** Text-only stats items (safe to mix with calculus for numeric literacy). */
 const STATS_TEXT: QuestionGen[] = [genMeanSimple, genZScoreConcept];
 const STATS_FIG: QuestionGen[] = [genStatsBarChartMode, genStatsExamLineTrend];
@@ -2583,6 +2820,9 @@ export function getGeneratorsForCourse(
  }
  if (courseId === "calc-bc") {
  return getCalcBcUnitGenerators(unitIndex, calculatorSection);
+ }
+ if (courseId === "precalc") {
+ return getPrecalcUnitGenerators(unitIndex);
  }
  return COURSE_POOL[courseId] ?? DEFAULT_POOL;
 }

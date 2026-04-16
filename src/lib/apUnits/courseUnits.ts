@@ -287,15 +287,118 @@ const CALC_BC_UNIT_DEFS: readonly { title: string; summary: string; hooks: reado
 export const AP_UNITS_BY_COURSE_ID: Record<string, ApUnit[]> = {
  "calc-ab": unitsDetailed("calc-ab", CALC_AB_UNIT_DEFS),
  "calc-bc": unitsDetailed("calc-bc", CALC_BC_UNIT_DEFS),
- precalc: U("precalc", [
- "Polynomial and Rational Functions",
- "Exponential and Logarithmic Functions",
- "Trigonometric and Polar Functions",
- "Functions Involving Parameters, Vectors, and Matrices",
- "Conics and Advanced Graphing",
- "Sequences, Series, and Mathematical Induction",
- "Limits and Introductory Calculus Ideas",
- "Modeling with Functions and Data",
+ precalc: unitsDetailed("precalc", [
+  {
+   title: "Polynomial and Rational Functions",
+   summary:
+    "Function notation, domain/range, evaluating and interpreting graphs; polynomial structure (degree, leading coefficient, end behavior, turning points); zeros, factors, and multiplicity; constructing polynomial models from conditions; rational functions (structure, restrictions, simplification); asymptotes (vertical/horizontal/slant), holes, intercepts, end behavior; solving rational equations with attention to extraneous solutions and domain restrictions.",
+   hooks: [
+    "domain and range from graphs",
+    "end behavior from degree and leading coefficient",
+    "zeros and multiplicity (cross vs touch)",
+    "factor theorem / constructing factors",
+    "rational restrictions and holes",
+    "vertical vs horizontal vs slant asymptotes",
+    "solving rational equations (extraneous checks)",
+   ],
+  },
+  {
+   title: "Exponential and Logarithmic Functions",
+   summary:
+    "Exponential growth/decay models and parameter meaning; transformations; exponent rules and simplifying expressions; logarithms as inverses; log properties and change of base; solving exponential and logarithmic equations with domain checks; compound growth/decay modeling in context.",
+   hooks: [
+    "growth vs decay interpretation",
+    "exponent rules simplification",
+    "log properties (product/quotient/power)",
+    "change of base usage",
+    "solve exponential equations",
+    "solve logarithmic equations (domain)",
+    "compound growth modeling",
+   ],
+  },
+  {
+   title: "Trigonometric Functions",
+   summary:
+    "Unit circle (radians, coordinates) and trig definitions; sine/cosine/tangent and reciprocals; graphs of trig functions (amplitude, period, midline, phase shift); identities (Pythagorean, symmetry, periodicity); inverse trig principal values; solving trig equations; sinusoidal modeling in context.",
+   hooks: [
+    "unit circle exact values",
+    "amplitude/period/midline from equations",
+    "symmetry and periodicity",
+    "Pythagorean identities",
+    "inverse trig principal values",
+    "solve trig equations (general solutions)",
+    "sinusoidal modeling",
+   ],
+  },
+  {
+   title: "Complex Numbers and Polynomial Systems",
+   summary:
+    "Complex number arithmetic and i; powers of i cycle; quadratic solutions with complex roots and discriminant meaning; polynomial long/synthetic division; connecting roots to factors and to the fundamental theorem of algebra.",
+   hooks: [
+    "arithmetic with a+bi",
+    "powers of i cycle",
+    "discriminant and root type",
+    "synthetic division remainder",
+    "number of roots (FTA)",
+   ],
+  },
+  {
+   title: "Analytic Trigonometry and Identities",
+   summary:
+    "Identity manipulation and rewriting expressions; Pythagorean identities; sum and difference formulas; double-angle formulas; solving advanced trig equations using identities strategically.",
+   hooks: [
+    "simplify using identities",
+    "sum/difference formulas",
+    "double-angle formulas",
+    "identity-based equation solving",
+   ],
+  },
+  {
+   title: "Modeling and Applications",
+   summary:
+    "Choosing function types for data; regression basics and interpreting best-fit models; periodic modeling; piecewise functions in context; constraints and interpretation of domain/range in applied settings.",
+   hooks: [
+    "choose model type from description",
+    "interpret regression parameters",
+    "periodic modeling context",
+    "piecewise interpretation",
+    "domain/range constraints in context",
+   ],
+  },
+  {
+   title: "Systems of Equations and Matrices",
+   summary:
+    "Systems of linear equations via substitution and elimination; interpreting intersections as solutions; matrix representation and solving simple systems when included.",
+   hooks: [
+    "substitution vs elimination",
+    "intersection meaning",
+    "matrix form of a system",
+   ],
+  },
+  {
+   title: "Advanced Function Analysis",
+   summary:
+    "Function transformations; composition f(g(x)); inverses (find/verify); piecewise function behavior and graph construction; comparing growth rates of polynomial, exponential, and logarithmic functions.",
+   hooks: [
+    "transformations (shift/scale/reflect)",
+    "composition meaning",
+    "inverse verification",
+    "piecewise continuity/behavior",
+    "growth-rate comparisons",
+   ],
+  },
+  {
+   title: "Data and Probability Foundations",
+   summary:
+    "Interpreting scatterplots and trends; correlation vs causation; basic probability rules (independent vs dependent events); conditional probability basics; introductory expected value when included.",
+   hooks: [
+    "scatterplot trend interpretation",
+    "correlation vs causation",
+    "independent vs dependent events",
+    "conditional probability",
+    "expected value basics",
+   ],
+  },
  ]),
  stats: U("stats", [
  "Exploring One-Variable Data",

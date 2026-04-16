@@ -9,4 +9,9 @@ export {
 	calcBcSentenceStructureIndex,
 	getCalcBcSentenceStructure,
 } from "./calcBcSentenceStructures";
+export {
+	PRECALC_SENTENCE_STRUCTURES,
+	precalcSentenceStructureIndex,
+	getPrecalcSentenceStructure,
+} from "./precalcSentenceStructures";
 export { getApCourseStemStructureDirective } from "./apStemStructureDirectives";
