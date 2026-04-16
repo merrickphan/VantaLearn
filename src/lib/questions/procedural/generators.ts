@@ -386,6 +386,226 @@ export function genSmallIntegerPowerEval(rng: () => number, ctx: ProcCtx, i: num
  );
 }
 
+/** Removable discontinuity: lim (x^2-a^2)/(x-a) = 2a (AB Unit 1). */
+export function genRationalLimitRemovable(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const a = randInt(rng, 2, 11);
+ const a2 = a * a;
+ const lim = 2 * a;
+ const stem = pick(rng, [
+ `The limit as x approaches ${a} of (x^2 - ${a2})/(x - ${a}) is`,
+ `Evaluate lim(x → ${a}) (x^2 - ${a2})/(x - ${a}).`,
+ `Find the value of lim(x → ${a}) [(x^2 - ${a2})/(x - ${a})].`,
+ ]);
+ return mc(
+ rng,
+ ctx,
+ i,
+ "lim-rat",
+ stem,
+ `${lim}`,
+ `${a}`,
+ `${a2}`,
+ `${lim + pick(rng, [1, -1] as const)}`,
+ `Factor x^2 - ${a2} = (x - ${a})(x + ${a}), cancel (x - ${a}), then substitute to get ${a} + ${a} = ${lim}.`,
+ { procedural_structure_id: `calc-limrat-a${a}` },
+ );
+}
+
+/** Continuity / discontinuity type (conceptual, Unit 1). */
+export function genContinuityConceptMcq(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ type Row = { stem: string; c: string; w: [string, string, string]; ex: string };
+ const rows: Row[] = [
+ {
+ stem: "A function g has a finite limit as x approaches c, but g(c) is defined to a different number. At x = c, g has",
+ c: "a removable discontinuity",
+ w: ["a jump discontinuity", "a vertical asymptote", "no discontinuity"],
+ ex: "The limit exists but does not match the defined value — the gap can be 'removed' by redefining g(c).",
+ },
+ {
+ stem: "Left-hand and right-hand limits at x = c exist but are unequal. This describes",
+ c: "a jump discontinuity",
+ w: ["a removable discontinuity", "continuity at c", "a horizontal asymptote"],
+ ex: "Unequal one-sided limits produce a jump; the limit overall does not exist.",
+ },
+ {
+ stem: "For continuity at x = c, which condition is NOT required?",
+ c: "f'(c) exists",
+ w: ["f(c) is defined", "lim(x→c) f(x) exists", "lim(x→c) f(x) = f(c)"],
+ ex: "Continuity does not require differentiability; corners can be continuous but not differentiable.",
+ },
+ ];
+ const row = pick(rng, rows);
+ return mc(rng, ctx, i, "cont", row.stem, row.c, row.w[0], row.w[1], row.w[2], row.ex, {
+ procedural_structure_id: `calc-cont-${hashString(row.stem).toString(36).slice(0, 6)}`,
+ });
+}
+
+/** IVT — sign change implies a zero in (a,b) (Unit 1). */
+export function genIvTSignChange(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const a = randInt(rng, 0, 3);
+ const b = a + randInt(rng, 3, 8);
+ const fa = randInt(rng, -12, -1);
+ const fb = randInt(rng, 1, 14);
+ const stem = pick(rng, [
+ `Let f be continuous on the closed interval [${a}, ${b}]. Suppose f(${a}) = ${fa} and f(${b}) = ${fb}. Which statement follows from the Intermediate Value Theorem?`,
+ `Function f is continuous on [${a}, ${b}] with f(${a}) = ${fa} and f(${b}) = ${fb}. Which must be true by the IVT?`,
+ ]);
+ return mc(
+ rng,
+ ctx,
+ i,
+ "ivt",
+ stem,
+ "There exists at least one c in the open interval (" + a + ", " + b + ") such that f(c) = 0.",
+ "f has a local maximum in (" + a + ", " + b + ").",
+ "f'(c) = 0 for some c in (" + a + ", " + b + ").",
+ "f is increasing on all of [" + a + ", " + b + "].",
+ `Opposite signs at endpoints and continuity imply some c with f(c) = 0 between ${a} and ${b}.`,
+ { procedural_structure_id: `calc-ivt-a${a}-b${b}` },
+ );
+}
+
+/** Average velocity for s(t)=t^2+k on [t1,t2] equals t1+t2 (Unit 2 / 4). */
+export function genAvgVelocitySquaredPosition(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const k = randInt(rng, 1, 12);
+ const t1 = randInt(rng, 0, 4);
+ const t2 = t1 + randInt(rng, 2, 6);
+ const avg = t1 + t2;
+ const s1 = t1 * t1 + k;
+ const s2 = t2 * t2 + k;
+ const stem = pick(rng, [
+ `A particle moves along a line with position s(t) = t^2 + ${k} (t in seconds). The average velocity over [${t1}, ${t2}] is`,
+ `For s(t) = t^2 + ${k}, the average rate of change of s on [${t1}, ${t2}] equals`,
+ ]);
+ return mc(
+ rng,
+ ctx,
+ i,
+ "avgv",
+ stem,
+ `${avg}`,
+ `${(s2 - s1) / (t2 - t1) + 1}`,
+ `${t2 - t1}`,
+ `${s2 - s1}`,
+ `Average velocity = (s(${t2}) - s(${t1}))/(${t2} - ${t1}) = (${t2}^2 - ${t1}^2)/(${t2} - ${t1}) = ${t2} + ${t1} = ${avg}.`,
+ { procedural_structure_id: `calc-avgv-k${k}-t${t1}-${t2}` },
+ );
+}
+
+/** Instantaneous velocity from polynomial position (power rule, Unit 4). */
+export function genMotionVelocityPolynomial(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const a = randInt(rng, 1, 2);
+ const b = randInt(rng, 0, 3);
+ const c = randInt(rng, -1, 4);
+ const t0 = randInt(rng, 1, 4);
+ const vAt = 3 * a * t0 * t0 + 2 * b * t0 + c;
+ const stem = pick(rng, [
+ `A particle's position is s(t) = ${a}t^3 + ${b}t^2 + ${c}t (SI units). Its velocity v(t) = s'(t) at t = ${t0} is`,
+ `For s(t) = ${a}t^3 + ${b}t^2 + ${c}t, find v(${t0}) where v = ds/dt.`,
+ ]);
+ return mc(
+ rng,
+ ctx,
+ i,
+ "mot-v",
+ stem,
+ `${vAt}`,
+ `${vAt + pick(rng, [2, -2, 3] as const)}`,
+ `${a + b + c}`,
+ `${3 * a + 2 * b + c}`,
+ `v(t) = ${3 * a}t^2 + ${2 * b}t + ${c}; substitute t = ${t0}.`,
+ { procedural_structure_id: `calc-motv-a${a}-b${b}-t${t0}` },
+ );
+}
+
+/** FTC Part 1: d/dx ∫_a^x f(t) dt = f(x) at a point (Unit 6). */
+export function genFtcPartOneValue(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const a = randInt(rng, 0, 2);
+ const c = randInt(rng, 1, 9);
+ const x0 = randInt(rng, 3, 11);
+ const fAt = x0 * x0 + c;
+ const stem = pick(rng, [
+ `Let F(x) = ∫_${a}^{x} (t^2 + ${c}) dt. The value of F'(${x0}) is`,
+ `If F(x) = ∫_${a}^{x} (t^2 + ${c}) dt, then F'(${x0}) equals`,
+ ]);
+ return mc(
+ rng,
+ ctx,
+ i,
+ "ftc1",
+ stem,
+ `${fAt}`,
+ `${2 * x0}`,
+ `${x0 + c}`,
+ `${c}`,
+ `By FTC Part 1, F'(x) = x^2 + ${c}, so F'(${x0}) = ${x0}^2 + ${c} = ${fAt}.`,
+ { procedural_structure_id: `calc-ftc1-c${c}-x${x0}` },
+ );
+}
+
+/** End behavior of rational function by degree comparison (Unit 1). */
+export function genHorizontalAsymptoteRationalDegrees(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = pick(rng, [
+ "Let f(x) = P(x)/Q(x) where P and Q are nonzero polynomials. If deg(P) = 2 and deg(Q) = 4, then lim(x → ±∞) f(x) equals",
+ "Suppose f(x) is a rational function with numerator degree 2 and denominator degree 4. As x → ±∞, f(x) approaches",
+ ]);
+ return mc(
+ rng,
+ ctx,
+ i,
+ "hasym",
+ stem,
+ "0",
+ "1",
+ "∞",
+ "the ratio of leading coefficients only (nonzero constant)",
+ `When the denominator has greater degree, the limit at ±∞ is 0.`,
+ { procedural_structure_id: "calc-hasym-deg" },
+ );
+}
+
+/** Recognize separable form (Unit 7). */
+export function genSeparableFormRecognize(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = pick(rng, [
+ "Which differential equation is separable (can be written with all y terms with dy and all x terms with dx)?",
+ "Which of the following is in separable form dy/dx = g(x) h(y)?",
+ ]);
+ return mc(
+ rng,
+ ctx,
+ i,
+ "sep",
+ stem,
+ "dy/dx = x e^y",
+ "dy/dx = x + y",
+ "dy/dx = sin(x + y)",
+ "dy/dx = y/x + ln(xy)",
+ `Separate as e^(-y) dy = x dx; the others mix x and y in a way that is not directly separable.`,
+ { procedural_structure_id: "calc-sep-form" },
+ );
+}
+
+/** Volume of revolution setup — disk method (conceptual, Unit 8). */
+export function genVolumeDiskIntegralSetup(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = pick(rng, [
+ "The region bounded by y = f(x) and the x-axis on [a, b] is revolved about the x-axis. Which integral gives the volume (disk method)?",
+ "Volumes by disks about the x-axis use which form?",
+ ]);
+ return mc(
+ rng,
+ ctx,
+ i,
+ "disk",
+ stem,
+ "π ∫[a to b] (f(x))^2 dx",
+ "2π ∫[a to b] f(x) dx",
+ "π ∫[a to b] f(x) dx",
+ "∫[a to b] π f(x) dx",
+ `Disk radius is |f(x)|; cross-sectional area is π (f(x))^2; integrate along x.`,
+ { procedural_structure_id: "calc-disk-setup" },
+ );
+}
+
 const TRIG_ROWS: { stem: string; c: string; w: [string, string, string]; ex: string }[] = [
  { stem: "sin(0) equals", c: "0", w: ["1", "-1", "1/2"], ex: "sin(0) = 0." },
  { stem: "cos(0) equals", c: "1", w: ["0", "-1", "1/2"], ex: "cos(0) = 1." },
@@ -1887,6 +2107,7 @@ export function genSeminarMass(rng: () => number, ctx: ProcCtx, i: number): Exam
 
 /* - - - Pools - - - */
 
+/** Symbolic + conceptual generators shared by Calc AB/BC procedural practice. */
 const CALC: QuestionGen[] = [
  genDerivativePower,
  genLimitLinear,
@@ -1895,11 +2116,20 @@ const CALC: QuestionGen[] = [
  genLinearSlopeTwoPoints,
  genSmallIntegerPowerEval,
  genTrigSpecial,
+ genRationalLimitRemovable,
+ genContinuityConceptMcq,
+ genIvTSignChange,
+ genAvgVelocitySquaredPosition,
+ genMotionVelocityPolynomial,
+ genFtcPartOneValue,
+ genHorizontalAsymptoteRationalDegrees,
+ genSeparableFormRecognize,
+ genVolumeDiskIntegralSetup,
 ];
 
 /**
- * AP-style no-calculator MCQ mix for symbolic calculus + light composition,
- * exact trig, integer powers, slope from two points, and conceptual stats (no heavy arithmetic means).
+ * AP-style no-calculator MCQ mix: symbolic calculus, light composition, exact trig,
+ * integer powers, slope / limits / continuity / IVT / FTC recognition, and z-score form (no heavy means).
  */
 const CALC_NO_CALCULATOR_SECTION: QuestionGen[] = [
  genDerivativePower,
@@ -1909,8 +2139,114 @@ const CALC_NO_CALCULATOR_SECTION: QuestionGen[] = [
  genLinearSlopeTwoPoints,
  genSmallIntegerPowerEval,
  genTrigSpecial,
+ genRationalLimitRemovable,
+ genContinuityConceptMcq,
+ genIvTSignChange,
+ genAvgVelocitySquaredPosition,
+ genMotionVelocityPolynomial,
+ genFtcPartOneValue,
+ genHorizontalAsymptoteRationalDegrees,
+ genSeparableFormRecognize,
+ genVolumeDiskIntegralSetup,
  genZScoreConcept,
+ genMeanSimple,
 ];
+
+/** Unit-indexed pools for AP Calculus AB (1–8), aligned to typical CED-style units. */
+const CALC_AB_UNIT_POOLS: QuestionGen[][] = [
+ // 1 — Limits & continuity
+ [
+ genLimitLinear,
+ genRationalLimitRemovable,
+ genTrigSpecial,
+ genContinuityConceptMcq,
+ genIvTSignChange,
+ genHorizontalAsymptoteRationalDegrees,
+ genSmallIntegerPowerEval,
+ ],
+ // 2 — Derivative definition & basic rules
+ [
+ genDerivativePower,
+ genLinearSlopeTwoPoints,
+ genAvgVelocitySquaredPosition,
+ genSmallIntegerPowerEval,
+ genTrigSpecial,
+ genContinuityConceptMcq,
+ ],
+ // 3 — Chain / product / quotient / implicit / inverse / trig derivatives
+ [
+ genCompositionValue,
+ genDerivativePower,
+ genTrigSpecial,
+ genLimitLinear,
+ genRationalLimitRemovable,
+ ],
+ // 4 — Contextual differentiation (motion, rates, approximation)
+ [
+ genMotionVelocityPolynomial,
+ genAvgVelocitySquaredPosition,
+ genDerivativePower,
+ genCompositionValue,
+ genLinearSlopeTwoPoints,
+ ],
+ // 5 — Analytical applications (extrema, concavity, optimization framing)
+ [
+ genDerivativePower,
+ genCompositionValue,
+ genLinearSlopeTwoPoints,
+ genTrigSpecial,
+ genLimitLinear,
+ ],
+ // 6 — Integration & FTC
+ [
+ genIntegralPower,
+ genFtcPartOneValue,
+ genMeanSimple,
+ genZScoreConcept,
+ genDerivativePower,
+ ],
+ // 7 — Differential equations
+ [
+ genSeparableFormRecognize,
+ genDerivativePower,
+ genIntegralPower,
+ genLimitLinear,
+ genSmallIntegerPowerEval,
+ ],
+ // 8 — Applications of integration
+ [
+ genVolumeDiskIntegralSetup,
+ genIntegralPower,
+ genFtcPartOneValue,
+ genMeanSimple,
+ genDerivativePower,
+ ],
+];
+
+function calcPoolForSection(pool: QuestionGen[], calculatorSection?: CalculatorSectionPolicy): QuestionGen[] {
+ if (calculatorSection === "no_calculator") {
+ const allowed = new Set(CALC_NO_CALCULATOR_SECTION);
+ const filtered = pool.filter((g) => allowed.has(g));
+ return filtered.length > 0 ? filtered : CALC_NO_CALCULATOR_SECTION;
+ }
+ if (calculatorSection === "calculator") {
+ return [...pool, ...STATS_TEXT];
+ }
+ return [...pool, ...STATS_TEXT];
+}
+
+function getCalcAbUnitGenerators(unitIndex: number, calculatorSection?: CalculatorSectionPolicy): QuestionGen[] {
+ const idx = Math.min(8, Math.max(1, Math.floor(unitIndex))) - 1;
+ const pool = CALC_AB_UNIT_POOLS[idx] ?? CALC;
+ return calcPoolForSection(pool, calculatorSection);
+}
+
+function getCalcBcUnitGenerators(unitIndex: number, calculatorSection?: CalculatorSectionPolicy): QuestionGen[] {
+ if (unitIndex >= 9) {
+ return calculatorSection === "no_calculator" ? CALC_NO_CALCULATOR_SECTION : [...CALC, ...STATS_TEXT];
+ }
+ return getCalcAbUnitGenerators(unitIndex, calculatorSection);
+}
 
 /** Text-only stats items (safe to mix with calculus for numeric literacy). */
 const STATS_TEXT: QuestionGen[] = [genMeanSimple, genZScoreConcept];
@@ -2004,11 +2340,11 @@ export function getGeneratorsForCourse(
  if (courseId === "ush" && unitIndex >= 1 && unitIndex <= 9) {
  return getUsHistoryGeneratorsForUnit(unitIndex) as QuestionGen[];
  }
- if ((courseId === "calc-ab" || courseId === "calc-bc") && calculatorSection === "no_calculator") {
- return [...CALC_NO_CALCULATOR_SECTION];
+ if (courseId === "calc-ab") {
+ return getCalcAbUnitGenerators(unitIndex, calculatorSection);
  }
- if ((courseId === "calc-ab" || courseId === "calc-bc") && calculatorSection === "calculator") {
- return [...CALC, ...STATS_TEXT];
+ if (courseId === "calc-bc") {
+ return getCalcBcUnitGenerators(unitIndex, calculatorSection);
  }
  return COURSE_POOL[courseId] ?? DEFAULT_POOL;
 }

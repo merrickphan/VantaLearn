@@ -17,7 +17,7 @@ function courseExamStyleRules(courseId: string | undefined): string {
 		case "calc-ab":
 		case "calc-bc":
 		case "precalc":
-			return `- AP Calculus / Precalculus: standard prime / Leibniz notation as on AP exams; avoid calculator-specific syntax unless the stem is about technology.`;
+			return `- AP Calculus / Precalculus: standard prime / Leibniz notation as on AP exams; avoid calculator-specific syntax unless the stem is about technology.\n- Match the selected unit’s scope (limits, derivatives, integration, differential equations, etc.); do not assess BC-only topics on Calc AB items.`;
 		case "stats":
 			return `- AP Statistics: use vocabulary from the CED (e.g., experimental units, inference conditions, interpret context).`;
 		default:

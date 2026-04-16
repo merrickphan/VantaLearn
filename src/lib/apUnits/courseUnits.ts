@@ -9,30 +9,168 @@ function U(prefix: string, titles: string[]): ApUnit[] {
  }));
 }
 
+function unitsDetailed(
+ prefix: string,
+ defs: readonly { title: string; summary: string; hooks: readonly string[] }[],
+): ApUnit[] {
+ return defs.map((d, i) => ({
+ id: `${prefix}-u${i + 1}`,
+ index: i + 1,
+ title: d.title,
+ summary: d.summary,
+ questionHooks: [...d.hooks],
+ }));
+}
+
+/**
+ * AP Calculus AB — eight units aligned to common CED-style sequencing (limits through applications of integration).
+ * Summaries and hooks drive AI stems and procedural variety; lesson labels mirror typical AB pacing.
+ */
+const CALC_AB_UNIT_DEFS = [
+ {
+ title: "Limits and Continuity",
+ summary:
+ "Limits as values a function approaches; limit notation lim(x→a) f(x) and one-sided limits; estimating from graphs and tables; evaluating limits algebraically (substitution, simplifying, rationalizing); indeterminate forms 0/0 and ∞/∞ with algebraic resolution; infinite limits and vertical asymptotes; limits at infinity and horizontal asymptotes for rational functions; continuity (three conditions), types of discontinuity (removable, jump, infinite); Intermediate Value Theorem for roots on an interval.",
+ hooks: [
+ "limit vs function value",
+ "one-sided limits and when a limit fails to exist",
+ "limits from tables and graphs",
+ "direct substitution and removable discontinuity",
+ "0/0 form: factor and simplify",
+ "limits at infinity / end behavior",
+ "continuity at a point: three-part test",
+ "IVT and existence of zeros",
+ ],
+ },
+ {
+ title: "Differentiation: Definition and Fundamental Properties",
+ summary:
+ "Tangent line and instantaneous rate of change; derivative as limit of difference quotient (secant to tangent); interpretations (rate, slope); conditions for non-differentiability (corners, cusps, vertical tangent, discontinuity); basic rules (constant, power, sum/difference); estimating derivatives from graphs; units of derivatives in applied contexts.",
+ hooks: [
+ "difference quotient and derivative definition",
+ "derivative as slope of tangent",
+ "when f is not differentiable",
+ "power rule and linearity",
+ "derivative sign and increasing/decreasing from a graph",
+ "units in applied rates (e.g. distance/time, cost per unit)",
+ ],
+ },
+ {
+ title: "Differentiation: Composite, Implicit, and Inverse Functions",
+ summary:
+ "Chain rule for compositions (identifying inner and outer functions); product and quotient rules; implicit differentiation (dy/dx when y is not isolated); derivatives of inverse functions; derivatives of sin, cos, tan and compositions (AB scope).",
+ hooks: [
+ "chain rule: inner vs outer",
+ "product vs quotient structure",
+ "implicit differentiation setup",
+ "derivatives of sin, cos, tan",
+ "inverse function derivative relationship",
+ ],
+ },
+ {
+ title: "Contextual Applications of Differentiation",
+ summary:
+ "Rectilinear motion: position, velocity, acceleration; sign of velocity and direction; speeding up vs slowing down; related rates (set up, differentiate with respect to t, substitute); local linear approximation and differentials; interpreting error and sensitivity.",
+ hooks: [
+ "motion along a line: v and a from s(t)",
+ "related rates: geometric constraints",
+ "linear approximation near a point",
+ "differentials dy and measurement interpretation",
+ ],
+ },
+ {
+ title: "Analytical Applications of Differentiation",
+ summary:
+ "Critical points (where f' is zero or undefined); increasing/decreasing via f' sign; First Derivative Test; concavity and f''; inflection points; Second Derivative Test; optimization (objective function, domain, critical points, justification); synthesizing behavior for curve analysis.",
+ hooks: [
+ "critical numbers and local extrema",
+ "first derivative sign chart",
+ "concavity and inflection",
+ "second derivative test cautions",
+ "optimization with endpoints",
+ ],
+ },
+ {
+ title: "Integration and Accumulation of Change",
+ summary:
+ "Riemann sums (left, right, midpoint); definite integral as limit of sums and net signed area; antiderivatives and +C; Fundamental Theorem Parts 1 and 2; accumulation functions; average value of a function on an interval.",
+ hooks: [
+ "Riemann sum interpretation",
+ "FTC: derivative of an accumulation",
+ "FTC: evaluating definite integrals",
+ "average value = 1/(b-a) ∫ f",
+ "net change from rate",
+ ],
+ },
+ {
+ title: "Differential Equations",
+ summary:
+ "Slope fields and matching DEs to fields; separable differential equations (concept and solution steps); exponential growth/decay dy/dt = ky; initial value problems and solving for constants.",
+ hooks: [
+ "slope field reading",
+ "separable form dy/dx = g(x)h(y)",
+ "exponential model ky",
+ "initial condition fixes constant",
+ ],
+ },
+ {
+ title: "Applications of Integration",
+ summary:
+ "Area between curves (top minus bottom); volumes of revolution (disk/washer setup); average value; displacement vs distance with integrals; accumulated change from a rate in context.",
+ hooks: [
+ "area between two graphs",
+ "disk method π∫ R^2 dx",
+ "average value theorem",
+ "displacement vs total distance",
+ "accumulated quantity from rate",
+ ],
+ },
+] as const;
+
+/** BC-only units 9–10 (AB students do not see these). */
+const CALC_BC_EXTRA_UNITS: readonly {
+ title: string;
+ summary: string;
+ hooks: readonly string[];
+}[] = [
+ {
+ title: "Parametric Equations, Polar Coordinates, and Vector-Valued Functions",
+ summary:
+ "Parametric motion and vector-valued derivatives; polar area and curve behavior; velocity and acceleration in 2D (BC). Practice here emphasizes BC-only representations while building on AB differentiation and integration skills.",
+ hooks: [
+ "parametric derivative dy/dx",
+ "polar area element",
+ "vector-valued motion",
+ ],
+ },
+ {
+ title: "Infinite Sequences and Series",
+ summary:
+ "Sequence limits; series convergence tests; power series; Taylor/Maclaurin representations; interval of convergence; error bounds where appropriate (BC).",
+ hooks: [
+ "series convergence reasoning",
+ "Taylor polynomials",
+ "interval of convergence",
+ ],
+ },
+];
+
 /** Canonical units per course id (aligned with typical CB syllabi; titles may vary slightly by year). */
 export const AP_UNITS_BY_COURSE_ID: Record<string, ApUnit[]> = {
- "calc-ab": U("calc-ab", [
- "Limits and Continuity",
- "Differentiation: Definition and Fundamental Properties",
- "Differentiation: Composite, Implicit, and Inverse Functions",
- "Contextual Applications of Differentiation",
- "Analytical Applications of Differentiation",
- "Integration and Accumulation of Change",
- "Differential Equations",
- "Applications of Integration",
- ]),
- "calc-bc": U("calc-bc", [
- "Limits and Continuity",
- "Differentiation: Definition and Fundamental Properties",
- "Differentiation: Composite, Implicit, and Inverse Functions",
- "Contextual Applications of Differentiation",
- "Analytical Applications of Differentiation",
- "Integration and Accumulation of Change",
- "Differential Equations",
- "Applications of Integration",
- "Parametric Equations, Polar Coordinates, and Vector-Valued Functions",
- "Infinite Sequences and Series",
- ]),
+ "calc-ab": unitsDetailed("calc-ab", CALC_AB_UNIT_DEFS),
+ "calc-bc": [
+ ...unitsDetailed("calc-bc", CALC_AB_UNIT_DEFS).map((u) => ({
+ ...u,
+ summary: `${u.summary} (BC includes additional representations in later units.)`,
+ })),
+ ...CALC_BC_EXTRA_UNITS.map((d, j) => ({
+ id: `calc-bc-u${j + 9}`,
+ index: j + 9,
+ title: d.title,
+ summary: d.summary,
+ questionHooks: [...d.hooks],
+ })),
+ ],
  precalc: U("precalc", [
  "Polynomial and Rational Functions",
  "Exponential and Logarithmic Functions",
