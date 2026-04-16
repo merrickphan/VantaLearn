@@ -2,6 +2,7 @@ import { buildUnitCurriculumBlock, buildUnitVarietyDirective } from "@/lib/ai/un
 import { getMisconceptionById } from "@/lib/ai/questionGeneration/conceptMisconceptionRegistry";
 import type { PlannedMcqSlot } from "@/lib/ai/questionGeneration/types";
 import type { SubjectConfig } from "@/lib/ai/questionGeneration/types";
+import { getApCourseStemStructureDirective } from "@/lib/questions/stemStructures";
 
 function courseExamStyleRules(courseId: string | undefined): string {
 	switch (courseId) {
@@ -77,9 +78,12 @@ export function buildMcqAssemblyUserPrompt(
 	config: SubjectConfig,
 	opts?: { topicNote?: string },
 ): string {
+	const varietySeed = plan.varietySeed ^ plan.slotIndex;
 	const unitBlock = `${buildUnitCurriculumBlock(plan.subjectName, plan.unit)}
 
-${buildUnitVarietyDirective(plan.unit, plan.varietySeed ^ plan.slotIndex)}`;
+${buildUnitVarietyDirective(plan.unit, varietySeed)}`;
+
+	const stemStructureBlock = getApCourseStemStructureDirective(plan.courseId, varietySeed);
 
 	const bankLines: string[] = [];
 	for (const mid of plan.distractorPlan.misconceptionIds) {
@@ -98,6 +102,8 @@ ${buildUnitVarietyDirective(plan.unit, plan.varietySeed ^ plan.slotIndex)}`;
 	].join("\n");
 
 	return `${unitBlock}
+
+${stemStructureBlock}
 
 PIPELINE METADATA (obey exactly):
 - Subject: ${plan.subjectName}
