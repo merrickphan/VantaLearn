@@ -14,4 +14,9 @@ export {
 	precalcSentenceStructureIndex,
 	getPrecalcSentenceStructure,
 } from "./precalcSentenceStructures";
+export {
+	STATS_SENTENCE_STRUCTURES,
+	statsSentenceStructureIndex,
+	getStatsSentenceStructure,
+} from "./statsSentenceStructures";
 export { getApCourseStemStructureDirective } from "./apStemStructureDirectives";

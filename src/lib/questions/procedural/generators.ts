@@ -994,6 +994,391 @@ export function genLinearSystemTwoEq(rng: () => number, ctx: ProcCtx, i: number)
  );
 }
 
+/* - - - AP Statistics procedural items (Units 1–9) - - - */
+
+export function genStatsVariableType(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const rows = [
+  { v: "hours of sleep last night", c: "quantitative", w: ["categorical", "both", "neither"] as const },
+  { v: "favorite music genre", c: "categorical", w: ["quantitative", "both", "neither"] as const },
+  { v: "number of text messages sent yesterday", c: "quantitative", w: ["categorical", "both", "neither"] as const },
+  { v: "type of pet owned (if any)", c: "categorical", w: ["quantitative", "both", "neither"] as const },
+ ] as const;
+ const row = pick(rng, rows);
+ const stem = `The variable “${row.v}” is best classified as`;
+ return mc(rng, ctx, i, "st-type", stem, row.c, row.w[0], row.w[1], row.w[2], `Quantitative variables are numerical measurements; categorical variables label groups.`, {
+  procedural_structure_id: `stats-type-${hashString(row.v).toString(36).slice(0, 6)}`,
+ });
+}
+
+export function genStatsShapeConcept(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = pick(rng, [
+  "A distribution with a long tail to the right is described as",
+  "If most values are small but a few large values create a long right tail, the distribution is",
+  "A distribution that is roughly mirror-imaged about its center is",
+ ]);
+ const correct = stem.includes("mirror") ? "approximately symmetric" : "skewed right";
+ const w1 = correct === "skewed right" ? "skewed left" : "skewed right";
+ return mc(
+  rng,
+  ctx,
+  i,
+  "st-shape",
+  stem,
+  correct,
+  w1,
+  "bimodal necessarily",
+  "uniform necessarily",
+  `Skewness describes tail direction; symmetry means left/right sides are similar.`,
+  { procedural_structure_id: `stats-shape-${hashString(stem).toString(36).slice(0, 6)}` },
+ );
+}
+
+export function genStatsOutlierRuleConcept(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = "An observation is flagged as a potential outlier by the 1.5×IQR rule if it is";
+ return mc(
+  rng,
+  ctx,
+  i,
+  "st-out",
+  stem,
+  "below Q1 − 1.5(IQR) or above Q3 + 1.5(IQR)",
+  "below the mean minus 1.5(standard deviation) only",
+  "more than 1.5 units from the median only",
+  "outside the range only",
+  `Outliers are flagged beyond the lower/upper fences based on quartiles and IQR.`,
+  { procedural_structure_id: "stats-outlier-15iqr" },
+ );
+}
+
+export function genStatsCorrelationSign(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = pick(rng, [
+  "If larger x-values tend to be paired with larger y-values, the correlation r is typically",
+  "A downward trend in a scatterplot corresponds to a correlation r that is",
+  "If there is little to no linear association, the correlation r is typically",
+ ]);
+ const correct = stem.includes("downward") ? "negative" : stem.includes("little") ? "close to 0" : "positive";
+ const wrongs = ["positive", "negative", "close to 0", "greater than 1"].filter((x) => x !== correct);
+ return mc(rng, ctx, i, "st-corr", stem, correct, wrongs[0]!, wrongs[1]!, wrongs[2]!, `The sign of r matches the direction of the linear trend; r is between −1 and 1.`, {
+  procedural_structure_id: `stats-corr-${hashString(stem).toString(36).slice(0, 6)}`,
+ });
+}
+
+export function genStatsScatterDiagramCorrelation(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const trend = pick(rng, ["positive", "negative", "none"] as const);
+ const points = Array.from({ length: 9 }, (_, k) => {
+  const x = k + 1;
+  const noise = randInt(rng, -2, 2);
+  const yBase = trend === "positive" ? 2 * x : trend === "negative" ? 20 - 2 * x : 10;
+  return { x, y: yBase + noise };
+ });
+ const stem = "According to the scatterplot, the association between x and y is best described as";
+ const correct = trend === "none" ? "little to no linear association" : `${trend} linear association`;
+ const w = trend === "positive" ? ["negative linear association", "little to no linear association", "perfect linear association"] : trend === "negative"
+  ? ["positive linear association", "little to no linear association", "perfect linear association"]
+  : ["positive linear association", "negative linear association", "perfect linear association"];
+ return mc(
+  rng,
+  ctx,
+  i,
+  "st-scat-corr",
+  stem,
+  correct,
+  w[0],
+  w[1],
+  w[2],
+  `Describe direction and strength from the overall pattern of points.`,
+  {
+   figure: {
+    kind: "scatter_plot",
+    title: "FIGURE 1. Scatterplot of y versus x (sample data)",
+    xLabel: "x",
+    yLabel: "y",
+    points,
+    showTrendLine: true,
+   },
+   procedural_structure_id: `stats-scat-${trend}`,
+  },
+ );
+}
+
+export function genStatsHistogramShapeDiagram(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const shape = pick(rng, ["right", "left", "symmetric"] as const);
+ const bins =
+  shape === "right"
+   ? [
+      { label: "0–10", count: 18 },
+      { label: "10–20", count: 12 },
+      { label: "20–30", count: 7 },
+      { label: "30–40", count: 3 },
+     ]
+   : shape === "left"
+    ? [
+       { label: "0–10", count: 3 },
+       { label: "10–20", count: 7 },
+       { label: "20–30", count: 12 },
+       { label: "30–40", count: 18 },
+      ]
+    : [
+       { label: "0–10", count: 6 },
+       { label: "10–20", count: 14 },
+       { label: "20–30", count: 14 },
+       { label: "30–40", count: 6 },
+      ];
+ const stem = "Based on the histogram, the distribution is best described as";
+ const correct = shape === "symmetric" ? "approximately symmetric" : shape === "right" ? "skewed right" : "skewed left";
+ return mc(
+  rng,
+  ctx,
+  i,
+  "st-hist-shape",
+  stem,
+  correct,
+  correct === "skewed right" ? "skewed left" : "skewed right",
+  "uniform",
+  "bimodal",
+  `Skewness is determined by the direction of the longer tail.`,
+  {
+   figure: {
+    kind: "histogram",
+    title: "FIGURE 1. Histogram of a quantitative variable",
+    yLabel: "Count",
+    bins,
+   },
+   procedural_structure_id: `stats-hist-${shape}`,
+  },
+ );
+}
+
+export function genStatsGroupedBarCompare(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const cats = ["Group A", "Group B", "Group C"] as const;
+ const series1 = pick(rng, ["Year 1", "Sample 1", "Condition 1"] as const);
+ const series2 = pick(rng, ["Year 2", "Sample 2", "Condition 2"] as const);
+ const vals1 = distinctRandInts(rng, 3, 12, 38);
+ const vals2 = distinctRandInts(rng, 3, 12, 38);
+ const totals = cats.map((_, k) => vals1[k]! + vals2[k]!);
+ let maxI = 0;
+ for (let k = 1; k < totals.length; k++) if (totals[k]! > totals[maxI]!) maxI = k;
+ const correct = cats[maxI]!;
+ const wrong = cats.filter((_, k) => k !== maxI);
+ const stem = "According to the grouped bar chart, which category has the greatest total count across both series?";
+ return mc(
+  rng,
+  ctx,
+  i,
+  "st-gbar",
+  stem,
+  correct,
+  wrong[0]!,
+  wrong[1]!,
+  "All totals are equal",
+  `Add the two bars for each category and compare totals.`,
+  {
+   figure: {
+    kind: "grouped_bar_chart",
+    title: "FIGURE 1. Counts by category (two series)",
+    note: "Values are illustrative for practice.",
+    groupLabels: [...cats],
+    series: [
+     { label: series1, values: vals1 },
+     { label: series2, values: vals2 },
+    ],
+    yLabel: "Count",
+   },
+   procedural_structure_id: `stats-gbar-${hashString(series1 + series2).toString(36).slice(0, 6)}`,
+  },
+ );
+}
+
+export function genStatsR2Interpretation(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const r2 = pick(rng, [0.36, 0.49, 0.64, 0.81] as const);
+ const pct = Math.round(r2 * 100);
+ const stem = `In a linear regression, r² = ${r2}. This means that about`;
+ return mc(
+  rng,
+  ctx,
+  i,
+  "st-r2",
+  stem,
+  `${pct}% of the variability in the response variable is explained by the linear model with the explanatory variable`,
+  `${pct}% of the variability in the explanatory variable is explained by the response`,
+  `${pct}% of points fall exactly on the regression line`,
+  `${pct}% is the slope of the line`,
+  `r² is the proportion of variation in the response explained by the linear fit.`,
+  { procedural_structure_id: `stats-r2-${String(r2).replace(".", "_")}` },
+ );
+}
+
+export function genStatsSamplingMethod(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = pick(rng, [
+  "A school divides students by grade level and randomly samples from each grade. This is",
+  "A researcher randomly selects 5 classrooms and surveys every student in those classrooms. This is",
+  "A list is put in random order and every 10th person is selected. This is",
+ ]);
+ const correct = stem.includes("grade") ? "a stratified random sample" : stem.includes("classrooms") ? "a cluster sample" : "a systematic sample";
+ const wrongs = [
+  "a simple random sample",
+  "a stratified random sample",
+  "a cluster sample",
+  "a systematic sample",
+ ].filter((x) => x !== correct);
+ return mc(rng, ctx, i, "st-samp", stem, correct, wrongs[0]!, wrongs[1]!, wrongs[2]!, `Identify whether sampling is by strata, by clusters, systematic, or fully SRS.`, {
+  procedural_structure_id: `stats-samp-${hashString(stem).toString(36).slice(0, 6)}`,
+ });
+}
+
+export function genStatsRandomAssignVsSample(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = "Random assignment is used primarily to";
+ return mc(
+  rng,
+  ctx,
+  i,
+  "st-ra",
+  stem,
+  "create comparable groups so differences can be attributed to the treatment",
+  "make results generalizable to a population automatically",
+  "guarantee no response bias",
+  "ensure the sample size is large",
+  `Random assignment supports cause-and-effect in experiments; random sampling supports generalization.`,
+  { procedural_structure_id: "stats-ra-purpose" },
+ );
+}
+
+export function genStatsConditionalProbabilityConcept(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = "The conditional probability P(A|B) is best interpreted as";
+ return mc(
+  rng,
+  ctx,
+  i,
+  "st-cond",
+  stem,
+  "the probability that A occurs given that B has occurred",
+  "the probability that both A and B occur",
+  "the probability that A or B occurs",
+  "the probability that B occurs given that A has occurred",
+  `P(A|B) reads “probability of A given B.”`,
+  { procedural_structure_id: "stats-cond-def" },
+ );
+}
+
+export function genStatsIndependenceConcept(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = "Events A and B are independent if";
+ return mc(
+  rng,
+  ctx,
+  i,
+  "st-ind",
+  stem,
+  "P(A|B) = P(A)",
+  "P(A|B) = P(B)",
+  "P(A and B) = P(A) + P(B)",
+  "P(A) = 0",
+  `Independence means learning B does not change the probability of A.`,
+  { procedural_structure_id: "stats-ind-def" },
+ );
+}
+
+export function genStatsExpectedValueDiscrete(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const x1 = 0;
+ const x2 = 1;
+ const x3 = 2;
+ const p1 = 0.2;
+ const p2 = 0.5;
+ const p3 = 0.3;
+ const ev = roundN(x1 * p1 + x2 * p2 + x3 * p3, 2);
+ const stem = "A discrete random variable X has the probability table shown. The expected value E(X) is";
+ const fig: ExamFigure = {
+  kind: "table",
+  title: "Table 1. Distribution of X",
+  headers: ["x", "P(X = x)"],
+  rows: [
+   [String(x1), String(p1)],
+   [String(x2), String(p2)],
+   [String(x3), String(p3)],
+  ],
+ };
+ return mc(
+  rng,
+  ctx,
+  i,
+  "st-ev",
+  stem,
+  `${ev}`,
+  `${roundN(x1 + x2 + x3, 2)}`,
+  `${roundN((p1 + p2 + p3) / 3, 2)}`,
+  `${roundN(ev + 0.5, 2)}`,
+  `Compute E(X) = Σ x·P(X=x).`,
+  { figure: fig, procedural_structure_id: "stats-ev-0-1-2" },
+ );
+}
+
+export function genStatsCLTConcept(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = "The Central Limit Theorem is commonly used to justify that";
+ return mc(
+  rng,
+  ctx,
+  i,
+  "st-clt",
+  stem,
+  "the sampling distribution of x̄ is approximately normal for large n (under typical conditions)",
+  "the population distribution is normal for large n",
+  "all samples have the same mean exactly",
+  "a larger sample always reduces bias",
+  `CLT concerns the distribution of sample means (or sums), not the original population shape.`,
+  { procedural_structure_id: "stats-clt-concept" },
+ );
+}
+
+export function genStatsTypeIErrorConcept(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = "A Type I error in a hypothesis test occurs when";
+ return mc(
+  rng,
+  ctx,
+  i,
+  "st-type1",
+  stem,
+  "the null hypothesis is rejected even though it is true",
+  "the null hypothesis is not rejected even though it is false",
+  "the p-value is greater than alpha",
+  "the sample is random",
+  `Type I: reject a true H0. Type II: fail to reject a false H0.`,
+  { procedural_structure_id: "stats-type1-def" },
+ );
+}
+
+export function genStatsChiSquareCondition(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = "A common condition for using a chi-square test is that";
+ return mc(
+  rng,
+  ctx,
+  i,
+  "st-chi-cond",
+  stem,
+  "all expected cell counts are at least 5 (or conditions are otherwise satisfied by the course rule)",
+  "the sample mean is known",
+  "the population standard deviation is known",
+  "the explanatory variable is quantitative",
+  `Chi-square procedures rely on sufficiently large expected counts for the approximation.`,
+  { procedural_structure_id: "stats-chi-exp5" },
+ );
+}
+
+export function genStatsSlopeInferenceConcept(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const stem = "Inference for the slope of a regression line is used to assess whether";
+ return mc(
+  rng,
+  ctx,
+  i,
+  "st-slopeinf",
+  stem,
+  "there is a linear relationship between the explanatory variable and response variable in the population",
+  "the correlation is exactly 1",
+  "the response variable is categorical",
+  "the residuals must be zero",
+  `A slope t-test targets whether the population slope differs from 0 (linear association).`,
+  { procedural_structure_id: "stats-slope-inf" },
+ );
+}
+
 const TRIG_ROWS: { stem: string; c: string; w: [string, string, string]; ex: string }[] = [
  { stem: "sin(0) equals", c: "0", w: ["1", "-1", "1/2"], ex: "sin(0) = 0." },
  { stem: "cos(0) equals", c: "1", w: ["0", "-1", "1/2"], ex: "cos(0) = 1." },
@@ -2728,6 +3113,34 @@ const STATS_TEXT: QuestionGen[] = [genMeanSimple, genZScoreConcept];
 const STATS_FIG: QuestionGen[] = [genStatsBarChartMode, genStatsExamLineTrend];
 const STATS_FULL: QuestionGen[] = [...STATS_TEXT, ...STATS_FIG];
 
+/** Unit-indexed pools for AP Statistics (1–9). */
+const STATS_UNIT_POOLS: QuestionGen[][] = [
+ // 1 — One-variable data
+ [genStatsVariableType, genStatsHistogramShapeDiagram, genStatsShapeConcept, genMeanSimple, genZScoreConcept, genStatsOutlierRuleConcept],
+ // 2 — Two-variable data
+ [genStatsScatterDiagramCorrelation, genStatsCorrelationSign, genStatsR2Interpretation, genStatsGroupedBarCompare, genStatsExamLineTrend, genStatsBarChartMode],
+ // 3 — Collecting data
+ [genStatsSamplingMethod, genStatsRandomAssignVsSample, genVariableControl],
+ // 4 — Probability / RV / simulation
+ [genStatsConditionalProbabilityConcept, genStatsIndependenceConcept, genStatsExpectedValueDiscrete],
+ // 5 — Sampling distributions
+ [genStatsCLTConcept, genZScoreConcept, genMeanSimple],
+ // 6 — Inference for proportions
+ [genStatsTypeIErrorConcept, genStatsRandomAssignVsSample],
+ // 7 — Inference for means
+ [genStatsTypeIErrorConcept, genMeanSimple],
+ // 8 — Chi-square
+ [genStatsChiSquareCondition],
+ // 9 — Regression inference
+ [genStatsSlopeInferenceConcept, genStatsR2Interpretation],
+];
+
+function getStatsUnitGenerators(unitIndex: number): QuestionGen[] {
+ const idx = Math.min(9, Math.max(1, Math.floor(unitIndex))) - 1;
+ const pool = STATS_UNIT_POOLS[idx] ?? STATS_FULL;
+ return [...pool];
+}
+
 const CS_A: QuestionGen[] = [genBigO, genLoopCount, genBooleanExpr, genCsMass];
 const CSP: QuestionGen[] = [genBigO, genLoopCount, genBooleanExpr, genCspListIndex, genCsMass];
 const PHYS_ALG: QuestionGen[] = [genKinematicsV, genEnergyKE, genPhysMass];
@@ -2823,6 +3236,9 @@ export function getGeneratorsForCourse(
  }
  if (courseId === "precalc") {
  return getPrecalcUnitGenerators(unitIndex);
+ }
+ if (courseId === "stats") {
+ return getStatsUnitGenerators(unitIndex);
  }
  return COURSE_POOL[courseId] ?? DEFAULT_POOL;
 }

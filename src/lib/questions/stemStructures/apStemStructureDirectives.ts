@@ -2,6 +2,7 @@ import { AP_STEM_STRUCTURE_MINIMUM } from "./apStemStructurePolicy";
 import { getCalcAbSentenceStructure } from "./calcAbSentenceStructures";
 import { getCalcBcSentenceStructure } from "./calcBcSentenceStructures";
 import { getPrecalcSentenceStructure } from "./precalcSentenceStructures";
+import { getStatsSentenceStructure } from "./statsSentenceStructures";
 
 /**
  * Extra prompt lines forcing rhetorical variety for AI-assembled MCQs.
@@ -28,6 +29,15 @@ export function getApCourseStemStructureDirective(courseId: string, seed: number
 	}
 	if (courseId === "precalc") {
 		const skeleton = getPrecalcSentenceStructure(seed);
+		return [
+			`STEM SKELETON (${AP_STEM_STRUCTURE_MINIMUM}+ registered patterns; index from seed):`,
+			`Use this grammatical pattern as the stem’s rhetorical frame (adapt the skill to the unit and stimulus; keep the opening + task shape):`,
+			`"${skeleton}"`,
+			`Do not copy placeholder labels literally if they conflict with the stimulus; preserve the sentence architecture.`,
+		].join("\n");
+	}
+	if (courseId === "stats") {
+		const skeleton = getStatsSentenceStructure(seed);
 		return [
 			`STEM SKELETON (${AP_STEM_STRUCTURE_MINIMUM}+ registered patterns; index from seed):`,
 			`Use this grammatical pattern as the stem’s rhetorical frame (adapt the skill to the unit and stimulus; keep the opening + task shape):`,

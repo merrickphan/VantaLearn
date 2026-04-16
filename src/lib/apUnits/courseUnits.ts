@@ -400,16 +400,116 @@ export const AP_UNITS_BY_COURSE_ID: Record<string, ApUnit[]> = {
    ],
   },
  ]),
- stats: U("stats", [
- "Exploring One-Variable Data",
- "Exploring Two-Variable Data",
- "Collecting Data",
- "Probability, Random Variables, and Probability Distributions",
- "Sampling Distributions",
- "Inference for Categorical Data: Proportions",
- "Inference for Quantitative Data: Means",
- "Inference for Categorical Data: Chi-Square",
- "Inference for Quantitative Data: Slopes",
+ stats: unitsDetailed("stats", [
+  {
+   title: "Exploring One-Variable Data",
+   summary:
+    "Identify data types (categorical vs quantitative) and variables; describe distributions using graphs (dotplots, histograms, boxplots, stemplots); describe shape (skewness, symmetry, modes); measures of center (mean/median/mode) and spread (range, IQR, standard deviation); outliers using the 1.5×IQR rule; z-scores and standardized position; compare distributions by shape, center, and spread.",
+   hooks: [
+    "categorical vs quantitative",
+    "shape (skew/symmetric, uni/bi-modal)",
+    "center vs spread selection",
+    "outliers (1.5×IQR rule)",
+    "z-score interpretation",
+    "compare two distributions",
+   ],
+  },
+  {
+   title: "Exploring Two-Variable Data",
+   summary:
+    "Scatterplots and relationship description; correlation (direction/strength) and r interpretation; least-squares regression line (LSRL) concepts; residuals and residual plots; coefficient of determination r²; influential points and outliers in regression; interpretation in context.",
+   hooks: [
+    "association direction/strength",
+    "correlation r meaning",
+    "LSRL interpretation",
+    "residual plot meaning",
+    "r-squared interpretation",
+    "influential point concept",
+   ],
+  },
+  {
+   title: "Collecting Data",
+   summary:
+    "Sampling methods (SRS, stratified, cluster, systematic); sources of bias (sampling/response/undercoverage); experimental design vocabulary (treatments, factors, control, placebo); random assignment vs random sampling; design principles (control, randomization, replication); blinding and placebo effect.",
+   hooks: [
+    "sampling method identification",
+    "bias sources",
+    "random assignment vs sampling",
+    "control/randomize/replicate",
+    "placebo and blinding",
+   ],
+  },
+  {
+   title: "Probability, Random Variables, and Simulation",
+   summary:
+    "Probability with sample spaces/events; addition and multiplication rules; conditional probability P(A|B); independence vs dependence; two-way tables and tree diagrams; random variables (discrete/continuous); expected value and variance concepts; simulation methods.",
+   hooks: [
+    "addition vs multiplication rule",
+    "conditional probability",
+    "independence criteria",
+    "two-way tables",
+    "expected value meaning",
+    "simulation logic",
+   ],
+  },
+  {
+   title: "Sampling Distributions",
+   summary:
+    "Sampling distributions for sample proportions and means; Central Limit Theorem; bias vs variability; conditions for normal approximations (large counts, etc.); standard error and variability of statistics; interpretation of sampling variability.",
+   hooks: [
+    "sampling distribution concept",
+    "CLT reasoning",
+    "standard error meaning",
+    "large-counts conditions",
+    "bias vs variability",
+   ],
+  },
+  {
+   title: "Inference for Categorical Data: Proportions",
+   summary:
+    "Confidence intervals for proportions; hypothesis testing framework (H0 vs Ha); one-proportion z-test; Type I/II errors; significance level and p-values; interpret conclusions in context.",
+   hooks: [
+    "CI for p interpretation",
+    "one-proportion z-test logic",
+    "p-value vs alpha",
+    "Type I/II errors",
+    "contextual conclusion",
+   ],
+  },
+  {
+   title: "Inference for Quantitative Data: Means",
+   summary:
+    "t-distributions and conditions; one-sample t-interval and t-test; paired data inference; interpreting CIs and significance in context.",
+   hooks: [
+    "t vs z choice",
+    "t-interval meaning",
+    "t-test conclusion",
+    "paired data setup",
+    "conditions check",
+   ],
+  },
+  {
+   title: "Inference for Categorical Data: Chi-Square",
+   summary:
+    "Chi-square goodness-of-fit, independence, and homogeneity tests; expected counts and conditions; interpreting results in context.",
+   hooks: [
+    "GOF vs independence vs homogeneity",
+    "expected counts condition",
+    "chi-square conclusion in context",
+   ],
+  },
+  {
+   title: "Inference for Regression",
+   summary:
+    "Inference for slope of the regression line; conditions for regression inference; t-test and confidence interval for slope; interpreting slope in context.",
+   hooks: [
+    "slope inference meaning",
+    "regression conditions",
+    "t-test for slope",
+    "CI for slope",
+    "interpret slope in context",
+   ],
+  },
  ]),
  "cs-a": U("cs-a", [
  "Primitive Types and Using Objects",
