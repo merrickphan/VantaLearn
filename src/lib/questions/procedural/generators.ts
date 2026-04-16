@@ -15,7 +15,7 @@ import {
  LIMIT_AFTER_TABLE_STEMS,
  LIMIT_LINEAR_STEMS,
  MEAN_AFTER_TABLE_STEMS,
- MOLARITY_TABLE_STEMS,
+ MOLARITY_STEMS,
  ZSCORE_TABLE_STEMS,
 } from "./stemBanks";
 import { distinctRandInts, hashString, pick, pickThreeDistinct, randInt, roundN, shuffleInPlace } from "./utils";
@@ -2062,14 +2062,8 @@ export function genMolarity(rng: () => number, ctx: ProcCtx, i: number): ExamQue
  const mol = randInt(rng, 1, 5);
  const L = randInt(rng, 1, 4);
  const M = roundN(mol / L, 3);
- const stemIdx = randInt(rng, 0, MOLARITY_TABLE_STEMS.length - 1);
- const stem = MOLARITY_TABLE_STEMS[stemIdx];
- const fig: ExamFigure = {
- kind: "table",
- title: "Table 1. Solution data",
- headers: ["Amount of solute (mol)", "Volume of solution (L)"],
- rows: [[String(mol), String(L)]],
- };
+ const stemIdx = randInt(rng, 0, MOLARITY_STEMS.length - 1);
+ const stem = fillStem(MOLARITY_STEMS[stemIdx], { mol, L });
  return mc(
  rng,
  ctx,
@@ -2082,8 +2076,7 @@ export function genMolarity(rng: () => number, ctx: ProcCtx, i: number): ExamQue
  `${roundN(M * 2, 3)} M`,
  `Molarity M = moles of solute / liters of solution = ${mol}/${L} = ${M} M.`,
  {
- figure: fig,
- procedural_structure_id: `chem-mol-s${stemIdx}-n${mol}`,
+  procedural_structure_id: `chem-mol-e${stemIdx}-n${mol}-v${L}`,
  },
  );
 }

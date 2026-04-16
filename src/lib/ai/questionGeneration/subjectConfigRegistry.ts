@@ -109,6 +109,7 @@ function difficultyRulesFor(courseId: string) {
 function stimulusPalette(courseId: string): StimulusKind[] {
 	if (courseId === "hum-geo") return geoStimuli();
 	if (courseId === "csp" || courseId === "cs-a") return csStimuli();
+	if (courseId === "chem") return stemHeavyStimuli().filter((x) => x !== "table");
 	return stemHeavyStimuli();
 }
 
