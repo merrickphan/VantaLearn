@@ -957,14 +957,136 @@ export const AP_UNITS_BY_COURSE_ID: Record<string, ApUnit[]> = {
    ],
   },
  ]),
- "physics-c-m": U("physics-c-m", [
- "Kinematics",
- "Newton's Laws of Motion",
- "Work, Energy, and Power",
- "Systems of Particles and Linear Momentum",
- "Rotation",
- "Oscillations",
- "Gravitation",
+ "physics-c-m": unitsDetailed("physics-c-m", [
+  {
+   title: "Kinematics in 1D and 2D",
+   summary:
+    "Lesson 1.1 Position, displacement, velocity, acceleration (vector and scalar meaning); Lesson 1.2 Constant acceleration equations (derivation from calculus relationships); Lesson 1.3 Motion graphs: x–t, v–t, a–t interpretation and area/slope meaning; Lesson 1.4 Free fall motion with variable sign conventions; Lesson 1.5 Projectile motion (independent x and y motion); Lesson 1.6 Relative motion and reference frames; Lesson 1.7 Calculus-based kinematics: v = dx/dt, a = dv/dt.",
+   hooks: [
+    "Lesson 1.1 position displacement velocity acceleration (vector vs scalar)",
+    "Lesson 1.2 constant-acceleration equations from calculus relationships",
+    "Lesson 1.3 motion graphs x–t v–t a–t: slope and area meaning",
+    "Lesson 1.4 free fall sign conventions",
+    "Lesson 1.5 projectile motion independent x and y",
+    "Lesson 1.6 relative motion and reference frames",
+    "Lesson 1.7 calculus kinematics v = dx/dt and a = dv/dt",
+   ],
+  },
+  {
+   title: "Newton’s Laws of Motion",
+   summary:
+    "Lesson 2.1 Forces and free-body diagrams (system isolation); Lesson 2.2 Newton’s First Law (inertial frames); Lesson 2.3 Newton’s Second Law (∑F = ma in vector form); Lesson 2.4 Newton’s Third Law (interaction pairs); Lesson 2.5 Tension, normal force, weight, friction modeling; Lesson 2.6 Static and kinetic friction (fs ≤ μsN, fk = μkN); Lesson 2.7 Inclined planes (force decomposition into components); Lesson 2.8 Multi-object systems (connected masses, constraints); Lesson 2.9 Non-inertial frames (intro level, if included by instructor).",
+   hooks: [
+    "Lesson 2.1 forces and free-body diagrams (system isolation)",
+    "Lesson 2.2 Newton’s first law and inertial frames",
+    "Lesson 2.3 Newton’s second law ΣF = ma (vector)",
+    "Lesson 2.4 Newton’s third law interaction pairs",
+    "Lesson 2.5 tension normal weight friction modeling",
+    "Lesson 2.6 static vs kinetic friction fs ≤ μsN and fk = μkN",
+    "Lesson 2.7 inclined planes force components",
+    "Lesson 2.8 connected masses and constraints (multi-object systems)",
+    "Lesson 2.9 non-inertial frames (intro)",
+   ],
+  },
+  {
+   title: "Work, Energy, and Power",
+   summary:
+    "Lesson 3.1 Work as line integral (W = ∫F·dx); Lesson 3.2 Work-energy theorem (net work = change in kinetic energy); Lesson 3.3 Kinetic energy (K = ½mv²) derivation connection; Lesson 3.4 Conservative vs non-conservative forces; Lesson 3.5 Potential energy functions (U and force relation F = −dU/dx); Lesson 3.6 Conservation of mechanical energy; Lesson 3.7 Springs and elastic potential energy (U = ½kx²); Lesson 3.8 Power (P = dW/dt = F·v).",
+   hooks: [
+    "Lesson 3.1 work as line integral W = ∫F·dx",
+    "Lesson 3.2 work-energy theorem: net work equals ΔK",
+    "Lesson 3.3 kinetic energy K = 1/2 mv^2 derivation connection",
+    "Lesson 3.4 conservative vs non-conservative forces",
+    "Lesson 3.5 potential energy function and F = −dU/dx",
+    "Lesson 3.6 conservation of mechanical energy",
+    "Lesson 3.7 spring potential U = 1/2 kx^2",
+    "Lesson 3.8 power P = dW/dt and P = F·v",
+   ],
+  },
+  {
+   title: "Systems of Particles and Momentum",
+   summary:
+    "Lesson 4.1 Linear momentum (p = mv); Lesson 4.2 Impulse (J = ∫F dt = Δp); Lesson 4.3 Conservation of momentum in isolated systems; Lesson 4.4 Elastic vs inelastic collisions (1D and 2D); Lesson 4.5 Center of mass (continuous and discrete systems); Lesson 4.6 Center of mass motion (external force governs CM acceleration); Lesson 4.7 Explosions and internal force systems.",
+   hooks: [
+    "Lesson 4.1 linear momentum p = mv",
+    "Lesson 4.2 impulse J = ∫F dt = Δp",
+    "Lesson 4.3 conservation of momentum (isolated systems)",
+    "Lesson 4.4 elastic vs inelastic collisions (1D and 2D)",
+    "Lesson 4.5 center of mass for discrete and continuous systems",
+    "Lesson 4.6 center of mass motion: external force governs CM acceleration",
+    "Lesson 4.7 explosions and internal forces",
+   ],
+  },
+  {
+   title: "Rotation of Rigid Bodies",
+   summary:
+    "Lesson 5.1 Angular kinematics (θ, ω, α relationships); Lesson 5.2 Connection between linear and angular motion (v = rω, a = rα); Lesson 5.3 Torque (τ = r × F) and rotational effect of forces; Lesson 5.4 Rotational form of Newton’s 2nd law (∑τ = Iα); Lesson 5.5 Moment of inertia (I) for discrete and continuous bodies; Lesson 5.6 Rotational kinetic energy (K = ½Iω²); Lesson 5.7 Parallel axis theorem; Lesson 5.8 Rolling motion without slipping (translation + rotation coupling); Lesson 5.9 Energy in rotational systems.",
+   hooks: [
+    "Lesson 5.1 angular kinematics θ ω α relationships",
+    "Lesson 5.2 linear-angular connections v = rω and a = rα",
+    "Lesson 5.3 torque τ = r × F and rotational effect",
+    "Lesson 5.4 rotational dynamics Στ = Iα",
+    "Lesson 5.5 moment of inertia for discrete and continuous bodies",
+    "Lesson 5.6 rotational kinetic energy K = 1/2 Iω^2",
+    "Lesson 5.7 parallel axis theorem",
+    "Lesson 5.8 rolling without slipping coupling translation and rotation",
+    "Lesson 5.9 energy in rotational systems",
+   ],
+  },
+  {
+   title: "Gravitation",
+   summary:
+    "Lesson 6.1 Newton’s law of gravitation (F = Gm₁m₂/r²); Lesson 6.2 Gravitational field strength (g = GM/r²); Lesson 6.3 Gravitational potential energy (U = −GMm/r); Lesson 6.4 Orbital motion (circular orbits, v = √(GM/r)); Lesson 6.5 Kepler’s laws (derivation from Newtonian mechanics); Lesson 6.6 Energy in orbits (total energy of bound systems).",
+   hooks: [
+    "Lesson 6.1 Newton’s gravitation F = Gm1m2/r^2",
+    "Lesson 6.2 gravitational field strength g = GM/r^2",
+    "Lesson 6.3 gravitational potential energy U = −GMm/r",
+    "Lesson 6.4 circular orbital motion v = √(GM/r)",
+    "Lesson 6.5 Kepler’s laws from Newtonian mechanics",
+    "Lesson 6.6 energy in orbits (bound system total energy)",
+   ],
+  },
+  {
+   title: "Oscillations (Simple Harmonic Motion)",
+   summary:
+    "Lesson 7.1 Conditions for SHM (restoring force proportional to displacement); Lesson 7.2 Mass-spring systems (F = −kx); Lesson 7.3 SHM differential equation (x'' + ω²x = 0); Lesson 7.4 Period and frequency (T = 2π√(m/k)); Lesson 7.5 Pendulums (small-angle approximation); Lesson 7.6 Energy in SHM (KE/PE interchange); Lesson 7.7 Phase, amplitude, and angular frequency.",
+   hooks: [
+    "Lesson 7.1 SHM condition: restoring force proportional to displacement",
+    "Lesson 7.2 mass-spring systems F = −kx",
+    "Lesson 7.3 SHM differential equation x'' + ω^2 x = 0",
+    "Lesson 7.4 period and frequency T = 2π√(m/k)",
+    "Lesson 7.5 pendulum small-angle approximation",
+    "Lesson 7.6 energy exchange KE and PE in SHM",
+    "Lesson 7.7 phase amplitude angular frequency",
+   ],
+  },
+  {
+   title: "Advanced Mechanics & Mathematical Tools",
+   summary:
+    "Lesson 8.1 Differential equation methods in mechanics problems; Lesson 8.2 Linearization and approximations in physics systems; Lesson 8.3 Work done by variable forces (integration techniques); Lesson 8.4 Non-constant acceleration systems; Lesson 8.5 Multi-step system modeling (coupled equations).",
+   hooks: [
+    "Lesson 8.1 differential equation methods in mechanics",
+    "Lesson 8.2 linearization and approximations",
+    "Lesson 8.3 variable force work integration techniques",
+    "Lesson 8.4 non-constant acceleration systems",
+    "Lesson 8.5 coupled equations multi-step system modeling",
+   ],
+  },
+  {
+   title: "Experimental Design and Data Analysis",
+   summary:
+    "Lesson 9.1 Experimental variables and control design; Lesson 9.2 Uncertainty and propagation of error; Lesson 9.3 Graph linearization techniques (log, power, inverse relations); Lesson 9.4 Slope interpretation in physical systems; Lesson 9.5 Model justification using data; Lesson 9.6 AP-style lab FRQ structure and reasoning.",
+   hooks: [
+    "Lesson 9.1 experimental variables and control design",
+    "Lesson 9.2 uncertainty and propagation of error",
+    "Lesson 9.3 graph linearization: log relations",
+    "Lesson 9.3 graph linearization: power relations",
+    "Lesson 9.3 graph linearization: inverse relations",
+    "Lesson 9.4 slope interpretation in physical systems",
+    "Lesson 9.5 model justification using data",
+    "Lesson 9.6 AP lab FRQ structure and reasoning",
+   ],
+  },
  ]),
  "physics-c-em": unitsDetailed("physics-c-em", [
   {
