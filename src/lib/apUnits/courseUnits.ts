@@ -715,17 +715,128 @@ export const AP_UNITS_BY_COURSE_ID: Record<string, ApUnit[]> = {
    ],
   },
  ]),
- "physics-1": U("physics-1", [
- "Kinematics",
- "Dynamics",
- "Circular Motion and Gravitation",
- "Energy",
- "Momentum",
- "Simple Harmonic Motion",
- "Torque and Rotational Motion",
- "Electric Charge and Electric Force",
- "DC Circuits",
- "Mechanical Waves and Sound",
+ "physics-1": unitsDetailed("physics-1", [
+  {
+   title: "Kinematics (Motion in 1D and 2D)",
+   summary:
+    "Lesson 1.1 Position, displacement, distance, reference frames; Lesson 1.2 Velocity vs speed, average vs instantaneous velocity; Lesson 1.3 Acceleration meaning and sign interpretation; Lesson 1.4 Motion graphs: position-time, velocity-time, acceleration-time; Lesson 1.5 Kinematic equations (constant acceleration); Lesson 1.6 Free-fall motion under gravity; Lesson 1.7 Projectile motion: horizontal and vertical independence; Lesson 1.8 Relative motion basics (reference frame shifts).",
+   hooks: [
+    "reference frames and displacement",
+    "average vs instantaneous velocity",
+    "acceleration sign and meaning",
+    "motion graphs interpretation",
+    "constant-acceleration equations",
+    "free fall under gravity",
+    "projectile motion independence",
+    "relative motion frame shifts",
+   ],
+  },
+  {
+   title: "Newton’s Laws of Motion",
+   summary:
+    "Lesson 2.1 Force concept and free-body diagrams (FBDs); Lesson 2.2 Newton’s First Law (inertia); Lesson 2.3 Newton’s Second Law (F = ma in vector form); Lesson 2.4 Newton’s Third Law (action-reaction pairs); Lesson 2.5 Weight vs normal force vs tension; Lesson 2.6 Friction: static and kinetic models; Lesson 2.7 Inclined planes: resolving forces into components; Lesson 2.8 Multi-object systems (connected masses, pulleys).",
+   hooks: [
+    "free-body diagrams",
+    "Newton's first law inertia",
+    "F equals ma vectors",
+    "Newton's third law pairs",
+    "weight normal tension",
+    "static vs kinetic friction",
+    "inclined plane components",
+    "connected masses and pulleys",
+   ],
+  },
+  {
+   title: "Work, Energy, and Power",
+   summary:
+    "Lesson 3.1 Work definition (W = F·d cosθ); Lesson 3.2 Work-energy theorem; Lesson 3.3 Kinetic energy and potential energy; Lesson 3.4 Conservation of mechanical energy; Lesson 3.5 Non-conservative forces (friction, energy loss); Lesson 3.6 Springs and elastic potential energy; Lesson 3.7 Power (rate of energy transfer).",
+   hooks: [
+    "work dot product F d cos",
+    "work-energy theorem",
+    "kinetic and potential energy",
+    "conservation of mechanical energy",
+    "nonconservative forces and dissipation",
+    "springs elastic potential energy",
+    "power rate of energy transfer",
+   ],
+  },
+  {
+   title: "Momentum and Impulse",
+   summary:
+    "Lesson 4.1 Momentum definition (p = mv); Lesson 4.2 Impulse and change in momentum; Lesson 4.3 Conservation of momentum in isolated systems; Lesson 4.4 Elastic vs inelastic collisions; Lesson 4.5 1D and 2D collision analysis; Lesson 4.6 Center of mass basics (intro level).",
+   hooks: [
+    "momentum p equals mv",
+    "impulse equals change in momentum",
+    "momentum conservation",
+    "elastic vs inelastic collisions",
+    "1D and 2D collisions",
+    "center of mass basics",
+   ],
+  },
+  {
+   title: "Circular Motion and Gravitation",
+   summary:
+    "Lesson 5.1 Uniform circular motion concepts; Lesson 5.2 Centripetal acceleration (a = v²/r); Lesson 5.3 Centripetal force (net inward force requirement); Lesson 5.4 Banked curves and vertical circles (conceptual level); Lesson 5.5 Universal gravitation (F = Gm₁m₂/r²); Lesson 5.6 Gravitational field strength and weight variation; Lesson 5.7 Orbital motion basics (circular orbit speed and period relationships).",
+   hooks: [
+    "uniform circular motion",
+    "centripetal acceleration v squared over r",
+    "net inward force requirement",
+    "banked curves and vertical circles",
+    "universal gravitation",
+    "gravitational field strength and weight",
+    "orbital speed and period relations",
+   ],
+  },
+  {
+   title: "Simple Harmonic Motion (SHM)",
+   summary:
+    "Lesson 6.1 Oscillation basics (equilibrium, restoring force); Lesson 6.2 Springs and Hooke’s Law (F = -kx); Lesson 6.3 Mass-spring systems and SHM behavior; Lesson 6.4 Energy in SHM (exchange between KE and PE); Lesson 6.5 Period and frequency relationships; Lesson 6.6 Pendulums (small-angle approximation).",
+   hooks: [
+    "equilibrium and restoring force",
+    "Hooke's law negative kx",
+    "mass-spring SHM behavior",
+    "energy exchange in SHM",
+    "period and frequency",
+    "pendulum small-angle approximation",
+   ],
+  },
+  {
+   title: "Torque and Rotational Motion",
+   summary:
+    "Lesson 7.1 Angular position, velocity, acceleration; Lesson 7.2 Torque (τ = rF sinθ); Lesson 7.3 Rotational equilibrium (net torque = 0); Lesson 7.4 Moment of inertia (rotational resistance concept); Lesson 7.5 Rotational Newton’s Second Law (τ = Iα); Lesson 7.6 Angular momentum basics (intro conservation idea).",
+   hooks: [
+    "angular kinematics",
+    "torque r F sin",
+    "rotational equilibrium net torque zero",
+    "moment of inertia concept",
+    "tau equals I alpha",
+    "angular momentum conservation intro",
+   ],
+  },
+  {
+   title: "Fluids (basic AP Physics 1 level)",
+   summary:
+    "Lesson 8.1 Density and pressure; Lesson 8.2 Fluid pressure with depth (P = ρgh); Lesson 8.3 Pascal’s principle; Lesson 8.4 Buoyancy and Archimedes’ principle; Lesson 8.5 Fluid flow concepts (qualitative continuity ideas).",
+   hooks: [
+    "density and pressure",
+    "pressure with depth rho g h",
+    "Pascal principle",
+    "buoyancy and Archimedes principle",
+    "continuity qualitative flow",
+   ],
+  },
+  {
+   title: "Experimental Design and Data Analysis (throughout course)",
+   summary:
+    "Lesson 9.1 Experimental variables: independent, dependent, controlled; Lesson 9.2 Uncertainty and measurement error; Lesson 9.3 Graph interpretation and slope meaning in physics context; Lesson 9.4 Linearization of relationships; Lesson 9.5 Designing and analyzing experiments (FRQ focus skill).",
+   hooks: [
+    "independent dependent controlled variables",
+    "uncertainty and measurement error",
+    "graph slope meaning",
+    "linearization",
+    "design and analyze experiments",
+   ],
+  },
  ]),
  "physics-2": U("physics-2", [
  "Fluids",
