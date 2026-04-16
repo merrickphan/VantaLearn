@@ -255,6 +255,31 @@ export type NonCoreExamFigure = Exclude<
 	{ kind: "stimulus" } | { kind: "table" } | { kind: "bar_chart" } | { kind: "line_chart" }
 >;
 
+/** Pipeline-assigned difficulty for AI-generated items (optional on procedural questions). */
+export type ApQuestionDifficultyLevel = "easy" | "medium" | "hard";
+
+export interface ApQuestionDistractorAnnotation {
+	choice: string;
+	misconceptionSource: string;
+}
+
+/** Rich metadata from the unified AP question generation pipeline (optional). */
+export interface ApQuestionMetadata {
+	apUnitId: string;
+	apUnitTitle: string;
+	conceptId: string;
+	conceptLabel: string;
+	archetype: string;
+	stimulusKind: string;
+	/** Deterministic parameter card used for stimulus assembly. */
+	stimulusParameters?: Record<string, string | number | boolean | string[]>;
+	difficulty: ApQuestionDifficultyLevel;
+	calculatorAllowed: boolean;
+	apRealismScore: number;
+	distractorAnnotations: ApQuestionDistractorAnnotation[];
+	examSimulationNote: string;
+}
+
 export interface ExamQuestion {
  id: string;
  question: string;
@@ -274,6 +299,13 @@ export interface ExamQuestion {
 	 * one rubric part at a time (College Board–style sections).
 	 */
 	frq_stem?: string;
+	/** Mirrors `options` for AI schema consumers (same strings, same order). */
+	choices?: string[];
+	/** Calculator policy for this stem (AI pipeline; optional elsewhere). */
+	calculator_allowed?: boolean;
+	difficulty?: ApQuestionDifficultyLevel;
+	ap_realism_score?: number;
+	ap_metadata?: ApQuestionMetadata;
 }
 
 export interface ExamAttempt {
