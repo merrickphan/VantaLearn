@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { SAMPLE_RESOURCES } from "@/lib/utils/sampleData";
 import { AP_COURSES } from "@/lib/apCatalog";
@@ -10,6 +10,11 @@ import { proceduralPracticeMcqCountForCourse } from "@/lib/apPracticeExamFormat"
 import type { PracticeSessionQuery } from "@/lib/examPracticeSessionQuery";
 import { parsePracticeSessionQuery } from "@/lib/examPracticeSessionQuery";
 import { getUnitOrFirst, getUnitsForCourseId } from "@/lib/apUnits";
+import {
+ appendClientSeenFingerprints,
+ peekClientAvoidFingerprints,
+ practiceUnitScope,
+} from "@/lib/proceduralClientAvoid";
 import type { CalculatorSectionPolicy } from "@/lib/questions/procedural";
 import { AP_FRQ_PRACTICE_SET_COUNT } from "@/lib/questions/procedural/apFrqSets";
 import { ExamContent, ExamQuestion } from "@/types";
@@ -34,12 +39,14 @@ function ProceduralExamSession({
 }) {
  const [questions, setQuestions] = useState<ExamQuestion[] | null>(null);
  const [error, setError] = useState<string | null>(null);
+ const sessionBundleRef = useRef<{ courseId: string; unitScope: string; questions: ExamQuestion[] } | null>(null);
 
  const course = AP_COURSES.find((c) => c.id === courseId);
  const isAllUnits = unitParam === "all";
  const units = courseId ? getUnitsForCourseId(courseId) : [];
  const unitForTitle = isAllUnits ? undefined : getUnitOrFirst(courseId, unitParam || undefined);
  const resolvedUnitId = isAllUnits ? "all" : unitForTitle?.id;
+ const unitScope = practiceUnitScope(resolvedUnitId);
 
  const effectiveCount = practice.count ?? proceduralPracticeMcqCountForCourse(courseId);
 
@@ -50,6 +57,11 @@ function ProceduralExamSession({
  if (!courseId || !resolvedUnitId) return;
  (async () => {
  try {
+ const bundle = sessionBundleRef.current;
+ if (bundle?.questions?.length && bundle.courseId === courseId && bundle.unitScope === unitScope) {
+ appendClientSeenFingerprints(courseId, unitScope, bundle.questions);
+ }
+ const avoidFingerprints = peekClientAvoidFingerprints(courseId, unitScope);
  const res = await fetch("/api/questions/procedural", {
  method: "POST",
  headers: { "Content-Type": "application/json" },
@@ -57,13 +69,19 @@ function ProceduralExamSession({
  courseId,
  unitId: resolvedUnitId,
  count: effectiveCount,
+ avoidFingerprints,
  ...(calculatorSection ? { calculatorSection } : {}),
  difficulty: practice.difficulty,
  }),
  });
  const data = await res.json();
  if (!res.ok) throw new Error(data.error || "Could not generate questions.");
- if (!cancelled) setQuestions(data.questions as ExamQuestion[]);
+ const qs = data.questions as ExamQuestion[];
+ if (!cancelled) {
+ appendClientSeenFingerprints(courseId, unitScope, qs);
+ sessionBundleRef.current = { courseId, unitScope, questions: qs };
+ setQuestions(qs);
+ }
  } catch (e) {
  if (!cancelled) setError(e instanceof Error ? e.message : "Something went wrong.");
  }
@@ -71,7 +89,7 @@ function ProceduralExamSession({
  return () => {
  cancelled = true;
  };
- }, [courseId, resolvedUnitId, calculatorSection, effectiveCount, practice.difficulty]);
+ }, [courseId, resolvedUnitId, unitScope, calculatorSection, effectiveCount, practice.difficulty]);
 
  if (!course || units.length === 0) {
  return (

@@ -80,6 +80,10 @@ function wrong3(rng: () => number, pool: readonly string[], correct: string): [s
  return pickThreeDistinct(rng, [...pool], correct);
 }
 
+function pickStemUsh(rng: () => number, variants: readonly string[]): string {
+ return pick(rng, variants);
+}
+
 export const USH_U1_DYNAMIC: UshQuestionGen[] = [
  (rng, ctx, i) => {
  const t = pick(rng, ["maize cultivation", "long-distance trade networks", "diverse political structures"]);
@@ -89,7 +93,13 @@ export const USH_U1_DYNAMIC: UshQuestionGen[] = [
  "indigenous histories are central rather than a blank prelude to European arrival",
  ]);
  const [w1, w2, w3] = wrong3(rng, WRONG_EARLY, correct);
- return ushMc(rng, ctx, i, `u1dyn-${i}`, `Historians highlight ${t} in pre-contact North America partly because`, correct, w1, w2, w3, "Indigenous North America is analyzed as diverse, dynamic societies on their own terms.");
+ const stem = pickStemUsh(rng, [
+ `Historians highlight ${t} in pre-contact North America partly because`,
+ `Which interpretive move does stressing ${t} signal in Period 1 narratives?`,
+ `Compared with treating the continent as empty, ${t} evidence shows that`,
+ `A document-based opener on ${t} is defensible because`,
+ ]);
+ return ushMc(rng, ctx, i, `u1dyn-${i}`, stem, correct, w1, w2, w3, "Indigenous North America is analyzed as diverse, dynamic societies on their own terms.");
  },
  (rng, ctx, i) => {
  const ex = pick(rng, ["horses", "wheat", "smallpox", "potatoes"]);
@@ -99,7 +109,13 @@ export const USH_U1_DYNAMIC: UshQuestionGen[] = [
  "new crops and diseases altered population and settlement patterns for centuries",
  ]);
  const [w1, w2, w3] = wrong3(rng, WRONG_EARLY, correct);
- return ushMc(rng, ctx, i, `u1ex-${i}`, `Including ${ex} in the story of early contact matters because`, correct, w1, w2, w3, "Exchange linked continents ecologically and economically.");
+ const stem = pickStemUsh(rng, [
+ `Including ${ex} in the story of early contact matters because`,
+ `Which causal chain does ${ex} anchor in Atlantic history?`,
+ `Unlike focusing only on ship routes, ${ex} forces students to explain that`,
+ `A short-answer rubric rewards linking ${ex} to`,
+ ]);
+ return ushMc(rng, ctx, i, `u1ex-${i}`, stem, correct, w1, w2, w3, "Exchange linked continents ecologically and economically.");
  },
  (rng, ctx, i) => {
  const s = pick(rng, ["encomienda", "mission settlements", "mining labor systems"]);
@@ -109,7 +125,13 @@ export const USH_U1_DYNAMIC: UshQuestionGen[] = [
  "profits and religious goals intertwined in Iberian expansion",
  ]);
  const [w1, w2, w3] = wrong3(rng, WRONG_EARLY, correct);
- return ushMc(rng, ctx, i, `u1sp-${i}`, `Analyzing ${s} helps explain`, correct, w1, w2, w3, "Labor and belief systems structured Spanish America.");
+ const stem = pickStemUsh(rng, [
+ `Analyzing ${s} helps explain`,
+ `Which colonial institution does ${s} exemplify?`,
+ `Compared with English household farming alone, ${s} shows that`,
+ `Primary sources on ${s} matter because`,
+ ]);
+ return ushMc(rng, ctx, i, `u1sp-${i}`, stem, correct, w1, w2, w3, "Labor and belief systems structured Spanish America.");
  },
  (rng, ctx, i) => {
  const comp = pick(rng, ["English joint-stock ventures", "French fur-trade alliances", "Dutch commercial outposts"]);
@@ -119,7 +141,12 @@ export const USH_U1_DYNAMIC: UshQuestionGen[] = [
  "no single European model dominated the continent in this era",
  ]);
  const [w1, w2, w3] = wrong3(rng, WRONG_EARLY, correct);
- return ushMc(rng, ctx, i, `u1cmp-${i}`, `Comparing ${comp} with other European projects shows that`, correct, w1, w2, w3, "Colonization was contested and varied.");
+ const stem = pickStemUsh(rng, [
+ `Comparing ${comp} with other European projects shows that`,
+ `Which contrast does ${comp} best illuminate?`,
+ `A map legend pairing ${comp} with indigenous polities suggests that`,
+ ]);
+ return ushMc(rng, ctx, i, `u1cmp-${i}`, stem, correct, w1, w2, w3, "Colonization was contested and varied.");
  },
  (rng, ctx, i) => {
  const a = pick(rng, ["disease mortality", "diplomatic misunderstandings", "competition for fur and land"]);
@@ -129,7 +156,12 @@ export const USH_U1_DYNAMIC: UshQuestionGen[] = [
  "indigenous diplomacy shaped whether colonies survived or expanded",
  ]);
  const [w1, w2, w3] = wrong3(rng, WRONG_EARLY, correct);
- return ushMc(rng, ctx, i, `u1na-${i}`, `Stressing ${a} in contact-era history highlights that`, correct, w1, w2, w3, "Indigenous agency belongs at the center of the narrative.");
+ const stem = pickStemUsh(rng, [
+ `Stressing ${a} in contact-era history highlights that`,
+ `Which narrative correction does ${a} support?`,
+ `Compared with Eurocentric triumph stories, ${a} reminds readers that`,
+ ]);
+ return ushMc(rng, ctx, i, `u1na-${i}`, stem, correct, w1, w2, w3, "Indigenous agency belongs at the center of the narrative.");
  },
 ];
 

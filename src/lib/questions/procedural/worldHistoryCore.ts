@@ -1,6 +1,6 @@
 import type { ExamQuestion } from "@/types";
 import { TEXT_ITEM_STIMULUS_PROBABILITY, thematicStimulusWh } from "./stimulusPools";
-import { hashString, shuffleInPlace } from "./utils";
+import { hashString, proseMcqStructureId, shuffleInPlace } from "./utils";
 
 /** Call-site compatible with ProcCtx in generators.ts */
 export interface WhCtx {
@@ -41,7 +41,8 @@ export function whMc(
  if (!fig && rng() < TEXT_ITEM_STIMULUS_PROBABILITY.wh) {
  fig = thematicStimulusWh(rng, ctx.unitIndex);
  }
- return fig ? { ...base, figure: fig } : base;
+ const out = fig ? { ...base, figure: fig } : base;
+ return { ...out, procedural_structure_id: proseMcqStructureId(tag, stem, correct) };
 }
 
 export function item(

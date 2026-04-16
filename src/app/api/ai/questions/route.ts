@@ -18,6 +18,15 @@ export async function POST(request: NextRequest) {
  ? body.varietySeed
  : Date.now();
 
+ const rawAvoid = body.avoidFingerprints;
+ const avoidFingerprintKeys: Set<string> | undefined = Array.isArray(rawAvoid)
+  ? new Set(
+    rawAvoid
+     .filter((x: unknown) => typeof x === "string" && (x as string).length > 0 && (x as string).length < 900)
+     .slice(0, 900),
+   )
+  : undefined;
+
  const questions = await generateExamQuestions({
  subject,
  topic,
@@ -25,6 +34,7 @@ export async function POST(request: NextRequest) {
  includeFigures,
  unitId: unitId || undefined,
  varietySeed,
+ ...(avoidFingerprintKeys && avoidFingerprintKeys.size > 0 ? { avoidFingerprintKeys } : {}),
  });
 
  return NextResponse.json({ questions });

@@ -1,4 +1,8 @@
 import type { ExamFigure } from "@/types";
+import {
+	dataFigureReferencedInQuestion,
+	narrativeStimulusCoheresWithQuestion,
+} from "@/lib/ai/questionGeneration/stimulusQuestionCoherence";
 import type {
 	ApQuestionDifficulty,
 	ApRealismValidationResult,
@@ -163,6 +167,18 @@ export function validateApRealism(
 	const dq = distractorStructure(raw, plan);
 	penalty += dq.penalty;
 	reasons.push(...dq.reasons);
+
+	const qText = String(raw.question ?? "");
+	const nar = narrativeStimulusCoheresWithQuestion(figure, qText);
+	if (!nar.ok) {
+		penalty += 38;
+		if (nar.reason) reasons.push(nar.reason);
+	}
+	const dataFig = dataFigureReferencedInQuestion(figure, qText);
+	if (!dataFig.ok) {
+		penalty += 32;
+		if (dataFig.reason) reasons.push(dataFig.reason);
+	}
 
 	const sim = examSimulation(config, raw.question, raw.choices);
 	if (!sim.passesTimedSection) {

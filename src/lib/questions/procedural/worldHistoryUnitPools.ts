@@ -708,15 +708,15 @@ const WH_U9: WhQuestionGen[] = [
 ];
 
 const WH_BY_UNIT: WhQuestionGen[][] = [
- [...WH_U1, ...WH_U1_DYNAMIC],
- [...WH_U2, ...WH_U2_DYNAMIC],
- [...WH_U3, ...WH_U3_DYNAMIC],
- [...WH_U4, ...WH_U4_DYNAMIC],
- [...WH_U5, ...WH_U5_DYNAMIC],
- [...WH_U6, ...WH_U6_DYNAMIC],
- [...WH_U7, ...WH_U7_DYNAMIC],
- [...WH_U8, ...WH_U8_DYNAMIC],
- [...WH_U9, ...WH_U9_DYNAMIC],
+ [...WH_U1_DYNAMIC, ...WH_U1_DYNAMIC, ...WH_U1_DYNAMIC, ...WH_U1],
+ [...WH_U2_DYNAMIC, ...WH_U2_DYNAMIC, ...WH_U2_DYNAMIC, ...WH_U2],
+ [...WH_U3_DYNAMIC, ...WH_U3_DYNAMIC, ...WH_U3_DYNAMIC, ...WH_U3],
+ [...WH_U4_DYNAMIC, ...WH_U4_DYNAMIC, ...WH_U4_DYNAMIC, ...WH_U4],
+ [...WH_U5_DYNAMIC, ...WH_U5_DYNAMIC, ...WH_U5_DYNAMIC, ...WH_U5],
+ [...WH_U6_DYNAMIC, ...WH_U6_DYNAMIC, ...WH_U6_DYNAMIC, ...WH_U6],
+ [...WH_U7_DYNAMIC, ...WH_U7_DYNAMIC, ...WH_U7_DYNAMIC, ...WH_U7],
+ [...WH_U8_DYNAMIC, ...WH_U8_DYNAMIC, ...WH_U8_DYNAMIC, ...WH_U8],
+ [...WH_U9_DYNAMIC, ...WH_U9_DYNAMIC, ...WH_U9_DYNAMIC, ...WH_U9],
 ];
 
 export function getWorldHistoryGeneratorsForUnit(unitIndex: number): WhQuestionGen[] {

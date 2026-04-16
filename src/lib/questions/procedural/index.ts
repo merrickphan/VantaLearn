@@ -53,7 +53,8 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
  }
 
  const diffPolicy = params.difficulty ?? "medium";
- const seedBase = `${params.seed ?? randomSeedEntropy()}|calc:${params.calculatorSection ?? "default"}|diff:${diffPolicy}`;
+ /** Always lead with fresh entropy so two requests never share the same RNG stream unless explicitly reproducible. */
+ const seedBase = `${randomSeedEntropy()}|${randomSeedEntropy()}|${params.seed ?? ""}|calc:${params.calculatorSection ?? "default"}|diff:${diffPolicy}`;
 
  const isCalcCourse = course.id === "calc-ab" || course.id === "calc-bc";
 
@@ -109,7 +110,7 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
  const genIndex = order[(i + attempt) % order.length];
  const rng = createRng(
  seedBase,
- `slot${i}|g${genIndex}|t${attempt}|${hashString(unit.id)}|${hashString(String(attempt * 9301 + genIndex * 104729))}`,
+ `slot${i}|g${genIndex}|t${attempt}|${randomSeedEntropy()}|${hashString(unit.id)}|${hashString(String(attempt * 9301 + genIndex * 104729))}`,
  );
  const cand = pool[genIndex](rng, ctx, i);
  const key = proceduralUniqKey(cand);
@@ -132,9 +133,27 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
  seen.add(key);
  if (struct) seenStructure.add(struct);
  } else {
+ let picked: ExamQuestion | undefined;
+ for (let fb = 0; fb < 240; fb++) {
+ const genIndex = order[(i + fb) % order.length];
+ const rng = createRng(`${seedBase}|fb${fb}`, `${randomSeedEntropy()}|${hashString(unit.id)}|${i}`);
+ const cand = pool[genIndex](rng, ctx, i);
+ const key = proceduralUniqKey(cand);
+ const struct = cand.procedural_structure_id ?? "";
+ const structOk = !struct || !seenStructure.has(struct);
+ if (!avoid.has(key) && !seen.has(key) && structOk) {
+ picked = cand;
+ seen.add(key);
+ if (struct) seenStructure.add(struct);
+ break;
+ }
+ }
+ if (!picked) {
  const genIndex = order[i % order.length];
- const rng = createRng(seedBase, `fallback|${i}|${hashString(unit.id)}|${i * 9973}|${hashString("fb")}`);
- q = pool[genIndex](rng, ctx, i);
+ const rng = createRng(randomSeedEntropy(), `lastresort|${i}|${randomSeedEntropy()}`);
+ picked = pool[genIndex](rng, ctx, i);
+ }
+ q = picked;
  }
  }
  out.push(q);

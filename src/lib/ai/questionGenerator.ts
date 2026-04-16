@@ -2,6 +2,7 @@ import type { ExamQuestion } from "@/types";
 import { findUnitById, getCourseIdFromSubjectName } from "@/lib/apUnits";
 import { generateOneValidatedMcq } from "@/lib/ai/questionGeneration/generateOneMcq";
 import { getSubjectConfigForCourse } from "@/lib/ai/questionGeneration/subjectConfigRegistry";
+import { proceduralUniqKey } from "@/lib/questions/procedural/utils";
 
 export interface GenerateQuestionsInput {
 	subject: string;
@@ -15,6 +16,8 @@ export interface GenerateQuestionsInput {
 	unitId?: string;
 	/** Changes hook rotation / scenario emphasis each request (timestamp ok) */
 	varietySeed?: number;
+	/** Client-supplied fingerprints (e.g. prior practice sets) to avoid repeating the same item. */
+	avoidFingerprintKeys?: ReadonlySet<string>;
 }
 
 function clampCount(n: number): number {
@@ -41,18 +44,42 @@ export async function generateExamQuestions(input: GenerateQuestionsInput): Prom
 			? Math.floor(input.varietySeed)
 			: Date.now() % 1_000_000_000;
 
+	const blocked = new Set(input.avoidFingerprintKeys ?? []);
 	const out: ExamQuestion[] = [];
 	for (let i = 0; i < count; i++) {
-		const q = await generateOneValidatedMcq({
-			config,
-			subjectDisplay: subjectLabel,
-			unitId: input.unitId,
-			varietySeed: seed,
-			slotIndex: i,
-			includeFigures: input.includeFigures,
-			maxAttempts: 6,
-			topicNote: input.topic,
-		});
+		let q: ExamQuestion | undefined;
+		for (let g = 0; g < 16; g++) {
+			const cand = await generateOneValidatedMcq({
+				config,
+				subjectDisplay: subjectLabel,
+				unitId: input.unitId,
+				varietySeed: seed ^ (g * 0x13579bdf) ^ (i * 0x9e3779b1),
+				slotIndex: i,
+				includeFigures: input.includeFigures,
+				maxAttempts: 6,
+				topicNote: input.topic,
+			});
+			const k = proceduralUniqKey(cand);
+			if (!blocked.has(k)) {
+				blocked.add(k);
+				q = cand;
+				break;
+			}
+		}
+		if (!q) {
+			const cand = await generateOneValidatedMcq({
+				config,
+				subjectDisplay: subjectLabel,
+				unitId: input.unitId,
+				varietySeed: seed ^ 0xfeedbeef ^ i,
+				slotIndex: i,
+				includeFigures: input.includeFigures,
+				maxAttempts: 6,
+				topicNote: input.topic,
+			});
+			blocked.add(proceduralUniqKey(cand));
+			q = cand;
+		}
 		out.push(q);
 	}
 

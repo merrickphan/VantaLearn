@@ -17,6 +17,12 @@ export async function POST(req: Request) {
  typeof body.count === "number" ? body.count : proceduralPracticeMcqCountForCourse(courseId);
  const count = Math.min(100, Math.max(1, Math.floor(rawCount)));
  const seed = typeof body.seed === "string" ? body.seed : undefined;
+ const clientAvoidRaw = body.avoidFingerprints;
+ const clientAvoid: string[] = Array.isArray(clientAvoidRaw)
+  ? clientAvoidRaw
+    .filter((x: unknown) => typeof x === "string" && (x as string).length > 0 && (x as string).length < 900)
+    .slice(0, 600)
+  : [];
  const rawCalcSection = body.calculatorSection;
  const calculatorSection: CalculatorSectionPolicy | undefined =
   rawCalcSection === "no_calculator" || rawCalcSection === "calculator" ? rawCalcSection : undefined;
@@ -49,6 +55,10 @@ export async function POST(req: Request) {
   } catch {
    // ignore (unauthenticated or table not set up)
   }
+
+ for (const fp of clientAvoid) {
+  avoid.add(fp);
+ }
 
   const MAX_ROUNDS = 12;
   let questions = generateProceduralQuestions({
@@ -96,25 +106,34 @@ export async function POST(req: Request) {
    }
    questions = final;
 
-   // Reset only when we're clearly stuck (likely exhausted).
+   // If the variant space is tight, drop oldest seen rows instead of wiping the whole course
+   // (full wipes caused the same fixed templates to reappear immediately).
    if (questions.length < count) {
     try {
      const supabase = await createClient();
-     await supabase
+     const { data: oldest } = await supabase
       .from("procedural_seen_questions")
-      .delete()
+      .select("id, fingerprint")
       .eq("user_id", userId)
-      .eq("course_id", courseId);
-     avoid.clear();
-     questions = generateProceduralQuestions({
-      courseId,
-      unitId,
-      count,
-      seed,
-      avoidKeys: avoid,
-      calculatorSection,
-      difficulty,
-     });
+      .eq("course_id", courseId)
+      .order("created_at", { ascending: true })
+      .limit(500);
+     if (oldest?.length) {
+      const ids = oldest.map((r: { id: string }) => r.id);
+      await supabase.from("procedural_seen_questions").delete().in("id", ids);
+      for (const row of oldest as { fingerprint: string }[]) {
+       avoid.delete(row.fingerprint);
+      }
+      questions = generateProceduralQuestions({
+       courseId,
+       unitId,
+       count,
+       seed,
+       avoidKeys: avoid,
+       calculatorSection,
+       difficulty,
+      });
+     }
     } catch {
      // ignore
     }

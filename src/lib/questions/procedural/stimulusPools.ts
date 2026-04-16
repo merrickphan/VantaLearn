@@ -276,9 +276,13 @@ export function thematicStimulusHg(rng: () => number, unitIndex: number): ExamFi
  };
 }
 
-/** Share of text-only MC items that receive a thematic stimulus (AP history exams skew stimulus-heavy). */
+/**
+ * Share of text-only MC items that receive a thematic stimulus.
+ * Set to 0 for geography/history pools so stems never pair with unrelated random exhibits
+ * (stimulus must match the question; coherent items pass an explicit `figure` from generators).
+ */
 export const TEXT_ITEM_STIMULUS_PROBABILITY = {
- ush: 0.46,
- wh: 0.48,
- "hum-geo": 0.38,
+ ush: 0,
+ wh: 0,
+ "hum-geo": 0,
 } as const;

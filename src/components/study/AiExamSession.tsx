@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { ExamQuestion } from "@/types";
 import { Button, Card } from "@/components/ui";
@@ -8,6 +8,11 @@ import { ExamGame } from "@/components/study/ExamGame";
 import { proceduralPracticeMcqCountForCourse } from "@/lib/apPracticeExamFormat";
 import { findUnitById, getCourseIdFromSubjectName } from "@/lib/apUnits";
 import type { PracticeSessionQuery } from "@/lib/examPracticeSessionQuery";
+import {
+ appendClientSeenFingerprints,
+ peekClientAvoidFingerprints,
+ practiceUnitScope,
+} from "@/lib/proceduralClientAvoid";
 import type { CalculatorSectionPolicy } from "@/lib/questions/procedural";
 
 type Phase = "loading" | "ready" | "error";
@@ -42,16 +47,23 @@ export function AiExamSession({
  const [questions, setQuestions] = useState<ExamQuestion[]>([]);
  const [sessionKey, setSessionKey] = useState(0);
  const [usedProcedural, setUsedProcedural] = useState(false);
+ const sessionBundleRef = useRef<{ courseId: string; unitScope: string; questions: ExamQuestion[] } | null>(null);
 
  const unitMeta = unitId ? findUnitById(unitId) : null;
  const examTitle = `${subject} | AP Exam Replica`;
+ const unitScope = practiceUnitScope(unitId);
 
  const loadProcedural = useCallback(async () => {
  const courseId = getCourseIdFromSubjectName(subject);
  if (!courseId) {
  throw new Error("That subject is not linked to a catalog course for offline practice.");
  }
+ const bundle = sessionBundleRef.current;
+ if (bundle?.questions?.length && bundle.courseId === courseId && bundle.unitScope === unitScope) {
+ appendClientSeenFingerprints(courseId, unitScope, bundle.questions);
+ }
  const count = practice.count ?? proceduralPracticeMcqCountForCourse(courseId);
+ const avoidFingerprints = peekClientAvoidFingerprints(courseId, unitScope);
  const res = await fetch("/api/questions/procedural", {
  method: "POST",
  headers: { "Content-Type": "application/json" },
@@ -60,6 +72,7 @@ export function AiExamSession({
  unitId: unitId === "all" ? "all" : unitId || undefined,
  count,
  difficulty: practice.difficulty,
+ avoidFingerprints,
  ...(calculatorSection ? { calculatorSection } : {}),
  }),
  });
@@ -67,8 +80,10 @@ export function AiExamSession({
  if (!res.ok) throw new Error(data.error || "Offline generation failed");
  const qs = data.questions as ExamQuestion[];
  if (!Array.isArray(qs) || qs.length === 0) throw new Error("No questions returned");
+ appendClientSeenFingerprints(courseId, unitScope, qs);
+ sessionBundleRef.current = { courseId, unitScope, questions: qs };
  return qs;
- }, [subject, unitId, calculatorSection, practice.count, practice.difficulty]);
+ }, [subject, unitId, unitScope, calculatorSection, practice.count, practice.difficulty]);
 
  const load = useCallback(async () => {
  setPhase("loading");
@@ -88,6 +103,12 @@ export function AiExamSession({
  const aiCount = courseIdForCount
  ? proceduralPracticeMcqCountForCourse(courseIdForCount)
  : 5;
+ const cid = courseIdForCount ?? "";
+ const bundle = sessionBundleRef.current;
+ if (cid && bundle?.questions?.length && bundle.courseId === cid && bundle.unitScope === unitScope) {
+ appendClientSeenFingerprints(cid, unitScope, bundle.questions);
+ }
+ const avoidFp = cid ? peekClientAvoidFingerprints(cid, unitScope) : [];
  const varietySeed = Date.now() ^ (Math.floor(Math.random() * 0xffff) << 8);
  const res = await fetch("/api/ai/questions", {
  method: "POST",
@@ -99,6 +120,7 @@ export function AiExamSession({
  includeFigures: true,
  unitId: unitId || undefined,
  varietySeed,
+ ...(avoidFp.length > 0 ? { avoidFingerprints: avoidFp } : {}),
  }),
  });
  const data = await res.json();
@@ -111,6 +133,12 @@ export function AiExamSession({
  if (res.ok) {
  const qs = data.questions as ExamQuestion[];
  if (Array.isArray(qs) && qs.length > 0) {
+ if (cid) {
+ appendClientSeenFingerprints(cid, unitScope, qs);
+ sessionBundleRef.current = { courseId: cid, unitScope, questions: qs };
+ } else {
+ sessionBundleRef.current = null;
+ }
  setQuestions(qs);
  setUsedProcedural(false);
  setSessionKey((k) => k + 1);
@@ -133,7 +161,7 @@ export function AiExamSession({
  setError(e instanceof Error ? e.message : "Failed to load");
  setPhase("error");
  }
- }, [subject, topic, unitId, proceduralOnly, loadProcedural]);
+ }, [subject, topic, unitId, unitScope, proceduralOnly, loadProcedural]);
 
  useEffect(() => {
  load();

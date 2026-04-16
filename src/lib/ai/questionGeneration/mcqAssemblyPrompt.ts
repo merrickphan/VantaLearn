@@ -64,6 +64,8 @@ Rules:
 - Tables: 2–5 columns. Charts: at most two variables (categories + one quantitative series).
 - Maps: never claim to output an image; use prose spatial description inside figure.kind="stimulus" OR the stem.
 - Scenarios: 3–6 sentences if using narrative stimulus.
+- STIMULUS–STEM LOCK (mandatory): If figure.kind is "stimulus", the question MUST be answerable only with that context. Reuse at least two substantive content words from the stimulus body in the stem, OR start with explicit bridging language ("Based on the scenario above", "Given the maps described in the context above", etc.). It is INVALID to pair a narrative exhibit with a generic textbook definition that ignores the exhibit.
+- If figure is table, bar_chart, or line_chart, the stem MUST explicitly reference the exhibit ("According to the chart/table", etc.).
 ${courseRules ? courseRules + "\n" : ""}`;
 }
 
@@ -112,9 +114,10 @@ MISCONCEPTION BANK (incorrect answers MUST come only from these — use ids verb
 ${bankLines.join("\n")}
 
 ASSEMBLY:
-1) Build the stem + stimulus per STIMULUS_KIND and PARAMS.
+1) Build the narrative or data exhibit first (if required), then write the MCQ stem so it clearly depends on that exhibit.
 2) Write the correct answer text first.
 3) For each incorrect slot, adapt one bank seed into a full plausible AP distractor; set misconceptionId to that bank row's id.
 4) Keep vocabulary aligned to ${plan.subjectName} Unit ${plan.unit.index} only.
+5) Never output a "floating" definition question under an unrelated italic paragraph.
 ${opts?.topicNote?.trim() ? `\nOptional extra focus (weave naturally, do not tag as a note): ${opts.topicNote.trim()}` : ""}`;
 }

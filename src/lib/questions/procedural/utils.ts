@@ -10,6 +10,16 @@ export function hashString(s: string): number {
  return h >>> 0;
 }
 
+/**
+ * Stable structure id for prose MCQs (HG/WH/USH) so optional decorative figures
+ * do not change the dedup key — the same stem + keyed answer is one logical item.
+ * Strips a trailing "-{slot}" suffix from generator tags (those tags embed exam slot index).
+ */
+export function proseMcqStructureId(tag: string, stem: string, correct: string): string {
+ const baseTag = tag.replace(/-\d+$/, "");
+ return `prose:${hashString(`${baseTag}|${stem}|${correct}`).toString(36)}`;
+}
+
 /** Mulberry32 PRNG; returns values in [0, 1). */
 export function mulberry32(seed: number): () => number {
  let a = seed >>> 0;

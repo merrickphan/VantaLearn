@@ -438,14 +438,15 @@ const HG_U7: GeoQuestionGen[] = [
  ),
 ];
 
+/** Dynamic generators first (tripled) so RNG samples parametric items far more often than fixed stems. */
 const HG_BY_UNIT: GeoQuestionGen[][] = [
- [...HG_U1, ...HG_U1_DYNAMIC],
- [...HG_U2, ...HG_U2_DYNAMIC],
- [...HG_U3, ...HG_U3_DYNAMIC],
- [...HG_U4, ...HG_U4_DYNAMIC],
- [...HG_U5, ...HG_U5_DYNAMIC],
- [...HG_U6, ...HG_U6_DYNAMIC],
- [...HG_U7, ...HG_U7_DYNAMIC],
+ [...HG_U1_DYNAMIC, ...HG_U1_DYNAMIC, ...HG_U1_DYNAMIC, ...HG_U1],
+ [...HG_U2_DYNAMIC, ...HG_U2_DYNAMIC, ...HG_U2_DYNAMIC, ...HG_U2],
+ [...HG_U3_DYNAMIC, ...HG_U3_DYNAMIC, ...HG_U3_DYNAMIC, ...HG_U3],
+ [...HG_U4_DYNAMIC, ...HG_U4_DYNAMIC, ...HG_U4_DYNAMIC, ...HG_U4],
+ [...HG_U5_DYNAMIC, ...HG_U5_DYNAMIC, ...HG_U5_DYNAMIC, ...HG_U5],
+ [...HG_U6_DYNAMIC, ...HG_U6_DYNAMIC, ...HG_U6_DYNAMIC, ...HG_U6],
+ [...HG_U7_DYNAMIC, ...HG_U7_DYNAMIC, ...HG_U7_DYNAMIC, ...HG_U7],
 ];
 
 export function getHumanGeographyGeneratorsForUnit(unitIndex: number): GeoQuestionGen[] {

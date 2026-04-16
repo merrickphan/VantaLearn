@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { ProceduralDifficulty } from "@/lib/questions/procedural";
+import { randomSeedEntropy } from "@/lib/questions/procedural/utils";
 import { AP_FRQ_PRACTICE_SET_COUNT, generateApFrqPracticeSet } from "@/lib/questions/procedural/apFrqSets";
 
 export async function POST(req: Request) {
@@ -19,7 +20,13 @@ export async function POST(req: Request) {
 			return NextResponse.json({ error: "courseId and unitId are required" }, { status: 400 });
 		}
 
-		const questions = generateApFrqPracticeSet({ courseId, unitId, setIndex, difficulty });
+		const questions = generateApFrqPracticeSet({
+			courseId,
+			unitId,
+			setIndex,
+			difficulty,
+			sessionEntropy: randomSeedEntropy(),
+		});
 		return NextResponse.json({ questions, setIndex });
 	} catch (e) {
 		const message = e instanceof Error ? e.message : "Failed to generate FRQ set";

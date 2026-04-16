@@ -17,9 +17,9 @@ import {
 	frqFigureSocialQ0,
 	frqFigureWorldLangQ0,
 } from "./apFrqFigures";
-import { createRng, hashString, pick, randInt } from "./utils";
+import { createRng, hashString, pick, randInt, randomSeedEntropy } from "./utils";
 
-/** Number of distinct FRQ practice sets per course (deterministic by setIndex). */
+/** Number of FRQ practice set slots per course (RNG varies wording within a slot each request). */
 export const AP_FRQ_PRACTICE_SET_COUNT = 100;
 
 /** Internal sentinel so auto-grading never marks FRQ items “correct” by accident. */
@@ -1682,6 +1682,8 @@ function generateApFrqPracticeTriple(params: {
 	setIndex: number;
 	unitId: string;
 	difficulty?: ProceduralDifficulty;
+	/** Per-request salt so the same setIndex never yields identical FRQ wording. */
+	sessionEntropy?: string;
 }): ExamQuestion[] {
 	const course = AP_COURSES.find((c) => c.id === params.courseId);
 	if (!course) throw new Error(`Unknown course: ${params.courseId}`);
@@ -1697,7 +1699,8 @@ function generateApFrqPracticeTriple(params: {
 			: getUnitOrFirst(params.courseId, params.unitId);
 	if (!unit) throw new Error(`Bad unit for course: ${params.courseId}`);
 
-	const seed = `frq|${params.courseId}|u:${unit.id}|set:${si}|diff:${diff}`;
+	const entropy = params.sessionEntropy ?? randomSeedEntropy();
+	const seed = `frq|${params.courseId}|u:${unit.id}|set:${si}|diff:${diff}|${entropy}`;
 	const track = frqTrackForCourse(params.courseId);
 
 	const ctx = {
@@ -1752,15 +1755,18 @@ export function generateApFrqPracticeSet(params: {
 	setIndex: number;
 	unitId: string;
 	difficulty?: ProceduralDifficulty;
+	sessionEntropy?: string;
 }): ExamQuestion[] {
 	const spec = getApFrqReplicaSpec(params.courseId);
 	const n = Math.max(1, Math.min(24, spec.frqCount));
 	const out: ExamQuestion[] = [];
 	let round = 0;
+	const baseEntropy = params.sessionEntropy ?? randomSeedEntropy();
 	while (out.length < n && round < 20) {
 		const chunk = generateApFrqPracticeTriple({
 			...params,
 			setIndex: clampSetIndex(params.setIndex + round),
+			sessionEntropy: `${baseEntropy}|round${round}|${randomSeedEntropy()}`,
 		});
 		for (const q of chunk) {
 			if (out.length >= n) break;

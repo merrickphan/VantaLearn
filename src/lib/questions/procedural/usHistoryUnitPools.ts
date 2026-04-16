@@ -605,15 +605,15 @@ const USH_U9: UshQuestionGen[] = [
 ];
 
 const USH_BY_UNIT: UshQuestionGen[][] = [
- [...USH_U1, ...USH_U1_DYNAMIC],
- [...USH_U2, ...USH_U2_DYNAMIC],
- [...USH_U3, ...USH_U3_DYNAMIC],
- [...USH_U4, ...USH_U4_DYNAMIC],
- [...USH_U5, ...USH_U5_DYNAMIC],
- [...USH_U6, ...USH_U6_DYNAMIC],
- [...USH_U7, ...USH_U7_DYNAMIC],
- [...USH_U8, ...USH_U8_DYNAMIC],
- [...USH_U9, ...USH_U9_DYNAMIC],
+ [...USH_U1_DYNAMIC, ...USH_U1_DYNAMIC, ...USH_U1_DYNAMIC, ...USH_U1],
+ [...USH_U2_DYNAMIC, ...USH_U2_DYNAMIC, ...USH_U2_DYNAMIC, ...USH_U2],
+ [...USH_U3_DYNAMIC, ...USH_U3_DYNAMIC, ...USH_U3_DYNAMIC, ...USH_U3],
+ [...USH_U4_DYNAMIC, ...USH_U4_DYNAMIC, ...USH_U4_DYNAMIC, ...USH_U4],
+ [...USH_U5_DYNAMIC, ...USH_U5_DYNAMIC, ...USH_U5_DYNAMIC, ...USH_U5],
+ [...USH_U6_DYNAMIC, ...USH_U6_DYNAMIC, ...USH_U6_DYNAMIC, ...USH_U6],
+ [...USH_U7_DYNAMIC, ...USH_U7_DYNAMIC, ...USH_U7_DYNAMIC, ...USH_U7],
+ [...USH_U8_DYNAMIC, ...USH_U8_DYNAMIC, ...USH_U8_DYNAMIC, ...USH_U8],
+ [...USH_U9_DYNAMIC, ...USH_U9_DYNAMIC, ...USH_U9_DYNAMIC, ...USH_U9],
 ];
 
 export function getUsHistoryGeneratorsForUnit(unitIndex: number): UshQuestionGen[] {
