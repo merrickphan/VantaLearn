@@ -2,6 +2,7 @@
 import { getUnitOrFirst, getUnitsForCourseId } from "@/lib/apUnits";
 import type { ExamQuestion } from "@/types";
 import {
+	calculusMcqGraphBatchKey,
 	createRng,
 	hashString,
 	isQuestionAvoidedBySet,
@@ -71,6 +72,8 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
 
  /** Precise + “same reading” keys already emitted in this batch. */
  const placedFingerprints = new Set<string>();
+ /** Calc AB/BC: avoid two MCQs in one set sharing the same rendered graph geometry. */
+ const placedGraphKeys = new Set<string>();
  const seenStructure = new Set<string>();
  const avoid = params.avoidKeys ?? new Set<string>();
 
@@ -124,22 +127,27 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
  const cand = pool[genIndex](rng, ctx, i);
  const key = proceduralUniqKey(cand);
  const readKey = questionReadDedupKey(cand);
+ const graphKey = calculusMcqGraphBatchKey(cand.figure);
  const struct = cand.procedural_structure_id ?? "";
  const structOk = !struct || !seenStructure.has(struct);
+ const graphOk = !isCalcCourse || !graphKey || !placedGraphKeys.has(graphKey);
  const acceptable =
  structOk &&
+ graphOk &&
  !isQuestionAvoidedBySet(cand, avoid) &&
  !placedFingerprints.has(key) &&
  !placedFingerprints.has(readKey);
  if (acceptable) {
  placedFingerprints.add(key);
  placedFingerprints.add(readKey);
+ if (graphKey) placedGraphKeys.add(graphKey);
  if (struct) seenStructure.add(struct);
  q = cand;
  break;
  }
  const fallbackOk =
  structOk &&
+ graphOk &&
  !isQuestionAvoidedBySet(cand, avoid) &&
  !placedFingerprints.has(key) &&
  !placedFingerprints.has(readKey);
@@ -150,9 +158,11 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
  q = bestFallback;
  const key = proceduralUniqKey(q);
  const readKey = questionReadDedupKey(q);
- const struct = q.procedural_structure_id ?? "";
+ const graphKeyBf = calculusMcqGraphBatchKey(q.figure);
  placedFingerprints.add(key);
  placedFingerprints.add(readKey);
+ if (graphKeyBf) placedGraphKeys.add(graphKeyBf);
+ const struct = q.procedural_structure_id ?? "";
  if (struct) seenStructure.add(struct);
  } else {
  let picked: ExamQuestion | undefined;
@@ -162,9 +172,12 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
  const cand = pool[genIndex](rng, ctx, i);
  const key = proceduralUniqKey(cand);
  const readKey = questionReadDedupKey(cand);
+ const graphKeyFb = calculusMcqGraphBatchKey(cand.figure);
  const struct = cand.procedural_structure_id ?? "";
  const structOk = !struct || !seenStructure.has(struct);
+ const graphOkFb = !isCalcCourse || !graphKeyFb || !placedGraphKeys.has(graphKeyFb);
  const ok =
+ graphOkFb &&
  !isQuestionAvoidedBySet(cand, avoid) &&
  !placedFingerprints.has(key) &&
  !placedFingerprints.has(readKey) &&
@@ -173,6 +186,7 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
  picked = cand;
  placedFingerprints.add(key);
  placedFingerprints.add(readKey);
+ if (graphKeyFb) placedGraphKeys.add(graphKeyFb);
  if (struct) seenStructure.add(struct);
  break;
  }
@@ -184,9 +198,12 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
  const cand = pool[genIndex](rng, ctx, i);
  const key = proceduralUniqKey(cand);
  const readKey = questionReadDedupKey(cand);
+ const graphKeyLr = calculusMcqGraphBatchKey(cand.figure);
  const struct = cand.procedural_structure_id ?? "";
  const structOk = !struct || !seenStructure.has(struct);
+ const graphOkLr = !isCalcCourse || !graphKeyLr || !placedGraphKeys.has(graphKeyLr);
  if (
+ graphOkLr &&
  !isQuestionAvoidedBySet(cand, avoid) &&
  !placedFingerprints.has(key) &&
  !placedFingerprints.has(readKey) &&
@@ -195,6 +212,7 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
  picked = cand;
  placedFingerprints.add(key);
  placedFingerprints.add(readKey);
+ if (graphKeyLr) placedGraphKeys.add(graphKeyLr);
  if (struct) seenStructure.add(struct);
  break;
  }
@@ -206,8 +224,10 @@ export function generateProceduralQuestions(params: GenerateProceduralParams): E
  picked = pool[genIndex](rng, ctx, i);
  const key = proceduralUniqKey(picked);
  const readKey = questionReadDedupKey(picked);
+ const graphKeyLast = calculusMcqGraphBatchKey(picked.figure);
  placedFingerprints.add(key);
  placedFingerprints.add(readKey);
+ if (graphKeyLast) placedGraphKeys.add(graphKeyLast);
  const struct = picked.procedural_structure_id ?? "";
  if (struct) seenStructure.add(struct);
  }

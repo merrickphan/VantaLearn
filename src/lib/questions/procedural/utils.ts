@@ -1,4 +1,4 @@
-﻿import type { ExamQuestion } from "@/types";
+﻿import type { ExamFigure, ExamQuestion } from "@/types";
 
 /** Deterministic hash for seed strings (FNV-1a style). */
 export function hashString(s: string): number {
@@ -125,6 +125,27 @@ export function proceduralUniqKey(q: ExamQuestion): string {
  const s = q.procedural_structure_id?.trim();
  if (s) return `sid:${s}`;
  return `fp:${proceduralQuestionFingerprint(q)}`;
+}
+
+function roundCoord4(n: number): number {
+ return Math.round(n * 10000) / 10000;
+}
+
+/**
+ * Fingerprint for AP Calc AB/BC procedural batches: two items with the same key
+ * share the same rendered graph geometry (slope field or calculus xy plot).
+ */
+export function calculusMcqGraphBatchKey(figure: ExamFigure | undefined): string | null {
+ if (!figure) return null;
+ if (figure.kind === "calculus_xy_plot") {
+ const norm = figure.polylines.map((poly) => poly.map((p) => [roundCoord4(p.x), roundCoord4(p.y)] as const));
+ return `cxp:${hashString(JSON.stringify(norm)).toString(36)}`;
+ }
+ if (figure.kind === "slope_field") {
+ const norm = figure.segments.map((s) => [s.x, s.y, roundCoord4(s.dyDx)] as const);
+ return `sf:${hashString(JSON.stringify(norm)).toString(36)}`;
+ }
+ return null;
 }
 
 function stripDiacritics(s: string): string {

@@ -622,16 +622,17 @@ function formatDyDxYminusK(k: number): string {
  return `dy/dx = y + ${-k}`;
 }
 
-const SLOPE_FIELD_HK = [
- { h: -1, k: -1 },
- { h: 1, k: -1 },
- { h: -1, k: 1 },
- { h: 1, k: 1 },
- { h: -2, k: 1 },
- { h: 1, k: -2 },
- { h: 2, k: -1 },
- { h: -1, k: 2 },
-] as const;
+/** 11×11 − {(0,0)} = 120 distinct product slope fields for procedural variety. */
+const SLOPE_FIELD_HK_ALL: { h: number; k: number }[] = (() => {
+ const o: { h: number; k: number }[] = [];
+ for (let h = -5; h <= 5; h++) {
+ for (let k = -5; k <= 5; k++) {
+ if (h === 0 && k === 0) continue;
+ o.push({ h, k });
+ }
+ }
+ return o;
+})();
 
 function slopeFieldF(h: number, k: number): (x: number, y: number) => number {
  return (x, y) => (x - h) * (y - k);
@@ -669,7 +670,7 @@ function pickThreeSlopeDistractors(
  * Slope field for dy/dx = (x - h)(y - k): match the figure to the expanded equation (Calc AB Unit 7).
  */
 export function genSlopeFieldDeMatch(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
- const { h, k } = pick(rng, SLOPE_FIELD_HK);
+ const { h, k } = pick(rng, SLOPE_FIELD_HK_ALL);
  const F = slopeFieldF(h, k);
  const spread = numericSpreadForCtx(ctx);
  const lim = spread === "tight" ? 3 : spread === "wide" ? 4 : 3;
@@ -719,6 +720,717 @@ export function genSlopeFieldDeMatch(rng: () => number, ctx: ProcCtx, i: number)
  procedural_structure_id: `calc-slopefield-h${h}-k${k}`,
  },
  );
+}
+
+function calcLinSeg(
+ p0: { x: number; y: number },
+ p1: { x: number; y: number },
+ n: number,
+): { x: number; y: number }[] {
+ const out: { x: number; y: number }[] = [];
+ for (let i = 0; i <= n; i++) {
+ const t = i / n;
+ out.push({
+ x: p0.x + t * (p1.x - p0.x),
+ y: p0.y + t * (p1.y - p0.y),
+ });
+ }
+ return out;
+}
+
+/** Integer triples z1 < z2 < z3 on [0, 6] with z2 midpoint (symmetric “tent” family). */
+const SYMMETRIC_FPRIME_TRIPLES: { z1: number; z2: number; z3: number }[] = (() => {
+ const o: { z1: number; z2: number; z3: number }[] = [];
+ for (let z1 = 1; z1 <= 4; z1++) {
+ for (let z3 = z1 + 2; z3 <= 6; z3++) {
+ if ((z1 + z3) % 2 !== 0) continue;
+ const z2 = (z1 + z3) / 2;
+ if (z2 <= z1 || z2 >= z3) continue;
+ o.push({ z1, z2, z3 });
+ }
+ }
+ return o;
+})();
+
+const SYM_AMP_CHOICES = [0.82, 0.88, 0.94, 1, 1.06, 1.12, 1.18] as const;
+const SYM_TAIL_CHOICES = [0.82, 0.88, 0.94, 1, 1.06, 1.12, 1.18] as const;
+
+/** 6 triples × 7 × 7 × 7 = 2,058 distinct symmetric f′ silhouettes (left/right peak scale + tail). */
+function buildSymmetricFprimePathForTriple(
+ z1: number,
+ z2: number,
+ z3: number,
+ ampL: number,
+ ampR: number,
+ tail: number,
+): { x: number; y: number }[] {
+ const pL = (z1 + z2) / 2;
+ const pR = (z2 + z3) / 2;
+ const pts: { x: number; y: number }[] = [];
+ const push = (arr: { x: number; y: number }[]) => {
+ for (const p of arr) {
+ const last = pts[pts.length - 1];
+ if (last && Math.abs(last.x - p.x) < 1e-6 && Math.abs(last.y - p.y) < 1e-6) continue;
+ pts.push(p);
+ }
+ };
+ push(calcLinSeg({ x: 0, y: -tail }, { x: z1, y: 0 }, Math.max(8, Math.ceil(z1 * 3))));
+ push(calcLinSeg({ x: z1, y: 0 }, { x: pL, y: ampL }, 10));
+ const denL = pL - z2;
+ for (let i = 0; i <= 22; i++) {
+ const t = i / 22;
+ const x = pL + t * (z2 - pL);
+ const y = ampL * ((x - z2) / denL) ** 2;
+ pts.push({ x, y });
+ }
+ const denR = pR - z2;
+ for (let i = 1; i <= 22; i++) {
+ const t = i / 22;
+ const x = z2 + t * (pR - z2);
+ const y = ampR * ((x - z2) / denR) ** 2;
+ pts.push({ x, y });
+ }
+ push(calcLinSeg({ x: pR, y: ampR }, { x: z3, y: 0 }, 10));
+ push(calcLinSeg({ x: z3, y: 0 }, { x: 6, y: -tail }, Math.max(8, Math.ceil((6 - z3) * 3))));
+ return pts;
+}
+
+/** 16 hand-authored piecewise-linear templates on [0, 6]. */
+const ZIGZAG_VERTEX_TEMPLATES_CORE = [
+ [
+ [0, -1],
+ [1, 0],
+ [2, 1],
+ [3, 0],
+ [4, -1],
+ [5, 0],
+ [6, 1],
+ ],
+ [
+ [0, 1],
+ [1, 0],
+ [2, -1],
+ [3, 0],
+ [4, 1],
+ [5, 0],
+ [6, -1],
+ ],
+ [
+ [0, 0],
+ [1, 1],
+ [2, 0],
+ [3, -1],
+ [4, 0],
+ [5, 1],
+ [6, 0],
+ ],
+ [
+ [0, -0.5],
+ [1.2, 0.9],
+ [2, 0],
+ [3.2, -0.85],
+ [4, 0],
+ [5.1, 0.95],
+ [6, -0.4],
+ ],
+ [
+ [0, 0.6],
+ [0.8, 0],
+ [2.2, -0.9],
+ [3, 0],
+ [4.4, 1],
+ [5.2, 0],
+ [6, -0.7],
+ ],
+ [
+ [0, -0.8],
+ [1.5, 0],
+ [2.5, 1],
+ [3.5, 0],
+ [4.5, -1],
+ [5.3, 0],
+ [6, 0.5],
+ ],
+ [
+ [0, 0.4],
+ [1, -0.7],
+ [2.5, 0],
+ [3.5, 0.9],
+ [4.5, 0],
+ [5.5, -0.6],
+ [6, 0.2],
+ ],
+ [
+ [0, -0.3],
+ [1.1, 0.5],
+ [2.4, -0.4],
+ [3.3, 0.8],
+ [4.2, -0.5],
+ [5.4, 0.4],
+ [6, -0.2],
+ ],
+ [
+ [0, 0.9],
+ [1.4, 0],
+ [2.1, -0.8],
+ [2.9, 0],
+ [3.8, 1],
+ [4.6, 0],
+ [6, -0.9],
+ ],
+ [
+ [0, -1],
+ [0.9, 0],
+ [1.8, 0.7],
+ [2.7, 0],
+ [3.6, -0.75],
+ [4.5, 0],
+ [5.4, 0.65],
+ [6, 0],
+ ],
+ [
+ [0, 0.35],
+ [1.2, -0.5],
+ [2, 0.25],
+ [3.1, -0.35],
+ [4, 0.5],
+ [5, -0.25],
+ [6, 0.4],
+ ],
+ [
+ [0, -0.55],
+ [1.3, 0.45],
+ [2.2, -0.35],
+ [3.4, 0.55],
+ [4.3, -0.45],
+ [5.5, 0.35],
+ [6, -0.25],
+ ],
+ [
+ [0, 0.75],
+ [1.6, 0],
+ [2.4, -0.65],
+ [3.2, 0],
+ [4.1, 0.7],
+ [5, 0],
+ [6, -0.55],
+ ],
+ [
+ [0, -0.65],
+ [1.1, 0.55],
+ [2.3, 0],
+ [3.4, -0.6],
+ [4.2, 0],
+ [5.6, 0.58],
+ [6, 0],
+ ],
+ [
+ [0, 0.2],
+ [1.5, 0.85],
+ [2.5, 0],
+ [3.5, -0.9],
+ [4.5, 0],
+ [5.5, 0.75],
+ [6, -0.15],
+ ],
+ [
+ [0, -0.45],
+ [1.7, 0],
+ [2.6, 0.88],
+ [3.4, 0],
+ [4.8, -0.82],
+ [5.6, 0],
+ [6, 0.42],
+ ],
+] as const;
+
+/** Procedural vertex nets: irregular piecewise lines + phased square waves + tilted plateaus (AP-style diversity). */
+function buildProgrammaticZigVertices(): [number, number][][] {
+ const out: [number, number][][] = [];
+ for (let s = 0; s < 40; s++) {
+ const verts: [number, number][] = [];
+ for (let k = 0; k <= 6; k++) {
+ const v =
+ 0.52 * Math.sin(s * 0.37 + k * 0.91) +
+ 0.38 * Math.cos(s * 0.21 + k * 1.45) +
+ 0.14 * Math.sin(s * 0.63 + k * 2.1);
+ const y = Math.round(Math.max(-1.08, Math.min(1.08, v)) * 100) / 100;
+ verts.push([k, y]);
+ }
+ out.push(verts);
+ }
+ for (let off = 0; off < 10; off++) {
+ const verts: [number, number][] = [];
+ for (let k = 0; k <= 6; k++) {
+ const alt = (k + off) % 2 === 0 ? 0.92 : -0.88;
+ const drift = 0.06 * Math.sin(off * 0.5 + k * 0.4);
+ verts.push([k, Math.round((alt + drift) * 100) / 100]);
+ }
+ out.push(verts);
+ }
+ const stairPatterns: [number, number][][] = [
+ [
+ [0, -0.15],
+ [1, 0.55],
+ [2, 0.55],
+ [3, -0.5],
+ [4, -0.5],
+ [5, 0.35],
+ [6, 0.1],
+ ],
+ [
+ [0, 0.45],
+ [1.2, 0.45],
+ [2.1, -0.35],
+ [3, -0.35],
+ [4.2, 0.6],
+ [5.1, 0.6],
+ [6, -0.25],
+ ],
+ [
+ [0, -0.6],
+ [1.4, 0.2],
+ [2.3, 0.75],
+ [3.2, 0.2],
+ [4.1, -0.7],
+ [5, -0.15],
+ [6, 0.4],
+ ],
+ [
+ [0, 0.3],
+ [1, 0.85],
+ [2, 0.3],
+ [3, -0.75],
+ [4, 0.25],
+ [5, 0.8],
+ [6, -0.2],
+ ],
+ [
+ [0, -0.35],
+ [1.5, -0.9],
+ [2.5, 0],
+ [3.5, 0.9],
+ [4.5, 0],
+ [5.5, -0.55],
+ [6, 0.2],
+ ],
+ [
+ [0, 0.65],
+ [1.1, 0],
+ [2.4, -0.55],
+ [3.6, 0],
+ [4.8, 0.7],
+ [5.4, 0],
+ [6, -0.45],
+ ],
+ ];
+ out.push(...stairPatterns);
+ return out;
+}
+
+const ALL_ZIGZAG_VERTEX_TEMPLATES: readonly (readonly (readonly [number, number])[])[] = [
+ ...ZIGZAG_VERTEX_TEMPLATES_CORE,
+ ...buildProgrammaticZigVertices(),
+];
+
+function buildPathFromVertices(
+ verts: readonly (readonly [number, number])[],
+ segsPerEdge: number,
+): { x: number; y: number }[] {
+ const pts: { x: number; y: number }[] = [];
+ const push = (arr: { x: number; y: number }[]) => {
+ for (const p of arr) {
+ const last = pts[pts.length - 1];
+ if (last && Math.abs(last.x - p.x) < 1e-6 && Math.abs(last.y - p.y) < 1e-6) continue;
+ pts.push(p);
+ }
+ };
+ for (let j = 0; j < verts.length - 1; j++) {
+ const a = { x: verts[j]![0], y: verts[j]![1] };
+ const b = { x: verts[j + 1]![0], y: verts[j + 1]![1] };
+ push(calcLinSeg(a, b, segsPerEdge));
+ }
+ return pts;
+}
+
+function interpYSorted(pts: { x: number; y: number }[], x: number): number {
+ if (pts.length === 0) return 0;
+ if (x <= pts[0]!.x) return pts[0]!.y;
+ const last = pts[pts.length - 1]!;
+ if (x >= last.x) return last.y;
+ let lo = 0;
+ let hi = pts.length - 1;
+ while (hi - lo > 1) {
+ const mid = (lo + hi) >> 1;
+ if (pts[mid]!.x <= x) lo = mid;
+ else hi = mid;
+ }
+ const a = pts[lo]!;
+ const b = pts[hi]!;
+ const t = (x - a.x) / (b.x - a.x);
+ return a.y + t * (b.y - a.y);
+}
+
+/** Longest open subinterval of (0, 6) where f′ > 0 (sampled), for “f increasing” stems. */
+function longestFpositiveIntervalInterior(pts: { x: number; y: number }[]): [number, number] {
+ const eps = 1e-3;
+ let bestA = 0.5;
+ let bestB = 1.5;
+ let bestLen = -1;
+ let runA: number | null = null;
+ const dx = 0.012;
+ for (let x = 0.008; x <= 5.992; x += dx) {
+ const v = interpYSorted(pts, x);
+ const pos = v > eps;
+ if (pos && runA === null) runA = x;
+ if (!pos && runA !== null) {
+ const runB = x;
+ const len = runB - runA;
+ if (len > bestLen) {
+ bestLen = len;
+ bestA = runA;
+ bestB = runB;
+ }
+ runA = null;
+ }
+ }
+ if (runA !== null) {
+ const runB = 6;
+ const len = runB - runA;
+ if (len > bestLen) {
+ bestA = runA;
+ bestB = runB;
+ }
+ }
+ if (bestLen < 0.06) return [1, 3];
+ const ia = Math.round((bestA + 0.025) * 100) / 100;
+ const ib = Math.round((bestB - 0.025) * 100) / 100;
+ return [ia, ib];
+}
+
+function formatOpenIntervalPair(a: number, b: number): string {
+ return `(${a}, ${b})`;
+}
+
+function pickThreeDistinctFromPool(rng: () => number, correct: string, pool: string[]): [string, string, string] {
+ const avail = shuffleInPlace(rng, pool.filter((s) => s !== correct));
+ if (avail.length >= 3) return [avail[0]!, avail[1]!, avail[2]!];
+ const pad = ["0", "2", "4", "6"];
+ for (const p of pad) {
+ if (p !== correct && !avail.includes(p)) avail.push(p);
+ }
+ shuffleInPlace(rng, avail);
+ return [avail[0]!, avail[1]!, avail[2]!];
+}
+
+function calculusXyPlotFromPath(rng: () => number, path: { x: number; y: number }[]): ExamFigure {
+ const ys = path.map((p) => p.y);
+ const yLo = Math.min(...ys);
+ const yHi = Math.max(...ys);
+ const padY = Math.max(0.16, (yHi - yLo) * 0.14);
+ const letter = pick(rng, ["f", "g", "h"] as const);
+ const caption = pick(rng, [
+ `Graph of \\(${letter}'\\)`,
+ `Graph of \\(${letter}'(x)\\)`,
+ `Graph of \\(${letter}'\\) on the interval shown`,
+ ] as const);
+ return {
+ kind: "calculus_xy_plot",
+ title: pick(rng, ["Figure 1", "Figure 2", "The graph shown", "Graph for reference"]),
+ note: pick(rng, [
+ "The axes are scaled in the usual way; tick marks are one unit apart.",
+ "Assume f is twice differentiable on (0, 6) unless the stem states otherwise.",
+ ] as const),
+ caption,
+ xLabel: "x",
+ yLabel: "y",
+ xMin: 0,
+ xMax: 6,
+ yMin: yLo - padY,
+ yMax: yHi + padY,
+ xTicks: [0, 1, 2, 3, 4, 5, 6],
+ polylines: [path],
+ showVerticalGuides: true,
+ };
+}
+
+function buildDenseSinePath(w: number, phase: number, amp: number, y0: number): { x: number; y: number }[] {
+ const pts: { x: number; y: number }[] = [];
+ for (let i = 0; i <= 110; i++) {
+ const x = (i / 110) * 6;
+ const y = y0 + amp * Math.sin((Math.PI * w * x) / 3 + phase);
+ pts.push({ x, y });
+ }
+ return pts;
+}
+
+function buildLinearDensePath(slope: number, intercept: number): { x: number; y: number }[] {
+ const pts: { x: number; y: number }[] = [];
+ for (let i = 0; i <= 72; i++) {
+ const x = (i / 72) * 6;
+ pts.push({ x, y: slope * x + intercept });
+ }
+ return pts;
+}
+
+function buildSineBumpFlanksPath(
+ xL: number,
+ xR: number,
+ peakY: number,
+ y0: number,
+ y6: number,
+): { x: number; y: number }[] {
+ const pts: { x: number; y: number }[] = [];
+ const push = (arr: { x: number; y: number }[]) => {
+ for (const p of arr) {
+ const last = pts[pts.length - 1];
+ if (last && Math.abs(last.x - p.x) < 1e-6 && Math.abs(last.y - p.y) < 1e-6) continue;
+ pts.push(p);
+ }
+ };
+ const span = Math.max(xR - xL, 1e-6);
+ push(calcLinSeg({ x: 0, y: y0 }, { x: xL, y: 0 }, 10));
+ for (let i = 0; i <= 44; i++) {
+ const t = i / 44;
+ const x = xL + t * (xR - xL);
+ const y = peakY * Math.sin((Math.PI * (x - xL)) / span);
+ pts.push({ x, y });
+ }
+ push(calcLinSeg({ x: xR, y: 0 }, { x: 6, y: y6 }, 10));
+ return pts;
+}
+
+/** Counts strict sign changes of f′ along a dense scan of (0, 6) (open-interval zeros). */
+function countFprimeZerosOpenInterval(pts: { x: number; y: number }[]): number {
+ let c = 0;
+ const lo = 0.02;
+ const hi = 5.98;
+ const dx = 0.012;
+ let prev = interpYSorted(pts, lo);
+ for (let x = lo + dx; x <= hi; x += dx) {
+ const v = interpYSorted(pts, x);
+ if (prev * v < 0) c++;
+ prev = v;
+ }
+ return c;
+}
+
+/** Graph of f′ (piecewise linear + quadratic); questions on extrema / critical numbers of f (AB/BC). */
+export function genCalcGraphFprimeLocalExtremum(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const mode = pick(rng, ["max", "min", "crit", "extrema"] as const);
+ const triple = pick(rng, SYMMETRIC_FPRIME_TRIPLES);
+ const ampL = pick(rng, SYM_AMP_CHOICES);
+ const ampR = pick(rng, SYM_AMP_CHOICES);
+ const tail = pick(rng, SYM_TAIL_CHOICES);
+ const path = buildSymmetricFprimePathForTriple(triple.z1, triple.z2, triple.z3, ampL, ampR, tail);
+ const z1 = triple.z1;
+ const z2 = triple.z2;
+ const z3 = triple.z3;
+ let stem: string;
+ let correct: string;
+ let expl: string;
+ if (mode === "max") {
+ stem = pick(rng, [
+ "The graph of f′ is shown. At which x-value in the open interval (0, 6) does f have a local maximum?",
+ "For the graph of f′ shown, f attains a local maximum at x =",
+ ]);
+ correct = `${z3}`;
+ expl = `f has a local maximum where f′ changes from positive to negative; on this graph that occurs at x = ${z3}.`;
+ } else if (mode === "min") {
+ stem = pick(rng, [
+ "The graph of f′ is shown. At which x-value in the open interval (0, 6) does f have a local minimum?",
+ "For the graph of f′ shown, f attains a local minimum at x =",
+ ]);
+ correct = `${z1}`;
+ expl = `f has a local minimum where f′ changes from negative to positive; on this graph that occurs at x = ${z1}.`;
+ } else if (mode === "crit") {
+ stem = pick(rng, [
+ "The graph of f′ is shown. How many critical numbers does f have on the open interval (0, 6)?",
+ "On (0, 6), how many critical numbers does f have, according to the graph of f′?",
+ ]);
+ correct = "3";
+ expl = `Critical numbers occur where f′(x) = 0 (and f is defined); here f′ is zero at x = ${z1}, x = ${z2}, and x = ${z3}.`;
+ } else {
+ stem = pick(rng, [
+ "The graph of f′ is shown. How many local extrema does f have on the open interval (0, 6)?",
+ "According to the graph of f′, how many local extrema does f have on (0, 6)?",
+ ]);
+ correct = "2";
+ expl = `Local extrema of f occur where f′ changes sign: at x = ${z1} (minimum) and x = ${z3} (maximum). At x = ${z2} the derivative touches 0 without a sign change, so it does not create another extremum of f.`;
+ }
+ const pool = ["0", "1", "2", "3", "4", "5", "6"].filter((s) => s !== correct);
+ const [w1, w2, w3] = pickThreeDistinctFromPool(rng, correct, pool);
+ const fig = calculusXyPlotFromPath(rng, path);
+ return mc(rng, ctx, i, "calc-xy-sym", stem, correct, w1, w2, w3, expl, {
+ figure: fig,
+ procedural_structure_id: `calc-xyplot-sym-${mode}-z${z1}${z2}${z3}-aL${ampL}-aR${ampR}-t${tail}`,
+ });
+}
+
+/** Graph of f′ (piecewise-linear template family); interval where f is increasing (AB/BC). */
+export function genCalcGraphFprimeIncreasingInterval(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const pathKind = pick(rng, ["zig", "sine", "bump"] as const);
+ let path: { x: number; y: number }[];
+ let idSuffix: string;
+ if (pathKind === "zig") {
+ const verts = pick(rng, ALL_ZIGZAG_VERTEX_TEMPLATES);
+ path = buildPathFromVertices(verts, 11);
+ const vid = verts
+ .map((p) => `${p[0]}_${p[1]}`)
+ .join("-")
+ .replace(/\./g, "p");
+ idSuffix = `zig-${hashString(vid).toString(36)}`;
+ } else if (pathKind === "sine") {
+ const w = pick(rng, [0.7, 0.9, 1.1, 1.35, 1.65, 2, 2.35, 2.7] as const);
+ const phase = rng() * Math.PI * 2;
+ const amp = pick(rng, [0.72, 0.86, 1, 1.14, 1.26] as const);
+ const y0 = pick(rng, [-0.12, 0, 0.1] as const);
+ path = buildDenseSinePath(w, phase, amp, y0);
+ idSuffix = `sine-w${w}-ph${Math.round(phase * 1000)}-a${amp}-y${y0}`;
+ } else {
+ const xL = pick(rng, [0.75, 0.95, 1.15, 1.35] as const);
+ const xR = pick(rng, [4.25, 4.55, 4.85, 5.15] as const);
+ const peakY = pick(rng, [0.68, 0.82, 0.96, 1.08, 1.22] as const);
+ const y0 = pick(rng, [-0.38, -0.22, 0.08, 0.28] as const);
+ const y6 = pick(rng, [-0.42, -0.18, 0, 0.2] as const);
+ path = buildSineBumpFlanksPath(xL, xR, peakY, y0, y6);
+ idSuffix = `bump-${xL}-${xR}-p${peakY}`;
+ }
+ const [ia, ib] = longestFpositiveIntervalInterior(path);
+ const correct = formatOpenIntervalPair(ia, ib);
+ const basin = [
+ "(0, 1)",
+ "(0, 2)",
+ "(1, 2)",
+ "(1, 3)",
+ "(2, 3)",
+ "(2, 4)",
+ "(3, 4)",
+ "(3, 5)",
+ "(4, 5)",
+ "(4, 6)",
+ "(5, 6)",
+ "(0.5, 2.5)",
+ "(2.5, 4.5)",
+ "(1, 4)",
+ "(2, 5)",
+ ];
+ const poolFiltered = basin.filter((s) => s !== correct);
+ const poolUse =
+ poolFiltered.length >= 3 ? poolFiltered : [...new Set([...basin, "(3, 6)"])].filter((s) => s !== correct);
+ const [w1, w2, w3] = pickThreeDistinctFromPool(rng, correct, poolUse);
+ const stem = pick(rng, [
+ "The graph of f′ is shown. On which open interval is f increasing?",
+ "According to the graph of f′, f is increasing on which open interval?",
+ ]);
+ const expl =
+ "f increases on an open interval where f′(x) > 0 throughout that interval; read where the graph lies strictly above the x-axis.";
+ const fig = calculusXyPlotFromPath(rng, path);
+ return mc(rng, ctx, i, "calc-xy-zig", stem, correct, w1, w2, w3, expl, {
+ figure: fig,
+ procedural_structure_id: `calc-xyplot-inc-${pathKind}-${idSuffix}`,
+ });
+}
+
+/** Symmetric f′ graph family; count x-intercepts of f′ on [0, 6] (AB/BC). */
+export function genCalcGraphFprimeXIntercepts(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const triple = pick(rng, SYMMETRIC_FPRIME_TRIPLES);
+ const ampL = pick(rng, SYM_AMP_CHOICES);
+ const ampR = pick(rng, SYM_AMP_CHOICES);
+ const tail = pick(rng, SYM_TAIL_CHOICES);
+ const path = buildSymmetricFprimePathForTriple(triple.z1, triple.z2, triple.z3, ampL, ampR, tail);
+ const stem = pick(rng, [
+ "The graph of f′ is shown. How many times does the graph of f′ intersect the x-axis on the closed interval [0, 6]?",
+ "On [0, 6], how many x-intercepts does the graph of f′ have?",
+ ]);
+ const correct = "3";
+ const pool = ["0", "1", "2", "4", "5", "6"];
+ const [w1, w2, w3] = pickThreeDistinctFromPool(rng, correct, pool);
+ const expl = `The graph meets the x-axis at x = ${triple.z1}, x = ${triple.z2}, and x = ${triple.z3}, so there are three intercepts on [0, 6].`;
+ const fig = calculusXyPlotFromPath(rng, path);
+ return mc(rng, ctx, i, "calc-xy-x0", stem, correct, w1, w2, w3, expl, {
+ figure: fig,
+ procedural_structure_id: `calc-xyplot-sym-xint-z${triple.z1}${triple.z2}${triple.z3}-aL${ampL}-aR${ampR}-t${tail}`,
+ });
+}
+
+/** Smooth / piecewise-linear / bump graphs; count open-interval zeros of f′ (AB/BC). */
+export function genCalcGraphFprimeZerosOpenInterval(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ let path: { x: number; y: number }[] = buildLinearDensePath(1, -3);
+ let idSuffix = "init";
+ let nz = 0;
+ for (let attempt = 0; attempt < 36; attempt++) {
+ const kind = pick(rng, ["sine", "linear", "zig", "bump"] as const);
+ if (kind === "sine") {
+ const w = pick(rng, [1, 1.2, 1.45, 1.7, 2, 2.3, 2.6, 2.9, 3.2] as const);
+ const phase = rng() * Math.PI * 2;
+ const amp = pick(rng, [0.75, 0.88, 1, 1.12, 1.24] as const);
+ const y0 = pick(rng, [-0.14, 0, 0.11] as const);
+ path = buildDenseSinePath(w, phase, amp, y0);
+ idSuffix = `sin-w${w}-ph${Math.round(phase * 1000)}`;
+ } else if (kind === "linear") {
+ const x0 = randInt(rng, 1, 5);
+ const m = pick(rng, [-1.15, -0.9, -0.65, 0.6, 0.85, 1.1] as const);
+ const b = -m * x0;
+ path = buildLinearDensePath(m, b);
+ idSuffix = `lin-x${x0}-m${m}`;
+ } else if (kind === "zig") {
+ const verts = pick(rng, ALL_ZIGZAG_VERTEX_TEMPLATES);
+ path = buildPathFromVertices(verts, 12);
+ idSuffix = `zig-${hashString(JSON.stringify(verts)).toString(36)}`;
+ } else {
+ const xL = pick(rng, [0.85, 1.05, 1.25] as const);
+ const xR = pick(rng, [4.35, 4.65, 4.95] as const);
+ const peakY = pick(rng, [0.74, 0.9, 1.05, 1.18] as const);
+ const y0 = pick(rng, [-0.32, -0.12, 0.18] as const);
+ const y6 = pick(rng, [-0.36, -0.08, 0.12] as const);
+ path = buildSineBumpFlanksPath(xL, xR, peakY, y0, y6);
+ idSuffix = `bump-${xL}-${xR}`;
+ }
+ nz = countFprimeZerosOpenInterval(path);
+ if (nz >= 1 && nz <= 6) break;
+ }
+ if (nz < 1 || nz > 6) {
+ path = buildLinearDensePath(1, -3);
+ nz = 1;
+ idSuffix = "lin-fallback";
+ }
+ const correct = `${nz}`;
+ const pool = ["0", "1", "2", "3", "4", "5", "6", "7"].filter((s) => s !== correct);
+ const [w1, w2, w3] = pickThreeDistinctFromPool(rng, correct, pool);
+ const stem = pick(rng, [
+ "The graph of f′ is shown. How many values of x in the open interval (0, 6) satisfy f′(x) = 0?",
+ "According to the graph of f′, how many distinct solutions does f′(x) = 0 have on (0, 6)?",
+ ]);
+ const expl =
+ "Each solution corresponds to a crossing of the x-axis (a sign change of f′) on the open interval; count crossings in the window shown.";
+ const fig = calculusXyPlotFromPath(rng, path);
+ return mc(rng, ctx, i, "calc-xy-nz", stem, correct, w1, w2, w3, expl, {
+ figure: fig,
+ procedural_structure_id: `calc-xyplot-nz-${nz}-${hashString(idSuffix).toString(36)}`,
+ });
+}
+
+/** Straight-line graph of f′ with one interior zero; critical numbers of f on (0, 6) (AB/BC). */
+export function genCalcGraphFprimeLinearCritical(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const x0 = randInt(rng, 1, 5);
+ const m = pick(rng, [-1.2, -0.95, -0.7, 0.65, 0.9, 1.15] as const);
+ const b = -m * x0;
+ const path = buildLinearDensePath(m, b);
+ const stem = pick(rng, [
+ "The graph of f′ is shown and is a straight line. How many critical numbers does f have on the open interval (0, 6)?",
+ "For the linear graph of f′ shown, how many critical numbers does f have on (0, 6)?",
+ ]);
+ const correct = "1";
+ const pool = ["0", "2", "3", "4", "5", "6"];
+ const [w1, w2, w3] = pickThreeDistinctFromPool(rng, correct, pool);
+ const expl =
+ "f is differentiable with f′ a nonhorizontal line, so f′(x) = 0 exactly once on ℝ; that x-value lies in (0, 6) here, giving one critical number of f on the interval.";
+ const fig = calculusXyPlotFromPath(rng, path);
+ return mc(rng, ctx, i, "calc-xy-lin", stem, correct, w1, w2, w3, expl, {
+ figure: fig,
+ procedural_structure_id: `calc-xyplot-lin-crit-x${x0}-m${m}`,
+ });
 }
 
 /** Volume of revolution setup — disk method (conceptual, Unit 8). */
@@ -3219,6 +3931,11 @@ const CALC_NO_CALCULATOR_SECTION: QuestionGen[] = [
  genHorizontalAsymptoteRationalDegrees,
  genSeparableFormRecognize,
  genSlopeFieldDeMatch,
+ genCalcGraphFprimeLocalExtremum,
+ genCalcGraphFprimeIncreasingInterval,
+ genCalcGraphFprimeXIntercepts,
+ genCalcGraphFprimeZerosOpenInterval,
+ genCalcGraphFprimeLinearCritical,
  genVolumeDiskIntegralSetup,
  genZScoreConcept,
  genMeanSimple,
@@ -3258,6 +3975,8 @@ const CALC_AB_UNIT_POOLS: QuestionGen[][] = [
  genDerivativePower,
  genCompositionValue,
  genLinearSlopeTwoPoints,
+ genCalcGraphFprimeIncreasingInterval,
+ genCalcGraphFprimeZerosOpenInterval,
  ],
  // 5 — Analytical applications (extrema, concavity, optimization framing)
  [
@@ -3266,6 +3985,10 @@ const CALC_AB_UNIT_POOLS: QuestionGen[][] = [
  genLinearSlopeTwoPoints,
  genTrigSpecial,
  genLimitLinear,
+ genCalcGraphFprimeLocalExtremum,
+ genCalcGraphFprimeXIntercepts,
+ genCalcGraphFprimeZerosOpenInterval,
+ genCalcGraphFprimeLinearCritical,
  ],
  // 6 — Integration & FTC
  [
@@ -3274,6 +3997,9 @@ const CALC_AB_UNIT_POOLS: QuestionGen[][] = [
  genMeanSimple,
  genZScoreConcept,
  genDerivativePower,
+ genCalcGraphFprimeXIntercepts,
+ genCalcGraphFprimeZerosOpenInterval,
+ genCalcGraphFprimeLinearCritical,
  ],
  // 7 — Differential equations
  [

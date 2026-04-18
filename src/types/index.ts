@@ -233,6 +233,26 @@ export type ExamFigure =
 			segments: { x: number; y: number; dyDx: number }[];
 	  }
 	| {
+			/** Numeric \\(xy\\)-plane plot for AP Calculus (graph of \\(f'\\), piecewise paths, etc.). */
+			kind: "calculus_xy_plot";
+			title?: string;
+			note?: string;
+			caption?: string;
+			xLabel?: string;
+			yLabel?: string;
+			xMin: number;
+			xMax: number;
+			yMin: number;
+			yMax: number;
+			/** Tick marks on the horizontal axis (defaults to integer steps if omitted in renderer). */
+			xTicks?: number[];
+			yTicks?: number[];
+			/** Each entry is one connected polyline in the same coordinate system. */
+			polylines: { x: number; y: number }[][];
+			/** Faint vertical guides at integer \\(x\\) (College Board–style framing). */
+			showVerticalGuides?: boolean;
+	  }
+	| {
 			kind: "urban_land_use_model";
 			title?: string;
 			note?: string;

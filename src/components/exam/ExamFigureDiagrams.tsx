@@ -7,6 +7,7 @@ import { axisTicks, formatAxisNumber } from "./figureAxisUtils";
 import {
 	BiologyCrossingOverFigure,
 	CalculusAreaVerticalFigure,
+	CalculusXyPlotFigure,
 	GroupedBarChartFigure,
 	NeuronActionPotentialFigure,
 	PhysicsPendulumFigure,
@@ -704,6 +705,8 @@ export function SpecialExamFigure({ figure }: { figure: NonCoreExamFigure }) {
 			return <GroupedBarChartFigure figure={figure} />;
 		case "calculus_area_vertical":
 			return <CalculusAreaVerticalFigure figure={figure} />;
+		case "calculus_xy_plot":
+			return <CalculusXyPlotFigure figure={figure} />;
 		case "polar_area_cartesian":
 			return <PolarAreaCartesianFigure figure={figure} />;
 		case "slope_field":
