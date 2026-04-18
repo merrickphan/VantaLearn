@@ -220,6 +220,19 @@ export type ExamFigure =
 			innerRCos: number;
 	  }
 	| {
+			/** Direction field for a first-order ODE on a rectangular grid (AP Calc differential equations). */
+			kind: "slope_field";
+			title?: string;
+			note?: string;
+			xLabel?: string;
+			yLabel?: string;
+			xMin: number;
+			xMax: number;
+			yMin: number;
+			yMax: number;
+			segments: { x: number; y: number; dyDx: number }[];
+	  }
+	| {
 			kind: "urban_land_use_model";
 			title?: string;
 			note?: string;

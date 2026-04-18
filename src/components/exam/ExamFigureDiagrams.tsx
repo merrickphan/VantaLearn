@@ -11,6 +11,7 @@ import {
 	NeuronActionPotentialFigure,
 	PhysicsPendulumFigure,
 	PolarAreaCartesianFigure,
+	SlopeFieldFigure,
 	SynapseSchematicFigure,
 	UrbanLandUseModelFigure,
 } from "./ExamFigureApExtensions";
@@ -705,6 +706,8 @@ export function SpecialExamFigure({ figure }: { figure: NonCoreExamFigure }) {
 			return <CalculusAreaVerticalFigure figure={figure} />;
 		case "polar_area_cartesian":
 			return <PolarAreaCartesianFigure figure={figure} />;
+		case "slope_field":
+			return <SlopeFieldFigure figure={figure} />;
 		case "urban_land_use_model":
 			return <UrbanLandUseModelFigure figure={figure} />;
 		case "physics_pendulum":

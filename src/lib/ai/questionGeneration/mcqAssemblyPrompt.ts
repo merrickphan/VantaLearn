@@ -17,8 +17,9 @@ function courseExamStyleRules(courseId: string | undefined): string {
 			return `- AP Chemistry: use M for molarity, mol, L, and vocabulary aligned with the AP Chemistry Course and Exam Description.`;
 		case "calc-ab":
 		case "calc-bc":
+			return `- AP Calculus: standard prime / Leibniz notation as on AP exams; avoid calculator-specific syntax unless the stem is about technology.\n- Match the selected unit’s scope (limits, derivatives, integration, differential equations, etc.); do not assess BC-only topics on Calc AB items.\n- Do not center items on bare numerical exponent evaluation (for example “compute 5^3” or “what is 2^8”) unless embedded in substantive calculus context (limits, series terms with index n, etc.).\n- For first-order differential equations (especially AP Calculus AB differential-equations units), slope-field items must pair a field with answer choices so exactly one equation matches segment directions and nullcline locations (where dy/dx = 0).`;
 		case "precalc":
-			return `- AP Calculus / Precalculus: standard prime / Leibniz notation as on AP exams; avoid calculator-specific syntax unless the stem is about technology.\n- Match the selected unit’s scope (limits, derivatives, integration, differential equations, etc.); do not assess BC-only topics on Calc AB items.`;
+			return `- AP Precalculus: standard notation as on AP exams; avoid calculator-specific syntax unless the stem is about technology.\n- Match the selected unit’s scope (functions, modeling, trigonometry, polar/parametric, vectors, sequences, probability, etc.).`;
 		case "stats":
 			return `- AP Statistics: use vocabulary from the CED (e.g., experimental units, inference conditions, interpret context).`;
 		default:

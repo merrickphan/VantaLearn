@@ -16,6 +16,7 @@ import type { SubjectConfig } from "@/lib/ai/questionGeneration/types";
 function figureVariableCount(fig: ExamFigure): number {
 	if (fig.kind === "bar_chart") return 2;
 	if (fig.kind === "line_chart") return 2;
+	if (fig.kind === "slope_field") return 2;
 	if (fig.kind === "table") return Math.max(1, fig.headers.length);
 	return 1;
 }

@@ -8,6 +8,7 @@ import { axisTicks, formatAxisNumber } from "./figureAxisUtils";
 type GbFig = Extract<ExamFigure, { kind: "grouped_bar_chart" }>;
 type CavFig = Extract<ExamFigure, { kind: "calculus_area_vertical" }>;
 type PacFig = Extract<ExamFigure, { kind: "polar_area_cartesian" }>;
+type SfFig = Extract<ExamFigure, { kind: "slope_field" }>;
 type UrbFig = Extract<ExamFigure, { kind: "urban_land_use_model" }>;
 type PenFig = Extract<ExamFigure, { kind: "physics_pendulum" }>;
 type BioXFig = Extract<ExamFigure, { kind: "biology_crossing_over" }>;
@@ -607,6 +608,89 @@ export function NeuronActionPotentialFigure({ figure }: { figure: NapFig }) {
 					mV
 				</text>
 			</svg>
+		</div>
+	);
+}
+
+export function SlopeFieldFigure({ figure }: { figure: SfFig }) {
+	const xMin = figure.xMin;
+	const xMax = figure.xMax;
+	const yMin = figure.yMin;
+	const yMax = figure.yMax;
+	const spanX = xMax - xMin || 1;
+	const spanY = yMax - yMin || 1;
+
+	const w = 440;
+	const h = 400;
+	const pad = { t: 28, r: 28, b: 56, l: 58 };
+	const innerW = w - pad.l - pad.r;
+	const innerH = h - pad.t - pad.b;
+
+	const xPix = (xv: number) => pad.l + ((xv - xMin) / spanX) * innerW;
+	const yPix = (yv: number) => pad.t + innerH - ((yv - yMin) / spanY) * innerH;
+
+	const xTicks = axisTicks(xMin, xMax, Math.min(9, Math.max(5, Math.abs(xMax - xMin) + 1)));
+	const yTicks = axisTicks(yMin, yMax, Math.min(9, Math.max(5, Math.abs(yMax - yMin) + 1)));
+
+	const axisStroke = "rgba(148,163,184,0.65)";
+	const gridStroke = "rgba(148,163,184,0.2)";
+	const segStroke = "rgba(51,65,85,0.88)";
+
+	return (
+		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+			<TitleBlock title={figure.title} />
+			{figure.note && (
+				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">
+					<MathText text={figure.note} />
+				</p>
+			)}
+			<svg viewBox={`0 0 ${w} ${h}`} className="w-full max-h-96" role="img" aria-label={figure.title ?? "Slope field"}>
+				{yTicks.map((tv) => {
+					const yy = yPix(tv);
+					return (
+						<g key={`sfgy-${tv}`}>
+							<line x1={pad.l} y1={yy} x2={w - pad.r} y2={yy} stroke={gridStroke} strokeWidth={tv === 0 ? 1.25 : 1} />
+							<text x={pad.l - 6} y={yy + 3} textAnchor="end" className="fill-vanta-muted" style={{ fontSize: 10 }}>
+								{formatAxisNumber(tv)}
+							</text>
+						</g>
+					);
+				})}
+				{xTicks.map((tv) => {
+					const xx = xPix(tv);
+					return (
+						<g key={`sfgx-${tv}`}>
+							<line x1={xx} y1={pad.t} x2={xx} y2={h - pad.b} stroke={gridStroke} strokeWidth={tv === 0 ? 1.25 : 1} />
+							<text x={xx} y={h - pad.b + 16} textAnchor="middle" className="fill-vanta-muted" style={{ fontSize: 10 }}>
+								{formatAxisNumber(tv)}
+							</text>
+						</g>
+					);
+				})}
+				<line x1={pad.l} y1={yPix(0)} x2={w - pad.r} y2={yPix(0)} stroke={axisStroke} strokeWidth={1.5} />
+				<line x1={xPix(0)} y1={pad.t} x2={xPix(0)} y2={h - pad.b} stroke={axisStroke} strokeWidth={1.5} />
+				{figure.segments.map((s, idx) => {
+					const m = Math.max(-36, Math.min(36, s.dyDx));
+					const t = Math.hypot(1, m);
+					const dxm = 0.32 / t;
+					const dym = (m * 0.32) / t;
+					const x0 = xPix(s.x - dxm);
+					const y0 = yPix(s.y - dym);
+					const x1 = xPix(s.x + dxm);
+					const y1 = yPix(s.y + dym);
+					return <line key={`sf-${idx}-${s.x}-${s.y}`} x1={x0} y1={y0} x2={x1} y2={y1} stroke={segStroke} strokeWidth={1.15} strokeLinecap="round" />;
+				})}
+			</svg>
+			{figure.yLabel && (
+				<p className="text-[10px] text-vanta-muted mt-1">
+					<MathText text={figure.yLabel} />
+				</p>
+			)}
+			{figure.xLabel && (
+				<p className="text-[10px] text-vanta-muted mt-0.5 text-center">
+					<MathText text={figure.xLabel} />
+				</p>
+			)}
 		</div>
 	);
 }

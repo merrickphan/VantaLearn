@@ -585,6 +585,142 @@ export function genSeparableFormRecognize(rng: () => number, ctx: ProcCtx, i: nu
  );
 }
 
+/** Expanded form of dy/dx = (x - h)(y - k) with integer h, k (AP-style product DE). */
+function formatDyDxExpandedProduct(h: number, k: number): string {
+ const cx = -k;
+ const cy = -h;
+ const c0 = h * k;
+ let s = "dy/dx = xy";
+ if (cx !== 0) {
+ if (cx === 1) s += " + x";
+ else if (cx === -1) s += " - x";
+ else if (cx > 0) s += ` + ${cx}x`;
+ else s += ` - ${-cx}x`;
+ }
+ if (cy !== 0) {
+ if (cy === 1) s += " + y";
+ else if (cy === -1) s += " - y";
+ else if (cy > 0) s += ` + ${cy}y`;
+ else s += ` - ${-cy}y`;
+ }
+ if (c0 !== 0) {
+ if (c0 > 0) s += ` + ${c0}`;
+ else s += ` - ${-c0}`;
+ }
+ return s;
+}
+
+function formatDyDxXminusH(h: number): string {
+ if (h === 0) return "dy/dx = x";
+ if (h > 0) return `dy/dx = x - ${h}`;
+ return `dy/dx = x + ${-h}`;
+}
+
+function formatDyDxYminusK(k: number): string {
+ if (k === 0) return "dy/dx = y";
+ if (k > 0) return `dy/dx = y - ${k}`;
+ return `dy/dx = y + ${-k}`;
+}
+
+const SLOPE_FIELD_HK = [
+ { h: -1, k: -1 },
+ { h: 1, k: -1 },
+ { h: -1, k: 1 },
+ { h: 1, k: 1 },
+ { h: -2, k: 1 },
+ { h: 1, k: -2 },
+ { h: 2, k: -1 },
+ { h: -1, k: 2 },
+] as const;
+
+function slopeFieldF(h: number, k: number): (x: number, y: number) => number {
+ return (x, y) => (x - h) * (y - k);
+}
+
+function pickThreeSlopeDistractors(
+ rng: () => number,
+ h: number,
+ k: number,
+ correct: string,
+): [string, string, string] {
+ const raw = [
+ formatDyDxExpandedProduct(0, k),
+ formatDyDxExpandedProduct(h, 0),
+ formatDyDxXminusH(h),
+ formatDyDxYminusK(k),
+ ];
+ const uniq = [...new Set(raw.filter((s) => s !== correct))];
+ shuffleInPlace(rng, uniq);
+ if (uniq.length >= 3) return [uniq[0]!, uniq[1]!, uniq[2]!];
+ const pad = [
+ "dy/dx = x^2 + y^2",
+ "dy/dx = xy^2",
+ "dy/dx = x + y",
+ "dy/dx = e^(x + y)",
+ ];
+ for (const p of pad) {
+ if (p !== correct && !uniq.includes(p)) uniq.push(p);
+ }
+ shuffleInPlace(rng, uniq);
+ return [uniq[0]!, uniq[1]!, uniq[2]!];
+}
+
+/**
+ * Slope field for dy/dx = (x - h)(y - k): match the figure to the expanded equation (Calc AB Unit 7).
+ */
+export function genSlopeFieldDeMatch(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const { h, k } = pick(rng, SLOPE_FIELD_HK);
+ const F = slopeFieldF(h, k);
+ const spread = numericSpreadForCtx(ctx);
+ const lim = spread === "tight" ? 3 : spread === "wide" ? 4 : 3;
+ const xMin = -lim;
+ const xMax = lim;
+ const yMin = -lim;
+ const yMax = lim;
+ const segments: { x: number; y: number; dyDx: number }[] = [];
+ for (let x = xMin; x <= xMax; x++) {
+ for (let y = yMin; y <= yMax; y++) {
+ segments.push({ x, y, dyDx: F(x, y) });
+ }
+ }
+ const correct = formatDyDxExpandedProduct(h, k);
+ const [w1, w2, w3] = pickThreeSlopeDistractors(rng, h, k, correct);
+ const stem = pick(rng, [
+ "Shown above is a slope field for which of the following differential equations?",
+ "The slope field shown corresponds to which differential equation below?",
+ "Which differential equation matches the direction field shown above?",
+ ]);
+ const fig: ExamFigure = {
+ kind: "slope_field",
+ title: pick(rng, ["Figure 1. Slope field", "Slope field for a first-order equation", "Direction field (segment slopes)"]),
+ note: "Segment lengths are not to scale; slope direction is what matters.",
+ xLabel: "x",
+ yLabel: "y",
+ xMin,
+ xMax,
+ yMin,
+ yMax,
+ segments,
+ };
+ const expl = `Slopes satisfy dy/dx = (x - ${h})(y - ${k}), so dy/dx = 0 along the vertical line x = ${h} and the horizontal line y = ${k}. Expanding gives ${correct.replace(/^dy\/dx = /, "")}.`;
+ return mc(
+ rng,
+ ctx,
+ i,
+ "slope-de",
+ stem,
+ correct,
+ w1,
+ w2,
+ w3,
+ expl,
+ {
+ figure: fig,
+ procedural_structure_id: `calc-slopefield-h${h}-k${k}`,
+ },
+ );
+}
+
 /** Volume of revolution setup — disk method (conceptual, Unit 8). */
 export function genVolumeDiskIntegralSetup(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const stem = pick(rng, [
@@ -3051,7 +3187,6 @@ const CALC: QuestionGen[] = [
  genIntegralPower,
  genCompositionValue,
  genLinearSlopeTwoPoints,
- genSmallIntegerPowerEval,
  genTrigSpecial,
  genRationalLimitRemovable,
  genContinuityConceptMcq,
@@ -3066,7 +3201,7 @@ const CALC: QuestionGen[] = [
 
 /**
  * AP-style no-calculator MCQ mix: symbolic calculus, light composition, exact trig,
- * integer powers, slope / limits / continuity / IVT / FTC recognition, and z-score form (no heavy means).
+ * slope / limits / continuity / IVT / FTC recognition, and z-score form (no heavy means).
  */
 const CALC_NO_CALCULATOR_SECTION: QuestionGen[] = [
  genDerivativePower,
@@ -3074,7 +3209,6 @@ const CALC_NO_CALCULATOR_SECTION: QuestionGen[] = [
  genIntegralPower,
  genCompositionValue,
  genLinearSlopeTwoPoints,
- genSmallIntegerPowerEval,
  genTrigSpecial,
  genRationalLimitRemovable,
  genContinuityConceptMcq,
@@ -3084,6 +3218,7 @@ const CALC_NO_CALCULATOR_SECTION: QuestionGen[] = [
  genFtcPartOneValue,
  genHorizontalAsymptoteRationalDegrees,
  genSeparableFormRecognize,
+ genSlopeFieldDeMatch,
  genVolumeDiskIntegralSetup,
  genZScoreConcept,
  genMeanSimple,
@@ -3099,14 +3234,12 @@ const CALC_AB_UNIT_POOLS: QuestionGen[][] = [
  genContinuityConceptMcq,
  genIvTSignChange,
  genHorizontalAsymptoteRationalDegrees,
- genSmallIntegerPowerEval,
  ],
  // 2 — Derivative definition & basic rules
  [
  genDerivativePower,
  genLinearSlopeTwoPoints,
  genAvgVelocitySquaredPosition,
- genSmallIntegerPowerEval,
  genTrigSpecial,
  genContinuityConceptMcq,
  ],
@@ -3145,10 +3278,10 @@ const CALC_AB_UNIT_POOLS: QuestionGen[][] = [
  // 7 — Differential equations
  [
  genSeparableFormRecognize,
+ genSlopeFieldDeMatch,
  genDerivativePower,
  genIntegralPower,
  genLimitLinear,
- genSmallIntegerPowerEval,
  ],
  // 8 — Applications of integration
  [
@@ -3192,8 +3325,13 @@ const CALC_BC_UNIT_POOLS: QuestionGen[][] = [
  CALC_AB_UNIT_POOLS[4]!,
  // 6 — Integration & FTC
  CALC_AB_UNIT_POOLS[5]!,
- // 7 — Differential equations
- CALC_AB_UNIT_POOLS[6]!,
+ // 7 — Differential equations (procedural slope-field items are AB-only)
+ [
+ genSeparableFormRecognize,
+ genDerivativePower,
+ genIntegralPower,
+ genLimitLinear,
+ ],
  // 8 — Applications of integration
  CALC_AB_UNIT_POOLS[7]!,
  // 9 — Parametric / polar / vector
@@ -3210,7 +3348,6 @@ const CALC_BC_UNIT_POOLS: QuestionGen[][] = [
   genDivergenceTest,
   genPSeriesClassification,
   genRatioTestConcept,
-  genSmallIntegerPowerEval,
  ],
  // 11 — Advanced integration techniques
  [
