@@ -127,7 +127,10 @@ export function ExamRasterizedBlock({ children, syncKey, className, alt, decorat
 	const showImg = dataUrl && !failed;
 
 	return (
-		<div ref={wrapRef} className={`relative w-full min-w-0 overflow-hidden rounded-sm ${className ?? ""}`}>
+		<div
+			ref={wrapRef}
+			className={`exam-katex-body relative w-full min-w-0 overflow-hidden rounded-sm ${className ?? ""}`}
+		>
 			<div
 				ref={sourceRef}
 				className="pointer-events-none absolute left-0 top-0 z-0 box-border w-full bg-[var(--vanta-surface)] p-0 font-sans text-[15px] leading-relaxed text-[var(--vanta-text)] antialiased opacity-0"

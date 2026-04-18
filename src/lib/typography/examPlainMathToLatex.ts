@@ -1,6 +1,8 @@
 /**
  * Upgrades plain-text / ASCII math strings to KaTeX-friendly inline math so
  * √(3), fractions, ∑, lim, etc. render as symbols (not typed "sqrt" or "sigma").
+ * Mixed English + math is split so prose uses \\text{...} (spaces preserved) and
+ * formulas stay in math mode — avoids "ThevalueofF'(5)is" squishing.
  * Strings that already contain `\\(` / `\\[` are returned unchanged.
  */
 
@@ -15,7 +17,17 @@ function escapeLatexTextMode(s: string): string {
 		.replace(/~/g, "\\textasciitilde ");
 }
 
-/** Non-greedy sqrt( … ) without nested parens inside. */
+/** Insert spaces so glued prose (dt.Thevalueof, )is) can be split for \\text grouping. */
+function insertLiterateSeparators(s: string): string {
+	let t = s.trim();
+	t = t.replace(/\)([A-Za-z])/g, ") $1");
+	t = t.replace(/([.?!])([A-Za-z])/g, "$1 $2");
+	t = t.replace(/([a-z0-9])([A-Z])/g, "$1 $2");
+	t = t.replace(/([a-zA-Z])(')(\()/g, "$1$2 $3");
+	t = t.replace(/([a-zA-Z])(\()/g, "$1 $2");
+	return t.replace(/\s+/g, " ").trim();
+}
+
 function replaceAsciiSqrt(s: string): string {
 	return s.replace(/sqrt\s*\(\s*([^()]+)\s*\)/gi, (_m, inner: string) => {
 		return `\\sqrt{${String(inner).trim()}}`;
@@ -66,15 +78,9 @@ function replaceSigmaWord(s: string): string {
 	return s.replace(/\bSigma\b/g, "\\sum").replace(/\bsigma\b(?=\s*[\[_(=])/g, "\\sum");
 }
 
-/**
- * If `s` has no `\\(` / `\\[` delimiters, wrap converted body as one inline KaTeX block.
- */
-export function latexifyExamPlainMath(s: string): string {
-	const raw = s ?? "";
-	if (!raw.trim()) return raw;
-	if (HAS_DELIM.test(raw)) return raw;
-
-	let t = raw.trim();
+/** All symbol upgrades used for both whole-string and per-token paths. */
+function applyExamMathTransforms(s: string): string {
+	let t = s.trim();
 	t = replaceUnicodeSqrt(t);
 	t = replaceAsciiSqrt(t);
 	t = replaceDyDx(t);
@@ -83,13 +89,74 @@ export function latexifyExamPlainMath(s: string): string {
 	t = replaceLimKeyword(t);
 	t = replaceSimpleNumericFractions(t);
 	t = replaceCarets(t);
-
 	t = t.replace(/→/g, "\\to ");
 	t = t.replace(/\binfty\b/gi, "\\infty");
 	t = t.replace(/\bpi\b/g, "\\pi");
-
 	t = t.replace(/\\lim\s*\(\s*([a-zA-Z])\s*\\to\s*\\infty\s*\)/gi, "\\lim_{$1\\to\\infty}");
 	t = t.replace(/\\lim\s+([a-zA-Z])\s*\\to\s*\\infty/gi, "\\lim_{$1\\to\\infty}");
+	return t;
+}
+
+function wordLooksLikeMathToken(w: string): boolean {
+	if (!w) return false;
+	if (/[0-9]/.test(w)) return true;
+	if (/[+\-*/=<>≤≥≠≈]/.test(w)) return true;
+	if (/[()[\]{}]/.test(w)) return true;
+	if (/'/.test(w)) return true;
+	if (/[_^\\]/.test(w)) return true;
+	if (/sqrt|frac|lim|sum|prod|int|sin|cos|tan|sec|csc|cot|ln|log|exp|arcsin|arccos|arctan|pi|theta|infty|sigma|Sigma|∫|∑|π|∞|\u221e|\u03c0|→/.test(w)) return true;
+	if (/^d[xy]\/?d[xy]$/i.test(w)) return true;
+	if (w.length === 1 && /^[xtnrhkuvcpsm]$/i.test(w)) return true;
+	return false;
+}
+
+/**
+ * Build `\\(\\displaystyle ... \\)` from space-separated tokens: prose → `\\text{}`, math → transformed chunk.
+ */
+function latexifyByWords(spaced: string): string {
+	const words = spaced.split(/\s+/).filter(Boolean);
+	const pieces: string[] = [];
+	let textBuf: string[] = [];
+
+	const flushText = () => {
+		if (textBuf.length === 0) return;
+		pieces.push(`\\text{${escapeLatexTextMode(textBuf.join(" "))}}`);
+		textBuf = [];
+	};
+
+	for (const w of words) {
+		if (wordLooksLikeMathToken(w)) {
+			flushText();
+			pieces.push(applyExamMathTransforms(w));
+		} else {
+			textBuf.push(w);
+		}
+	}
+	flushText();
+
+	if (pieces.length === 0) {
+		return `\\(\\displaystyle \\text{${escapeLatexTextMode(spaced)}}\\)`;
+	}
+	return `\\(\\displaystyle ${pieces.join("\\,")}\\)`;
+}
+
+/**
+ * If `s` has no `\\(` / `\\[` delimiters, wrap converted body as one inline KaTeX block.
+ */
+export function latexifyExamPlainMath(s: string): string {
+	const raw = s ?? "";
+	if (!raw.trim()) return raw;
+	if (HAS_DELIM.test(raw)) return raw;
+
+	const loosened = insertLiterateSeparators(raw);
+	const words = loosened.split(/\s+/).filter(Boolean);
+
+	if (words.length >= 2) {
+		return latexifyByWords(loosened);
+	}
+
+	const single = loosened;
+	let t = applyExamMathTransforms(single);
 
 	const looksLikeProseOnly =
 		!/[\\$^_{}]/.test(t) && /[A-Za-z]{3,}/.test(t) && !/^\(?[0-9.,\s]+\)?$/.test(t);

@@ -479,11 +479,14 @@ html[data-theme="dark"] {
  transform: scale(0.97);
 }
 
-/* KaTeX inside MCQ choice buttons: readable size, no extra display margins */
-.exam-mcq-option-math .katex {
- font-size: 1.05em;
+/* Exam stems + MCQ choices (raster source): same sans + 15px as question body */
+.exam-katex-body .katex {
+ font: 400 15px/1.45 var(--font-geist-sans), system-ui, sans-serif;
 }
-.exam-mcq-option-math .katex-display {
+.exam-katex-body .katex .mtext {
+ font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+.exam-katex-body .katex-display {
  margin: 0;
 }
 
