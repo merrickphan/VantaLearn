@@ -1,6 +1,7 @@
 import katex from "katex";
 import type { ReactNode } from "react";
 import { formatNiceMath } from "@/lib/typography/niceMath";
+import { hasLatexDelimiters, latexifyExamPlainMath } from "@/lib/typography/examPlainMathToLatex";
 
 type MathTextProps = {
 	text: string | null | undefined;
@@ -9,6 +10,11 @@ type MathTextProps = {
 	 * This is helpful for things like `km^2 → km²` outside math delimiters.
 	 */
 	prettifyText?: boolean;
+	/**
+	 * Exam MCQ / calc: if the string has no `\\(` delimiters, upgrade sqrt, fractions, Σ, lim, etc.
+	 * to real LaTeX and wrap in `\\( \\displaystyle … \\)` so KaTeX renders symbols correctly.
+	 */
+	examMath?: boolean;
 };
 
 const INLINE_RE = /\\\(([\s\S]+?)\\\)/g;
@@ -34,13 +40,16 @@ function renderKatexToHtml(src: string, displayMode: boolean): string {
  * - inline: `\\( ... \\)`
  * - display: `\\[ ... \\]`
  */
-export function MathText({ text, prettifyText = true }: MathTextProps) {
+export function MathText({ text, prettifyText = true, examMath = false }: MathTextProps) {
 	const raw = text ?? "";
 	if (!raw) return null;
 
-	// Fast path: no LaTeX delimiters detected.
-	if (!INLINE_RE.test(raw) && !DISPLAY_RE.test(raw)) {
-		return <>{prettifyText ? formatNiceMath(raw) : raw}</>;
+	const processed =
+		examMath && !hasLatexDelimiters(raw) ? latexifyExamPlainMath(raw) : raw;
+
+	// Fast path: no LaTeX delimiters detected (use fresh check; global regex .test() mutates lastIndex).
+	if (!hasLatexDelimiters(processed)) {
+		return <>{prettifyText ? formatNiceMath(processed) : processed}</>;
 	}
 
 	ANY_RE.lastIndex = 0;
@@ -48,10 +57,10 @@ export function MathText({ text, prettifyText = true }: MathTextProps) {
 	let last = 0;
 	let match: RegExpExecArray | null;
 
-	while ((match = ANY_RE.exec(raw))) {
+	while ((match = ANY_RE.exec(processed))) {
 		const idx = match.index;
 		if (idx > last) {
-			const chunk = raw.slice(last, idx);
+			const chunk = processed.slice(last, idx);
 			out.push(<span key={`t-${last}`}>{prettifyText ? formatNiceMath(chunk) : chunk}</span>);
 		}
 
@@ -72,8 +81,8 @@ export function MathText({ text, prettifyText = true }: MathTextProps) {
 		last = idx + match[0].length;
 	}
 
-	if (last < raw.length) {
-		const tail = raw.slice(last);
+	if (last < processed.length) {
+		const tail = processed.slice(last);
 		out.push(<span key={`t-${last}`}>{prettifyText ? formatNiceMath(tail) : tail}</span>);
 	}
 

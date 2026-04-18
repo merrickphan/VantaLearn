@@ -11,10 +11,14 @@ import { DesmosCalculatorDock } from "@/components/study/DesmosCalculatorDock";
 import { Button, Card, Badge, ProgressBar, Textarea, Spinner } from "@/components/ui";
 import { calculateAPScore } from "@/lib/calculateAPScore";
 import { ExamFigure } from "@/components/exam/ExamFigure";
+import { ExamRasterizedBlock } from "@/components/exam/ExamRasterizedBlock";
+import { ExamRasterLine, ExamRasterMath } from "@/components/exam/ExamRasterMath";
 import { SimpleIconBox } from "@/components/icons/SimpleIconBox";
 import { recordExamComplete } from "@/lib/cmdStats";
+import { hashString } from "@/lib/questions/procedural/utils";
 import { formatNiceMath } from "@/lib/typography/niceMath";
 import { stripMarkdownBoldMarkers } from "@/lib/typography/plainExamText";
+import { shouldExamMathStem } from "@/lib/typography/examPlainMathToLatex";
 import { MathText } from "@/components/typography/MathText";
 
 function isStimulusFigure(f: ExamQuestion["figure"]): f is Extract<ExamFigureData, { kind: "stimulus" }> {
@@ -61,7 +65,7 @@ function FrqRubricPanel({ doc, omitPartPrompts = false }: { doc: FrqRubricDoc; o
 								<ul className="list-disc pl-5 space-y-1.5 text-sm text-vanta-text leading-relaxed marker:text-sky-400/80">
 									{c.acceptableExamples.map((ex, j) => (
 										<li key={j}>
-											<MathText text={ex} />
+											<ExamRasterMath text={ex} plainAlt={ex} />
 										</li>
 									))}
 								</ul>
@@ -154,6 +158,10 @@ function QuestionCard({
 	const exhibitAboveStem = stim && !exhibitBelow;
 	/** During “Review answers,” show only the rubric for multi-part FRQs—no prompt replay. */
 	const hideFrqPromptReplay = submitted && steppedFrq;
+	const stemText = rubricQ ? stripMarkdownBoldMarkers(question.question) : question.question;
+	const stemExamMath = shouldExamMathStem(question.subject, stemText);
+	const figureSyncKey =
+		dataFig != null ? `fig-${question.id}-${hashString(JSON.stringify(dataFig)).toString(36)}` : "";
 
 	return (
 		<Card
@@ -168,25 +176,47 @@ function QuestionCard({
 			}`}
 		>
 			{!hideFrqPromptReplay && dataFig ? (
-				<div className="figure-reveal mb-3">
+				<ExamRasterizedBlock
+					syncKey={figureSyncKey}
+					className="figure-reveal mb-3 w-full min-w-0"
+					alt="Figure or diagram for this question"
+				>
 					<ExamFigure figure={dataFig} />
-				</div>
+				</ExamRasterizedBlock>
 			) : null}
 			{!hideFrqPromptReplay && exhibitAboveStem ? (
-				<p className="mb-3 text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
-					<MathText text={stripMarkdownBoldMarkers(stim.body)} />
-				</p>
+				<div className="mb-3 text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
+					<ExamRasterLine
+						syncKey={`stim-above-${question.id}-${stripMarkdownBoldMarkers(stim.body)}`}
+						plainAlt={stripMarkdownBoldMarkers(stim.body)}
+						className="w-full min-w-0"
+					>
+						<MathText text={stripMarkdownBoldMarkers(stim.body)} />
+					</ExamRasterLine>
+				</div>
 			) : null}
 			{!steppedFrq ? (
-				<p className="text-vanta-text font-medium mb-3 leading-relaxed text-[15px]">
-					<span className="tabular-nums">{questionNumber}. </span>
-					<MathText text={rubricQ ? stripMarkdownBoldMarkers(question.question) : question.question} />
-				</p>
+				<div className="text-vanta-text font-medium mb-3 leading-relaxed text-[15px]">
+					<ExamRasterLine
+						syncKey={`stem-${question.id}-${stemText}-${stemExamMath}`}
+						plainAlt={`${questionNumber}. ${stemText}`}
+						className="w-full min-w-0"
+					>
+						<span className="tabular-nums">{questionNumber}. </span>
+						<MathText text={stemText} examMath={stemExamMath} />
+					</ExamRasterLine>
+				</div>
 			) : null}
 			{!hideFrqPromptReplay && exhibitBelow ? (
-				<p className="mb-4 text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
-					<MathText text={stripMarkdownBoldMarkers(stim.body)} />
-				</p>
+				<div className="mb-4 text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
+					<ExamRasterLine
+						syncKey={`stim-below-${question.id}-${stripMarkdownBoldMarkers(stim.body)}`}
+						plainAlt={stripMarkdownBoldMarkers(stim.body)}
+						className="w-full min-w-0"
+					>
+						<MathText text={stripMarkdownBoldMarkers(stim.body)} />
+					</ExamRasterLine>
+				</div>
 			) : null}
 
 			{question.type === "multiple_choice" && question.options ? (
@@ -221,7 +251,9 @@ function QuestionCard({
  <span className="flex items-start justify-between gap-3 w-full">
  <span className="flex flex-1 items-start gap-3 min-w-0">
  <span className="shrink-0 w-8 tabular-nums font-medium text-vanta-text pt-0.5">{letter}.</span>
- <span className="leading-relaxed text-vanta-text flex-1 min-w-0">{formatNiceMath(opt)}</span>
+ <span className="exam-mcq-option-math leading-relaxed text-vanta-text flex-1 min-w-0 overflow-x-auto">
+								<ExamRasterMath text={opt} examMath plainAlt={formatNiceMath(opt)} decorative />
+							</span>
  </span>
  {submitted && isCorrectOpt ? (
  <span className="shrink-0 text-lg font-bold text-green-800" aria-hidden>
@@ -241,11 +273,23 @@ function QuestionCard({
 			) : steppedFrq && !submitted ? (
 				<div className="space-y-6 mt-1 text-[15px] leading-relaxed text-vanta-text font-sans">
 					<div className="space-y-3">
-						<p className="whitespace-pre-wrap">
-							<span className="tabular-nums font-semibold text-vanta-text">{questionNumber}. </span>
-							<MathText text={question.frq_stem ?? ""} />
-						</p>
-						<p className="font-medium text-vanta-text">{frqRespondToDirectoryLine(parts.map((p) => p.letter))}</p>
+						<div className="whitespace-pre-wrap">
+							<ExamRasterLine
+								syncKey={`frq-stem-${question.id}-${question.frq_stem ?? ""}`}
+								plainAlt={`${questionNumber}. ${question.frq_stem ?? ""}`}
+								className="w-full min-w-0"
+							>
+								<span className="tabular-nums font-semibold text-vanta-text">{questionNumber}. </span>
+								<MathText text={question.frq_stem ?? ""} />
+							</ExamRasterLine>
+						</div>
+						<ExamRasterLine
+							syncKey={`frq-dir-${question.id}-${parts.map((p) => p.letter).join("")}`}
+							plainAlt={frqRespondToDirectoryLine(parts.map((p) => p.letter))}
+							className="font-medium text-vanta-text w-full min-w-0"
+						>
+							<span>{frqRespondToDirectoryLine(parts.map((p) => p.letter))}</span>
+						</ExamRasterLine>
 					</div>
 					<div className="space-y-6">
 						{parts.map((p, idx) => {
@@ -258,9 +302,13 @@ function QuestionCard({
 											{p.letter}.
 										</span>
 										<div className="flex-1 min-w-0">
-											<p className="leading-relaxed">
-												<MathText text={p.promptText} />
-											</p>
+											<div className="leading-relaxed">
+												<ExamRasterMath
+													text={p.promptText}
+													examMath={shouldExamMathStem(question.subject, p.promptText)}
+													plainAlt={p.promptText}
+												/>
+											</div>
 										</div>
 									</div>
 									<Textarea
@@ -291,17 +339,25 @@ function QuestionCard({
 		{submitted && question.explanation && !question.frq_rubric ? (
 			<div className="mt-4 p-4 bg-vanta-bg rounded-lg border border-vanta-border">
 				<p className="text-xs text-vanta-muted font-semibold uppercase tracking-wider mb-1">Explanation</p>
-				<p className="text-vanta-text text-sm leading-relaxed">
-					<MathText text={question.explanation} />
-				</p>
+				<div className="text-vanta-text text-sm leading-relaxed">
+					<ExamRasterMath
+						text={question.explanation}
+						examMath={shouldExamMathStem(question.subject, question.explanation)}
+						plainAlt={question.explanation}
+					/>
+				</div>
 			</div>
 		) : null}
 		{submitted && question.explanation && question.frq_rubric ? (
 			<div className="mt-4 p-4 rounded-lg border border-vanta-border/80 bg-vanta-surface-elevated/60">
 				<p className="text-xs text-vanta-muted font-semibold uppercase tracking-wider mb-1">Coach note</p>
-				<p className="text-vanta-text text-sm leading-relaxed">
-					<MathText text={question.explanation} />
-				</p>
+				<div className="text-vanta-text text-sm leading-relaxed">
+					<ExamRasterMath
+						text={question.explanation}
+						examMath={shouldExamMathStem(question.subject, question.explanation)}
+						plainAlt={question.explanation}
+					/>
+				</div>
 			</div>
 		) : null}
 

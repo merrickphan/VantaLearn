@@ -1612,6 +1612,38 @@ export function genImproperIntegralConcept(rng: () => number, ctx: ProcCtx, i: n
  );
 }
 
+/** Right endpoints on [a,b]: x_k = a + (b-a)k/n, Δx = (b-a)/n. */
+function latexRiemannRightSumLimit(a: number, b: number, p: number, xInner: "Lk" | "k", dxNum: number): string {
+ const L = b - a;
+ const xFrac = xInner === "Lk" ? `${L}k` : "k";
+ const dx = dxNum === L ? L : dxNum;
+ return `\\(\\displaystyle \\lim_{n\\to\\infty}\\sum_{k=1}^{n}\\left(${a}+\\frac{${xFrac}}{n}\\right)^{${p}}\\frac{${dx}}{n}\\)`;
+}
+
+/**
+ * Limit of a right Riemann sum written in standard Σ / lim notation (KaTeX), matching
+ * ∫_a^b x^p dx for integers a<b and p ∈ {2,3,4}.
+ */
+export function genRiemannRightSumLimitDefiniteIntegral(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+ const a = randInt(rng, 1, 4);
+ const b = a + randInt(rng, 2, 4);
+ const L = b - a;
+ const p = pick(rng, [2, 3, 4] as const);
+ const stem = pick(rng, [
+ `Which limit equals \\(\\displaystyle \\int_{${a}}^{${b}} x^{${p}}\\,dx\\) as the limit of a right Riemann sum for a uniform partition of \\([${a},${b}]\\) into \\(n\\) subintervals?`,
+ `For \\(\\displaystyle f(x)=x^{${p}}\\) on \\([${a},${b}]\\), which expression is the limit of the right-endpoint Riemann sum as \\(n\\to\\infty\\)?`,
+ `A uniform partition of \\([${a},${b}]\\) into \\(n\\) equal pieces uses right endpoints. Which limit represents \\(\\displaystyle \\int_{${a}}^{${b}} x^{${p}}\\,dx\\)?`,
+ ]);
+ const correct = latexRiemannRightSumLimit(a, b, p, "Lk", L);
+ const w1 = latexRiemannRightSumLimit(a, b, p, "k", 1);
+ const w2 = latexRiemannRightSumLimit(a, b, p, "k", L);
+ const w3 = latexRiemannRightSumLimit(a, b, p, "Lk", 1);
+ const explanation = `Right endpoints: \\(x_k=${a}+\\frac{${L}k}{n}\\), \\(\\Delta x=\\frac{${L}}{n}\\), so the sum is \\(\\sum_{k=1}^n f(x_k)\\Delta x\\) with \\(f(x)=x^{${p}}\\).`;
+ return mc(rng, ctx, i, "ab-riemann-right", stem, correct, w1, w2, w3, explanation, {
+ procedural_structure_id: `ab-riemann-${a}-${b}-p${p}`,
+ });
+}
+
 export function genTrapezoidalRuleSetup(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
  const stem = pick(rng, [
  "For approximating ∫_a^b f(x) dx with n equal subintervals, the trapezoidal rule uses",
@@ -3897,6 +3929,7 @@ const CALC: QuestionGen[] = [
  genDerivativePower,
  genLimitLinear,
  genIntegralPower,
+ genRiemannRightSumLimitDefiniteIntegral,
  genCompositionValue,
  genLinearSlopeTwoPoints,
  genTrigSpecial,
@@ -3936,6 +3969,7 @@ const CALC_NO_CALCULATOR_SECTION: QuestionGen[] = [
  genCalcGraphFprimeXIntercepts,
  genCalcGraphFprimeZerosOpenInterval,
  genCalcGraphFprimeLinearCritical,
+ genRiemannRightSumLimitDefiniteIntegral,
  genVolumeDiskIntegralSetup,
  genZScoreConcept,
  genMeanSimple,
@@ -3994,6 +4028,7 @@ const CALC_AB_UNIT_POOLS: QuestionGen[][] = [
  [
  genIntegralPower,
  genFtcPartOneValue,
+ genRiemannRightSumLimitDefiniteIntegral,
  genMeanSimple,
  genZScoreConcept,
  genDerivativePower,
@@ -4014,6 +4049,7 @@ const CALC_AB_UNIT_POOLS: QuestionGen[][] = [
  genVolumeDiskIntegralSetup,
  genIntegralPower,
  genFtcPartOneValue,
+ genRiemannRightSumLimitDefiniteIntegral,
  genMeanSimple,
  genDerivativePower,
  ],

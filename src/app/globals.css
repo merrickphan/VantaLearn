@@ -479,6 +479,14 @@ html[data-theme="dark"] {
  transform: scale(0.97);
 }
 
+/* KaTeX inside MCQ choice buttons: readable size, no extra display margins */
+.exam-mcq-option-math .katex {
+ font-size: 1.05em;
+}
+.exam-mcq-option-math .katex-display {
+ margin: 0;
+}
+
 /* Range sliders (score calculator) */
 input[type="range"].score-slider {
  -webkit-appearance: none;
