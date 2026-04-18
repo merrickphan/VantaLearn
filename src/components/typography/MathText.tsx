@@ -17,8 +17,6 @@ type MathTextProps = {
 	examMath?: boolean;
 };
 
-const INLINE_RE = /\\\(([\s\S]+?)\\\)/g;
-const DISPLAY_RE = /\\\[([\s\S]+?)\\\]/g;
 const ANY_RE = /\\\(([\s\S]+?)\\\)|\\\[([\s\S]+?)\\\]/g;
 
 function renderKatexToHtml(src: string, displayMode: boolean): string {

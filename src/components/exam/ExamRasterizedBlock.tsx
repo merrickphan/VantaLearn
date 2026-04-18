@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { toPng } from "html-to-image";
 
@@ -35,7 +36,11 @@ export type ExamRasterizedBlockProps = {
 export function ExamRasterizedBlock({ children, syncKey, className, alt, decorative }: ExamRasterizedBlockProps) {
 	const wrapRef = useRef<HTMLDivElement>(null);
 	const sourceRef = useRef<HTMLDivElement>(null);
-	const [dataUrl, setDataUrl] = useState<string | null>(null);
+	const [snapshot, setSnapshot] = useState<{
+		dataUrl: string;
+		width: number;
+		height: number;
+	} | null>(null);
 	const [failed, setFailed] = useState(false);
 	const inFlight = useRef(false);
 
@@ -45,7 +50,7 @@ export function ExamRasterizedBlock({ children, syncKey, className, alt, decorat
 		if (!host || !src) return;
 
 		let cancelled = false;
-		setDataUrl(null);
+		setSnapshot(null);
 		setFailed(false);
 
 		const capture = async () => {
@@ -96,7 +101,7 @@ export function ExamRasterizedBlock({ children, syncKey, className, alt, decorat
 					backgroundColor: bg,
 				});
 				if (!cancelled) {
-					setDataUrl(data);
+					setSnapshot({ dataUrl: data, width: wPx, height: hPx });
 					setFailed(false);
 				}
 			} catch {
@@ -124,7 +129,7 @@ export function ExamRasterizedBlock({ children, syncKey, className, alt, decorat
 		};
 	}, [syncKey]);
 
-	const showImg = dataUrl && !failed;
+	const showImg = snapshot && !failed;
 
 	return (
 		<div
@@ -142,9 +147,12 @@ export function ExamRasterizedBlock({ children, syncKey, className, alt, decorat
 				{failed ? (
 					<div className="select-text">{children}</div>
 				) : showImg ? (
-					<img
-						src={dataUrl}
+					<Image
+						src={snapshot.dataUrl}
 						alt={decorative ? "" : alt.slice(0, 450)}
+						width={snapshot.width}
+						height={snapshot.height}
+						unoptimized
 						aria-hidden={decorative ? true : undefined}
 						className="max-w-full self-start object-contain align-top select-none"
 						draggable={false}

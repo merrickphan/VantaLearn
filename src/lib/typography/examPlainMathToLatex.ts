@@ -156,7 +156,7 @@ export function latexifyExamPlainMath(s: string): string {
 	}
 
 	const single = loosened;
-	let t = applyExamMathTransforms(single);
+	const t = applyExamMathTransforms(single);
 
 	const looksLikeProseOnly =
 		!/[\\$^_{}]/.test(t) && /[A-Za-z]{3,}/.test(t) && !/^\(?[0-9.,\s]+\)?$/.test(t);
