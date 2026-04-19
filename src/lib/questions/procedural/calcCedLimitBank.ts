@@ -1,30 +1,4 @@
-import type { ExamFigure } from "@/types";
 import { hashString, mulberry32 } from "./utils";
-
-/** AP-style curriculum alignment exhibit (limits + L'Hôpital / derivative rules framing). */
-export function calcCedLimitAlignmentFigure(): ExamFigure {
-	return {
-		kind: "table",
-		title: "Curriculum alignment (AP Calculus)",
-		headers: [
-			"Learning objectives",
-			"Essential knowledge",
-			"Mathematical practices for AP Calculus",
-		],
-		rows: [
-			[
-				"LO 1.1C: Determine limits of functions.",
-				"EK 1.1C3: Limits of indeterminate forms 0/0 and ∞/∞ may be evaluated using L'Hôpital's Rule (and may also be justified with algebra or other theorems).",
-				"MPAC 1: Reasoning with definitions and theorems.",
-			],
-			[
-				"LO 2.1C: Calculate derivatives.",
-				"EK 2.1C2: Specific rules can be used to calculate derivatives for classes of functions, including polynomial, rational, power, exponential, logarithmic, trigonometric, and inverse trigonometric.",
-				"MPAC 3: Implementing algebraic/computational processes.",
-			],
-		],
-	};
-}
 
 export type CalcCedLimitSpec = {
 	variant: string;

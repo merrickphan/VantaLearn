@@ -33,7 +33,8 @@ import {
  pickEuroMassRow,
  pickSeminarMassRow,
 } from "./apMassConceptBanks";
-import { allCalcCedLimitSpecs, calcCedLimitAlignmentFigure } from "./calcCedLimitBank";
+import { allCalcCedLimitSpecs } from "./calcCedLimitBank";
+import { allRelatedRatesSpecs } from "./relatedRatesBank";
 import { getHumanGeographyGeneratorsForUnit } from "./humanGeographyUnitPools";
 import { getUsHistoryGeneratorsForUnit } from "./usHistoryUnitPools";
 import { getWorldHistoryGeneratorsForUnit } from "./worldHistoryUnitPools";
@@ -413,8 +414,7 @@ export function genRationalLimitRemovable(rng: () => number, ctx: ProcCtx, i: nu
 }
 
 /**
- * AP CED-style limits (0/0 and related) with the same curriculum-alignment exhibit as CB materials.
- * Large static bank (200+ distinct stems); Calc AB / BC only.
+ * AP CED-style limits (0/0 and related). Large static bank (200+ distinct stems); Calc AB / BC only.
  */
 export function genCalcCedIndeterminateLimit(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
 	if (ctx.courseId !== "calc-ab" && ctx.courseId !== "calc-bc") {
@@ -424,8 +424,22 @@ export function genCalcCedIndeterminateLimit(rng: () => number, ctx: ProcCtx, i:
 	const idx = Math.floor(rng() * specs.length);
 	const s = specs[idx]!;
 	return mc(rng, ctx, i, `cedlim-${s.variant}`, s.stem, s.correct, s.w1, s.w2, s.w3, s.explanation, {
-		figure: calcCedLimitAlignmentFigure(),
 		procedural_structure_id: `calc-cedlim-${s.variant}`,
+	});
+}
+
+/**
+ * Large related-rates bank (300+ distinct parameterized items); Calc AB / BC Unit 4 applications pool.
+ */
+export function genCalcRelatedRates(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+	if (ctx.courseId !== "calc-ab" && ctx.courseId !== "calc-bc") {
+		return genDerivativePower(rng, ctx, i);
+	}
+	const specs = allRelatedRatesSpecs();
+	const idx = Math.floor(rng() * specs.length);
+	const s = specs[idx]!;
+	return mc(rng, ctx, i, `rr-${s.variant}`, s.stem, s.correct, s.w1, s.w2, s.w3, s.explanation, {
+		procedural_structure_id: `calc-related-rates-${s.variant}`,
 	});
 }
 
@@ -3963,7 +3977,7 @@ const CALC_PROCEDURAL_CORE: QuestionGen[] = [
  genVolumeDiskIntegralSetup,
 ];
 
-/** AP Calc AB/BC overall pool = core + CED-style limit items. */
+/** AP Calc AB/BC overall pool = core + CED-style limit items. Related rates are confined to contextual Unit 4 pools via `genCalcRelatedRates`. */
 const CALC: QuestionGen[] = [...CALC_PROCEDURAL_CORE, genCalcCedIndeterminateLimit];
 
 /**
@@ -3971,9 +3985,10 @@ const CALC: QuestionGen[] = [...CALC_PROCEDURAL_CORE, genCalcCedIndeterminateLim
  * slope / limits / continuity / IVT / FTC recognition, and z-score form (no heavy means).
  */
 const CALC_NO_CALCULATOR_SECTION: QuestionGen[] = [
- genDerivativePower,
- genLimitLinear,
- genCalcCedIndeterminateLimit,
+	genDerivativePower,
+	genLimitLinear,
+	genCalcRelatedRates,
+	genCalcCedIndeterminateLimit,
  genIntegralPower,
  genCompositionValue,
  genLinearSlopeTwoPoints,
@@ -4000,7 +4015,7 @@ const CALC_NO_CALCULATOR_SECTION: QuestionGen[] = [
 
 /** Unit-indexed pools for AP Calculus AB (1–8), aligned to typical CED-style units. */
 const CALC_AB_UNIT_POOLS: QuestionGen[][] = [
- // 1 — Limits & continuity
+ // 1 — Limits & continuity (limits, continuity, IVT, end behavior)
  [
  genCalcCedIndeterminateLimit,
  genLimitLinear,
@@ -4010,79 +4025,61 @@ const CALC_AB_UNIT_POOLS: QuestionGen[][] = [
  genIvTSignChange,
  genHorizontalAsymptoteRationalDegrees,
  ],
- // 2 — Derivative definition & basic rules
+ // 2 — Differentiation: definition & fundamental properties
  [
- genCalcCedIndeterminateLimit,
  genDerivativePower,
  genLinearSlopeTwoPoints,
  genAvgVelocitySquaredPosition,
  genTrigSpecial,
- genContinuityConceptMcq,
  ],
- // 3 — Chain / product / quotient / implicit / inverse / trig derivatives
+ // 3 — Differentiation: composite / implicit / inverse / trig techniques
  [
  genCompositionValue,
  genDerivativePower,
  genTrigSpecial,
- genLimitLinear,
- genRationalLimitRemovable,
- genCalcCedIndeterminateLimit,
  ],
- // 4 — Contextual differentiation (motion, rates, approximation)
+ // 4 — Contextual applications of differentiation (motion, related rates, applied rates)
  [
+ genCalcRelatedRates,
  genMotionVelocityPolynomial,
  genAvgVelocitySquaredPosition,
  genDerivativePower,
  genCompositionValue,
  genLinearSlopeTwoPoints,
- genCalcCedIndeterminateLimit,
- genCalcGraphFprimeIncreasingInterval,
- genCalcGraphFprimeZerosOpenInterval,
  ],
- // 5 — Analytical applications (extrema, concavity, optimization framing)
+ // 5 — Analytical applications of differentiation (f′ as rate of change; graph ↔ behavior)
  [
  genDerivativePower,
  genCompositionValue,
  genLinearSlopeTwoPoints,
  genTrigSpecial,
- genLimitLinear,
- genCalcCedIndeterminateLimit,
  genCalcGraphFprimeLocalExtremum,
+ genCalcGraphFprimeIncreasingInterval,
  genCalcGraphFprimeXIntercepts,
  genCalcGraphFprimeZerosOpenInterval,
  genCalcGraphFprimeLinearCritical,
  ],
- // 6 — Integration & FTC
+ // 6 — Integration & accumulation (FTC, Riemann sums, average value)
  [
  genIntegralPower,
  genFtcPartOneValue,
  genRiemannRightSumLimitDefiniteIntegral,
  genMeanSimple,
- genZScoreConcept,
  genDerivativePower,
- genCalcCedIndeterminateLimit,
- genCalcGraphFprimeXIntercepts,
- genCalcGraphFprimeZerosOpenInterval,
- genCalcGraphFprimeLinearCritical,
  ],
- // 7 — Differential equations
+ // 7 — Differential equations (slope fields, separable form, antiderivatives)
  [
  genSeparableFormRecognize,
  genSlopeFieldDeMatch,
  genDerivativePower,
  genIntegralPower,
- genLimitLinear,
- genCalcCedIndeterminateLimit,
  ],
- // 8 — Applications of integration
+ // 8 — Applications of integration (volume, accumulation, evaluating integrals)
  [
  genVolumeDiskIntegralSetup,
  genIntegralPower,
  genFtcPartOneValue,
- genRiemannRightSumLimitDefiniteIntegral,
  genMeanSimple,
- genDerivativePower,
- genCalcCedIndeterminateLimit,
  ],
 ];
 
@@ -4092,10 +4089,7 @@ function calcPoolForSection(pool: QuestionGen[], calculatorSection?: CalculatorS
  const filtered = pool.filter((g) => allowed.has(g));
  return filtered.length > 0 ? filtered : CALC_NO_CALCULATOR_SECTION;
  }
- if (calculatorSection === "calculator") {
- return [...pool, ...STATS_TEXT];
- }
- return [...pool, ...STATS_TEXT];
+ return [...pool];
 }
 
 function getCalcAbUnitGenerators(unitIndex: number, calculatorSection?: CalculatorSectionPolicy): QuestionGen[] {
@@ -4118,13 +4112,8 @@ const CALC_BC_UNIT_POOLS: QuestionGen[][] = [
  CALC_AB_UNIT_POOLS[4]!,
  // 6 — Integration & FTC
  CALC_AB_UNIT_POOLS[5]!,
- // 7 — Differential equations (procedural slope-field items are AB-only)
- [
- genSeparableFormRecognize,
- genDerivativePower,
- genIntegralPower,
- genLimitLinear,
- ],
+ // 7 — Differential equations (same procedural DE pool as AB, incl. slope fields)
+ CALC_AB_UNIT_POOLS[6]!,
  // 8 — Applications of integration
  CALC_AB_UNIT_POOLS[7]!,
  // 9 — Parametric / polar / vector
@@ -4170,8 +4159,7 @@ function getCalcBcUnitGenerators(unitIndex: number, calculatorSection?: Calculat
   const filtered = pool.filter((g) => allowed.has(g));
   return filtered.length > 0 ? filtered : [...CALC_NO_CALCULATOR_SECTION];
  }
- if (calculatorSection === "calculator") return [...pool, ...STATS_TEXT];
- return [...pool, ...STATS_TEXT];
+ return [...pool];
 }
 
 /** Unit-indexed pools for AP Precalculus (1–9). */

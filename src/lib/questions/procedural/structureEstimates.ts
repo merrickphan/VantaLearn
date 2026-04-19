@@ -6,6 +6,7 @@
 
 import { PROCEDURAL_MASS_BANK_SIZES } from "./apMassConceptBanks";
 import { calcCedLimitSpecCount } from "./calcCedLimitBank";
+import { relatedRatesSpecCount } from "./relatedRatesBank";
 import {
  COMPOSITION_STEMS,
  DERIVATIVE_POWER_STEMS,
@@ -46,7 +47,7 @@ export function estimateMinStructuresForCourse(courseId: string): number {
  return mass.econ + 250;
  case "calc-ab":
  case "calc-bc":
- return stemHeavyMathEstimate() + calcCedLimitSpecCount() + 800;
+ return stemHeavyMathEstimate() + calcCedLimitSpecCount() + relatedRatesSpecCount() + 800;
  case "precalc":
  return stemHeavyMathEstimate() + 800;
  case "stats":
