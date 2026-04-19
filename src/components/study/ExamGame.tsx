@@ -27,7 +27,7 @@ function isStimulusFigure(f: ExamQuestion["figure"]): f is Extract<ExamFigureDat
 
 /**
  * Stems that say the exhibit appears *below* the stem (AP Lang-style revision).
- * In those cases the numbered stem comes first, then the italic line, then choices.
+ * In those cases the numbered stem comes first, then the exhibit line, then choices.
  */
 function FrqRubricPanel({ doc, omitPartPrompts = false }: { doc: FrqRubricDoc; omitPartPrompts?: boolean }) {
 	return (
@@ -185,7 +185,7 @@ function QuestionCard({
 				</ExamRasterizedBlock>
 			) : null}
 			{!hideFrqPromptReplay && exhibitAboveStem ? (
-				<div className="mb-3 text-[16px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
+				<div className="mb-3 text-[16px] leading-relaxed text-vanta-text whitespace-pre-wrap">
 					<ExamRasterLine
 						syncKey={`stim-above-${question.id}-${stripMarkdownBoldMarkers(stim.body)}`}
 						plainAlt={stripMarkdownBoldMarkers(stim.body)}
@@ -208,7 +208,7 @@ function QuestionCard({
 				</div>
 			) : null}
 			{!hideFrqPromptReplay && exhibitBelow ? (
-				<div className="mb-4 text-[16px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
+				<div className="mb-4 text-[16px] leading-relaxed text-vanta-text whitespace-pre-wrap">
 					<ExamRasterLine
 						syncKey={`stim-below-${question.id}-${stripMarkdownBoldMarkers(stim.body)}`}
 						plainAlt={stripMarkdownBoldMarkers(stim.body)}

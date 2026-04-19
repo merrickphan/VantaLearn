@@ -373,7 +373,7 @@ export function ExhibitPlaceholderFigure({ figure }: { figure: ExhFig }) {
 					<MathText text={figure.description} />
 				</p>
 				{figure.credit && (
-					<p className="relative mt-2 text-[10px] italic text-vanta-muted">
+					<p className="relative mt-2 text-[10px] text-vanta-muted">
 						<MathText text={figure.credit} />
 					</p>
 				)}

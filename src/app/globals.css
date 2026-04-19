@@ -480,7 +480,12 @@ html[data-theme="dark"] {
  transform: scale(0.97);
 }
 
-/* Exam stems + MCQ choices (raster source): same sans + 16px as question body */
+/* Exam stems + MCQ choices (raster source): sans 16px; upright math (no default TeX/KaTeX italics). */
+.exam-katex-body .katex,
+.exam-katex-body .katex * {
+ font-family: var(--font-geist-sans), system-ui, sans-serif !important;
+ font-style: normal !important;
+}
 .exam-katex-body .katex {
  font: 400 16px/1.5 var(--font-geist-sans), system-ui, sans-serif;
 }
@@ -491,10 +496,9 @@ html[data-theme="dark"] {
  margin: 0;
 }
 
-/* MCQ answer choices only: nested KaTeX classes override the body font (math italic / TeX fonts). */
-.exam-mcq-option-math .exam-katex-body .katex,
-.exam-mcq-option-math .exam-katex-body .katex * {
- font-family: var(--font-geist-sans), system-ui, sans-serif !important;
+/* KaTeX default variable glyphs are italic; force upright anywhere MathText renders. */
+.katex,
+.katex * {
  font-style: normal !important;
 }
 

@@ -694,7 +694,7 @@ export function CalculusXyPlotFigure({ figure }: { figure: CxpFig }) {
 				<line x1={pad.l} y1={h - pad.b} x2={w - pad.r} y2={h - pad.b} stroke={axisStroke} strokeWidth={1.65} />
 				<line x1={pad.l} y1={pad.t} x2={pad.l} y2={h - pad.b} stroke={axisStroke} strokeWidth={1.65} />
 				<path d={`M ${pad.l} ${pad.t + 6} L ${pad.l - 2} ${pad.t + 14} L ${pad.l + 2} ${pad.t + 14} Z`} fill={axisStroke} />
-				<text x={xPix(0) - 14} y={yPix(0) + 14} className="fill-slate-600" style={{ fontSize: 11, fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic" }}>
+				<text x={xPix(0) - 14} y={yPix(0) + 14} className="fill-slate-600" style={{ fontSize: 11, fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "normal" }}>
 					O
 				</text>
 				{figure.polylines.map((poly, pi) => {

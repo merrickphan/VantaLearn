@@ -36,7 +36,7 @@ function CourseGlyph({ courseId }: { courseId: string }) {
  <g>
  <rect x="6" y="8" width="36" height="32" rx="4" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1.2" />
  <path d="M12 28 Q18 14 28 20 T40 18" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" />
- <text x="12" y="22" fontSize="11" fill="#0369a1" fontFamily="Georgia,serif" fontStyle="italic">
+ <text x="12" y="22" fontSize="11" fill="#0369a1" fontFamily="Georgia,serif" fontStyle="normal">
  int
  </text>
  </g>

@@ -1,3 +1,5 @@
+import { normalizeAsciiPiToSymbol } from "@/lib/typography/niceMath";
+
 /**
  * Upgrades plain-text / ASCII math strings to KaTeX-friendly inline math so
  * √(3), fractions, ∑, lim, etc. render as symbols (not typed "sqrt" or "sigma").
@@ -90,7 +92,7 @@ function replaceSigmaWord(s: string): string {
 
 /** All symbol upgrades used for both whole-string and per-token paths. */
 function applyExamMathTransforms(s: string): string {
-	let t = s.trim();
+	let t = normalizeAsciiPiToSymbol(s.trim());
 	t = replaceUnicodeSqrt(t);
 	t = replaceAsciiSqrt(t);
 	t = replaceLeibnizDerivatives(t);
@@ -101,7 +103,6 @@ function applyExamMathTransforms(s: string): string {
 	t = replaceCarets(t);
 	t = t.replace(/→/g, "\\to ");
 	t = t.replace(/\binfty\b/gi, "\\infty");
-	t = t.replace(/\bpi\b/g, "\\pi");
 	t = t.replace(/\\lim\s*\(\s*([a-zA-Z])\s*\\to\s*\\infty\s*\)/gi, "\\lim_{$1\\to\\infty}");
 	t = t.replace(/\\lim\s+([a-zA-Z])\s*\\to\s*\\infty/gi, "\\lim_{$1\\to\\infty}");
 	return t;
@@ -190,7 +191,7 @@ export function shouldExamMathStem(subject: string | undefined, stem: string): b
 	if (!/Calculus|Precalculus/i.test(subject ?? "")) return false;
 	const q = stem ?? "";
 	if (HAS_DELIM.test(q)) return false;
-	return /sqrt|lim|\^|∫|∑|Σ|π|∞|d[a-z]\s*\/\s*d|dy\s*\/\s*dx|frac|\\sum|\\int|\d\s*\/\s*\d|\([0-9]+,\s*[0-9]+\)/i.test(
+	return /sqrt|lim|\^|∫|∑|Σ|π|∞|\d+pi\b|\)\s*pi(?=[a-z])|d[a-z]\s*\/\s*d|dy\s*\/\s*dx|frac|\\sum|\\int|\d\s*\/\s*\d|\([0-9]+,\s*[0-9]+\)/i.test(
 		q,
 	);
 }

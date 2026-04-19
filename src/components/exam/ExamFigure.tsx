@@ -10,7 +10,7 @@ export function ExamFigure({ figure }: { figure: ExamFigureType }) {
 		const titled = figure.title && figure.title.trim().length > 0 && figure.title !== "Stimulus";
 		if (!titled) {
 			return (
-				<p className="mb-4 font-serif text-[16px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
+				<p className="mb-4 font-serif text-[16px] leading-relaxed text-vanta-text whitespace-pre-wrap">
 					<MathText text={figure.body} />
 				</p>
 			);
