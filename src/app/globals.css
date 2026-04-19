@@ -490,6 +490,13 @@ html[data-theme="dark"] {
  margin: 0;
 }
 
+/* MCQ answer choices only: nested KaTeX classes override the body font (math italic / TeX fonts). */
+.exam-mcq-option-math .exam-katex-body .katex,
+.exam-mcq-option-math .exam-katex-body .katex * {
+ font-family: var(--font-geist-sans), system-ui, sans-serif !important;
+ font-style: normal !important;
+}
+
 /* Range sliders (score calculator) */
 input[type="range"].score-slider {
  -webkit-appearance: none;
