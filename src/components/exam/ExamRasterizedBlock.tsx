@@ -63,7 +63,7 @@ export function ExamRasterizedBlock({ children, syncKey, className, alt, decorat
 			const mask = document.createElement("div");
 			mask.setAttribute("aria-hidden", "true");
 			mask.style.cssText =
-				"position:fixed;inset:0;z-index:2147482990;background:var(--vanta-bg, #e8edf5);";
+				"position:fixed;inset:0;z-index:2147482990;background:var(--vanta-bg, #d4deed);";
 
 			try {
 				document.body.appendChild(mask);
@@ -138,7 +138,7 @@ export function ExamRasterizedBlock({ children, syncKey, className, alt, decorat
 		>
 			<div
 				ref={sourceRef}
-				className="pointer-events-none absolute left-0 top-0 z-0 box-border w-full bg-[var(--vanta-surface)] p-0 font-sans text-[15px] leading-relaxed text-[var(--vanta-text)] antialiased opacity-0"
+				className="pointer-events-none absolute left-0 top-0 z-0 box-border w-full bg-[var(--vanta-surface)] p-0 font-sans text-[16px] leading-relaxed text-[var(--vanta-text)] antialiased opacity-0"
 				aria-hidden
 			>
 				{children}

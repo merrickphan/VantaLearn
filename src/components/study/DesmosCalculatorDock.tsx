@@ -248,13 +248,13 @@ export function DesmosCalculatorDock() {
  </div>
  </div>
  {dockSize === "full" ? (
- <p className="shrink-0 px-3 py-1 text-[10px] text-vanta-muted border-b border-vanta-border/60">
+ <p className="shrink-0 px-3 py-1 text-[10px] text-vanta-muted border-b border-vanta-border">
  Press <kbd className="rounded bg-vanta-surface-elevated px-1 font-mono text-vanta-text">Esc</kbd> to leave full screen
  </p>
  ) : null}
  {!apiKey ? (
  <div className="flex min-h-0 flex-1 flex-col">
- <p className="text-[11px] text-vanta-muted border-b border-vanta-border/80 bg-vanta-bg px-3 py-2 leading-snug">
+ <p className="text-[11px] text-vanta-muted border-b border-vanta-border bg-vanta-bg px-3 py-2 leading-snug">
  Add a free key from{" "}
  <a href="https://www.desmos.com/my-api" className="text-sky-600 hover:underline" target="_blank" rel="noopener noreferrer">
  desmos.com/my-api

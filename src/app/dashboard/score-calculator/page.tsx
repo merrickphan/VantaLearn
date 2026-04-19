@@ -198,10 +198,10 @@ export default function ScoreCalculatorPage() {
 
 			<div className="grid lg:grid-cols-2 gap-8 lg:gap-10 items-start">
 				{/* Inputs — Test Ninjas–style: instructions + grouped sliders */}
-				<Card className="p-6 md:p-8 fade-up rounded-2xl border border-vanta-border/80 shadow-lg shadow-black/20 overflow-hidden">
+				<Card className="p-6 md:p-8 fade-up rounded-2xl border border-vanta-border shadow-lg shadow-black/20 overflow-hidden">
 					{activeModel ? (
 						<>
-							<div className="mb-6 pb-6 border-b border-vanta-border/80">
+							<div className="mb-6 pb-6 border-b border-vanta-border">
 								<h2 className="font-display text-xl md:text-2xl font-bold text-vanta-text leading-tight">
 									{activeModel.courseName}
 								</h2>
@@ -252,7 +252,7 @@ export default function ScoreCalculatorPage() {
 							<div key={courseId} className="space-y-8 mt-8">
 								{sectionGroups.map((group, groupIdx) => (
 									<div key={`${group.title}-${groupIdx}`}>
-										<h3 className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.2em] mb-4 pb-2 border-b border-vanta-border/60">
+										<h3 className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.2em] mb-4 pb-2 border-b border-vanta-border">
 											{formatNiceMath(group.title)}
 										</h3>
 										<div className="space-y-6">
@@ -279,11 +279,11 @@ export default function ScoreCalculatorPage() {
 												return (
 													<div
 														key={s.id}
-														className={`ap-cal-row-in ${frq ? "" : "border-b border-vanta-border/40 pb-6 last:border-0 last:pb-0"}`}
+														className={`ap-cal-row-in ${frq ? "" : "border-b border-vanta-border pb-6 last:border-0 last:pb-0"}`}
 														style={{ animationDelay: `${Math.min(staggerIdx, 14) * 42}ms` }}
 													>
 														{frq ? (
-															<div className="rounded-2xl border border-vanta-border bg-vanta-surface-elevated/95 px-4 py-4 shadow-inner">
+															<div className="rounded-2xl border border-vanta-border bg-vanta-surface-elevated px-4 py-4 shadow-inner">
 																<div className="flex flex-wrap justify-between gap-2 items-start mb-3">
 																	<label
 																		htmlFor={`sec-${s.id}`}
@@ -318,7 +318,7 @@ export default function ScoreCalculatorPage() {
 																	</button>
 																	<div className="relative flex-1 min-w-0 h-9 flex items-center px-1">
 																		<div
-																			className="pointer-events-none absolute left-2 right-2 top-1/2 -translate-y-1/2 h-2 rounded-full bg-vanta-border/80"
+																			className="pointer-events-none absolute left-2 right-2 top-1/2 -translate-y-1/2 h-2 rounded-full bg-vanta-border"
 																			aria-hidden
 																		/>
 																		<div
@@ -425,7 +425,7 @@ export default function ScoreCalculatorPage() {
 								score={subjectPreview.apScore}
 								animationKey={`${courseId}-${subjectPreview.apScore}-${Math.round(subjectPreview.compositePercent)}`}
 							/>
-							<div className="text-center mb-8 pb-8 border-b border-vanta-border/70">
+							<div className="text-center mb-8 pb-8 border-b border-vanta-border">
 								<p className="text-vanta-muted text-sm tracking-wide">Score range: 1 – 5</p>
 								<p className="text-vanta-muted text-base mt-4 leading-relaxed">
 									{apScoreDescriptions[subjectPreview.apScore]}
@@ -433,12 +433,12 @@ export default function ScoreCalculatorPage() {
 							</div>
 
 							{subjectPreview.scaledDisplay ? (
-								<div className="mb-8 pb-8 border-b border-vanta-border/70">
+								<div className="mb-8 pb-8 border-b border-vanta-border">
 									<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.22em] mb-5">
 										Section scores
 									</p>
 									<div className="space-y-0 text-sm">
-										<div className="flex justify-between gap-4 py-3 border-b border-vanta-border/50">
+										<div className="flex justify-between gap-4 py-3 border-b border-vanta-border">
 											<span className="text-vanta-text font-medium">
 												{formatNiceMath(subjectPreview.scaledDisplay.mcLabel)}
 											</span>
@@ -447,7 +447,7 @@ export default function ScoreCalculatorPage() {
 												<span className="text-vanta-muted font-semibold">/ 100</span>
 											</span>
 										</div>
-										<div className="flex justify-between gap-4 py-3 border-b border-vanta-border/50">
+										<div className="flex justify-between gap-4 py-3 border-b border-vanta-border">
 											<span className="text-vanta-text font-medium">
 												{formatNiceMath(subjectPreview.scaledDisplay.frqLabel)}
 											</span>
@@ -470,7 +470,7 @@ export default function ScoreCalculatorPage() {
 									</p>
 								</div>
 							) : (
-								<div className="mb-8 pb-8 border-b border-vanta-border/70">
+								<div className="mb-8 pb-8 border-b border-vanta-border">
 									<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.22em] mb-3">
 										Composite (raw)
 									</p>
@@ -481,7 +481,7 @@ export default function ScoreCalculatorPage() {
 								</div>
 							)}
 
-							<div className="rounded-xl border border-vanta-border/60 bg-vanta-surface-elevated p-4 mb-6">
+							<div className="rounded-xl border border-vanta-border bg-vanta-surface-elevated p-4 mb-6">
 								<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.2em] mb-4">
 									Raw breakdown by item
 								</p>
@@ -519,7 +519,7 @@ export default function ScoreCalculatorPage() {
 												? "bg-sky-500/25 text-sky-100 border-2 border-sky-400/60 scale-[1.02] shadow-[0_0_24px_-6px_rgba(56,189,248,0.45)]"
 												: score < subjectPreview.apScore
 													? "bg-sky-600/15 text-sky-200/90 border border-sky-500/25"
-													: "bg-vanta-border/30 text-vanta-muted border border-transparent"
+													: "border border-transparent bg-vanta-surface-hover text-vanta-text"
 										}`}
 									>
 										{score}
@@ -547,7 +547,7 @@ export default function ScoreCalculatorPage() {
 							</p>
 						</Card>
 					) : (
-						<Card className="p-6 md:p-8 rounded-2xl border border-dashed border-vanta-border/80 bg-vanta-surface-elevated/60 ap-cal-empty-pulse">
+						<Card className="p-6 md:p-8 rounded-2xl border-2 border-dashed border-vanta-border bg-vanta-surface-elevated ap-cal-empty-pulse">
 							<p className="text-[11px] font-semibold text-vanta-muted uppercase tracking-[0.2em] mb-3">
 								Your result
 							</p>

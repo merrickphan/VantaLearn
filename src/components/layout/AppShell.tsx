@@ -15,7 +15,7 @@ function SidebarCountdown({ examDate }: { examDate: string }) {
  const done = days <= 0 && hours <= 0 && minutes <= 0;
  if (done) return <span className="text-xs text-vanta-muted"> - </span>;
  return (
- <span className="text-xs font-mono tabular-nums rounded-md px-1.5 py-0.5 bg-sky-500/15 text-vanta-text border border-vanta-border/80">
+ <span className="text-xs font-mono tabular-nums rounded-md px-1.5 py-0.5 bg-sky-500/15 text-vanta-text border border-vanta-border">
  {days}d {hours}h {minutes}m
  </span>
  );
@@ -99,7 +99,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
  return (
  <div className="flex min-h-screen bg-vanta-bg">
  {/* AP subjects sidebar - desktop */}
- <aside className="hidden lg:flex flex-col w-[280px] shrink-0 border-r border-vanta-border bg-vanta-surface/80 fixed left-0 top-0 h-full z-40">
+ <aside className="hidden lg:flex fixed left-0 top-0 z-40 h-full w-[280px] shrink-0 flex-col border-r-2 border-vanta-border bg-vanta-surface">
  <div className="p-5 border-b border-vanta-border">
  <Link href="/dashboard" className="flex items-center gap-3 group">
  <VantaLogo size={34} variant="command" />
@@ -160,7 +160,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
  <div className="flex-1 flex flex-col min-w-0 lg:pl-[280px]">
  {/* Top command bar */}
- <header className="sticky top-0 z-30 border-b border-vanta-border bg-vanta-bg/90 backdrop-blur-md">
+ <header className="sticky top-0 z-30 border-b-2 border-vanta-border bg-vanta-bg/95 backdrop-blur-md">
  <div className="flex items-center gap-4 px-4 py-4 md:px-8">
  <div className="lg:hidden flex items-center gap-2 shrink-0">
  <VantaLogo size={32} variant="command" />

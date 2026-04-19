@@ -137,7 +137,7 @@ export function PracticeTestSetupModal({
 
  <div className="px-5 py-1">
  {showUnitPicker && unitOptions.length > 0 ? (
- <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-vanta-border/80">
+ <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-vanta-border">
  <span className="text-sm font-medium text-vanta-text">Unit</span>
  <select
  className={selectClassName()}
@@ -154,7 +154,7 @@ export function PracticeTestSetupModal({
  </div>
  ) : null}
 
- <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-vanta-border/80">
+ <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-vanta-border">
  <span className="text-sm font-medium text-vanta-text">Difficulty level</span>
  <select
  className={selectClassName()}
@@ -169,7 +169,7 @@ export function PracticeTestSetupModal({
  </select>
  </div>
 
- <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-vanta-border/80">
+ <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-vanta-border">
  <span className="text-sm font-medium text-vanta-text">Number of questions in your test</span>
  <input
  type="number"
@@ -182,7 +182,7 @@ export function PracticeTestSetupModal({
  />
  </div>
 
- <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-vanta-border/80">
+ <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-vanta-border">
  <span className="text-sm font-medium text-vanta-text">Set a timer</span>
  <div className="flex flex-wrap items-center gap-2">
  <select
@@ -236,7 +236,7 @@ export function PracticeTestSetupModal({
  ) : null}
  </div>
 
- <div className="px-5 py-3 bg-vanta-surface-elevated/50 border-t border-vanta-border flex justify-end gap-2">
+ <div className="flex justify-end gap-2 border-t-2 border-vanta-border bg-vanta-surface-elevated px-5 py-3">
  <Button type="button" variant="secondary" onClick={onClose}>
  Cancel
  </Button>

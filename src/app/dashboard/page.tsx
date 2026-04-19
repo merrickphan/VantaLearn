@@ -193,7 +193,7 @@ function DashboardContent() {
  const n = (exam.content_data as { questions: unknown[] }).questions.length;
  const matched = getCourseByName(exam.subject);
  return (
- <Card key={exam.id} className="p-6 h-full border-vanta-border/80 flex flex-col fade-up">
+ <Card key={exam.id} className="p-6 h-full border-vanta-border flex flex-col fade-up">
  <p className="text-sm text-sky-400 font-medium mb-2">{exam.subject}</p>
  <Link href={`/study/exam?id=${exam.id}`} className="group">
  <p className="text-lg font-semibold text-vanta-text group-hover:text-sky-300 transition-colors">{exam.title}</p>
@@ -247,14 +247,14 @@ function CourseExamCard({
  className={`p-6 h-full border transition-all ${
  isActive
  ? "border-sky-500/50 bg-sky-500/10 ring-1 ring-sky-500/20"
- : "border-vanta-border/80 bg-vanta-surface/60 hover:border-sky-500/30 hover:bg-vanta-surface-hover"
+ : "border-vanta-border bg-vanta-surface-elevated hover:border-sky-500/30 hover:bg-vanta-surface-hover"
  }`}
  >
  <div className="flex items-start justify-between gap-2 mb-4">
  <span aria-hidden>
  <SimpleIconBox name={icon} size={40} />
  </span>
- <span className="text-xs font-mono tabular-nums shrink-0 rounded-md px-2 py-1 bg-sky-500/15 text-vanta-text border border-vanta-border/80">
+ <span className="text-xs font-mono tabular-nums shrink-0 rounded-md px-2 py-1 bg-sky-500/15 text-vanta-text border border-vanta-border">
  {timerLabel}
  </span>
  </div>

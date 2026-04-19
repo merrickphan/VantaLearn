@@ -50,7 +50,7 @@ export function GroupedBarChartFigure({ figure }: { figure: GbFig }) {
 	const fills = ["#94a3b8", "#64748b", "#e2e8f0", "#0f172a"];
 
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			<TitleBlock title={figure.title} />
 			{figure.note && (
 				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">
@@ -186,7 +186,7 @@ export function CalculusAreaVerticalFigure({ figure }: { figure: CavFig }) {
 	const rx1 = xs[ri + 1] ?? rx0 + (spanX / (xs.length - 1 || 1)) * 0.25;
 
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			<TitleBlock title={figure.title} />
 			{figure.note && (
 				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">
@@ -313,7 +313,7 @@ export function PolarAreaCartesianFigure({ figure }: { figure: PacFig }) {
 	const gridStroke = "rgba(148,163,184,0.22)";
 
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			<TitleBlock title={figure.title} />
 			{figure.note && (
 				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">
@@ -376,7 +376,7 @@ export function UrbanLandUseModelFigure({ figure }: { figure: UrbFig }) {
 	];
 
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			<TitleBlock title={figure.title} />
 			{figure.note && (
 				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">
@@ -459,7 +459,7 @@ export function PhysicsPendulumFigure({ figure }: { figure: PenFig }) {
 	const by = cy + Lpx * Math.cos(th);
 
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			<TitleBlock title={figure.title} />
 			{figure.note && (
 				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">
@@ -530,7 +530,7 @@ export function BiologyCrossingOverFigure({ figure }: { figure: BioXFig }) {
 	);
 
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			<TitleBlock title={figure.title} />
 			{figure.note && (
 				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">
@@ -577,7 +577,7 @@ export function NeuronActionPotentialFigure({ figure }: { figure: NapFig }) {
 	const d = AP_MV_SAMPLES.map((p, i) => `${i === 0 ? "M" : "L"} ${px(p.t)} ${py(p.v)}`).join(" ");
 
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			<TitleBlock title={figure.title} />
 			{figure.note && (
 				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">
@@ -753,7 +753,7 @@ export function SlopeFieldFigure({ figure }: { figure: SfFig }) {
 	const segStroke = "rgba(51,65,85,0.88)";
 
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			<TitleBlock title={figure.title} />
 			{figure.note && (
 				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">
@@ -817,7 +817,7 @@ export function SynapseSchematicFigure({ figure }: { figure: SynFig }) {
 	const mid = useId().replace(/:/g, "");
 
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			<TitleBlock title={figure.title} />
 			{figure.note && (
 				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">

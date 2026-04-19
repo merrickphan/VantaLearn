@@ -23,14 +23,15 @@ html:not([data-theme]) {
  --vanta-blue-hover: #0369a1;
  --vanta-accent: #0284c7;
  --vanta-accent-glow: rgba(2, 132, 199, 0.38);
- --vanta-bg: #e8edf5;
+ /* Page vs cards: more separation; controls read clearly without changing layout */
+ --vanta-bg: #d4deed;
  --vanta-surface: #ffffff;
- --vanta-surface-elevated: #e6ebf4;
- --vanta-surface-hover: #d8dee9;
- --vanta-border: #64748b;
- --vanta-blue-muted: rgba(2, 132, 199, 0.2);
+ --vanta-surface-elevated: #d8e2ef;
+ --vanta-surface-hover: #c9d5e8;
+ --vanta-border: #475569;
+ --vanta-blue-muted: rgba(2, 132, 199, 0.26);
  --vanta-text: #020617;
- --vanta-muted: #475569;
+ --vanta-muted: #334155;
  --vanta-success: #15803d;
  --vanta-error: #dc2626;
  --vanta-shadow-card: 0 4px 24px rgba(15, 23, 42, 0.08);
@@ -44,14 +45,14 @@ html:not([data-theme]) {
 /* Dark theme: former “white” areas → dark gray, former dark text → light */
 html[data-theme="dark"] {
  color-scheme: dark;
- --vanta-bg: #0f1216;
- --vanta-surface: #3a4250;
- --vanta-surface-elevated: #454e5f;
- --vanta-surface-hover: #515b6f;
- --vanta-border: #94a3b8;
- --vanta-blue-muted: rgba(56, 189, 248, 0.22);
- --vanta-text: #ffffff;
- --vanta-muted: #d8dee9;
+ --vanta-bg: #0c0f14;
+ --vanta-surface: #343c4a;
+ --vanta-surface-elevated: #3f4858;
+ --vanta-surface-hover: #4b5568;
+ --vanta-border: #a8b8cc;
+ --vanta-blue-muted: rgba(56, 189, 248, 0.28);
+ --vanta-text: #f8fafc;
+ --vanta-muted: #e2e8f0;
  --vanta-success: #4ade80;
  --vanta-error: #f87171;
  --vanta-shadow-card: 0 4px 20px rgba(0, 0, 0, 0.35);
@@ -479,9 +480,9 @@ html[data-theme="dark"] {
  transform: scale(0.97);
 }
 
-/* Exam stems + MCQ choices (raster source): same sans + 15px as question body */
+/* Exam stems + MCQ choices (raster source): same sans + 16px as question body */
 .exam-katex-body .katex {
- font: 400 15px/1.45 var(--font-geist-sans), system-ui, sans-serif;
+ font: 400 16px/1.5 var(--font-geist-sans), system-ui, sans-serif;
 }
 .exam-katex-body .katex .mtext {
  font-family: var(--font-geist-sans), system-ui, sans-serif;

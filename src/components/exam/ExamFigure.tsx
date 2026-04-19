@@ -10,17 +10,17 @@ export function ExamFigure({ figure }: { figure: ExamFigureType }) {
 		const titled = figure.title && figure.title.trim().length > 0 && figure.title !== "Stimulus";
 		if (!titled) {
 			return (
-				<p className="mb-4 font-serif text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
+				<p className="mb-4 font-serif text-[16px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
 					<MathText text={figure.body} />
 				</p>
 			);
 		}
 		return (
-			<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 overflow-hidden">
-				<p className="text-xs text-vanta-muted uppercase tracking-wider px-3 py-2 border-b border-vanta-border">
+			<div className="mb-4 overflow-hidden rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated">
+				<p className="border-b-2 border-vanta-border bg-vanta-surface-hover px-3 py-2 text-xs font-semibold uppercase tracking-wider text-vanta-text">
 					<MathText text={figure.title ?? ""} />
 				</p>
-				<div className="px-3 py-3 text-sm text-vanta-text leading-relaxed whitespace-pre-wrap font-serif">
+				<div className="bg-vanta-surface px-3 py-3 font-serif text-sm leading-relaxed text-vanta-text whitespace-pre-wrap">
 					<MathText text={figure.body} />
 				</div>
 			</div>
@@ -29,18 +29,21 @@ export function ExamFigure({ figure }: { figure: ExamFigureType }) {
 
 	if (figure.kind === "table") {
 		return (
-			<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 overflow-hidden">
+			<div className="mb-4 overflow-hidden rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated">
 				{figure.title && (
-					<p className="text-xs text-vanta-muted uppercase tracking-wider px-3 py-2 border-b border-vanta-border">
+					<p className="border-b-2 border-vanta-border bg-vanta-surface-hover px-3 py-2 text-xs font-semibold uppercase tracking-wider text-vanta-text">
 						<MathText text={figure.title} />
 					</p>
 				)}
-				<div className="overflow-x-auto">
-					<table className="w-full text-sm text-vanta-text">
+				<div className="overflow-x-auto bg-vanta-surface">
+					<table className="w-full border-collapse text-sm text-vanta-text">
 						<thead>
-							<tr className="bg-vanta-border/30">
+							<tr className="bg-vanta-surface-hover">
 								{figure.headers.map((h) => (
-									<th key={h} className="text-left px-3 py-2 font-semibold border-b border-vanta-border">
+									<th
+										key={h}
+										className="border-b-2 border-vanta-border px-3 py-2.5 text-left font-semibold text-vanta-text"
+									>
 										<MathText text={h} />
 									</th>
 								))}
@@ -48,9 +51,9 @@ export function ExamFigure({ figure }: { figure: ExamFigureType }) {
 						</thead>
 						<tbody>
 							{figure.rows.map((row, i) => (
-								<tr key={i} className="border-b border-vanta-border/60 last:border-0">
+								<tr key={i} className="border-b border-vanta-border last:border-0">
 									{row.map((cell, j) => (
-										<td key={j} className="px-3 py-2 text-vanta-muted">
+										<td key={j} className="border-r border-vanta-border px-3 py-2.5 text-vanta-text last:border-r-0">
 											<MathText text={cell} />
 										</td>
 									))}
@@ -81,12 +84,12 @@ export function ExamFigure({ figure }: { figure: ExamFigureType }) {
 		const baselineY = yFor(0);
 		const bw = (innerW - 4) / figure.bars.length - 6;
 
-		const axisStroke = "rgba(148,163,184,0.55)";
-		const gridStroke = "rgba(148,163,184,0.22)";
-		const barFill = "#38bdf8";
+		const axisStroke = "rgba(51,65,85,0.88)";
+		const gridStroke = "rgba(51,65,85,0.32)";
+		const barFill = "#0284c7";
 
 		return (
-			<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+			<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 				{figure.title && (
 					<p className="text-xs text-vanta-muted uppercase tracking-wider mb-2">
 						<MathText text={figure.title} />
@@ -94,7 +97,7 @@ export function ExamFigure({ figure }: { figure: ExamFigureType }) {
 				)}
 				<svg
 					viewBox={`0 0 ${w} ${h}`}
-					className="w-full max-h-52 text-slate-400"
+					className="w-full max-h-52 text-slate-600"
 					role="img"
 					aria-label={figure.title ?? "Bar chart"}
 				>
@@ -213,11 +216,11 @@ export function ExamFigure({ figure }: { figure: ExamFigureType }) {
 		})
 		.join(" ");
 
-	const axisStroke = "rgba(148,163,184,0.55)";
-	const gridStroke = "rgba(148,163,184,0.22)";
+	const axisStroke = "rgba(51,65,85,0.88)";
+	const gridStroke = "rgba(51,65,85,0.32)";
 
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			{figure.title && (
 				<p className="text-xs text-vanta-muted uppercase tracking-wider mb-2">
 					<MathText text={figure.title} />

@@ -15,7 +15,7 @@ function selectClassName() {
 
 function readOnlyRow(label: string, value: string) {
 	return (
-		<div className="flex flex-wrap items-start justify-between gap-3 py-3 border-b border-vanta-border/80">
+		<div className="flex flex-wrap items-start justify-between gap-3 py-3 border-b border-vanta-border">
 			<span className="text-sm font-medium text-vanta-text shrink-0">{label}</span>
 			<span className="text-sm text-vanta-muted text-right max-w-[min(100%,20rem)] leading-snug">{value}</span>
 		</div>
@@ -112,7 +112,7 @@ export function FrqPracticeSetupModal({
 
 				<div className="px-5 py-1">
 					{unitOptions.length > 0 ? (
-						<div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-vanta-border/80">
+						<div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-vanta-border">
 							<span className="text-sm font-medium text-vanta-text">Unit</span>
 							<select
 								className={selectClassName()}
@@ -129,7 +129,7 @@ export function FrqPracticeSetupModal({
 						</div>
 					) : null}
 
-					<div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-vanta-border/80">
+					<div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-vanta-border">
 						<span className="text-sm font-medium text-vanta-text">Difficulty level</span>
 						<select
 							className={selectClassName()}
@@ -148,7 +148,7 @@ export function FrqPracticeSetupModal({
 					{readOnlyRow("Section timer", replica.timerLabel)}
 				</div>
 
-				<div className="px-5 py-3 bg-vanta-surface-elevated/50 border-t border-vanta-border flex justify-end gap-2">
+				<div className="flex justify-end gap-2 border-t-2 border-vanta-border bg-vanta-surface-elevated px-5 py-3">
 					<Button type="button" variant="secondary" onClick={onClose}>
 						Cancel
 					</Button>

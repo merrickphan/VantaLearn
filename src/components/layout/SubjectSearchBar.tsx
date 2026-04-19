@@ -114,7 +114,7 @@ export function SubjectSearchBar() {
 								href={hit.href}
 								role="option"
 								aria-selected={idx === activeIdx}
-								className={`block px-4 py-2.5 text-left text-sm transition-colors border-b border-vanta-border/50 last:border-0 ${
+								className={`block px-4 py-2.5 text-left text-sm transition-colors border-b border-vanta-border last:border-0 ${
 									idx === activeIdx ? "bg-sky-500/15 text-sky-400" : "text-vanta-text hover:bg-vanta-surface-hover"
 								}`}
 								onMouseEnter={() => setActiveIdx(idx)}

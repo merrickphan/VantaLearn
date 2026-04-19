@@ -62,7 +62,7 @@ export function Card({ children, className = "", hover, onClick }: CardProps) {
  return (
  <div
  onClick={onClick}
- className={`bg-vanta-surface border border-vanta-border rounded-2xl shadow-card
+ className={`bg-vanta-surface border-2 border-vanta-border rounded-2xl shadow-card
  ${hover ? "hover:shadow-card-hover hover:border-vanta-blue/35 transition-all duration-300 cursor-pointer hover:-translate-y-0.5 active:translate-y-0" : ""}
  ${className}`}
  >
@@ -83,7 +83,7 @@ export function Badge({ children, variant = "blue", className = "" }: BadgeProps
  blue: "bg-vanta-blue/15 text-vanta-blue border border-vanta-blue/30",
  green: "bg-vanta-success/15 text-vanta-success border border-vanta-success/30",
  red: "bg-vanta-error/15 text-vanta-error border border-vanta-error/30",
- gray: "bg-vanta-border/50 text-vanta-muted border border-vanta-border",
+ gray: "bg-vanta-surface-hover text-vanta-text border-2 border-vanta-border",
  };
  return (
  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${variants[variant]} ${className}`}>
@@ -133,8 +133,8 @@ export function Input({ label, error, className = "", id, ...props }: InputProps
  )}
  <input
  id={id}
- className={`w-full bg-vanta-surface-elevated text-vanta-text placeholder-vanta-muted/60 rounded-xl px-4 py-3 text-base min-h-[3rem]
- border border-vanta-border focus:border-vanta-blue focus:outline-none transition-colors
+ className={`w-full bg-vanta-surface-elevated text-vanta-text placeholder-vanta-muted/75 rounded-xl px-4 py-3 text-base min-h-[3rem]
+ border-2 border-vanta-border focus:border-vanta-blue focus:outline-none transition-colors
  ${error ? "border-vanta-error" : ""}
  ${className}`}
  {...props}
@@ -168,8 +168,8 @@ export function Textarea({ label, error, className = "", id, ...props }: Textare
  )}
  <textarea
  id={id}
- className={`w-full bg-vanta-surface-elevated text-vanta-text placeholder-vanta-muted/60 rounded-xl px-4 py-3 text-base
- border border-vanta-border focus:border-vanta-blue focus:outline-none transition-colors resize-none
+ className={`w-full bg-vanta-surface-elevated text-vanta-text placeholder-vanta-muted/75 rounded-xl px-4 py-3 text-base
+ border-2 border-vanta-border focus:border-vanta-blue focus:outline-none transition-colors resize-none
  ${error ? "border-vanta-error" : ""}
  ${className}`}
  {...props}

@@ -73,7 +73,7 @@ function ApPracticeInner() {
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 stagger">
  {courses.map((c) => (
  <Link key={c.id} href={`/study/ap-practice?course=${encodeURIComponent(c.id)}`} className="fade-up block">
- <Card hover className="p-6 h-full border-vanta-border/80 flex gap-4">
+ <Card hover className="p-6 h-full border-vanta-border flex gap-4">
  <span className="shrink-0" aria-hidden>
  <SimpleIconBox name={c.icon} size={40} />
  </span>

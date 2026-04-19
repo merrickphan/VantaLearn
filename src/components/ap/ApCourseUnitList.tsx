@@ -51,7 +51,7 @@ export function ApCourseUnitList({
 
   return (
     <>
-    <div className="rounded-2xl border border-vanta-border bg-vanta-surface/60 p-6 sm:p-8 mb-10 fade-up">
+    <div className="rounded-2xl border-2 border-vanta-border bg-vanta-surface-elevated p-6 sm:p-8 mb-10 fade-up">
       <div className="mb-6">
         <Link href={backHref} className="text-sm text-vanta-muted hover:text-vanta-blue">
           {backLabel}
@@ -126,7 +126,7 @@ export function ApCourseUnitList({
               setSetupOpen(true);
             }}
           >
-            <Card hover className="p-5 sm:p-6 flex flex-wrap items-center justify-between gap-4 border-vanta-border/80">
+            <Card hover className="p-5 sm:p-6 flex flex-wrap items-center justify-between gap-4 border-vanta-border">
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-vanta-blue mb-1">Unit {u.index}</p>
                 <h3 className="text-vanta-text font-semibold text-base sm:text-lg">{u.title}</h3>

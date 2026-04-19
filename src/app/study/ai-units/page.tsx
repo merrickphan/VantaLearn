@@ -98,7 +98,7 @@ export default function AiUnitsPage() {
  <Link key={u.id} href={`/study/exam?ai=1&subject=${encodeURIComponent(course.name)}&unit=${encodeURIComponent(u.id)}`}>
  <Card
  hover
- className="p-4 h-full border-vanta-border/80 bg-vanta-surface/60 hover:border-sky-500/30 transition-all exam-card-enter rounded-3xl"
+ className="p-4 h-full border-vanta-border bg-vanta-surface-elevated hover:border-sky-500/30 transition-all exam-card-enter rounded-3xl"
  >
  <p className="text-[10px] font-mono text-sky-400/90 mb-1">Unit {u.index}</p>
  <h2 className="text-sm font-semibold text-vanta-text leading-snug mb-2">{u.title}</h2>

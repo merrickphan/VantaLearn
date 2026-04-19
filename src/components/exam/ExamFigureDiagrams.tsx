@@ -49,7 +49,7 @@ export function PopulationPyramidFigure({ figure }: { figure: PopFig }) {
 	const top = 32;
 
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			<TitleBlock title={figure.title} />
 {figure.note && (
 				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">
@@ -132,7 +132,7 @@ export function ReactionCoordinateFigure({ figure }: { figure: RxFig }) {
 	const gridStroke = "rgba(148,163,184,0.22)";
 
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			<TitleBlock title={figure.title} />
 			{figure.note && (
 				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">
@@ -204,7 +204,7 @@ export function SupplyDemandFigure({ figure }: { figure: SdFig }) {
 	const gridStroke = "rgba(148,163,184,0.22)";
 
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			<TitleBlock title={figure.title} />
 			{figure.note && (
 				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">
@@ -261,7 +261,7 @@ export function CircuitSeriesFigure({ figure }: { figure: CirFig }) {
 	const seg = 100;
 
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			<TitleBlock title={figure.title} />
 			{figure.note && (
 				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">
@@ -312,7 +312,7 @@ export function MapSchematicFigure({ figure }: { figure: MapFig }) {
 	const w = 400;
 	const h = 200;
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			<TitleBlock title={figure.title} />
 			{figure.note && (
 				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">
@@ -352,9 +352,9 @@ export function MapSchematicFigure({ figure }: { figure: MapFig }) {
 
 export function ExhibitPlaceholderFigure({ figure }: { figure: ExhFig }) {
 	return (
-		<div className="mb-4 overflow-hidden rounded-lg border border-vanta-border bg-gradient-to-b from-vanta-surface to-vanta-border/20">
+		<div className="mb-4 overflow-hidden rounded-lg border-2 border-vanta-border bg-gradient-to-b from-vanta-surface to-vanta-surface-elevated">
 			{figure.title && (
-				<p className="text-xs text-vanta-muted uppercase tracking-wider border-b border-vanta-border px-3 py-2">
+				<p className="border-b-2 border-vanta-border bg-vanta-surface-hover px-3 py-2 text-xs font-semibold uppercase tracking-wider text-vanta-text">
 					<MathText text={figure.title} />
 				</p>
 			)}
@@ -390,7 +390,7 @@ export function ProcessFlowFigure({ figure }: { figure: PfFig }) {
 	const y = 36;
 
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			<TitleBlock title={figure.title} />
 			{figure.note && (
 				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">
@@ -482,7 +482,7 @@ export function ScatterPlotFigure({ figure }: { figure: ScFig }) {
 	const gridStroke = "rgba(148,163,184,0.22)";
 
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			<TitleBlock title={figure.title} />
 			{figure.note && (
 				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">
@@ -556,7 +556,7 @@ export function HistogramFigure({ figure }: { figure: HiFig }) {
 	const gridStroke = "rgba(148,163,184,0.22)";
 
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			<TitleBlock title={figure.title} />
 			{figure.note && (
 				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">
@@ -626,7 +626,7 @@ export function FoodWebFigure({ figure }: { figure: FwFig }) {
 	}
 
 	return (
-		<div className="mb-4 rounded-lg border border-vanta-border bg-vanta-surface/80 p-3">
+		<div className="mb-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-3">
 			<TitleBlock title={figure.title} />
 			{figure.note && (
 				<p className="text-[11px] text-vanta-muted mb-2 leading-snug">

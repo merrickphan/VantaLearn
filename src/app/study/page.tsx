@@ -55,7 +55,7 @@ function StudyLibrary() {
  const cards = (set.content_data as { cards: unknown[] }).cards;
  return (
  <Link key={set.id} href={`/study/flashcards?id=${set.id}`} className="fade-up block">
- <Card hover className="p-7 h-full border-vanta-border/80">
+ <Card hover className="p-7 h-full border-vanta-border">
  <div className="flex items-start justify-between mb-4">
  <span aria-hidden>
  <SimpleIconBox name="cards" size={42} />
@@ -87,7 +87,7 @@ function StudyLibrary() {
  };
  return (
  <Link key={exam.id} href={`/study/exam?id=${exam.id}`} className="fade-up block">
- <Card hover className="p-7 h-full border-vanta-border/80">
+ <Card hover className="p-7 h-full border-vanta-border">
  <div className="flex items-start justify-between mb-4">
  <span aria-hidden>
  <SimpleIconBox name="document" size={42} />
@@ -111,7 +111,7 @@ function StudyLibrary() {
  <h2 className="text-base font-semibold text-vanta-muted uppercase tracking-wider mb-5">Quick tools</h2>
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 stagger">
  <Link href="/study/tips" className="fade-up block">
- <Card hover className="p-7 border-vanta-border/80">
+ <Card hover className="p-7 border-vanta-border">
  <span className="mb-4 block" aria-hidden>
  <SimpleIconBox name="spark" size={44} />
  </span>
@@ -120,7 +120,7 @@ function StudyLibrary() {
  </Card>
  </Link>
  <Link href="/dashboard/score-calculator" className="fade-up block">
- <Card hover className="p-7 border-vanta-border/80">
+ <Card hover className="p-7 border-vanta-border">
  <span className="mb-4 block" aria-hidden>
  <SimpleIconBox name="calculator" size={44} />
  </span>

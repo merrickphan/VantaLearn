@@ -31,17 +31,17 @@ function isStimulusFigure(f: ExamQuestion["figure"]): f is Extract<ExamFigureDat
  */
 function FrqRubricPanel({ doc, omitPartPrompts = false }: { doc: FrqRubricDoc; omitPartPrompts?: boolean }) {
 	return (
-		<div className="mt-4 rounded-xl border border-sky-500/25 bg-gradient-to-b from-sky-500/[0.08] to-transparent overflow-hidden shadow-[inset_0_1px_0_rgba(56,189,248,0.12)]">
-			<div className="px-4 py-3 border-b border-sky-500/20 bg-sky-500/10 flex flex-wrap items-center justify-between gap-2">
-				<span className="text-sm font-semibold text-vanta-text tracking-tight">{doc.header}</span>
-				<span className="text-xs font-bold uppercase tracking-wider text-sky-200/95 tabular-nums shrink-0">
+		<div className="mt-4 overflow-hidden rounded-xl border-2 border-sky-600/35 bg-gradient-to-b from-sky-500/15 to-vanta-surface shadow-[inset_0_1px_0_rgba(2,132,199,0.18)]">
+			<div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-sky-600/30 bg-sky-500/15 px-4 py-3">
+				<span className="text-sm font-semibold tracking-tight text-vanta-text">{doc.header}</span>
+				<span className="shrink-0 text-xs font-bold uppercase tracking-wider text-vanta-text tabular-nums">
 					{doc.totalPoints} points
 				</span>
 			</div>
-			<div className="p-4 sm:p-5 space-y-6">
+			<div className="space-y-6 p-4 sm:p-5">
 				{doc.parts.map((part) => (
-					<div key={part.letter} className="border-t border-vanta-border/50 first:border-0 first:pt-0 pt-5 first:mt-0 mt-1">
-						<div className="flex flex-wrap items-start justify-between gap-2 mb-2">
+					<div key={part.letter} className="mt-1 border-t border-vanta-border pt-5 first:mt-0 first:border-0 first:pt-0">
+						<div className="mb-2 flex flex-wrap items-start justify-between gap-2">
 							<p className="text-sm font-bold text-vanta-text">
 								<span className="tabular-nums">{part.letter}.</span>
 								{omitPartPrompts ? null : (
@@ -51,18 +51,18 @@ function FrqRubricPanel({ doc, omitPartPrompts = false }: { doc: FrqRubricDoc; o
 									</>
 								)}
 							</p>
-							<span className="text-xs font-semibold text-sky-300/90 tabular-nums shrink-0">{part.maxPoints} pt</span>
+							<span className="shrink-0 text-xs font-semibold text-vanta-blue tabular-nums">{part.maxPoints} pt</span>
 						</div>
 						{part.criteria.map((c, idx) => (
-							<div key={`${part.letter}-c-${idx}`} className="mb-4 pl-3 sm:pl-4 border-l-2 border-sky-500/35">
-								<p className="text-xs font-bold text-sky-100/95 mb-1">
+							<div key={`${part.letter}-c-${idx}`} className="mb-4 border-l-2 border-vanta-blue pl-3 sm:pl-4">
+								<p className="mb-1 text-xs font-bold text-vanta-text">
 									{c.pointLabel}{" "}
-									<span className="font-semibold text-vanta-text/90">— {c.descriptor}</span>
+									<span className="font-semibold text-vanta-muted">— {c.descriptor}</span>
 								</p>
-								<p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-vanta-muted mb-2">
+								<p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-vanta-muted">
 									Examples of acceptable responses may include:
 								</p>
-								<ul className="list-disc pl-5 space-y-1.5 text-sm text-vanta-text leading-relaxed marker:text-sky-400/80">
+								<ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-vanta-text marker:text-vanta-blue">
 									{c.acceptableExamples.map((ex, j) => (
 										<li key={j}>
 											<ExamRasterMath text={ex} plainAlt={ex} />
@@ -185,7 +185,7 @@ function QuestionCard({
 				</ExamRasterizedBlock>
 			) : null}
 			{!hideFrqPromptReplay && exhibitAboveStem ? (
-				<div className="mb-3 text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
+				<div className="mb-3 text-[16px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
 					<ExamRasterLine
 						syncKey={`stim-above-${question.id}-${stripMarkdownBoldMarkers(stim.body)}`}
 						plainAlt={stripMarkdownBoldMarkers(stim.body)}
@@ -196,7 +196,7 @@ function QuestionCard({
 				</div>
 			) : null}
 			{!steppedFrq ? (
-				<div className="text-vanta-text font-medium mb-3 leading-relaxed text-[15px]">
+				<div className="text-vanta-text font-medium mb-3 leading-relaxed text-[16px]">
 					<ExamRasterLine
 						syncKey={`stem-${question.id}-${stemText}-${stemExamMath}`}
 						plainAlt={`${questionNumber}. ${stemText}`}
@@ -208,7 +208,7 @@ function QuestionCard({
 				</div>
 			) : null}
 			{!hideFrqPromptReplay && exhibitBelow ? (
-				<div className="mb-4 text-[15px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
+				<div className="mb-4 text-[16px] leading-relaxed text-vanta-text italic whitespace-pre-wrap">
 					<ExamRasterLine
 						syncKey={`stim-below-${question.id}-${stripMarkdownBoldMarkers(stim.body)}`}
 						plainAlt={stripMarkdownBoldMarkers(stim.body)}
@@ -239,19 +239,19 @@ function QuestionCard({
  onAnswer(opt);
  }}
  disabled={submitted}
-  className={`exam-mcq-idle w-full text-left px-4 py-3 rounded-lg text-[15px] border
+  className={`exam-mcq-idle w-full rounded-lg border-2 px-4 py-3 text-left text-[16px]
  ${tapOptionIdx === optIdx ? "exam-mcq-option-tap" : ""}
  ${isCorrectOpt ? "exam-mcq-correct" : ""}
  ${isWrongOpt ? "exam-mcq-wrong" : ""}
- ${!submitted && isSelected ? "bg-sky-500/25 border-sky-500 border-2 text-vanta-text shadow-sm" : ""}
- ${!submitted && !isSelected ? "bg-vanta-surface-elevated border-vanta-border text-vanta-text hover:bg-vanta-surface-hover hover:border-sky-500/35" : ""}
- ${isDimmed ? "opacity-60 border-vanta-border bg-vanta-surface-elevated text-vanta-muted" : ""}
+ ${!submitted && isSelected ? "border-vanta-blue bg-sky-500/30 text-vanta-text shadow-md ring-1 ring-sky-600/25" : ""}
+ ${!submitted && !isSelected ? "border-vanta-border bg-vanta-surface-elevated text-vanta-text shadow-sm hover:border-vanta-blue hover:bg-vanta-surface-hover" : ""}
+ ${isDimmed ? "border-vanta-border bg-vanta-surface-elevated text-vanta-muted opacity-60" : ""}
  disabled:cursor-default`}
  >
  <span className="flex items-start justify-between gap-3 w-full">
  <span className="flex flex-1 items-start gap-3 min-w-0">
  <span className="shrink-0 w-8 tabular-nums font-medium text-vanta-text pt-0.5">{letter}.</span>
- <span className="exam-mcq-option-math leading-relaxed text-vanta-text flex-1 min-w-0 overflow-x-auto">
+ <span className="exam-mcq-option-math flex-1 min-w-0 overflow-x-auto rounded-md border border-vanta-border bg-vanta-surface px-2 py-1.5 leading-relaxed text-vanta-text shadow-sm">
 								<ExamRasterMath text={opt} examMath plainAlt={formatNiceMath(opt)} decorative />
 							</span>
  </span>
@@ -271,7 +271,7 @@ function QuestionCard({
  })}
  </div>
 			) : steppedFrq && !submitted ? (
-				<div className="space-y-6 mt-1 text-[15px] leading-relaxed text-vanta-text font-sans">
+				<div className="space-y-6 mt-1 text-[16px] leading-relaxed text-vanta-text font-sans">
 					<div className="space-y-3">
 						<div className="whitespace-pre-wrap">
 							<ExamRasterLine
@@ -317,7 +317,7 @@ function QuestionCard({
 										value={raw}
 										onChange={(e) => onAnswer(mergeFrqPartAnswer(answer, p.letter, e.target.value))}
 										rows={4}
-										className="w-full pl-11 font-sans text-[15px] leading-relaxed"
+										className="w-full pl-11 font-sans text-[16px] leading-relaxed"
 									/>
 								</div>
 							);
@@ -337,8 +337,8 @@ function QuestionCard({
 			<FrqRubricPanel doc={question.frq_rubric} omitPartPrompts={hideFrqPromptReplay} />
 		) : null}
 		{submitted && question.explanation && !question.frq_rubric ? (
-			<div className="mt-4 p-4 bg-vanta-bg rounded-lg border border-vanta-border">
-				<p className="text-xs text-vanta-muted font-semibold uppercase tracking-wider mb-1">Explanation</p>
+			<div className="mt-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-4">
+				<p className="mb-1 text-xs font-semibold uppercase tracking-wider text-vanta-text">Explanation</p>
 				<div className="text-vanta-text text-sm leading-relaxed">
 					<ExamRasterMath
 						text={question.explanation}
@@ -349,8 +349,8 @@ function QuestionCard({
 			</div>
 		) : null}
 		{submitted && question.explanation && question.frq_rubric ? (
-			<div className="mt-4 p-4 rounded-lg border border-vanta-border/80 bg-vanta-surface-elevated/60">
-				<p className="text-xs text-vanta-muted font-semibold uppercase tracking-wider mb-1">Coach note</p>
+			<div className="mt-4 rounded-lg border-2 border-vanta-border bg-vanta-surface-elevated p-4">
+				<p className="mb-1 text-xs font-semibold uppercase tracking-wider text-vanta-text">Coach note</p>
 				<div className="text-vanta-text text-sm leading-relaxed">
 					<ExamRasterMath
 						text={question.explanation}
@@ -376,8 +376,8 @@ function QuestionCard({
  <span className="ai-pulse">Analyzing your answer...</span>
  </div>
  ) : aiFeedback ? (
- <div className="mt-3 p-4 bg-vanta-blue/5 border border-vanta-blue/20 rounded-lg">
- <p className="text-xs text-vanta-blue font-semibold mb-2 flex items-center gap-2">
+ <div className="mt-3 rounded-lg border-2 border-vanta-blue bg-sky-500/10 p-4">
+ <p className="mb-2 flex items-center gap-2 text-xs font-semibold text-vanta-text">
  <span aria-hidden className="inline-flex">
  <SimpleIconBox name="spark" size={20} />
  </span>
