@@ -24,7 +24,7 @@ function gcd(a: number, b: number): number {
 /** Positive rational multiple of π: simplified n/d · π */
 function formatRationalPi(numer: number, denom: number): string {
 	const g = gcd(Math.abs(numer), Math.abs(denom));
-	let n = Math.abs(numer) / g;
+	const n = Math.abs(numer) / g;
 	const d = Math.abs(denom) / g;
 	if (n === 0) return "0";
 	if (d === 1) return `${n}π`;

@@ -40,8 +40,17 @@ function replaceUnicodeSqrt(s: string): string {
 	return t;
 }
 
-function replaceDyDx(s: string): string {
-	return s.replace(/\bdy\s*\/\s*dx\b/gi, "\\frac{dy}{dx}");
+/**
+ * Leibniz notation as stacked fractions (AP-style): dV/dt → \\frac{dV}{dt}, dy/dx → \\frac{dy}{dx}.
+ * Also d/dt → \\frac{d}{dt}. Single-letter symbols after each d (covers dx/dt, dr/dt, dA/dt, …).
+ */
+function replaceLeibnizDerivatives(s: string): string {
+	let t = s;
+	/* d/dx — derivative operator with no dependent variable in the numerator */
+	t = t.replace(/\bd\s*\/\s*d([A-Za-z])\b/g, "\\frac{d}{d$1}");
+	/* dU/dv — includes dy/dx, dV/dt, |dV/dt|, (dy/dt)/(dx/dt), etc. */
+	t = t.replace(/\bd([A-Za-z])\s*\/\s*d([A-Za-z])\b/g, "\\frac{d$1}{d$2}");
+	return t;
 }
 
 function replaceSimpleNumericFractions(s: string): string {
@@ -63,10 +72,11 @@ function replaceCarets(s: string): string {
 function replaceGreekAndSymbols(s: string): string {
 	let t = s;
 	t = t.replace(/\u221e/g, "\\infty");
-	t = t.replace(/\u03c0/g, "\\pi");
+	/* Brace π/θ/φ so adjacent Latin letters never merge into invalid commands (e.g. 2πrh → \pirh). */
+	t = t.replace(/\u03c0/g, "{\\pi}");
 	t = t.replace(/\u03a3|\u2211/g, "\\sum");
-	t = t.replace(/\u03c6/g, "\\varphi");
-	t = t.replace(/\u03b8/g, "\\theta");
+	t = t.replace(/\u03c6/g, "{\\varphi}");
+	t = t.replace(/\u03b8/g, "{\\theta}");
 	return t;
 }
 
@@ -83,7 +93,7 @@ function applyExamMathTransforms(s: string): string {
 	let t = s.trim();
 	t = replaceUnicodeSqrt(t);
 	t = replaceAsciiSqrt(t);
-	t = replaceDyDx(t);
+	t = replaceLeibnizDerivatives(t);
 	t = replaceGreekAndSymbols(t);
 	t = replaceSigmaWord(t);
 	t = replaceLimKeyword(t);
@@ -105,7 +115,7 @@ function wordLooksLikeMathToken(w: string): boolean {
 	if (/'/.test(w)) return true;
 	if (/[_^\\]/.test(w)) return true;
 	if (/sqrt|frac|lim|sum|prod|int|sin|cos|tan|sec|csc|cot|ln|log|exp|arcsin|arccos|arctan|pi|theta|infty|sigma|Sigma|∫|∑|π|∞|\u221e|\u03c0|→/.test(w)) return true;
-	if (/^d[xy]\/?d[xy]$/i.test(w)) return true;
+	if (/^d[a-z]\/?d[a-z]$/i.test(w)) return true;
 	if (w.length === 1 && /^[xtnrhkuvcpsm]$/i.test(w)) return true;
 	return false;
 }
@@ -180,5 +190,7 @@ export function shouldExamMathStem(subject: string | undefined, stem: string): b
 	if (!/Calculus|Precalculus/i.test(subject ?? "")) return false;
 	const q = stem ?? "";
 	if (HAS_DELIM.test(q)) return false;
-	return /sqrt|lim|\^|∫|∑|Σ|π|∞|dy\s*\/\s*dx|frac|\\sum|\\int|\d\s*\/\s*\d|\([0-9]+,\s*[0-9]+\)/i.test(q);
+	return /sqrt|lim|\^|∫|∑|Σ|π|∞|d[a-z]\s*\/\s*d|dy\s*\/\s*dx|frac|\\sum|\\int|\d\s*\/\s*\d|\([0-9]+,\s*[0-9]+\)/i.test(
+		q,
+	);
 }
