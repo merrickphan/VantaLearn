@@ -33,6 +33,7 @@ import {
  pickEuroMassRow,
  pickSeminarMassRow,
 } from "./apMassConceptBanks";
+import { allCalcCedLimitSpecs, calcCedLimitAlignmentFigure } from "./calcCedLimitBank";
 import { getHumanGeographyGeneratorsForUnit } from "./humanGeographyUnitPools";
 import { getUsHistoryGeneratorsForUnit } from "./usHistoryUnitPools";
 import { getWorldHistoryGeneratorsForUnit } from "./worldHistoryUnitPools";
@@ -409,6 +410,23 @@ export function genRationalLimitRemovable(rng: () => number, ctx: ProcCtx, i: nu
  `Factor x^2 - ${a2} = (x - ${a})(x + ${a}), cancel (x - ${a}), then substitute to get ${a} + ${a} = ${lim}.`,
  { procedural_structure_id: `calc-limrat-a${a}` },
  );
+}
+
+/**
+ * AP CED-style limits (0/0 and related) with the same curriculum-alignment exhibit as CB materials.
+ * Large static bank (200+ distinct stems); Calc AB / BC only.
+ */
+export function genCalcCedIndeterminateLimit(rng: () => number, ctx: ProcCtx, i: number): ExamQuestion {
+	if (ctx.courseId !== "calc-ab" && ctx.courseId !== "calc-bc") {
+		return genLimitLinear(rng, ctx, i);
+	}
+	const specs = allCalcCedLimitSpecs();
+	const idx = Math.floor(rng() * specs.length);
+	const s = specs[idx]!;
+	return mc(rng, ctx, i, `cedlim-${s.variant}`, s.stem, s.correct, s.w1, s.w2, s.w3, s.explanation, {
+		figure: calcCedLimitAlignmentFigure(),
+		procedural_structure_id: `calc-cedlim-${s.variant}`,
+	});
 }
 
 /** Continuity / discontinuity type (conceptual, Unit 1). */
@@ -3925,7 +3943,8 @@ export function genSeminarMass(rng: () => number, ctx: ProcCtx, i: number): Exam
 /* - - - Pools - - - */
 
 /** Symbolic + conceptual generators shared by Calc AB/BC procedural practice. */
-const CALC: QuestionGen[] = [
+/** Calc generators shared with Precalculus (excludes AP Calc-only CED limit bank). */
+const CALC_PROCEDURAL_CORE: QuestionGen[] = [
  genDerivativePower,
  genLimitLinear,
  genIntegralPower,
@@ -3944,6 +3963,9 @@ const CALC: QuestionGen[] = [
  genVolumeDiskIntegralSetup,
 ];
 
+/** AP Calc AB/BC overall pool = core + CED-style limit items. */
+const CALC: QuestionGen[] = [...CALC_PROCEDURAL_CORE, genCalcCedIndeterminateLimit];
+
 /**
  * AP-style no-calculator MCQ mix: symbolic calculus, light composition, exact trig,
  * slope / limits / continuity / IVT / FTC recognition, and z-score form (no heavy means).
@@ -3951,6 +3973,7 @@ const CALC: QuestionGen[] = [
 const CALC_NO_CALCULATOR_SECTION: QuestionGen[] = [
  genDerivativePower,
  genLimitLinear,
+ genCalcCedIndeterminateLimit,
  genIntegralPower,
  genCompositionValue,
  genLinearSlopeTwoPoints,
@@ -3979,6 +4002,7 @@ const CALC_NO_CALCULATOR_SECTION: QuestionGen[] = [
 const CALC_AB_UNIT_POOLS: QuestionGen[][] = [
  // 1 — Limits & continuity
  [
+ genCalcCedIndeterminateLimit,
  genLimitLinear,
  genRationalLimitRemovable,
  genTrigSpecial,
@@ -3988,6 +4012,7 @@ const CALC_AB_UNIT_POOLS: QuestionGen[][] = [
  ],
  // 2 — Derivative definition & basic rules
  [
+ genCalcCedIndeterminateLimit,
  genDerivativePower,
  genLinearSlopeTwoPoints,
  genAvgVelocitySquaredPosition,
@@ -4001,6 +4026,7 @@ const CALC_AB_UNIT_POOLS: QuestionGen[][] = [
  genTrigSpecial,
  genLimitLinear,
  genRationalLimitRemovable,
+ genCalcCedIndeterminateLimit,
  ],
  // 4 — Contextual differentiation (motion, rates, approximation)
  [
@@ -4009,6 +4035,7 @@ const CALC_AB_UNIT_POOLS: QuestionGen[][] = [
  genDerivativePower,
  genCompositionValue,
  genLinearSlopeTwoPoints,
+ genCalcCedIndeterminateLimit,
  genCalcGraphFprimeIncreasingInterval,
  genCalcGraphFprimeZerosOpenInterval,
  ],
@@ -4019,6 +4046,7 @@ const CALC_AB_UNIT_POOLS: QuestionGen[][] = [
  genLinearSlopeTwoPoints,
  genTrigSpecial,
  genLimitLinear,
+ genCalcCedIndeterminateLimit,
  genCalcGraphFprimeLocalExtremum,
  genCalcGraphFprimeXIntercepts,
  genCalcGraphFprimeZerosOpenInterval,
@@ -4032,6 +4060,7 @@ const CALC_AB_UNIT_POOLS: QuestionGen[][] = [
  genMeanSimple,
  genZScoreConcept,
  genDerivativePower,
+ genCalcCedIndeterminateLimit,
  genCalcGraphFprimeXIntercepts,
  genCalcGraphFprimeZerosOpenInterval,
  genCalcGraphFprimeLinearCritical,
@@ -4043,6 +4072,7 @@ const CALC_AB_UNIT_POOLS: QuestionGen[][] = [
  genDerivativePower,
  genIntegralPower,
  genLimitLinear,
+ genCalcCedIndeterminateLimit,
  ],
  // 8 — Applications of integration
  [
@@ -4052,6 +4082,7 @@ const CALC_AB_UNIT_POOLS: QuestionGen[][] = [
  genRiemannRightSumLimitDefiniteIntegral,
  genMeanSimple,
  genDerivativePower,
+ genCalcCedIndeterminateLimit,
  ],
 ];
 
@@ -4269,7 +4300,7 @@ const DEFAULT_POOL: QuestionGen[] = [genFallacy, genRhetoricalAppeal];
 const COURSE_POOL: Record<string, QuestionGen[]> = {
  "calc-ab": [...CALC, ...STATS_TEXT],
  "calc-bc": [...CALC, ...STATS_TEXT],
- precalc: [...CALC, ...STATS_TEXT],
+ precalc: [...CALC_PROCEDURAL_CORE, ...STATS_TEXT],
  stats: STATS_FULL,
  "cs-a": [...CS_A, genVariableControl],
  csp: [...CSP, genVariableControl],
